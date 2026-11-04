@@ -1,4 +1,4 @@
-// Xoá mềm của Toà soạn Agent AI - hai bất biến, canh riêng.
+// Xoá mềm của nội dung - hai bất biến, canh riêng.
 //
 // (1) Bài đã xoá mềm KHÔNG được lọt ra đường đọc công khai. Thêm cột
 //     `deletedAt` mà quên bộ lọc là bài "đã xoá" vẫn hiển thị bình thường, và
@@ -86,23 +86,14 @@ describe('trigger chặn xoá cứng ở cấp database', () => {
     expect(await prisma.post.findUnique({ where: { slug: LIVE } })).not.toBeNull()
   })
 
-  test('ContentDraft và NewsroomEvent cũng được gác', async () => {
-    const draft = await prisma.contentDraft.create({
-      data: { target: 'BLOG', title: `probe-${stamp}` },
+  test('Doc cũng được gác - đường ghi tài liệu nay là /api/author/docs', async () => {
+    const doc = await prisma.doc.create({
+      data: { slug: `soft-delete-doc-probe-${stamp}`, title: 'probe', contentMd: 'x' },
     })
-    await expect(prisma.contentDraft.delete({ where: { id: draft.id } })).rejects.toThrow(
-      /Xoá cứng/
-    )
-
-    const ev = await prisma.newsroomEvent.create({
-      data: { type: 'test.probe', payload: {} },
-    })
-    await expect(prisma.newsroomEvent.delete({ where: { id: ev.id } })).rejects.toThrow(/Xoá cứng/)
-
+    await expect(prisma.doc.delete({ where: { id: doc.id } })).rejects.toThrow(/Xoá cứng/)
     await prisma.$transaction([
       prisma.$executeRawUnsafe(`SET LOCAL tsudev.allow_hard_delete = 'on'`),
-      prisma.$executeRawUnsafe(`DELETE FROM "ContentDraft" WHERE id = $1`, draft.id),
-      prisma.$executeRawUnsafe(`DELETE FROM "NewsroomEvent" WHERE id = $1`, ev.id),
+      prisma.$executeRawUnsafe(`DELETE FROM "Doc" WHERE id = $1`, doc.id),
     ])
   })
 })

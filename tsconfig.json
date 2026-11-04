@@ -15,7 +15,6 @@
     { "path": "services/storage-service" },
     { "path": "services/trust-service" },
     { "path": "services/auth-service" },
-    { "path": "services/newsroom-service" },
     { "path": "services/backend-bundle" }
   ]
 }

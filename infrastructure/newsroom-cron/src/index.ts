@@ -170,7 +170,7 @@ async function demNoiDung(env: Env): Promise<void> {
       '',
       'Mã trạng thái 200 KHÔNG chứng minh trang có nội dung.',
       'Mọi phép đo rỗng trong khi backend /health còn 200 ⇒ nghi DATABASE trước.',
-      'Chẩn: npm run newsroom:canh-kenh · hồ sơ: docs/refactor-tsudev-2026-q4.md §0',
+      'Chẩn: prisma migrate status (DATABASE_URL prod) · hồ sơ: docs/refactor-tsudev-2026-q4.md §0',
     ].join('\n')
   );
 }

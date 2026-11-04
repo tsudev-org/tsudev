@@ -16,7 +16,6 @@
     { "path": "../content-service" },
     { "path": "../storage-service" },
     { "path": "../trust-service" },
-    { "path": "../auth-service" },
-    { "path": "../newsroom-service" }
+    { "path": "../auth-service" }
   ]
 }
