@@ -26,6 +26,21 @@ const nextConfig = {
   // quy ước; nội dung do content-service sinh từ khoá ký bản phát hành nên không
   // thể là file tĩnh. (JWKS cũ của Con dấu, tsudev-trust-jwks.json, đã gỡ cùng
   // Con dấu 04/11/2026 - chưa cấp chứng chỉ nào nên không ai còn trỏ tới nó.)
+  // `/blog?tag=x` → `/search?tag=x`. Trước đây nằm trong getServerSideProps của
+  // /blog; trang đó nay là ISR (không đọc được query) nên chuyển lên đây. Query
+  // được Next tự chuyển tiếp sang đích. Liên kết cũ trong bookmark và trong bài
+  // đã đăng không được biến thành trang "không lọc gì cả".
+  async redirects() {
+    return [
+      {
+        source: '/blog',
+        has: [{ type: 'query', key: 'tag', value: '(?<tag>.+)' }],
+        destination: '/search',
+        permanent: false,
+      },
+    ];
+  },
+
   async rewrites() {
     return [{ source: '/.well-known/tsudev-release-jwks.json', destination: '/api/releases/jwks' }];
   },

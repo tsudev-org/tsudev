@@ -4,7 +4,7 @@ import { Layout, Card, Badge, SectionHeading, EmptyState } from '@tsudev/ui';
 import { api } from '../../lib/api';
 import { KIND_LABEL, STATUS_LABEL, copyrightMeta } from '../../lib/projectLabels';
 import type { Project } from '../../lib/types';
-import type { GetServerSidePropsContext } from 'next';
+import { keepStaleOnFailure } from '../../lib/isr';
 
 const FILTERS = [
   { key: 'all', label: 'Tất cả' },
@@ -127,8 +127,8 @@ export default function ProjectsIndex({ projects, failed }: ProjectsIndexProps) 
   );
 }
 
-export async function getServerSideProps({ res }: GetServerSidePropsContext) {
+export async function getStaticProps() {
   const r = await api.projects(100);
-  if (r.failed) res.statusCode = 503;
-  return { props: { projects: r.data, failed: r.failed } };
+  const revalidate = keepStaleOnFailure(r.failed, '/projects');
+  return { revalidate, props: { projects: r.data, failed: r.failed } };
 }
