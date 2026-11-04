@@ -430,3 +430,5 @@ describe('xoá mềm', () => {
     expect(sau?.deletedAt).not.toBeNull()
   })
 })
+
+export {}

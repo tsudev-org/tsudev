@@ -199,5 +199,5 @@ export function thanhDong(r: KetQua): string {
   const dau = r.chiGhiNhan ? '·' : r.dat ? '✔' : '✘';
   const so = r.loi ? `LỖI: ${r.loi}` : `HTTP ${r.ma} · ${r.so} ${r.donVi}`;
   const nguong = r.chiGhiNhan ? '(không canh)' : `cần ≥ ${r.toiThieu}`;
-  return `${dau} ${r.ten} — ${so} — ${nguong}`;
+  return `${dau} ${r.ten} - ${so} - ${nguong}`;
 }
