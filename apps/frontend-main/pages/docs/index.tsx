@@ -3,7 +3,7 @@ import Seo from '../../components/Seo';
 import { Layout, Card, SectionHeading, EmptyState, Icon } from '@tsudev/ui';
 import { api } from '../../lib/api';
 import type { Doc } from '../../lib/types';
-import type { GetServerSidePropsContext } from 'next';
+import { keepStaleOnFailure } from '../../lib/isr';
 
 type DocGroup = { category: string; items: Doc[] };
 type DocsIndexProps = { groups: DocGroup[]; failed: boolean };
@@ -64,10 +64,10 @@ export default function DocsIndex({ groups, failed }: DocsIndexProps) {
   );
 }
 
-export async function getServerSideProps({ res }: GetServerSidePropsContext) {
+export async function getStaticProps() {
   const r = await api.docs();
   const docs = r.data;
-  if (r.failed) res.statusCode = 503;
+  const revalidate = keepStaleOnFailure(r.failed, '/docs');
   // `d.category` có thể null. Bản cũ dùng nó làm khoá object, nên nhóm không
   // phân loại hiện ra với tiêu đề "null" trên trang thật.
   const byCat: Record<string, Doc[]> = {};
@@ -79,5 +79,5 @@ export async function getServerSideProps({ res }: GetServerSidePropsContext) {
     category,
     items: byCat[category] ?? [],
   }));
-  return { props: { groups, failed: r.failed } };
+  return { revalidate, props: { groups, failed: r.failed } };
 }

@@ -3,7 +3,7 @@ import Seo from '../../components/Seo';
 import { Layout, Card, Badge, SectionHeading, Avatar, Button, Icon, EmptyState } from '@tsudev/ui';
 import { api } from '../../lib/api';
 import type { Post } from '../../lib/types';
-import type { GetServerSidePropsContext } from 'next';
+import { keepStaleOnFailure } from '../../lib/isr';
 
 function timeAgo(d: string | Date): string {
   if (!d) return '';
@@ -89,20 +89,11 @@ export default function BlogIndex({ posts, failed }: BlogIndexProps) {
   );
 }
 
-export async function getServerSideProps({ query, res }: GetServerSidePropsContext) {
-  // `/blog?tag=x` KHÔNG chết mà đi tiếp sang /search. Lọc theo thẻ đã dời hẳn
-  // sang đó, nhưng liên kết cũ vẫn còn trong bookmark, trong lịch sử trình duyệt
-  // và trong chính các bài đã đăng - bỏ nhánh này là biến chúng thành trang
-  // "không lọc gì cả", tức im lặng trả về SAI kết quả thay vì đưa người dùng tới
-  // đúng chỗ.
-  const tag = typeof query.tag === 'string' && query.tag.trim() ? query.tag.trim() : null;
-  if (tag) {
-    return {
-      redirect: { destination: `/search?tag=${encodeURIComponent(tag)}`, permanent: false },
-    };
-  }
-
+// `/blog?tag=x` chuyển sang /search ở next.config.js (redirects, `has: query`):
+// trang ISR không đọc được query, và liên kết cũ trong bookmark/bài đã đăng
+// không được biến thành trang "không lọc gì cả".
+export async function getStaticProps() {
   const r = await api.posts(50);
-  if (r.failed) res.statusCode = 503;
-  return { props: { posts: r.data, failed: r.failed } };
+  const revalidate = keepStaleOnFailure(r.failed, '/blog');
+  return { revalidate, props: { posts: r.data, failed: r.failed } };
 }

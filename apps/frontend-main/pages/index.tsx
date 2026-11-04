@@ -7,6 +7,7 @@ import type { IconName } from '@tsudev/ui';
 import { api } from '../lib/api';
 import { KIND_LABEL, STATUS_LABEL, copyrightMeta } from '../lib/projectLabels';
 import type { Post, Project, ProjectWithReleases } from '../lib/types';
+import { keepStaleOnFailure } from '../lib/isr';
 
 /**
  * Bốn phân hệ ở khối "Hệ sinh thái". Từ 29/10/2026 tsudev.com là nơi ĐĂNG VÀ
@@ -348,7 +349,7 @@ export default function Home({
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   // Lấy đúng số mục mà trang này VẼ RA (mỗi khu ba cái). Bản trước lấy 6 bài,
   // 100 dự án và toàn bộ tài liệu chỉ để đếm cho hàng số liệu ở hero - mà phép
   // đếm đó đếm nhầm: nó đếm số bản ghi VỪA TẢI VỀ chứ không phải số bản ghi
@@ -366,7 +367,11 @@ export async function getServerSideProps() {
   // Hai khu độc lập nhau nên hai cờ RIÊNG, không gộp thành một `failed` chung:
   // blog chết không có nghĩa là danh sách dự án cũng chết, và nói nó chết là nói
   // sai với người đọc.
+  // ISR (lib/isr.ts): blog hoặc dự án chết lúc dựng lại ⇒ GIỮ bản cache cũ. Khu
+  // tải về chết thì không chặn - trang vẫn có giá trị, khu đó tự hiện trạng thái lỗi.
+  const revalidate = keepStaleOnFailure(rPosts.failed || rProjects.failed, '/');
   return {
+    revalidate,
     props: {
       posts: rPosts.data,
       postsFailed: rPosts.failed,
