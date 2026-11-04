@@ -79,9 +79,12 @@ describe('/blog nhường việc lọc theo thẻ cho /search', () => {
   // Liên kết cũ còn nằm trong bookmark và trong lịch sử trình duyệt. Bỏ nhánh
   // này thì `/blog?tag=x` lặng lẽ trả về trang KHÔNG lọc gì - sai kết quả mà
   // không báo lỗi, tệ hơn 404.
+  // /blog nay là ISR (không đọc được query) nên redirect dời lên next.config.js.
   test('`?tag=` cũ chuyển hướng sang /search chứ không im lặng bỏ qua', () => {
-    expect(blog).toMatch(/redirect/);
-    expect(blog).toMatch(/\/search\?tag=\$\{encodeURIComponent\(tag\)\}/);
+    const cfg = readFileSync(join(ROOT, 'apps/frontend-main/next.config.js'), 'utf8');
+    expect(cfg).toMatch(/source:\s*'\/blog'/);
+    expect(cfg).toMatch(/has:\s*\[\{\s*type:\s*'query',\s*key:\s*'tag'/);
+    expect(cfg).toMatch(/destination:\s*'\/search'/);
   });
 });
 
