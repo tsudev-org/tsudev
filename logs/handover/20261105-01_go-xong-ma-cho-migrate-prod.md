@@ -50,10 +50,10 @@ Nếu sau bước này `/health` vẫn treo: mở log Render, đừng đoán ti�
 
 ## 3. Hai PR CHỜ
 
-| PR   | trạng thái                     | điều kiện merge                                                                   |
-| ---- | ------------------------------ | --------------------------------------------------------------------------------- |
-| #101 | DRAFT - migration DROP C3+B4   | `pg_dump` prod → `db:migrate` TỪ NHÁNH #101 → `migrate status` up to date → merge |
-| #103 | §6.2-6.4 cache ở biên (ISR+R2) | CI xanh. Bucket `tsudev-next-cache` ĐÃ TẠO. Build OpenNext local xanh, 7 trang ●  |
+| PR   | trạng thái                             | điều kiện merge                                                                   |
+| ---- | -------------------------------------- | --------------------------------------------------------------------------------- |
+| #101 | DRAFT - migration DROP C3+B4           | `pg_dump` prod → `db:migrate` TỪ NHÁNH #101 → `migrate status` up to date → merge |
+| #103 | ĐÃ MERGE 05/11 - cache ở biên (ISR+R2) | CHƯA LIVE - xem §4b (deploy sai tài khoản Cloudflare)                             |
 
 🔴 #101 là migration DROP đầu tiên: 17 bảng, 12 enum, `Project.trustProgramSlug`.
 Merge trước khi migrate ⇒ `migrationGate` exit(1) ⇒ site sập (đúng sự cố đang diễn ra).
@@ -67,9 +67,39 @@ Merge trước khi migrate ⇒ `migrationGate` exit(1) ⇒ site sập (đúng s�
    lùi `signingEnv()` trong `releaseSigning.ts`.
 4. Đặt `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` (nửa Render của báo động - còn treo từ phiên 31).
 
+## 4b. 🔴 Deploy frontend THẤT BẠI - wrangler đăng nhập SAI tài khoản Cloudflare
+
+#103 đã merge (05/11/2026), nhưng `npm --workspace apps/frontend-main run deploy`
+dừng ở bước gắn route: `Could not find zone for tsudev.com`. Wrangler trên máy
+này đang ở tài khoản `dieuhanhcongviecxanuicam@gmail.com` (Account
+`098cc7413caf44c89e5c837e182c0bbc`), KHÔNG phải tài khoản sở hữu zone
+`tsudev.com` (cùng tài khoản với Worker cron `*.dev-nguyentrangtinhsu.workers.dev`).
+Bản Worker đang phục vụ tsudev.com vì thế VẪN là bản 29/10 (`004a682e`).
+
+Rác do lần deploy hỏng để lại ở tài khoản SAI - cần chủ dự án xoá (agent bị chặn
+xoá, đúng mực):
+
+- Worker `tsudev` (một bản triển khai duy nhất, 19:33 UTC 04/11/2026):
+  `npx wrangler delete --name tsudev`
+- Bucket R2 `tsudev-next-cache` (5 mục cache): xoá các object rồi
+  `npx wrangler r2 bucket delete tsudev-next-cache`
+
+Để deploy đúng:
+
+```
+npx wrangler logout && npx wrangler login      # chọn tài khoản sở hữu tsudev.com
+npx wrangler whoami                            # đối chiếu Account ID
+npx wrangler r2 bucket create tsudev-next-cache
+npm --workspace apps/frontend-main run deploy
+curl -s https://tsudev.com/api/auth/providers  # chỉ provider thật
+```
+
+👉 Bài học: trước MỌI lệnh `wrangler deploy` hay tạo tài nguyên, chạy
+`wrangler whoami` và đối chiếu với tài khoản sở hữu zone.
+
 ## 5. Việc kế tiếp của agent
 
-1. Sau khi §1 xong và #103 merge: **deploy frontend** `npm --workspace apps/frontend-main run deploy`
+1. Sau khi §1 và §4b xong: **deploy frontend** `npm --workspace apps/frontend-main run deploy`
    rồi nghiệm thu §6.5 - mở trang khi backend đang ngủ/chặn, nội dung phải còn.
 2. Sau khi #101 merge: `docs/` + `CLAUDE.md` gỡ các gotcha về trust-service,
    mã mời, newsroom (đã lỗi thời). CLAUDE.md cố ý CHƯA sửa trong phiên 32.
