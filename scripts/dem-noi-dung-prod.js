@@ -17,6 +17,7 @@
  *   `newsroom:canh-kenh`  "kênh nào ngừng ra bài"         → cần DATABASE_URL,
  *                                                           mà DB chính là thứ
  *                                                           đang chết
+ *   (ba lệnh trên đã gỡ cùng Toà soạn 29/10/2026 - giữ ở đây làm bài học)
  *   curl mã trạng thái    "trang có sống không"           → 200
  *
  * Cổng này hỏi câu còn thiếu: **"người lạ mở tsudev.com lúc này thì THẤY được
@@ -106,7 +107,7 @@ const PHEP_DO = [
     dem: (t) => new Set(t.match(/href="\/docs\/[^"]+"/g) || []).size,
     toiThieu: 1,
     donVi: 'tài liệu',
-    ghiChu: 'kênh DOC có trần 1 bài/ngày nên dày lên chậm - nhưng 0 là bất thường',
+    ghiChu: 'tài liệu chỉ tăng khi chủ dự án viết (/author?tab=docs) - nhưng 0 là bất thường',
   },
   {
     ten: '/projects',
@@ -227,7 +228,7 @@ async function main() {
   console.log(`  Nếu mọi phép đo đều rỗng trong khi backend /health còn 200 thì nghi`);
   console.log(`  DATABASE trước, nghi mã sau - đó là hình dạng của sự cố 28/10/2026.`);
   console.log(
-    `  Chẩn: npm run newsroom:canh-kenh   ·   hồ sơ: docs/refactor-tsudev-2026-q4.md §0\n`
+    `  Chẩn: npx prisma migrate status (DATABASE_URL prod) · hồ sơ: docs/refactor-tsudev-2026-q4.md §0\n`
   );
   process.exit(1);
 }

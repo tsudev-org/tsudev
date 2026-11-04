@@ -1,4 +1,5 @@
-// Giữ tệp là MODULE - xem chú thích ở services/newsroom-service/test/reviveDead.test.ts.
+// Giữ tệp là MODULE: không có import/export thì TypeScript coi nó là script
+// toàn cục và biến top-level của các tệp test khác nhau đụng tên nhau (TS2451).
 export {};
 
 import { existsSync, readdirSync, readFileSync } from 'fs';

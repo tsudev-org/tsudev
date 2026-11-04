@@ -24,7 +24,6 @@ import * as content from 'content-service'
 import * as storage from 'storage-service'
 import * as trust from 'trust-service'
 import * as identity from 'auth-service'
-import * as newsroom from 'newsroom-service'
 import { prisma } from '@tsudev/db'
 
 import { assertSchemaUpToDate } from './migrationGate'
@@ -56,15 +55,6 @@ const SERVICES = [
     // NextAuth ở apps/frontend-main. Hai thứ trùng tên nằm ở hai tầng khác nhau
     // là cách chắc chắn để một ngày nào đó gọi nhầm tầng.
     prefixes: ['/api/identity'],
-  },
-  {
-    name: 'newsroom',
-    mod: newsroom,
-    // Toà soạn Agent AI. CỐ Ý không dùng '/api/admin/newsroom': tiền tố
-    // '/api/admin' đã thuộc về content ở trên, nên request sẽ đi vào app đó
-    // trước, dính cổng INTERNAL_API_TOKEN của nó, và trả 404 ở production
-    // trong khi chạy service riêng ở dev vẫn sống.
-    prefixes: ['/api/newsroom'],
   },
 ]
 
@@ -126,7 +116,7 @@ async function startServer() {
   // của trust. Bỏ qua là hỏng âm thầm, không phải hỏng ồn ào.
   for (const s of SERVICES) {
     // `init` là TUỲ CHỌN theo service: storage cần ensureBucket(), trust cần bộ
-    // giám sát định kỳ, newsroom và identity thì không có gì để hâm nóng. Ép
+    // giám sát định kỳ, identity thì không có gì để hâm nóng. Ép
     // kiểu ở đây thay vì bắt mọi service phải xuất một hàm rỗng - thêm service
     // mới không nên kéo theo mã nghi lễ.
     const mod = s.mod as { init?: () => Promise<void> }

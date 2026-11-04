@@ -82,29 +82,6 @@ services:
       # rot. Đặt đúng domain thật TRƯỚC lần cấp đầu tiên. Xem docs/trust-seal.md.
       - key: TRUST_ISSUER
         value: https://tsudev.com
-      # --- nhánh newsroom (Toà soạn Agent AI) ---
-      # CÔNG TẮC TỔNG, và là van chi phí quan trọng nhất của repo. Không đặt,
-      # hay đặt bất cứ giá trị nào khác 'true', thì dispatcher trả về ngay ở
-      # dòng đầu và KHÔNG gọi LLM lần nào.
-      #
-      # ⚠️ TRƯỚC 26/08/2026 chỗ này là `value: 'false'`, và đó là một cái bẫy đã
-      # nổ: giá trị literal trong blueprint GHI ĐÈ giá trị đang chạy ở mỗi lần
-      # đồng bộ. Toà soạn đang chạy tốt thì tự tắt sau một lần deploy, và triệu
-      # chứng là "hôm nay không có bài nào" - im lặng tuyệt đối, vì `tick()`
-      # thoát ở dòng đầu TRƯỚC mọi lệnh ghi nhật ký, nên không có sự kiện nào để
-      # ai nhìn thấy. Đo được ngày 26/08: hôm trước 125 sự kiện/13 loại, hôm sau
-      # đúng 2 sự kiện và cả hai đều do người bấm tay.
-      #
-      # `sync: false` giữ NGUYÊN mục tiêu an toàn - service dựng mới từ blueprint
-      # không có giá trị này nên vẫn tắt - mà bỏ được vế ghi đè. Bật/tắt từ nay
-      # là việc của bảng điều khiển Render, và blueprint không giành lại nữa.
-      - key: NEWSROOM_ENABLED
-        sync: false
-      # Gác /api/newsroom/tick. PHẢI trùng secret cùng tên của Worker cron
-      # (infrastructure/newsroom-cron). Lệch nhau ⇒ mọi lượt tick trả 401 và
-      # toà soạn đứng yên trong im lặng.
-      - key: NEWSROOM_TICK_TOKEN
-        sync: false
       # Kênh báo động của `packages/observability/notify.js`. KHAI Ở ĐÂY nhưng
       # `sync: false` - blueprint nói rằng hai biến này TỒN TẠI, không giữ giá trị.
       #
@@ -125,36 +102,10 @@ services:
         sync: false
       - key: TELEGRAM_CHAT_ID
         sync: false
-      # Trần Neuron/ngày. Hạn mức miễn phí của Workers AI là 10.000 (reset
-      # 00:00 UTC); 8000 chừa biên 20%. Vượt hạn mức trên gói Free thì
-      # Cloudflare TỪ CHỐI request chứ không tính tiền - van này để toà soạn
-      # chủ động chuyển sang dự phòng trước khi bị từ chối.
-      - key: NEWSROOM_DAILY_NEURON_BUDGET
-        value: '8000'
-      # Trần số vòng Writer<->Editor cho một bài. Không trần = đốt hạn mức im lặng.
-      - key: NEWSROOM_MAX_REVISIONS
-        value: '2'
-      # Khoá GitHub API cho nguồn `repo_docs` của toà soạn. KHÔNG bắt buộc để
-      # đọc (repo Public), nhưng thiếu nó thì trần là 60 lượt/giờ tính theo IP -
-      # và IP egress của Render DÙNG CHUNG giữa nhiều khách, nên nó cạn vì lưu
-      # lượng không phải của ta. Đo 27/08/2026: lượt quét đầu tiên của nguồn này
-      # ăn 403 trên prod trong khi cùng endpoint trả 200 từ máy dev.
-      # Có khoá: 5.000 lượt/giờ tính theo KHOÁ. Repo Public nên khoá không cần
-      # scope nào.
-      - key: NEWSROOM_GITHUB_TOKEN
-        sync: false
-      # Workers AI qua REST (service này chạy trên Render, không phải trên
-      # Workers, nên không dùng binding được). Token cần đúng phạm vi
-      # "Workers AI" và không gì khác.
-      - key: CF_ACCOUNT_ID
-        sync: false
-      - key: CF_AI_TOKEN
-        sync: false
-      # Dự phòng khi cạn Neuron. Bỏ trống cũng chạy: cạn thì toà soạn dừng và
-      # ghi event. ⚠️ Khoá phải lấy từ project KHÔNG bật billing - bật billing
-      # là Google chuyển sang bậc trả tiền ngay, xem docs/free-tier.md.
-      - key: GEMINI_API_KEY
-        sync: false
+      # Toà soạn Agent AI đã gỡ 29/10/2026 (docs/refactor-tsudev-2026-q4.md §8).
+      # Gỡ khoá khỏi blueprint KHÔNG xoá biến đang đặt trên dashboard Render:
+      # NEWSROOM_* · CF_ACCOUNT_ID · CF_AI_TOKEN · GEMINI_API_KEY phải xoá TAY ở
+      # đó, nếu không bí mật cũ nằm lại vô thời hạn trên một dịch vụ không cần nó.
       # --- bí danh thư nội bộ `*@tsudev.com` (Cloudflare Email Routing) ---
       # Đặt ở ĐÂY chứ không ở Cloudflare Worker: secret khai ở Worker lộ trong
       # bản dựng. Bí danh do nhánh identity gọi, mà nhánh đó chạy trên Render;
@@ -166,7 +117,7 @@ services:
       #
       # Token phải hẹp đúng một quyền: Zone → Email Routing Rules → Edit, và chỉ
       # cho zone tsudev.com. `CF_ZONE_ID` là Zone ID ở trang Overview của tên
-      # miền - KHÔNG phải `CF_ACCOUNT_ID` ở trên (cái đó cho Workers AI).
+      # miền - KHÔNG phải Account ID của tài khoản Cloudflare.
       #
       # ⚠️ Đặt biến chưa đủ. Bên Cloudflare phải bật Email Routing cho zone (bước
       # này GHI ĐÈ bản ghi MX) và XÁC MINH địa chỉ đích - mã chỉ tạo quy tắc
