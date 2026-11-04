@@ -183,14 +183,6 @@ export default function ProjectDetail({ project, releases, failed, slug }: Proje
                 )}
                 {project.copyrightOwner && <Row label="Chủ sở hữu">{project.copyrightOwner}</Row>}
               </dl>
-              {project.trustProgramSlug && (
-                <a
-                  href={`/trust/programs/${project.trustProgramSlug}`}
-                  className="mt-3 inline-block text-sm text-link hover:underline"
-                >
-                  Chương trình dấu liên quan →
-                </a>
-              )}
             </Card>
           </aside>
         </div>

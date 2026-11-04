@@ -16,6 +16,7 @@
     { "path": "../../packages/types" },
     { "path": "../../packages/auth" },
     { "path": "../../packages/search" },
-    { "path": "../../packages/ratelimit" }
+    { "path": "../../packages/ratelimit" },
+    { "path": "../../packages/trust-crypto" }
   ]
 }

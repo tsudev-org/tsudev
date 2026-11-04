@@ -45,12 +45,6 @@ const ALLOWED = new Set([
   'passkey/register-verify',
   'passkey/list',
   'passkey/delete',
-  // Mã mời vào Con dấu. `invite/redeem` là của người dùng thường; ba cái còn
-  // lại tự kiểm ADMIN ở auth-service (đọc User.role từ DB, không từ claim).
-  'invite/redeem',
-  'invite/create',
-  'invite/list',
-  'invite/revoke',
   // Quản lý tài khoản & phân quyền - auth-service tự kiểm OWNER (đọc User.role
   // từ DB, không từ claim). Tên hai đoạn vì proxy chặn path quá 2 đoạn.
   'useradmin/list',

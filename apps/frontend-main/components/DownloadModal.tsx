@@ -20,9 +20,8 @@ import type { Project, ProjectRelease, ReleasePlatform } from '../lib/types';
  * và nó chỉ có giá trị nếu người ta THẤY nó ngay lúc đang do dự bấm nút, chứ
  * không phải nếu nó nằm trong một trang tài liệu nào đó.
  *
- * Repo này có sẵn hạ tầng: `@tsudev/trust-crypto` ký Ed25519, khoá công khai ở
- * `/.well-known/tsudev-trust-jwks.json`. Nên đây là hệ con dấu tín nhiệm của
- * tsudev tự áp lên chính binary của mình.
+ * Hạ tầng: `@tsudev/trust-crypto` ký Ed25519 (thừa kế từ Con dấu tín nhiệm đã
+ * gỡ), khoá công khai ở `/.well-known/tsudev-release-jwks.json`.
  */
 
 /** Nhãn và icon của từng nền tảng. Icon lấy từ hệ thống, không vẽ inline. */
@@ -147,10 +146,10 @@ function OChecksum({ r }: { r: ProjectRelease }) {
           </span>
           <p className="mt-1.5 text-xs text-fg-muted">
             Chữ ký của chuỗi SHA-256 ở trên. Khoá công khai để kiểm nằm ở{' '}
-            <a href="/.well-known/tsudev-trust-jwks.json" className="text-link hover:underline">
+            <a href="/.well-known/tsudev-release-jwks.json" className="text-link hover:underline">
               JWKS của tsudev
             </a>
-            . Đây là cùng vòng khoá dùng cho Con dấu tín nhiệm.
+            .
           </p>
         </div>
       )}

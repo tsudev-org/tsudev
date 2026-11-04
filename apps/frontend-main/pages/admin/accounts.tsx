@@ -29,10 +29,11 @@ import {
 // quyết định; giao diện chỉ hiển thị cho đúng.
 
 // OWNER cố ý VẮNG MẶT khỏi danh sách cấp được: bậc cao nhất chỉ đến từ seed/DB.
+// VIP gỡ khỏi danh sách cùng Con dấu (04/11/2026) - khớp ASSIGNABLE_ROLES của
+// auth-service. Tài khoản cũ đang mang VIP vẫn HIỂN THỊ đúng nhờ ROLE_LABEL.
 const ASSIGNABLE: { value: string; label: string }[] = [
   { value: 'MEMBER', label: 'Thành viên' },
   { value: 'AUTHOR', label: 'Đăng bài' },
-  { value: 'VIP', label: 'VIP · Con dấu' },
   { value: 'MODERATOR', label: 'Điều hành' },
   { value: 'ADMIN', label: 'Quản trị' },
 ];
@@ -41,7 +42,7 @@ const ROLE_LABEL: Record<string, string> = {
   GUEST: 'Khách',
   MEMBER: 'Thành viên',
   AUTHOR: 'Đăng bài',
-  VIP: 'VIP · Con dấu',
+  VIP: 'VIP (cũ)',
   MODERATOR: 'Điều hành',
   ADMIN: 'Quản trị',
   OWNER: 'Chủ sở hữu',
