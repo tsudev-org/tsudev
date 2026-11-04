@@ -14,7 +14,7 @@ mỗi ngày) và nó phát hiện đúng. Nhưng **nó chưa gửi được tin 
 
 ```
 [cron] CHƯA cấu hình Telegram - báo động chỉ nằm ở log này:
-  ✘ sitemap.xml — HTTP 500 · 0 URL — cần ≥ 8
+  ✘ sitemap.xml - HTTP 500 · 0 URL - cần ≥ 8
   ...
 ```
 
@@ -186,7 +186,7 @@ npm run cron:tail
 Rồi chờ tới nhịp. Dòng cần thấy:
 
 ```
-[cron] đếm nội dung https://tsudev.com — TRƯỢT
+[cron] đếm nội dung https://tsudev.com - TRƯỢT
 [cron] báo động → Telegram 200
 ```
 

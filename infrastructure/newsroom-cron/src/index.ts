@@ -115,7 +115,7 @@ async function keepWarm(env: Env): Promise<void> {
  * chạy - đúng điều đợt này ra đời để chấm dứt.
  */
 async function baoDong(env: Env, tieuDe: string, than: string): Promise<void> {
-  const text = `🚨 *tsudev* — ${tieuDe}\n\n${than}`;
+  const text = `🚨 *tsudev* - ${tieuDe}\n\n${than}`;
   if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
     console.error('[cron] CHƯA cấu hình Telegram - báo động chỉ nằm ở log này:\n' + text);
     return;
@@ -158,7 +158,7 @@ async function demNoiDung(env: Env): Promise<void> {
   }
   const bc = await doNoiDung(env.SITE_URL);
   const dong = bc.ketQua.map(thanhDong);
-  console.log(`[cron] đếm nội dung ${bc.base} — ${bc.dat ? 'ĐẠT' : 'TRƯỢT'}\n` + dong.join('\n'));
+  console.log(`[cron] đếm nội dung ${bc.base} - ${bc.dat ? 'ĐẠT' : 'TRƯỢT'}\n` + dong.join('\n'));
   if (bc.dat) return;
 
   const soCanh = bc.ketQua.filter((r) => !r.chiGhiNhan).length;

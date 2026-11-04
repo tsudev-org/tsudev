@@ -148,3 +148,5 @@ describe('xoá mềm cho dự án (đợt 5)', () => {
     await expect(prisma.project.delete({ where: { id: p.id } })).rejects.toThrow(/Xoá cứng/)
   })
 })
+
+export {}

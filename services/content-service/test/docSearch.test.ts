@@ -184,3 +184,5 @@ describe('GET /api/posts/search - phạm vi phủ cả Doc', () => {
     expect(res.body.facets).toEqual({ tag: [], category: [], type: [] })
   })
 })
+
+export {}
