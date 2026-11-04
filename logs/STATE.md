@@ -1,5 +1,20 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 33 bắt đầu ở đây** (cập nhật cuối phiên 32, 05/11/2026). Phiếu:
+> [`20261105-01`](handover/20261105-01_go-xong-ma-cho-migrate-prod.md).
+>
+> 🔴 **tsudev.com ĐANG TREO** - backend `/health` không trả lời. Nguyên nhân suy
+> ra: migration `20261028140000_project_release` chưa áp lên Neon trong khi mã
+> cần nó đã ở `main` từ 30/10 ⇒ `migrationGate` exit(1). **Cần chủ dự án chạy
+> `npm run db:migrate` với `DATABASE_URL` prod** - phiếu §1.
+>
+> ✅ **Phần MÃ của việc gỡ Toà soạn (§8 C1-C2) và Con dấu (§7 B1-B3) đã ở `main`**
+> (#99, #102), cùng đường ghi tài liệu `/api/author/docs` (#98) và CI xanh lại (#97).
+> Khoá ký Ed25519 đổi vai thành khoá ký bản phát hành (content-service).
+>
+> 🟠 **Chờ**: #101 (DRAFT, migration DROP - backup + migrate TRƯỚC merge) ·
+> #103 (cache ở biên ISR + R2, bucket đã tạo).
+
 > **Phiên 31 bắt đầu ở đây** (cập nhật cuối phiên 30).
 >
 > 🆕 **MỤC TIÊU PROJECT ĐỔI (29/10/2026): website cá nhân ĐĂNG VÀ PHÁT HÀNH FILE
