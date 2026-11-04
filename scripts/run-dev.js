@@ -70,7 +70,6 @@ const USE_PROXY = TOPO.dev.mode === 'proxy' && process.env.DEV_PROXY !== '0';
 const processes = [
   { name: 'content-service', type: 'service', cwd: path.join(ROOT, 'services/content-service') },
   { name: 'storage-service', type: 'service', cwd: path.join(ROOT, 'services/storage-service') },
-  { name: 'trust-service', type: 'service', cwd: path.join(ROOT, 'services/trust-service') },
   { name: 'auth-service', type: 'service', cwd: path.join(ROOT, 'services/auth-service') },
   {
     name: 'frontend-main',

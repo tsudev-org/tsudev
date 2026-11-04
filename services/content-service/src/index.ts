@@ -19,6 +19,7 @@ import { createAuthMiddleware, lookupUser } from '@tsudev/auth'
 import { createRateLimit, largePageRateLimit } from '@tsudev/ratelimit'
 import type { Doc, Post, Prisma, Project, ProjectRelease, User } from '@prisma/client'
 import { hasAtLeastRole, emailUsable, pageMeta, parsePaging, MAX_PAGE_SIZE } from '@tsudev/types'
+import * as releaseSigning from './releaseSigning'
 import { buildDocSearch, buildPostSearch, buildSnippet, viNormalizeText } from '@tsudev/search'
 
 type Notifier = { alert: (payload: Record<string, unknown>) => Promise<void> }
@@ -88,6 +89,15 @@ const authorCard = (
     : null
 
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'content-service' }))
+
+// Khoá công khai ký bản phát hành. CÔNG KHAI có chủ đích và nằm NGOÀI /api, nên
+// không dính cổng INTERNAL_API_TOKEN bên dưới: người tải tự xác minh chữ ký
+// offline mà không phải tin API của tsudev. Frontend rewrite
+// /.well-known/tsudev-release-jwks.json về đây (qua /api/releases/jwks).
+app.get('/.well-known/tsudev-release-jwks.json', (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=3600')
+  res.json(releaseSigning.jwks())
+})
 
 // Ba service backend nằm trên URL Render CÔNG KHAI - không giấu sau mạng nội bộ
 // được, vì frontend-main chạy trên Cloudflare Workers, ngoài mạng Render. Cổng

@@ -159,7 +159,7 @@ describe('phạm vi đọc', () => {
 
 describe('hành động admin ghi vào timeline target', () => {
   test('OWNER đổi vai trò U2 ⇒ U2 có role_changed byAdmin', async () => {
-    const res = await authPost('useradmin/role', OWN, { id: u2Id, role: 'VIP' })
+    const res = await authPost('useradmin/role', OWN, { id: u2Id, role: 'AUTHOR' })
     expect(res.status).toBe(200)
     const ev = await waitFor(
       () =>

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Logo } from './Logo';
-import { useCanSeeTrust } from '../lib/useTrustNav';
 import { MAIN_URL } from '../lib/siteUrls';
 
 // Riêng đăng nhập giữ đường dẫn tương đối: phiên next-auth thuộc về chính app
@@ -12,26 +11,14 @@ const eco = (label: string, path: string): FooterLink => [label, path];
 
 type Col = { title: string; links: FooterLink[] };
 
-/**
- * Ba mục Con dấu chỉ hiện với tài khoản đã đổi mã mời (chế độ mời - xem
- * useCanSeeTrust). Cột đổi luôn TIÊU ĐỀ khi không có mục nào của Con dấu: một
- * cột tên "Tín nhiệm" chỉ chứa mỗi liên kết Đăng nhập đọc như một lỗi bố cục.
- */
-const columns = (canSeeTrust: boolean): Col[] => [
+const COLS: Col[] = [
   {
     title: 'Nội dung',
     links: [eco('Dự án', '/projects'), eco('Blog', '/blog'), eco('Tài liệu', '/docs')],
   },
   {
-    title: canSeeTrust ? 'Tín nhiệm' : 'Tài khoản',
+    title: 'Tài khoản',
     links: [
-      ...(canSeeTrust
-        ? [
-            eco('Con dấu tín nhiệm', '/trust'),
-            eco('Tra cứu chứng chỉ', '/trust/verify'),
-            eco('Danh bạ đã cấp dấu', '/trust/directory'),
-          ]
-        : []),
       // Trang /login của site, không phải trang mặc định của next-auth.
       ['Đăng nhập', '/login'] as FooterLink,
     ],
@@ -51,7 +38,6 @@ const columns = (canSeeTrust: boolean): Col[] => [
 // độ tối đường mảnh --border gần như không thấy, còn ở chế độ sáng nó cho ra
 // một ranh giới rõ mà không cần đổi nền.
 export const SiteFooter = () => {
-  const COLS = columns(useCanSeeTrust());
   return (
     <footer className="mt-16 border-t border-line-strong">
       <div className="max-w-6xl mx-auto px-4 pt-8 pb-6 grid gap-x-8 gap-y-7 md:grid-cols-[1.4fr_repeat(3,1fr)]">

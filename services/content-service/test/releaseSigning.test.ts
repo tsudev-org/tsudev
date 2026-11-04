@@ -18,25 +18,32 @@ function genKey() {
   }
 }
 
+const ENV_KEYS = [
+  'RELEASE_SIGNING_KEY',
+  'RELEASE_SIGNING_KEY_ID',
+  'RELEASE_SIGNING_KEYS_RETIRED',
+  'TRUST_SIGNING_KEY',
+  'TRUST_SIGNING_KEY_ID',
+  'TRUST_SIGNING_KEYS_RETIRED',
+]
+
 function loadSigning(env: Record<string, string | undefined>) {
   jest.resetModules()
-  for (const k of ['TRUST_SIGNING_KEY', 'TRUST_SIGNING_KEY_ID', 'TRUST_SIGNING_KEYS_RETIRED'])
-    delete process.env[k]
+  for (const k of ENV_KEYS) delete process.env[k]
   Object.assign(process.env, env)
-  return require('../src/signing')
+  return require('../src/releaseSigning')
 }
 
 const KEY_A = genKey()
 const KEY_B = genKey()
 
 afterAll(() => {
-  for (const k of ['TRUST_SIGNING_KEY', 'TRUST_SIGNING_KEY_ID', 'TRUST_SIGNING_KEYS_RETIRED'])
-    delete process.env[k]
+  for (const k of ENV_KEYS) delete process.env[k]
 })
 
 describe('vòng khoá ký', () => {
   test('ký rồi tự xác minh được', () => {
-    const s = loadSigning({ TRUST_SIGNING_KEY: KEY_A.privB64, TRUST_SIGNING_KEY_ID: 'key-a' })
+    const s = loadSigning({ RELEASE_SIGNING_KEY: KEY_A.privB64, RELEASE_SIGNING_KEY_ID: 'key-a' })
     const jws = s.sign({ serial: 'TSU-CV-2026-000001' })
     const r = s.verify(jws)
     expect(r.valid).toBe(true)
@@ -45,13 +52,16 @@ describe('vòng khoá ký', () => {
   })
 
   test('sau khi xoay khoá, chứng chỉ ký bằng khoá cũ VẪN xác minh được', () => {
-    const before = loadSigning({ TRUST_SIGNING_KEY: KEY_A.privB64, TRUST_SIGNING_KEY_ID: 'key-a' })
+    const before = loadSigning({
+      RELEASE_SIGNING_KEY: KEY_A.privB64,
+      RELEASE_SIGNING_KEY_ID: 'key-a',
+    })
     const oldJws = before.sign({ serial: 'TSU-CV-2026-000001' })
 
     const after = loadSigning({
-      TRUST_SIGNING_KEY: KEY_B.privB64,
-      TRUST_SIGNING_KEY_ID: 'key-b',
-      TRUST_SIGNING_KEYS_RETIRED: `key-a:${KEY_A.pubB64}`,
+      RELEASE_SIGNING_KEY: KEY_B.privB64,
+      RELEASE_SIGNING_KEY_ID: 'key-b',
+      RELEASE_SIGNING_KEYS_RETIRED: `key-a:${KEY_A.pubB64}`,
     })
     expect(after.kid).toBe('key-b')
     expect(after.verify(oldJws).valid).toBe(true)
@@ -59,9 +69,15 @@ describe('vòng khoá ký', () => {
   })
 
   test('quên khai khoá cũ thì chứng chỉ cũ báo thiếu khoá, không báo hợp lệ', () => {
-    const before = loadSigning({ TRUST_SIGNING_KEY: KEY_A.privB64, TRUST_SIGNING_KEY_ID: 'key-a' })
+    const before = loadSigning({
+      RELEASE_SIGNING_KEY: KEY_A.privB64,
+      RELEASE_SIGNING_KEY_ID: 'key-a',
+    })
     const oldJws = before.sign({ serial: 'TSU-CV-2026-000001' })
-    const after = loadSigning({ TRUST_SIGNING_KEY: KEY_B.privB64, TRUST_SIGNING_KEY_ID: 'key-b' })
+    const after = loadSigning({
+      RELEASE_SIGNING_KEY: KEY_B.privB64,
+      RELEASE_SIGNING_KEY_ID: 'key-b',
+    })
     const r = after.verify(oldJws)
     expect(r.valid).toBe(false)
     expect(r.reason).toMatch(/key-a/)
@@ -69,9 +85,9 @@ describe('vòng khoá ký', () => {
 
   test('JWKS công bố cả khoá đang ký lẫn khoá đã nghỉ, khoá đang ký đứng đầu', () => {
     const s = loadSigning({
-      TRUST_SIGNING_KEY: KEY_B.privB64,
-      TRUST_SIGNING_KEY_ID: 'key-b',
-      TRUST_SIGNING_KEYS_RETIRED: `key-a:${KEY_A.pubB64}`,
+      RELEASE_SIGNING_KEY: KEY_B.privB64,
+      RELEASE_SIGNING_KEY_ID: 'key-b',
+      RELEASE_SIGNING_KEYS_RETIRED: `key-a:${KEY_A.pubB64}`,
     })
     const kids = s.jwks().keys.map((k: { kid?: string }) => k.kid)
     expect(kids[0]).toBe('key-b')
@@ -80,11 +96,11 @@ describe('vòng khoá ký', () => {
     for (const k of s.jwks().keys) expect(k.d).toBeUndefined()
   })
 
-  test('mục khai sai trong TRUST_SIGNING_KEYS_RETIRED bị bỏ qua, service vẫn chạy', () => {
+  test('mục khai sai trong RELEASE_SIGNING_KEYS_RETIRED bị bỏ qua, service vẫn chạy', () => {
     const s = loadSigning({
-      TRUST_SIGNING_KEY: KEY_B.privB64,
-      TRUST_SIGNING_KEY_ID: 'key-b',
-      TRUST_SIGNING_KEYS_RETIRED: `hongbet,key-a:${KEY_A.pubB64},key-x:khong-phai-pem`,
+      RELEASE_SIGNING_KEY: KEY_B.privB64,
+      RELEASE_SIGNING_KEY_ID: 'key-b',
+      RELEASE_SIGNING_KEYS_RETIRED: `hongbet,key-a:${KEY_A.pubB64},key-x:khong-phai-pem`,
     })
     expect(s.verifyKeyIds()).toContain('key-a')
     expect(s.verifyKeyIds()).not.toContain('key-x')
@@ -92,7 +108,7 @@ describe('vòng khoá ký', () => {
   })
 
   test('chữ ký bị sửa thì không hợp lệ', () => {
-    const s = loadSigning({ TRUST_SIGNING_KEY: KEY_A.privB64, TRUST_SIGNING_KEY_ID: 'key-a' })
+    const s = loadSigning({ RELEASE_SIGNING_KEY: KEY_A.privB64, RELEASE_SIGNING_KEY_ID: 'key-a' })
     const parts = s.sign({ serial: 'TSU-CV-2026-000001' }).split('.')
     const forged = Buffer.from(JSON.stringify({ serial: 'TSU-CV-2026-999999' })).toString(
       'base64url'
@@ -101,7 +117,7 @@ describe('vòng khoá ký', () => {
   })
 
   test('từ chối alg khác EdDSA - chặn kiểu tấn công đổi thuật toán', () => {
-    const s = loadSigning({ TRUST_SIGNING_KEY: KEY_A.privB64, TRUST_SIGNING_KEY_ID: 'key-a' })
+    const s = loadSigning({ RELEASE_SIGNING_KEY: KEY_A.privB64, RELEASE_SIGNING_KEY_ID: 'key-a' })
     const header = Buffer.from(JSON.stringify({ alg: 'none', kid: 'key-a' })).toString('base64url')
     const body = Buffer.from(JSON.stringify({ serial: 'x' })).toString('base64url')
     const r = s.verify(`${header}.${body}.`)
@@ -114,17 +130,36 @@ describe('vòng khoá ký', () => {
     const b64 = Buffer.from(rsa.privateKey.export({ format: 'pem', type: 'pkcs8' })).toString(
       'base64'
     )
-    expect(() => loadSigning({ TRUST_SIGNING_KEY: b64 })).toThrow(/Ed25519/)
+    expect(() => loadSigning({ RELEASE_SIGNING_KEY: b64 })).toThrow(/Ed25519/)
   })
 
   test('production thiếu khoá thì service chết hẳn, không âm thầm dùng khoá dev', () => {
     const prev = process.env.NODE_ENV
     process.env.NODE_ENV = 'production'
     try {
-      expect(() => loadSigning({})).toThrow(/TRUST_SIGNING_KEY/)
+      expect(() => loadSigning({})).toThrow(/RELEASE_SIGNING_KEY/)
     } finally {
       process.env.NODE_ENV = prev
     }
+  })
+})
+
+describe('đổi tên biến HAI đợt (§7.6) - tên cũ của Con dấu vẫn chạy', () => {
+  test('chỉ có TRUST_SIGNING_* (production hiện tại) ⇒ vẫn nạp đúng khoá', () => {
+    const s = loadSigning({ TRUST_SIGNING_KEY: KEY_A.privB64, TRUST_SIGNING_KEY_ID: 'key-cu' })
+    expect(s.kid).toBe('key-cu')
+    expect(s.usingDevKey).toBe(false)
+  })
+
+  test('có cả hai ⇒ tên MỚI thắng', () => {
+    const s = loadSigning({
+      TRUST_SIGNING_KEY: KEY_A.privB64,
+      TRUST_SIGNING_KEY_ID: 'key-cu',
+      RELEASE_SIGNING_KEY: KEY_B.privB64,
+      RELEASE_SIGNING_KEY_ID: 'key-moi',
+    })
+    expect(s.kid).toBe('key-moi')
+    expect(s.jwks().keys[0].kid).toBe('key-moi')
   })
 })
 

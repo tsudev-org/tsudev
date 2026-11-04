@@ -64,7 +64,7 @@ const proxyServer = () => ({
   timeout: 60 * 1000,
 });
 
-// Service backend phải chạy thì blog/docs/trust mới có nội dung THẬT. Không có
+// Service backend phải chạy thì blog/docs/dự án mới có nội dung THẬT. Không có
 // chúng, getServerSideProps nuốt lỗi và trả mảng rỗng - trang vẫn 200 nên test
 // vẫn xanh mà chẳng chứng minh được gì.
 const backend = (id) => ({
@@ -78,7 +78,7 @@ const backend = (id) => ({
   timeout: 60 * 1000,
 });
 
-const servers = [backend('content'), backend('identity'), backend('trust'), server('main')];
+const servers = [backend('content'), backend('identity'), server('main')];
 if (useProxy) servers.push(proxyServer());
 
 module.exports = defineConfig({

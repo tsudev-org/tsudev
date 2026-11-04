@@ -7,7 +7,6 @@
 // Ở production ba biến môi trường dưới đây là bắt buộc.
 export const CONTENT = process.env.CONTENT_SERVICE_URL || 'http://localhost:4001';
 export const STORAGE = process.env.STORAGE_SERVICE_URL || 'http://localhost:4002';
-export const TRUST = process.env.TRUST_SERVICE_URL || 'http://localhost:4003';
 export const IDENTITY = process.env.AUTH_SERVICE_URL || 'http://localhost:4004';
 
 // Ba service trên Render nằm ở URL công khai; khi INTERNAL_API_TOKEN được đặt

@@ -9,12 +9,6 @@ import { Layout, Card, Button, SectionHeading, Badge } from '@tsudev/ui';
 // trang chuyển thành cổng vào các khu quản trị đang có.
 const AREAS = [
   {
-    href: '/admin/trust',
-    title: 'Con dấu tín nhiệm',
-    desc: 'Thẩm định hồ sơ, cấp/đình chỉ/thu hồi chứng chỉ, tái kiểm tên miền.',
-    ready: true,
-  },
-  {
     href: '/admin/projects',
     title: 'Dự án & bản quyền',
     desc: 'Quản lý dự án, phiên bản phát hành, giấy phép và trạng thái đăng ký bản quyền.',

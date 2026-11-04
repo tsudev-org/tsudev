@@ -50,9 +50,9 @@ export const EMPTY_PAGE_META: PageMeta = {
 };
 
 /**
- * `prefix` chỉ cần khi một trang có NHIỀU vùng bản ghi (ví dụ `/admin/trust` có
- * bốn): một cặp `page`/`page_size` dùng chung sẽ làm lật trang nhật ký kéo theo
- * cả hàng đợi thẩm định. Tham số gửi LÊN máy chủ vẫn luôn mang tên chuẩn
+ * `prefix` chỉ cần khi một trang có NHIỀU vùng bản ghi (ví dụ `/author` có
+ * hai thẻ Bài viết · Tài liệu): một cặp `page`/`page_size` dùng chung sẽ làm lật
+ * trang bài viết kéo theo cả danh sách tài liệu. Tham số gửi LÊN máy chủ vẫn luôn mang tên chuẩn
  * `page`/`page_size` (mục 8.1) - tiền tố chỉ sống trong URL của trang.
  */
 export function useUrlPaging(tableId: string, prefix = ''): UrlPaging {
@@ -89,7 +89,7 @@ export function useUrlPaging(tableId: string, prefix = ''): UrlPaging {
  * Nhận CẢ DANH SÁCH bảng và ghi MỘT lần, vì nhiều effect cùng gọi
  * `router.replace` trong một lượt sẽ giẫm lên nhau: mỗi effect trải
  * `router.query` cũ, nên effect chạy sau xoá tham số mà effect chạy trước vừa
- * đặt. Trên `/admin/trust` (bốn bảng) điều đó xảy ra ngay ở lần dựng đầu.
+ * đặt. Trên trang bốn bảng điều đó xảy ra ngay ở lần dựng đầu.
  */
 export function useUrlPagingSync(tables: UrlPaging[]) {
   const router = useRouter();

@@ -71,17 +71,19 @@ services:
       # không log nào bắt được.
       - key: NEXT_PUBLIC_MAIN_URL
         value: https://tsudev.com
-      # Thiếu ở production ⇒ nhánh trust từ chối khởi động, và vì đã gộp nên
-      # CẢ tiến trình không lên. Cố ý: thà chết ồn ào còn hơn ký bằng khoá dev.
-      - key: TRUST_SIGNING_KEY
+      # Khoá ký BẢN PHÁT HÀNH (content-service/src/releaseSigning.ts). Thiếu ở
+      # production ⇒ nhánh content từ chối khởi động, và vì đã gộp nên CẢ tiến
+      # trình không lên. Cố ý: thà chết ồn ào còn hơn ký bằng khoá dev.
+      #
+      # ĐỔI TÊN HAI ĐỢT (Con dấu gỡ 04/11/2026): mã đọc RELEASE_SIGNING_* trước,
+      # lùi về TRUST_SIGNING_*. Đợt 1 (bây giờ): chép giá trị TRUST_SIGNING_KEY
+      # và _KEY_ID sang hai khoá RELEASE_ dưới đây trên dashboard. Đợt 2: xoá hai
+      # khoá TRUST_ cũ + TRUST_ISSUER khỏi dashboard, rồi gỡ nhánh lùi trong mã.
+      # Xoá tên cũ TRƯỚC khi đặt tên mới = production không khởi động.
+      - key: RELEASE_SIGNING_KEY
         sync: false
-      - key: TRUST_SIGNING_KEY_ID
+      - key: RELEASE_SIGNING_KEY_ID
         sync: false
-      # ĐƯỢC KÝ VÀO CHỨNG CHỈ. Chữ ký vẫn xác minh được nếu đổi (khoá theo kid),
-      # nhưng URL trong chứng chỉ ĐÃ CẤP thì cố định vĩnh viễn - đổi sau là link
-      # rot. Đặt đúng domain thật TRƯỚC lần cấp đầu tiên. Xem docs/trust-seal.md.
-      - key: TRUST_ISSUER
-        value: https://tsudev.com
       # Kênh báo động của `packages/observability/notify.js`. KHAI Ở ĐÂY nhưng
       # `sync: false` - blueprint nói rằng hai biến này TỒN TẠI, không giữ giá trị.
       #

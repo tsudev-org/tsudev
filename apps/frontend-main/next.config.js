@@ -23,9 +23,11 @@ const nextConfig = {
   },
 
   // JWKS phải nằm đúng đường chuẩn /.well-known/ để bên thứ ba tìm thấy theo
-  // quy ước; nội dung do trust-service sinh từ khoá ký nên không thể là file tĩnh.
+  // quy ước; nội dung do content-service sinh từ khoá ký bản phát hành nên không
+  // thể là file tĩnh. (JWKS cũ của Con dấu, tsudev-trust-jwks.json, đã gỡ cùng
+  // Con dấu 04/11/2026 - chưa cấp chứng chỉ nào nên không ai còn trỏ tới nó.)
   async rewrites() {
-    return [{ source: '/.well-known/tsudev-trust-jwks.json', destination: '/api/trust/jwks' }];
+    return [{ source: '/.well-known/tsudev-release-jwks.json', destination: '/api/releases/jwks' }];
   },
 
   // Header bảo mật cho MỌI phản hồi.

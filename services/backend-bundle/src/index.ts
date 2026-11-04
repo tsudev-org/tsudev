@@ -22,7 +22,6 @@ import type { RequestHandler } from 'express'
 // thì ba dòng này không phải sửa lại lần nữa.
 import * as content from 'content-service'
 import * as storage from 'storage-service'
-import * as trust from 'trust-service'
 import * as identity from 'auth-service'
 import { prisma } from '@tsudev/db'
 
@@ -36,17 +35,22 @@ const SERVICES = [
   {
     name: 'content',
     mod: content,
-    prefixes: ['/api/posts', '/api/docs', '/api/projects', '/api/admin', '/api/author', '/debug'],
+    // '/.well-known' về content từ 04/11/2026: JWKS ký bản phát hành chuyển từ
+    // trust-service (đã gỡ) sang đây. Thiếu dòng này thì JWKS 404 ở production.
+    prefixes: [
+      '/api/posts',
+      '/api/docs',
+      '/api/projects',
+      '/api/admin',
+      '/api/author',
+      '/.well-known',
+      '/debug',
+    ],
   },
   {
     name: 'storage',
     mod: storage,
     prefixes: ['/api/files', '/api/presign', '/api/upload'],
-  },
-  {
-    name: 'trust',
-    mod: trust,
-    prefixes: ['/api/trust', '/.well-known'],
   },
   {
     name: 'identity',
@@ -60,12 +64,11 @@ const SERVICES = [
 
 // Vì sao điều phối theo TIỀN TỐ chứ không `root.use(app)` ba lần:
 //
-// Mount thẳng thì một request `/api/trust/verify/<serial>` đi VÀO app content
-// trước - chưa khớp route nào, nhưng đã chạy hết middleware của content, trong
-// đó có cổng chặn INTERNAL_API_TOKEN và `app.use('/api', auth)`. Kết quả: huy
-// hiệu SVG, trang xác minh và JWKS của trust - những thứ BẮT BUỘC công khai cho
-// trình duyệt của bên thứ ba - trả 401. Không test nào bắt được, đúng kiểu bẫy
-// mà CLAUDE.md cảnh báo về auth theo nhánh của trust-service.
+// Mount thẳng thì một request `/api/identity/*` đi VÀO app content trước - chưa
+// khớp route nào, nhưng đã chạy hết middleware của content, trong đó có cổng
+// chặn INTERNAL_API_TOKEN và `app.use('/api', auth)`. Bài học gốc đến từ Con dấu
+// tín nhiệm (đã gỡ 04/11/2026): huy hiệu SVG và JWKS - BẮT BUỘC công khai - trả
+// 401 ở production mà không test nào bắt được.
 //
 // So khớp theo ranh giới đoạn đường dẫn, không phải startsWith trần: '/api/post'
 // không được nuốt '/api/postsomething'.
@@ -107,16 +110,15 @@ const port = Number(process.env.PORT) || 4000
 const bindHost = process.env.BIND_HOST || '0.0.0.0'
 
 async function startServer() {
-  // Cổng lệch migration TRƯỚC mọi thứ khác: `init()` của storage và trust chạm
+  // Cổng lệch migration TRƯỚC mọi thứ khác: `init()` của storage chạm
   // DB, và một schema lệch làm chúng hỏng theo kiểu khó đọc hơn nhiều so với
   // câu "DB thiếu migration X". Lý do cổng này tồn tại: migrationGate.ts.
   await assertSchemaUpToDate(prisma)
 
-  // Chuẩn bị của từng service: ensureBucket() của storage, bộ giám sát định kỳ
-  // của trust. Bỏ qua là hỏng âm thầm, không phải hỏng ồn ào.
+  // Chuẩn bị của từng service: ensureBucket() của storage. Bỏ qua là hỏng âm thầm, không phải hỏng ồn ào.
   for (const s of SERVICES) {
-    // `init` là TUỲ CHỌN theo service: storage cần ensureBucket(), trust cần bộ
-    // giám sát định kỳ, identity thì không có gì để hâm nóng. Ép
+    // `init` là TUỲ CHỌN theo service: storage cần ensureBucket(), content
+    // và identity thì không có gì để hâm nóng. Ép
     // kiểu ở đây thay vì bắt mọi service phải xuất một hàm rỗng - thêm service
     // mới không nên kéo theo mã nghi lễ.
     const mod = s.mod as { init?: () => Promise<void> }

@@ -1,5 +1,4 @@
-// Xác minh email đợt bổ sung: gửi lại xác minh, đổi email hai bước, và cổng ân
-// hạn chặn nâng vai trò.
+// Xác minh email đợt bổ sung: gửi lại xác minh và đổi email hai bước.
 //
 // Bất biến khoá ở đây:
 //   (1) Gửi lại xác minh: no-op nếu đã xác minh; chống dội thư bằng cooldown 60s.
@@ -9,8 +8,7 @@
 //   (4) Xác nhận đổi ⇒ email mới + emailVerifiedAt + TĂNG sessionVersion (đá phiên).
 //   (5) Địa chỉ đã có chủ: yêu cầu đổi trả về GIỐNG NHAU (chống dò), KHÔNG phát
 //       token; xác nhận vào địa chỉ bị chiếm giữa chừng ⇒ 409, email không đổi.
-//   (6) Cổng ân hạn: chưa xác minh + quá hạn ⇒ invite/redeem trả 403 trước cả
-//       khi xét mã.
+//   (Bất biến (6) - cổng ân hạn ở invite/redeem - gỡ cùng mã mời 04/11/2026.)
 process.env.NODE_ENV = 'test'
 process.env.INTERNAL_IDENTITY_SECRET = 'khoa-test-du-dai-cho-hmac-256-bit!!'
 delete process.env.INTERNAL_API_TOKEN
@@ -203,14 +201,5 @@ describe('đổi email: xác nhận', () => {
     expect(res.body.error).toBe('email_taken')
     const after = await prisma.user.findUnique({ where: { id: verifiedId } })
     expect(after.email).toBe(before.email) // không đổi
-  })
-})
-
-describe('cổng ân hạn chặn nâng vai trò', () => {
-  test('chưa xác minh + quá ân hạn ⇒ invite/redeem 403 email_unverified', async () => {
-    // Gác chạy TRƯỚC khi xét mã, nên mã bất kỳ cũng cho 403 (không phải 400 invalid).
-    const res = await authPost('invite/redeem', U_EXPIRED, { code: 'TSU-AAAAA-AAAAA-AAAAA' })
-    expect(res.status).toBe(403)
-    expect(res.body.error).toBe('email_unverified')
   })
 })

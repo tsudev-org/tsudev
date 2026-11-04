@@ -135,12 +135,11 @@ jobs:
         run: |
           npm --workspace services/content-service test
           npm --workspace services/storage-service test
-          npm --workspace services/trust-service test
           npm --workspace services/auth-service test
           # Chế độ gộp là hình trạng CHẠY THẬT trên production. Bỏ dòng này thì
-          # bất biến "endpoint công khai của trust không bị cổng chặn của content
-          # nuốt" mất người canh, mà triệu chứng của nó là huy hiệu im lặng biến
-          # mất trên site khách chứ không phải CI đỏ.
+          # bất biến "mỗi tiền tố tới đúng app sở hữu" (gồm JWKS ký bản phát hành,
+          # bắt buộc công khai) mất người canh - triệu chứng là 401/404 ở
+          # production chứ không phải CI đỏ.
           npm --workspace services/backend-bundle test
           # renderMarkdown là ranh giới XSS (đầu ra đi thẳng vào
           # dangerouslySetInnerHTML ở ba trang). Test của nó phải chạy trong CI,
@@ -212,26 +211,19 @@ jobs:
       # Smoke khẳng định NỘI DUNG THẬT (tiêu đề bài lấy từ DB), nên phải có DB đã
       # migrate + seed. Không có nó thì getServerSideProps nuốt lỗi, trang rỗng
       # vẫn trả 200 và test xanh mà chẳng chứng minh được gì.
-      # seed-demo dựng tổ chức + chứng chỉ đã ký. `db:seed` chỉ tạo chương trình
-      # dấu, KHÔNG tạo chứng chỉ nào - mà không có chứng chỉ thì /trust/directory
-      # rỗng và trang hồ sơ uy tín không có đường nào dẫn tới. Ký bằng khoá dev
-      # (chưa đặt TRUST_SIGNING_KEY) là đủ cho smoke; script tự chặn khi
-      # NODE_ENV=production.
       - name: Prisma generate + migrate + seed
         run: |
           npm run db:generate
           npm run db:migrate
           npm run db:seed
-          # seed-demo.js require dist/ của trust-service, nên phải dựng trước.
-          # db:generate phải đứng trước bước này: Prisma client là phụ thuộc
-          # kiểu của service.
+          # db:seed:dev require dist/ của auth-service (băm Argon2id), nên phải
+          # dựng trước; db:generate đứng trước vì Prisma client là phụ thuộc kiểu.
           npm run build:services
-          node services/trust-service/scripts/seed-demo.js
           # Mật khẩu cho ba tài khoản dev. Bộ E2E đăng nhập bằng đúng luồng của
           # người dùng thật (Argon2id trong DB) - không còn provider `e2e-dev`
           # nhận mọi username với `devpass`.
           npm run db:seed:dev
-      # Playwright tự dựng content-service, trust-service, frontend-main và
+      # Playwright tự dựng các service, frontend-main và
       # dev-proxy (webServer trong e2e/playwright.config.js).
       - run: npm run e2e:app
       - uses: actions/upload-artifact@v4
