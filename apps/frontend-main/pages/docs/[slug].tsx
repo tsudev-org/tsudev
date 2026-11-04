@@ -4,9 +4,10 @@ import { Layout, Badge, TableOfContents, EmptyState } from '@tsudev/ui';
 import type { TocItem } from '@tsudev/ui';
 import { api } from '../../lib/api';
 import { extractHeadings, renderMarkdown } from '../../lib/md';
-import type { GetServerSidePropsContext } from 'next';
+import type { GetStaticPropsContext } from 'next';
 import type { Doc } from '../../lib/types';
 import { routeParam } from '../../lib/identity';
+import { keepStaleOnFailure } from '../../lib/isr';
 
 type DocPageProps = {
   doc: Doc | null;
@@ -97,13 +98,20 @@ export default function DocPage({ doc, failed, slug, toc }: DocPageProps) {
 ///   gọi thất bại         -> 503, "không tải được"  -> crawler THỬ LẠI, không gỡ
 ///   gọi xong, null       -> 404, "không tìm thấy"  -> đúng, tài liệu này không có
 ///   gọi xong, có dữ liệu -> 200
-export async function getServerSideProps({ params, res }: GetServerSidePropsContext) {
+// Không dựng trước slug nào lúc build: bài được dựng ở lượt xem ĐẦU TIÊN rồi nằm
+// trong cache. 'blocking' để người đọc đầu tiên nhận trang hoàn chỉnh, không
+// nhận khung rỗng rồi nháy nội dung vào.
+export async function getStaticPaths() {
+  return { paths: [], fallback: 'blocking' };
+}
+
+export async function getStaticProps({ params }: GetStaticPropsContext) {
   const r = await api.doc(routeParam(params, 'slug'));
   const doc = r.data;
-  if (r.failed) res.statusCode = 503;
-  else if (!doc) res.statusCode = 404;
+  const revalidate = keepStaleOnFailure(r.failed, '/docs/[slug]');
+  if (!r.failed && !doc) return { notFound: true, revalidate };
   // Mục lục dựng ở SERVER: dựng ở client thì nó nháy vào sau khi bài đã hiện,
   // và bố cục hai cột nhảy một nhịp ở mỗi lần tải trang.
   const toc = extractHeadings(doc?.contentMd || '');
-  return { props: { failed: r.failed, doc, slug: routeParam(params, 'slug'), toc } };
+  return { revalidate, props: { failed: r.failed, doc, slug: routeParam(params, 'slug'), toc } };
 }

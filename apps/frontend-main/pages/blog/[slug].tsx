@@ -4,10 +4,11 @@ import { Layout, Badge, Avatar, TableOfContents, EmptyState } from '@tsudev/ui';
 import type { TocItem } from '@tsudev/ui';
 import { api } from '../../lib/api';
 import { extractHeadings, renderMarkdown } from '../../lib/md';
-import type { GetServerSidePropsContext } from 'next';
+import type { GetStaticPropsContext } from 'next';
 import type { Post } from '../../lib/types';
 import { routeParam } from '../../lib/identity';
 import { formatDateVN } from '../../lib/format';
+import { keepStaleOnFailure } from '../../lib/isr';
 
 type BlogPostProps = {
   post: Post | null;
@@ -150,13 +151,21 @@ export default function BlogPost({ post, failed, slug, toc }: BlogPostProps) {
 ///   gọi thất bại         -> 503, "không tải được"  -> crawler THỬ LẠI, không gỡ
 ///   gọi xong, null       -> 404, "không tìm thấy"  -> đúng, bài viết này không có
 ///   gọi xong, có dữ liệu -> 200
-export async function getServerSideProps({ params, res }: GetServerSidePropsContext) {
+// Không dựng trước slug nào lúc build: bài được dựng ở lượt xem ĐẦU TIÊN rồi nằm
+// trong cache. 'blocking' để người đọc đầu tiên nhận trang hoàn chỉnh, không
+// nhận khung rỗng rồi nháy nội dung vào.
+export async function getStaticPaths() {
+  return { paths: [], fallback: 'blocking' };
+}
+
+export async function getStaticProps({ params }: GetStaticPropsContext) {
   const r = await api.post(routeParam(params, 'slug'));
   const post = r.data;
-  if (r.failed) res.statusCode = 503;
-  else if (!post) res.statusCode = 404;
+  const revalidate = keepStaleOnFailure(r.failed, '/blog/[slug]');
+  // 404 cũng được cache (revalidate): bài xoá rồi thì dựng lại sẽ ra 404 thật.
+  if (!r.failed && !post) return { notFound: true, revalidate };
   // Mục lục dựng ở SERVER: dựng ở client thì nó nháy vào sau khi bài đã hiện,
   // và bố cục hai cột nhảy một nhịp ở mỗi lần tải trang.
   const toc = extractHeadings(post?.contentMd || '');
-  return { props: { failed: r.failed, post, slug: routeParam(params, 'slug'), toc } };
+  return { revalidate, props: { failed: r.failed, post, slug: routeParam(params, 'slug'), toc } };
 }
