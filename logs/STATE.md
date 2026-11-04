@@ -12,8 +12,9 @@
 > (#99, #102), cùng đường ghi tài liệu `/api/author/docs` (#98) và CI xanh lại (#97).
 > Khoá ký Ed25519 đổi vai thành khoá ký bản phát hành (content-service).
 >
-> 🟠 **Chờ**: #101 (DRAFT, migration DROP - backup + migrate TRƯỚC merge) ·
-> #103 (cache ở biên ISR + R2, bucket đã tạo).
+> 🟠 **Chờ**: #101 (DRAFT, migration DROP - backup + migrate TRƯỚC merge).
+> #103 (cache ở biên ISR + R2) ĐÃ MERGE nhưng CHƯA LIVE: wrangler trên máy này
+> đăng nhập SAI tài khoản Cloudflare - phiếu §4b.
 
 > **Phiên 31 bắt đầu ở đây** (cập nhật cuối phiên 30).
 >
