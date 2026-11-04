@@ -17,9 +17,9 @@ import type { ErrorRequestHandler, NextFunction, Request, RequestHandler, Respon
 import { prisma } from '@tsudev/db'
 import { createAuthMiddleware, lookupUser } from '@tsudev/auth'
 import { createRateLimit, largePageRateLimit } from '@tsudev/ratelimit'
-import type { Post, Prisma, Project, ProjectRelease, User } from '@prisma/client'
+import type { Doc, Post, Prisma, Project, ProjectRelease, User } from '@prisma/client'
 import { hasAtLeastRole, emailUsable, pageMeta, parsePaging, MAX_PAGE_SIZE } from '@tsudev/types'
-import { buildPostSearch, buildSnippet, viNormalizeText } from '@tsudev/search'
+import { buildDocSearch, buildPostSearch, buildSnippet, viNormalizeText } from '@tsudev/search'
 
 type Notifier = { alert: (payload: Record<string, unknown>) => Promise<void> }
 
@@ -1611,6 +1611,212 @@ app.delete(
     const current = await findOwnPost(req.params.slug, me.id)
     if (!current) return res.status(404).json({ error: 'Không tìm thấy bài của bạn' })
     await prisma.post.update({ where: { id: current.id }, data: { deletedAt: new Date() } })
+    res.json({ ok: true, softDeleted: true })
+  })
+)
+
+// ---------------- Soạn TÀI LIỆU cho AUTHOR ----------------
+//
+// Trước bề mặt này, đường ghi Doc DUY NHẤT ở production là dispatcher của Toà soạn
+// Agent AI. Gỡ Toà soạn mà không có nó thì /docs đóng băng vĩnh viễn (kế hoạch
+// Q4/2026 §8.3). Khuôn y hệt /api/author/posts: gác requireAuthor (đọc) và
+// requireVerifiedAuthor (ghi), tự gọi trong handler, không dựa middleware.
+//
+// KHÁC Post ở một điểm có chủ đích: Doc không có cột tác giả - tài liệu là của
+// SITE (hướng dẫn cài đặt, nhật ký thay đổi), không của một người. Nên mọi AUTHOR
+// trở lên sửa được mọi tài liệu còn sống. Muốn khoá theo người thì phải thêm cột
+// qua data-schema, đừng giả lập bằng authoredByAgentId.
+
+type DocWritable = {
+  slug?: string
+  title?: string
+  contentMd?: string
+  category?: string
+  position?: number
+}
+type DocBodyResult = { ok: true; data: DocWritable } | { ok: false; error: string }
+
+const DOC_CATEGORY_MAX = 60
+
+function readDocBody(body: unknown, { partial }: { partial: boolean }): DocBodyResult {
+  const b = (body ?? {}) as Record<string, unknown>
+  const data: DocWritable = {}
+
+  if (!partial || b.title !== undefined) {
+    const title = String(b.title ?? '').trim()
+    if (!title) return { ok: false, error: 'Thiếu title' }
+    if (title.length > 200) return { ok: false, error: 'title tối đa 200 ký tự' }
+    data.title = title
+  }
+  if (!partial || b.contentMd !== undefined) {
+    const contentMd = String(b.contentMd ?? '')
+    if (!contentMd.trim()) return { ok: false, error: 'Thiếu contentMd' }
+    data.contentMd = contentMd
+  }
+  if (b.slug !== undefined && String(b.slug).trim() !== '') {
+    const slug = String(b.slug).trim().toLowerCase()
+    if (!SLUG_RE.test(slug))
+      return {
+        ok: false,
+        error: 'slug phải là chữ thường, số và dấu gạch nối (ví dụ: huong-dan-cai-dat)',
+      }
+    data.slug = slug
+  } else if (!partial) {
+    const derived = slugify(data.title || '')
+    if (!SLUG_RE.test(derived))
+      return { ok: false, error: 'Không suy được slug từ title; hãy nhập slug' }
+    data.slug = derived
+  }
+  if (b.category !== undefined) {
+    const category = String(b.category ?? '').trim()
+    if (!category) return { ok: false, error: 'category không được rỗng' }
+    if (category.length > DOC_CATEGORY_MAX)
+      return { ok: false, error: `category tối đa ${DOC_CATEGORY_MAX} ký tự` }
+    data.category = category
+  }
+  if (b.position !== undefined && b.position !== null && b.position !== '') {
+    const position = Number(b.position)
+    if (!Number.isInteger(position) || position < 0 || position > 100000)
+      return { ok: false, error: 'position phải là số nguyên 0-100000' }
+    data.position = position
+  }
+  return { ok: true, data }
+}
+
+const authorDocCard = (d: Doc) => ({
+  id: d.id,
+  slug: d.slug,
+  title: d.title,
+  contentMd: d.contentMd,
+  category: d.category,
+  position: d.position,
+  createdAt: d.createdAt,
+  updatedAt: d.updatedAt,
+})
+
+/** Tài liệu còn sống theo slug. 404 cho cả "không có" lẫn "đã xoá mềm". */
+async function findLiveDoc(slug: string | undefined): Promise<Doc | null> {
+  if (!slug) return null
+  const doc = await prisma.doc.findUnique({ where: { slug } })
+  if (!doc || doc.deletedAt) return null
+  return doc
+}
+
+app.get(
+  '/api/author/docs',
+  largePageRateLimit({
+    name: 'author/docs page_size lớn',
+    identify: (req) => req.user?.preferred_username || req.user?.sub,
+  }),
+  asyncHandler(async (req, res) => {
+    const me = await requireAuthor(req, res)
+    if (!me) return
+    const where = { deletedAt: null }
+    const paging = parsePaging(req.query)
+    const [total, docs] = await Promise.all([
+      prisma.doc.count({ where }),
+      prisma.doc.findMany({
+        where,
+        orderBy: [{ category: 'asc' }, { position: 'asc' }],
+        skip: paging.skip,
+        take: paging.take,
+      }),
+    ])
+    res.json({ data: docs.map(authorDocCard), meta: pageMeta(total, paging) })
+  })
+)
+
+app.post(
+  '/api/author/docs',
+  asyncHandler(async (req, res) => {
+    const me = await requireVerifiedAuthor(req, res)
+    if (!me) return
+    const parsed = readDocBody(req.body, { partial: false })
+    if (!parsed.ok) return res.status(400).json({ error: parsed.error })
+    const data = parsed.data as Required<Pick<DocWritable, 'slug' | 'title' | 'contentMd'>> &
+      DocWritable
+
+    // Slug là @unique trên CẢ bản đã xoá mềm - trùng với bản đã xoá vẫn là 409.
+    const clash = await prisma.doc.findUnique({ where: { slug: data.slug } })
+    if (clash) return res.status(409).json({ error: `slug "${data.slug}" đã tồn tại` })
+
+    const category = data.category ?? 'general'
+    let position = data.position
+    if (position === undefined) {
+      const last = await prisma.doc.findFirst({
+        where: { category, deletedAt: null },
+        orderBy: { position: 'desc' },
+        select: { position: true },
+      })
+      position = (last?.position ?? 0) + 1
+    }
+    const doc = await prisma.doc.create({
+      data: {
+        slug: data.slug,
+        title: data.title,
+        contentMd: data.contentMd,
+        category,
+        position,
+        authoredByAgentId: null,
+        // Chỉ mục tìm kiếm tính CÙNG lượt ghi - bỏ sót thì đọc được mà không tìm thấy.
+        ...buildDocSearch({ title: data.title, contentMd: data.contentMd }),
+      },
+    })
+    res.status(201).json(authorDocCard(doc))
+  })
+)
+
+app.get(
+  '/api/author/docs/:slug',
+  asyncHandler(async (req, res) => {
+    const me = await requireAuthor(req, res)
+    if (!me) return
+    const doc = await findLiveDoc(req.params.slug)
+    if (!doc) return res.status(404).json({ error: 'Không tìm thấy tài liệu' })
+    res.json(authorDocCard(doc))
+  })
+)
+
+app.patch(
+  '/api/author/docs/:slug',
+  asyncHandler(async (req, res) => {
+    const me = await requireVerifiedAuthor(req, res)
+    if (!me) return
+    const current = await findLiveDoc(req.params.slug)
+    if (!current) return res.status(404).json({ error: 'Không tìm thấy tài liệu' })
+
+    const parsed = readDocBody(req.body, { partial: true })
+    if (!parsed.ok) return res.status(400).json({ error: parsed.error })
+    const data = parsed.data
+
+    if (data.slug && data.slug !== current.slug) {
+      const clash = await prisma.doc.findUnique({ where: { slug: data.slug } })
+      if (clash) return res.status(409).json({ error: `slug "${data.slug}" đã tồn tại` })
+    }
+
+    const doc = await prisma.doc.update({
+      where: { id: current.id },
+      data: {
+        ...data,
+        ...buildDocSearch({
+          title: data.title ?? current.title,
+          contentMd: data.contentMd ?? current.contentMd,
+        }),
+      },
+    })
+    res.json(authorDocCard(doc))
+  })
+)
+
+/** XOÁ MỀM - xoá cứng bị trigger Postgres chặn, như Post. */
+app.delete(
+  '/api/author/docs/:slug',
+  asyncHandler(async (req, res) => {
+    const me = await requireVerifiedAuthor(req, res)
+    if (!me) return
+    const current = await findLiveDoc(req.params.slug)
+    if (!current) return res.status(404).json({ error: 'Không tìm thấy tài liệu' })
+    await prisma.doc.update({ where: { id: current.id }, data: { deletedAt: new Date() } })
     res.json({ ok: true, softDeleted: true })
   })
 )
