@@ -16,6 +16,10 @@
     { "pattern": "tsudev.com", "custom_domain": true },
     { "pattern": "www.tsudev.com", "custom_domain": true }
   ],
+  // Bucket R2 của incremental cache (open-next.config.ts). Tên binding CỐ ĐỊNH -
+  // OpenNext đọc đúng NEXT_INC_CACHE_R2_BUCKET. Thiếu binding thì mọi trang ISR
+  // dựng lại ở MỖI lượt xem, tức quay về đúng bài toán §6 muốn chữa.
+  "r2_buckets": [{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "tsudev-next-cache" }],
   "services": [
     {
       // Self-reference service binding, the service name must match the worker name
@@ -52,9 +56,7 @@
   "vars": {
     "CONTENT_SERVICE_URL": "https://tsudev-backend.onrender.com",
     "STORAGE_SERVICE_URL": "https://tsudev-backend.onrender.com",
-    "TRUST_SERVICE_URL": "https://tsudev-backend.onrender.com",
     "AUTH_SERVICE_URL": "https://tsudev-backend.onrender.com",
-    "NEWSROOM_SERVICE_URL": "https://tsudev-backend.onrender.com",
     "NEXTAUTH_URL": "https://tsudev.com",
     "NEXTAUTH_COOKIE_DOMAIN": ".tsudev.com"
   }

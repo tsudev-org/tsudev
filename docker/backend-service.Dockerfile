@@ -1,4 +1,4 @@
-# Dockerfile dùng chung cho 4 backend service (user/content/storage/trust).
+# Dockerfile dùng chung cho các backend service (content/storage/auth/bundle).
 # Build context PHẢI là gốc repo (không phải services/<tên>) vì các service
 # phụ thuộc package nội bộ npm-workspace @tsudev/db, @tsudev/types - không có
 # trên npm registry công khai, npm install cô lập trong services/<tên> sẽ

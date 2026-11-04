@@ -12,7 +12,6 @@
 # có gì để thay bằng biến.
 services/content-service/Dockerfile
 services/storage-service/Dockerfile
-services/trust-service/Dockerfile
 
 # Giá trị do scripts/topology/gen-env.js quản lý, phần còn lại là tài liệu.
 .env.example

@@ -108,7 +108,7 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
       if (!res.ok) {
         // ĐỌC mã trạng thái và NÓI RA. Bản đầu của trang toà soạn từng gọi fetch
         // rồi vứt phản hồi đi, nên 401/404/500 trông y hệt thành công - bài học
-        // đã ghi trong pages/admin/newsroom.tsx.
+        // của trang toà soạn (đã gỡ 29/10/2026).
         onMessage('danger', `Không đọc được danh sách bản phát hành (HTTP ${res.status})`);
         setDsach([]);
         return;
@@ -410,7 +410,7 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
                     label="Đường dẫn ngoài"
                     value={form.externalUrl}
                     onChange={set('externalUrl')}
-                    placeholder={form.platform === 'SOURCE' ? 'https://github.com/…' : '/trust'}
+                    placeholder={form.platform === 'SOURCE' ? 'https://github.com/…' : 'https://…'}
                     required
                     className="sm:col-span-2"
                   />

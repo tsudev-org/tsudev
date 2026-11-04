@@ -7,25 +7,37 @@ import type { IconName } from '@tsudev/ui';
 import { api } from '../lib/api';
 import { KIND_LABEL, STATUS_LABEL, copyrightMeta } from '../lib/projectLabels';
 import type { Post, Project, ProjectWithReleases } from '../lib/types';
+import { keepStaleOnFailure } from '../lib/isr';
 
 /**
- * Bốn phân hệ ở khối "Hệ sinh thái".
+ * Bốn phân hệ ở khối "Hệ sinh thái". Từ 29/10/2026 tsudev.com là nơi ĐĂNG VÀ
+ * PHÁT HÀNH FILE CÀI ĐẶT của các app tự phát triển, nên Dự án đứng đầu.
  *
  * Trước đây mỗi mục mang một chuỗi `d` SVG viết tay cộng một `tone` luân phiên
  * brand/teal. Hai vấn đề, và cái thứ hai mới là vấn đề thật:
  *
  *   1. Bốn icon nằm NGOÀI `@tsudev/ui`, nên chúng không đi qua bảng màu theo
  *      vai trò và không cổng tương phản nào canh chúng ở ba chế độ.
- *   2. `tone` luân phiên theo VỊ TRÍ, không theo nghĩa. Con dấu tín nhiệm là
- *      mục duy nhất thật sự thuộc nhóm "trust", nhưng nó nhận màu brand chỉ vì
- *      nó đứng thứ ba. Màu như thế là trang trí, không phải tín hiệu.
+ *   2. `tone` luân phiên theo VỊ TRÍ, không theo nghĩa - màu như thế là trang
+ *      trí, không phải tín hiệu.
  *
- * Nay mỗi mục khai một `IconName` và màu do VAI TRÒ của icon quyết định: con
- * dấu ra ngọc vì nó là trust, dự án ra xanh lá vì `package` thuộc nhóm create
- * (thứ tạo ra và phát hành được). Đó là cùng một dải màu, nhưng lần này nó nói
- * đúng.
+ * Nay mỗi mục khai một `IconName` và màu do VAI TRÒ của icon quyết định: chữ
+ * ký ra ngọc vì nó là trust, dự án ra xanh lá vì `package` thuộc nhóm create
+ * (thứ tạo ra và phát hành được).
  */
 const ECOSYSTEM: { title: string; desc: string; href: string; icon: IconName }[] = [
+  {
+    title: 'Dự án & tải về',
+    desc: 'Ứng dụng, công cụ và thư viện do tsudev phát triển - tải bản cài đặt cho từng nền tảng.',
+    href: '/projects',
+    icon: 'package',
+  },
+  {
+    title: 'Tài liệu',
+    desc: 'Hướng dẫn cài đặt, nhật ký thay đổi và cách xử lý sự cố của từng app.',
+    href: '/docs',
+    icon: 'book',
+  },
   {
     title: 'Blog',
     desc: 'Bài viết kỹ thuật, hướng dẫn và góc nhìn công nghệ.',
@@ -33,22 +45,10 @@ const ECOSYSTEM: { title: string; desc: string; href: string; icon: IconName }[]
     icon: 'list',
   },
   {
-    title: 'Tài liệu',
-    desc: 'Kho tri thức chuẩn hoá, guide và API reference.',
+    title: 'Tải về an toàn',
+    desc: 'Mỗi bản phát hành công bố SHA-256 và chữ ký Ed25519 để bạn tự đối chiếu.',
     href: '/docs',
-    icon: 'book',
-  },
-  {
-    title: 'Con dấu tín nhiệm',
-    desc: 'Chứng nhận website dùng mã nguồn hoặc do tsudev thực hiện.',
-    href: '/trust',
-    icon: 'seal',
-  },
-  {
-    title: 'Dự án',
-    desc: 'Ứng dụng, công cụ và thư viện do tsudev phát triển, kèm bản quyền.',
-    href: '/projects',
-    icon: 'package',
+    icon: 'signature',
   },
 ];
 
@@ -118,15 +118,15 @@ export default function Home({
               <span className="text-link">từng dòng code</span>.
             </h1>
             <p className="mt-6 text-lg text-fg-secondary max-w-xl">
-              Dự án cá nhân của tsudev - tri thức kỹ thuật được chuẩn hoá, mã nguồn dùng được, và
-              con dấu tín nhiệm cho những website mang dấu ấn tsudev.
+              Nơi tsudev phát hành các ứng dụng tự phát triển - tải bản cài đặt cho Windows,
+              Android, macOS, Linux, kèm checksum và chữ ký để tự kiểm.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Button as="a" href="/trust" size="lg">
-                Con dấu tín nhiệm
+              <Button as="a" href="/projects" size="lg">
+                Xem & tải ứng dụng
               </Button>
-              <Button as="a" href="/blog" variant="secondary" size="lg">
-                Đọc blog
+              <Button as="a" href="/docs" variant="secondary" size="lg">
+                Hướng dẫn cài đặt
               </Button>
             </div>
           </div>
@@ -327,15 +327,15 @@ export default function Home({
           <div className="p-10 md:p-14 text-center">
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-fg text-balance">
-                Website của bạn dùng mã nguồn tsudev?
+                Tải về rồi mà Windows hay Android cảnh báo?
               </h2>
               <p className="mt-3 text-fg-secondary max-w-lg mx-auto">
-                Con dấu tín nhiệm nay cấp theo lời mời: chứng chỉ ký số, xác minh quyền sở hữu tên
-                miền và giám sát định kỳ, dành cho tài khoản đã có mã mời.
+                Dự án cá nhân không có chứng chỉ ký mã thương mại. Mỗi bản phát hành đều kèm SHA-256
+                và chữ ký Ed25519 - tài liệu chỉ cách đối chiếu trước khi cài.
               </p>
               <div className="mt-7 flex justify-center gap-3">
-                <Button as="a" href="/trust" size="lg">
-                  Tìm hiểu con dấu
+                <Button as="a" href="/projects" size="lg">
+                  Xem ứng dụng
                 </Button>
                 <Button as="a" href="/docs" variant="secondary" size="lg">
                   Tài liệu
@@ -349,12 +349,7 @@ export default function Home({
   );
 }
 
-export async function getServerSideProps() {
-  // KHÔNG gọi trust-service ở đây nữa. Trang chủ là trang công khai và Con dấu
-  // nay chạy ở chế độ mời: số chứng chỉ và danh sách website đã cấp dấu là dữ
-  // liệu chỉ VIP mới được thấy (docs/refactor-trust-invite-access.md, Phần A).
-  // Gọi mà không có danh tính thì chỉ nhận 401 rồi rơi về [] - một lời gọi mạng
-  // vô nghĩa ở MỌI lượt tải trang chủ.
+export async function getStaticProps() {
   // Lấy đúng số mục mà trang này VẼ RA (mỗi khu ba cái). Bản trước lấy 6 bài,
   // 100 dự án và toàn bộ tài liệu chỉ để đếm cho hàng số liệu ở hero - mà phép
   // đếm đó đếm nhầm: nó đếm số bản ghi VỪA TẢI VỀ chứ không phải số bản ghi
@@ -372,7 +367,11 @@ export async function getServerSideProps() {
   // Hai khu độc lập nhau nên hai cờ RIÊNG, không gộp thành một `failed` chung:
   // blog chết không có nghĩa là danh sách dự án cũng chết, và nói nó chết là nói
   // sai với người đọc.
+  // ISR (lib/isr.ts): blog hoặc dự án chết lúc dựng lại ⇒ GIỮ bản cache cũ. Khu
+  // tải về chết thì không chặn - trang vẫn có giá trị, khu đó tự hiện trạng thái lỗi.
+  const revalidate = keepStaleOnFailure(rPosts.failed || rProjects.failed, '/');
   return {
+    revalidate,
     props: {
       posts: rPosts.data,
       postsFailed: rPosts.failed,

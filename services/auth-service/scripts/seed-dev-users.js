@@ -5,8 +5,7 @@
  *
  *   node services/auth-service/scripts/seed-dev-users.js
  *
- * CỐ Ý TÁCH KHỎI packages/db/prisma/seed.js, cùng lý do với
- * services/trust-service/scripts/seed-demo.js: seed chính thức chỉ chứa dữ
+ * CỐ Ý TÁCH KHỎI packages/db/prisma/seed.js: seed chính thức chỉ chứa dữ
  * liệu tham chiếu - thứ mà MỌI môi trường, kể cả production, đều cần. Mật khẩu
  * đã biết trước thì ngược lại: đó chính xác là loại dữ liệu không bao giờ được
  * mọc lên ở production.
@@ -41,7 +40,9 @@ const DEV_PASSWORD = process.env.DEV_SEED_PASSWORD || 'tsudev-dev-2026!'
 const USERS = [
   { username: 'tsudev', role: 'ADMIN' },
   { username: 'alice', role: 'MEMBER' },
-  { username: 'bob', role: 'VIP' },
+  // bob là AUTHOR (trước 04/11/2026 là VIP - vé vào Con dấu, nay đã gỡ):
+  // tài khoản dev để thử đường đăng bài/tài liệu mà không cần quyền ADMIN.
+  { username: 'bob', role: 'AUTHOR' },
 ]
 
 async function main() {
@@ -55,11 +56,9 @@ async function main() {
       // `role` PHẢI có mặt ở nhánh update, không chỉ ở create.
       //
       // Thiếu nó thì mọi thứ nâng vai trò giữa chừng đều VĨNH VIỄN, và bộ e2e
-      // tự bắn vào chân mình: `invite.spec.js` nâng alice MEMBER→VIP để chứng
-      // minh mã mời chạy, nên lần chạy THỨ HAI trên cùng một DB luôn đỏ. Tệ hơn
-      // là triệu chứng: nó đỏ ở một bước KHÔNG liên quan (bob mở
-      // /trust/redeem), nên rất dễ chẩn thành lỗi giao diện. Đã mất một vòng
-      // chạy vì chuyện này ở phiên 7, và suýt mất vòng nữa ở phiên 8.
+      // tự bắn vào chân mình: một spec nâng vai trò ở lượt đầu thì lượt chạy THỨ
+      // HAI trên cùng một DB luôn đỏ, ở một bước KHÔNG liên quan. Đã mất một
+      // vòng chạy vì chuyện này ở phiên 7 (invite.spec.js, nay đã gỡ).
       //
       // Đây là seed DEV: ba tài khoản này phải trở về đúng bậc ban đầu ở mỗi
       // lượt chạy, đó mới là "trạng thái đã biết" mà test dựa vào.

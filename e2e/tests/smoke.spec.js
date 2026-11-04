@@ -61,56 +61,16 @@ test('tài liệu: danh sách có mục thật và mở được trang chi tiế
   await expect(page.locator('h1').first()).toHaveText('Bắt đầu nhanh');
 });
 
-// Con dấu chạy ở CHẾ ĐỘ MỜI. Ba khẳng định dưới đây là toàn bộ hợp đồng nhìn
-// thấy được của Phần A (docs/refactor-trust-invite-access.md), và cả ba đều hỏng
-// ÂM THẦM: gác hụt thì trang vẫn 200 với đầy dữ liệu, gác quá tay thì người có
-// mã mời bị đá ra mà không có lỗi nào ở máy chủ.
-test('con dấu: khách chưa đăng nhập chỉ thấy trang mời, không thấy dữ liệu', async ({ page }) => {
-  await page.goto(`${MAIN}/trust`, { waitUntil: 'networkidle' });
-  await expect(page).toHaveTitle(/[Cc]on dấu/);
-  await expect(page.getByText('cấp theo lời mời')).toBeVisible();
-  // Rút khỏi chỉ mục: thẻ phải có mặt ở ĐÚNG nhánh mà bot nhìn thấy, tức nhánh
-  // chưa đăng nhập - bot không bao giờ có phiên.
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
-
-  // Mọi trang còn lại chuyển hướng về đăng nhập, KHÔNG phải 200 kèm nội dung.
-  for (const path of ['/trust/verify', '/trust/directory', '/trust/apply']) {
-    await page.goto(`${MAIN}${path}`, { waitUntil: 'networkidle' });
-    expect(page.url()).toContain('/login');
+// Con dấu tín nhiệm đã GỠ 04/11/2026 (docs/refactor-tsudev-2026-q4.md §7). Gỡ
+// cũng là đổi bề mặt: trang cũ phải 404 thật, không phải còn sót một trang mồ côi
+// gọi tới backend đã không còn.
+test('con dấu đã gỡ: /trust/* trả 404 và không còn trong điều hướng', async ({ page }) => {
+  for (const path of ['/trust', '/trust/verify', '/trust/directory', '/admin/trust']) {
+    const res = await page.request.get(`${MAIN}${path}`);
+    expect(res.status(), `${path} lẽ ra phải 404`).toBe(404);
   }
-});
-
-test('con dấu: đăng nhập rồi nhưng chưa có mã mời vẫn không vào được', async ({ page }) => {
-  // "Đã đăng nhập" không còn đủ - phải đạt VIP. Đây là điểm dễ sai nhất vì cổng
-  // cũ chỉ đòi có phiên.
-  //
-  // Đăng ký MỘT tài khoản mới thay vì dùng `alice`: invite.spec.js nâng alice
-  // lên VIP khi nó chạy, và hai tệp spec không có thứ tự đảm bảo. Một test chỉ
-  // xanh khi tệp khác chưa chạy là một test nói dối.
-  const user = `e2e-member-${Date.now()}`;
-  const reg = await page.request.post(`${MAIN}/api/identity/register`, {
-    data: {
-      username: user,
-      email: `${user}@example.com`,
-      password: DEV_PASSWORD,
-    },
-  });
-  expect(reg.status()).toBeLessThan(400);
-
-  await signIn(page, user);
-  await page.goto(`${MAIN}/trust/directory`, { waitUntil: 'networkidle' });
-  expect(new URL(page.url()).pathname).toBe('/trust');
-  await expect(page.getByText('cấp theo lời mời')).toBeVisible();
-});
-
-test('con dấu: tài khoản VIP thấy nội dung thật', async ({ page }) => {
-  // bob là VIP - bậc mà mã mời cấp.
-  await signIn(page, 'bob');
-  await page.goto(`${MAIN}/trust`, { waitUntil: 'networkidle' });
-  await expect(page.locator('a[href^="/trust/programs/"]').first()).toBeVisible();
-
-  await page.goto(`${MAIN}/trust/verify`, { waitUntil: 'networkidle' });
-  await expect(page.locator('h1').first()).toBeVisible();
+  await page.goto(MAIN, { waitUntil: 'networkidle' });
+  await expect(page.locator('a[href^="/trust"]')).toHaveCount(0);
 });
 
 test('sitemap không còn liệt kê trang nào của con dấu', async ({ page }) => {
@@ -121,6 +81,13 @@ test('sitemap không còn liệt kê trang nào của con dấu', async ({ page 
   // trong slug và vẫn phải nằm trong sitemap.
   expect(xml).not.toContain('/trust/');
   expect(xml).not.toContain('/trust<');
+});
+
+test('JWKS ký bản phát hành công khai ở đường chuẩn', async ({ page }) => {
+  const res = await page.request.get(`${MAIN}/.well-known/tsudev-release-jwks.json`);
+  expect(res.status()).toBe(200);
+  const body = await res.json();
+  expect(body.keys[0]).toMatchObject({ kty: 'OKP', crv: 'Ed25519' });
 });
 
 test('đăng nhập dev hoạt động', async ({ page }) => {
@@ -173,25 +140,4 @@ test('quản trị dự án mở được và thấy danh sách', async ({ page 
   await page.goto(`${MAIN}/admin/projects`, { waitUntil: 'networkidle' });
   await expect(page.getByRole('heading', { name: 'Dự án & bản quyền' })).toBeVisible();
   await expect(page.getByText('tsudev-platform')).toBeVisible({ timeout: 10000 });
-});
-
-// PHỤ THUỘC DỮ LIỆU: cần `services/trust-service/scripts/seed-demo.js` đã chạy.
-// `db:seed` chỉ tạo chương trình dấu, không tạo chứng chỉ nào - mà danh bạ chỉ
-// hiện chứng chỉ ACTIVE còn hạn. Thiếu bước đó thì test này đỏ ở CI dù mã đúng
-// (đã xảy ra một lần); xem bước seed trong .github/workflows/ci.yml.
-test('hồ sơ uy tín tổ chức mở được từ danh bạ', async ({ page }) => {
-  // Cần VIP: danh bạ nằm sau cổng chế độ mời từ 18/08/2026.
-  await signIn(page, 'bob');
-  await page.goto(`${MAIN}/trust/directory`, { waitUntil: 'networkidle' });
-  const orgLink = page.locator('a[href^="/trust/org/"]').first();
-  await expect(orgLink).toBeVisible();
-  await orgLink.click();
-  await page.waitForLoadState('networkidle');
-
-  // Bốn chỉ số thô là nội dung chính của hồ sơ - không phải một "điểm uy tín".
-  await expect(page.getByText('Chứng chỉ hiệu lực')).toBeVisible();
-  await expect(page.getByText('Vượt kiểm định kỳ')).toBeVisible();
-  // "Tên miền đã xác minh" xuất hiện hai lần (nhãn chỉ số + tiêu đề khối bên
-  // phải) nên phải chỉ đích danh, không dùng getByText trần.
-  await expect(page.getByRole('heading', { name: 'Tên miền đã xác minh' })).toBeVisible();
 });

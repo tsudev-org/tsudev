@@ -11,7 +11,7 @@
 //  4. passwordHash không bao giờ ra khỏi service.
 //
 // `export {}` biến tệp thành MODULE: các `const` ở đầu tệp (request, prisma,
-// app, post, ADMIN, MEMBER…) trùng tên với invite.test.ts. Nếu cả hai là script
+// app, post, ADMIN, MEMBER…) trùng tên với invite.test.ts (đã gỡ). Nếu cả hai là script
 // (global scope) thì trình biên dịch báo TS6200 "trùng định nghĩa" khi gộp
 // chương trình, và `post` bị giải nhầm sang bản của invite.test.ts (sub: string)
 // gây tiếp TS2345 ở lời gọi `post('list', null)`. Module hoá là dập cả hai.
@@ -161,6 +161,19 @@ describe('liệt kê & tạo', () => {
     expect(res.status).toBe(400)
     expect(res.body.error).toBe('invalid_role')
     expect(await prisma.user.findUnique({ where: { username: 'test-ua-evil' } })).toBeNull()
+  }, 20000)
+
+  // VIP là vé vào Con dấu tín nhiệm, đã gỡ 04/11/2026. Giá trị còn trong enum
+  // (Postgres không DROP VALUE được) nhưng KHÔNG cấp mới được nữa.
+  test('VIP không còn cấp được - gỡ cùng Con dấu', async () => {
+    const res = await post('create', OWNER, {
+      username: 'test-ua-vip',
+      email: 'test-ua-vip@tsudev.com',
+      password: PW,
+      role: 'VIP',
+    })
+    expect(res.status).toBe(400)
+    expect(res.body.error).toBe('invalid_role')
   }, 20000)
 
   test('tên/email trùng bị 409', async () => {

@@ -42,7 +42,6 @@ type ProjectForm = {
   copyrightNo: string;
   copyrightAt: string;
   copyrightOwner: string;
-  trustProgramSlug: string;
   featured: boolean;
   published: boolean;
   sortOrder: number | string;
@@ -65,7 +64,6 @@ const EMPTY: ProjectForm = {
   copyrightNo: '',
   copyrightAt: '',
   copyrightOwner: '',
-  trustProgramSlug: '',
   featured: false,
   published: true,
   sortOrder: 0,
@@ -167,7 +165,6 @@ export default function AdminProjects() {
       license: p.license || '',
       copyrightNo: p.copyrightNo || '',
       copyrightOwner: p.copyrightOwner || '',
-      trustProgramSlug: p.trustProgramSlug || '',
       descriptionMd: p.descriptionMd || '',
     };
     setForm(merged);
@@ -376,13 +373,6 @@ export default function AdminProjects() {
               label="Chủ sở hữu"
               value={form.copyrightOwner}
               onChange={set('copyrightOwner')}
-            />
-            <Input
-              id="trustProgramSlug"
-              label="Chương trình dấu liên quan"
-              value={form.trustProgramSlug}
-              onChange={set('trustProgramSlug')}
-              placeholder="copyright-verified"
             />
             <Input
               id="sortOrder"

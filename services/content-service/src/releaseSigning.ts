@@ -1,30 +1,36 @@
-'use strict'
 /**
- * Khoá ký của cơ quan cấp dấu.
+ * Vòng khoá Ed25519 ký BẢN PHÁT HÀNH (ProjectRelease.signature).
  *
- * Chứng chỉ được ký bằng Ed25519 và phát hành dưới dạng JWS compact, kèm `kid`.
- * Khoá công khai công bố ở /.well-known/tsudev-trust-jwks.json để bên thứ ba tự
- * xác minh offline - không cần tin vào API của tsudev.
+ * Nguồn gốc: đây là `services/trust-service/src/signing.ts` của Con dấu tín nhiệm,
+ * chuyển sang đây khi Con dấu bị gỡ (kế hoạch Q4/2026 §7.3, §7.6). Năng lực giữ
+ * nguyên, chỉ đổi người dùng: ký file cài đặt thay vì chứng chỉ website. Dự án cá
+ * nhân không mua được chứng chỉ ký mã, nên một checksum ký được bằng khoá công bố
+ * công khai là thứ tốt nhất ta cho được người tải.
  *
- * Khoá riêng nạp từ biến môi trường TRUST_SIGNING_KEY: nội dung là PEM PKCS#8
- * ĐÃ base64 hoá, vì PEM nhiều dòng rất dễ hỏng khi đi qua .env / CI secret.
+ * Khoá công khai công bố ở /.well-known/tsudev-release-jwks.json để bất kỳ ai tự
+ * xác minh offline.
  *
- *   node services/trust-service/scripts/genkey.js
+ * TÊN BIẾN ĐỔI HAI ĐỢT (§7.6). Đợt này đọc RELEASE_SIGNING_* TRƯỚC, thiếu thì lùi
+ * về TRUST_SIGNING_* - để production đang đặt tên cũ vẫn khởi động được. Đợt sau,
+ * khi Render đã có tên mới, mới gỡ nhánh lùi. Gỡ tên cũ trước khi đặt tên mới =
+ * production từ chối khởi động (cố ý, xem loadPrivateKey).
  *
- * Lộ khoá này đồng nghĩa giả được mọi chứng chỉ, nên production BẮT BUỘC phải
- * có biến môi trường; service từ chối khởi động nếu thiếu.
+ *   RELEASE_SIGNING_KEY           PEM PKCS#8 đã base64 hoá (khoá đang ký)
+ *   RELEASE_SIGNING_KEY_ID        kid công bố trong JWKS
+ *   RELEASE_SIGNING_KEYS_RETIRED  kid:<base64 PEM>,kid2:<...> - chỉ để xác minh
  *
- * XOAY KHOÁ. Chứng chỉ sống hàng năm, còn khoá thì phải thay được - kể cả khẩn
- * cấp khi nghi lộ. Vì vậy service giữ một VÒNG KHOÁ: một khoá đang ký, cộng các
- * khoá đã nghỉ chỉ dùng để xác minh, khai báo ở TRUST_SIGNING_KEYS_RETIRED dạng
+ *   node services/content-service/scripts/genkey.js
  *
- *   kid:<base64 PEM>,kid2:<base64 PEM>
- *
- * PEM ở đây nên là khoá CÔNG KHAI (khoá riêng cũng nhận, service tự rút phần
- * công khai) - đã nghỉ thì không có lý do gì còn giữ khoá riêng trên máy chủ.
- * Cả vòng khoá được công bố trong JWKS, nên chứng chỉ cấp trước lúc xoay vẫn
- * xác minh được, kể cả bởi bên thứ ba không gọi API tsudev.
+ * Lộ khoá riêng = giả được chữ ký của mọi bản phát hành, nên production BẮT BUỘC
+ * có khoá; service từ chối khởi động nếu thiếu.
  */
+
+/** Đọc tên mới trước, lùi về tên cũ của Con dấu. Một chỗ duy nhất biết cả hai tên. */
+export function signingEnv(suffix: 'KEY' | 'KEY_ID' | 'KEYS_RETIRED'): string | undefined {
+  const fresh = process.env[`RELEASE_SIGNING_${suffix}`]
+  if (fresh !== undefined && fresh !== '') return fresh
+  return process.env[`TRUST_SIGNING_${suffix}`]
+}
 
 import { Buffer } from 'buffer'
 import {
@@ -49,7 +55,8 @@ type LoadedKey = { pem: string; kid: string; dev: boolean }
 // Khoá dev cố định, sinh từ seed công khai bên dưới. Cố định (thay vì sinh ngẫu
 // nhiên mỗi lần chạy) để chứng chỉ cấp trước khi restart vẫn xác minh được.
 // Không bao giờ dùng ngoài môi trường phát triển.
-const DEV_SEED = Buffer.from('tsudev-trust-dev-key-do-not-use!', 'utf8') // đúng 32 byte
+// Giữ nguyên chuỗi (đúng 32 byte): đổi nó là đổi khoá dev.
+const DEV_SEED = Buffer.from('tsudev-trust-dev-key-do-not-use!', 'utf8')
 const DEV_KID = 'dev-insecure'
 
 function devPrivatePem(): string {
@@ -81,19 +88,23 @@ function assertEd25519Private(pem: string, label: string): Uint8Array {
 }
 
 function loadPrivateKey(): LoadedKey {
-  const pem = decodePem(process.env.TRUST_SIGNING_KEY)
+  const pem = decodePem(signingEnv('KEY'))
   if (pem) {
-    assertEd25519Private(pem, 'TRUST_SIGNING_KEY')
-    return { pem, kid: process.env.TRUST_SIGNING_KEY_ID || 'default', dev: false }
+    assertEd25519Private(pem, 'RELEASE_SIGNING_KEY')
+    return { pem, kid: signingEnv('KEY_ID') || 'default', dev: false }
   }
   if (process.env.NODE_ENV === 'production') {
-    throw new Error('Thiếu TRUST_SIGNING_KEY - không thể cấp chứng chỉ ở môi trường production.')
+    throw new Error(
+      'Thiếu RELEASE_SIGNING_KEY (hoặc tên cũ TRUST_SIGNING_KEY) - không thể ký bản phát hành ở production.'
+    )
   }
-  console.warn(
-    '[trust] CẢNH BÁO: chưa đặt TRUST_SIGNING_KEY, đang dùng khoá dev công khai.\n' +
-      '        Chứng chỉ ký bằng khoá này KHÔNG có giá trị. Sinh khoá thật:\n' +
-      '        node services/trust-service/scripts/genkey.js'
-  )
+  if (process.env.NODE_ENV !== 'test') {
+    console.warn(
+      '[release-signing] chưa đặt RELEASE_SIGNING_KEY, đang dùng khoá dev công khai.\n' +
+        '        Chữ ký bằng khoá này KHÔNG có giá trị. Sinh khoá thật:\n' +
+        '        node services/content-service/scripts/genkey.js'
+    )
+  }
   return { pem: devPrivatePem(), kid: DEV_KID, dev: true }
 }
 
@@ -104,7 +115,7 @@ function loadPrivateKey(): LoadedKey {
  */
 function loadRetiredKeys(): Map<string, Uint8Array> {
   const ring = new Map<string, Uint8Array>()
-  const raw = String(process.env.TRUST_SIGNING_KEYS_RETIRED || '').trim()
+  const raw = String(signingEnv('KEYS_RETIRED') || '').trim()
   for (const entry of raw
     .split(/[,\n]/)
     .map((s) => s.trim())
@@ -112,7 +123,7 @@ function loadRetiredKeys(): Map<string, Uint8Array> {
     const sep = entry.indexOf(':')
     if (sep < 1) {
       console.warn(
-        `[trust] TRUST_SIGNING_KEYS_RETIRED: bỏ qua mục sai định dạng (cần "kid:<base64 PEM>")`
+        `[release-signing] RELEASE_SIGNING_KEYS_RETIRED: bỏ qua mục sai định dạng (cần "kid:<base64 PEM>")`
       )
       continue
     }
@@ -130,7 +141,7 @@ function loadRetiredKeys(): Map<string, Uint8Array> {
       ring.set(kid, pub)
     } catch (e) {
       console.warn(
-        `[trust] TRUST_SIGNING_KEYS_RETIRED: bỏ qua khoá ${kid} - ${
+        `[release-signing] RELEASE_SIGNING_KEYS_RETIRED: bỏ qua khoá ${kid} - ${
           e instanceof Error ? e.message : String(e)
         }`
       )

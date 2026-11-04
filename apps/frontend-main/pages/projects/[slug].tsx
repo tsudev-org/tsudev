@@ -5,10 +5,11 @@ import DownloadModal from '../../components/DownloadModal';
 import { api } from '../../lib/api';
 import { renderMarkdown } from '../../lib/md';
 import { KIND_LABEL, STATUS_LABEL, copyrightMeta } from '../../lib/projectLabels';
-import type { GetServerSidePropsContext } from 'next';
+import type { GetStaticPropsContext } from 'next';
 import type { Project, ProjectRelease } from '../../lib/types';
 import { routeParam } from '../../lib/identity';
 import { formatDateVN } from '../../lib/format';
+import { keepStaleOnFailure } from '../../lib/isr';
 
 // Định dạng ngày dùng chung, không định nghĩa lại tại chỗ - xem lib/format.ts.
 const fmt = formatDateVN;
@@ -183,14 +184,6 @@ export default function ProjectDetail({ project, releases, failed, slug }: Proje
                 )}
                 {project.copyrightOwner && <Row label="Chủ sở hữu">{project.copyrightOwner}</Row>}
               </dl>
-              {project.trustProgramSlug && (
-                <a
-                  href={`/trust/programs/${project.trustProgramSlug}`}
-                  className="mt-3 inline-block text-sm text-link hover:underline"
-                >
-                  Chương trình dấu liên quan →
-                </a>
-              )}
             </Card>
           </aside>
         </div>
@@ -214,16 +207,23 @@ export default function ProjectDetail({ project, releases, failed, slug }: Proje
 ///   gọi thất bại         -> 503, "không tải được"  -> crawler THỬ LẠI, không gỡ
 ///   gọi xong, null       -> 404, "không tìm thấy"  -> đúng, dự án này không có
 ///   gọi xong, có dữ liệu -> 200
-export async function getServerSideProps({ params, res }: GetServerSidePropsContext) {
+// Không dựng trước slug nào lúc build: bài được dựng ở lượt xem ĐẦU TIÊN rồi nằm
+// trong cache. 'blocking' để người đọc đầu tiên nhận trang hoàn chỉnh, không
+// nhận khung rỗng rồi nháy nội dung vào.
+export async function getStaticPaths() {
+  return { paths: [], fallback: 'blocking' };
+}
+
+export async function getStaticProps({ params }: GetStaticPropsContext) {
   const slug = routeParam(params, 'slug');
   // Hai lượt gọi SONG SONG. Tuần tự thì trang chi tiết dự án phải chờ hai vòng
   // mạng tới một backend ngủ sau 15 phút không request - tức cộng thêm cả một
   // lần cold start vào thời gian chờ của người đọc.
   const [r, rRel] = await Promise.all([api.project(slug), api.projectReleases(slug)]);
   const project = r.data;
-  if (r.failed) res.statusCode = 503;
-  else if (!project) res.statusCode = 404;
-  // `rRel.failed` KHÔNG đổi mã trạng thái: dự án vẫn đọc được thì trang vẫn có
-  // giá trị, chỉ thiếu khu tải về. Để nó hạ cả trang xuống 503 là đánh đổi sai.
-  return { props: { failed: r.failed, project, releases: rRel.data, slug } };
+  const revalidate = keepStaleOnFailure(r.failed, '/projects/[slug]');
+  if (!r.failed && !project) return { notFound: true, revalidate };
+  // `rRel.failed` KHÔNG giữ bản cũ: dự án vẫn đọc được thì trang vẫn có giá trị,
+  // chỉ thiếu khu tải về. Để nó chặn cả lượt dựng lại là đánh đổi sai.
+  return { revalidate, props: { failed: r.failed, project, releases: rRel.data, slug } };
 }
