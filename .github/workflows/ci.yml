@@ -168,6 +168,13 @@ jobs:
       # config/topology.json → overrides.ci kèm lý do.
       DATABASE_URL: postgresql://tsudev:tsudev@localhost:5432/tsudev?schema=public
       NEXTAUTH_SECRET: e2e-placeholder-secret
+      # KHÔNG phải bí mật - giá trị cố định chỉ cho CI, giống NEXTAUTH_SECRET ở
+      # trên. Cần ở HAI chỗ và phải là CÙNG một giá trị: db:seed:dev dùng nó mã
+      # hoá bí mật TOTP của tài khoản dev ADMIN/OWNER (thiếu hoặc < 32 ký tự là
+      # seed thoát 1), và auth-service do Playwright dựng (webServer chuyền
+      # ...process.env xuống) dùng nó giải mã khi kiểm mã 2FA. CI không có .env,
+      # và dotenv không ghi đè biến đã có, nên env của job là nguồn duy nhất.
+      TOTP_ENCRYPTION_KEY: ci-only-totp-key-khong-phai-bi-mat-chi-dung-cho-e2e
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
