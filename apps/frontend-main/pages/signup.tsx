@@ -52,7 +52,7 @@ export default function SignupPage() {
         setError(
           data?.detail === 'breached'
             ? 'Mật khẩu này từng xuất hiện trong các vụ rò rỉ dữ liệu. Hãy chọn mật khẩu khác.'
-            : ERROR_TEXT[data?.error] ?? 'Không tạo được tài khoản. Hãy thử lại.'
+            : (ERROR_TEXT[data?.error] ?? 'Không tạo được tài khoản. Hãy thử lại.')
         );
         return;
       }

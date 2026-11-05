@@ -71,13 +71,13 @@ export const EmptyState = ({
 
       <div className="mt-2 text-sm text-fg-secondary max-w-prose mx-auto">
         {failed
-          ? explain ?? (
+          ? (explain ?? (
               <>
                 Lượt gọi tới máy chủ nội dung đã thất bại, nên đây <strong>không</strong> phải
                 &quot;chưa có gì&quot; - dữ liệu có thể vẫn còn nguyên. Thử tải lại trang sau ít
                 phút.
               </>
-            )
+            ))
           : explain}
       </div>
 

@@ -2201,8 +2201,8 @@ app.get(
       ...(origin === 'agent'
         ? { authoredByAgentId: { not: null } }
         : origin === 'human'
-        ? { authoredByAgentId: null }
-        : {}),
+          ? { authoredByAgentId: null }
+          : {}),
     }
     const select = {
       id: true,

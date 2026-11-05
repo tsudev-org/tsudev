@@ -97,7 +97,7 @@ export default function LoginPage({ oauth }: LoginProps) {
 
   const queryError = typeof router.query.error === 'string' ? router.query.error : '';
   const shown =
-    error || (queryError ? ERROR_TEXT[queryError] ?? 'Đăng nhập không thành công.' : '');
+    error || (queryError ? (ERROR_TEXT[queryError] ?? 'Đăng nhập không thành công.') : '');
 
   if (status === 'authenticated') {
     // Đã đăng nhập rồi thì trang này không còn việc gì.

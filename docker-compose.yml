@@ -27,12 +27,25 @@ services:
     volumes:
       - minio_data:/data
 
+  # content và storage dựng từ CÙNG image backend mà Render dựng
+  # (docker/backend-service.Dockerfile - job `backend-image` của CI chứng minh nó
+  # khởi động được). Trước 05/11/2026 mỗi service có Dockerfile + package-lock.json
+  # riêng từ commit đầu tiên: Dockerfile chạy `node src/index.js` (mã nay là .ts
+  # biên dịch ra dist/) và `npm install` cô lập trong thư mục service (404 vì
+  # @tsudev/* không có trên registry), còn hai lock cũ đó sinh 18 cảnh báo
+  # Dependabot runtime cho một cây phụ thuộc không ai cài. Đã xoá cả hai.
   content-service:
-    build: ./services/content-service
+    build:
+      context: .
+      dockerfile: docker/backend-service.Dockerfile
+    command: ['node', 'services/content-service/dist/index.js']
     ports:
       - '4001:4001'
     depends_on:
       - postgres
+    environment:
+      - PORT=4001
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
 
   frontend-main:
     build:
@@ -50,7 +63,10 @@ services:
       - INTERNAL_IDENTITY_SECRET=${INTERNAL_IDENTITY_SECRET}
 
   storage-service:
-    build: ./services/storage-service
+    build:
+      context: .
+      dockerfile: docker/backend-service.Dockerfile
+    command: ['node', 'services/storage-service/dist/index.js']
     ports:
       - '4002:4002'
     depends_on:
@@ -61,10 +77,9 @@ services:
       - S3_BUCKET=tsudev
       - S3_ACCESS_KEY=${MINIO_ROOT_USER}
       - S3_SECRET_KEY=${MINIO_ROOT_PASSWORD}
-    # Mount only the src directory so we can iterate on runtime code
-    # without rebuilding the image and without masking node_modules.
-    volumes:
-      - ./services/storage-service/src:/usr/src/app/src:cached
+      - PORT=4002
+    # Không mount src/: image chạy bản đã biên dịch ở dist/, mount mã .ts vào
+    # không đổi được gì. Lặp nhanh thì dùng `npm run dev:local` ngoài docker.
 
   e2e-runner:
     build:
