@@ -2,6 +2,14 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Badge, Input, Icon } from '@tsudev/ui';
 
 import { formatDateTimeVN } from '../lib/format';
+import {
+  acceptCho,
+  duoiHopLe,
+  kiemTep,
+  thanhLoiApi,
+  thongDiepLoi,
+  thongDiepPut,
+} from '../lib/releaseUpload';
 import type { ReleaseChannel, ReleasePlatform } from '../lib/types';
 
 /**
@@ -108,7 +116,7 @@ function putCoTienDo(
     xhr.onload = () =>
       xhr.status >= 200 && xhr.status < 300
         ? resolve()
-        : reject(new Error(`Kho lưu trữ từ chối tệp (HTTP ${xhr.status})`));
+        : reject(new Error(thongDiepPut(xhr.status)));
     xhr.onerror = () =>
       reject(new Error('Không gửi được tệp tới kho lưu trữ (mạng hoặc CORS của bucket)'));
     xhr.send(file);
@@ -173,7 +181,12 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
     // Hiện NGUYÊN VĂN lỗi của backend. Những phép kiểm ở đó rất cụ thể ("tệp chưa
     // niêm phong") và dịch chúng thành "Lưu thất bại" là vứt đi đúng phần thông
     // tin người dùng cần để sửa.
-    if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
+    // Kèm `code`/`status` để `thongDiepLoi` rẽ nhánh theo mã ổn định của backend.
+    if (!res.ok)
+      throw Object.assign(new Error(body.error || `HTTP ${res.status}`), {
+        code: body.code,
+        status: res.status,
+      });
     return body;
   };
 
@@ -185,6 +198,9 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
   const guiTao = async (e: React.FormEvent) => {
     e.preventDefault();
     if (canTep && !tep) return onMessage('danger', 'Chọn tệp cài đặt trước đã');
+    // Chặn sớm cho đỡ đợi - máy chủ vẫn kiểm lại đủ cả ba thứ.
+    const loiTepSom = canTep && tep ? kiemTep(form.platform, tep) : null;
+    if (loiTepSom) return onMessage('danger', loiTepSom);
     setBusy(true);
     let idDaTao: string | null = null;
     try {
@@ -201,16 +217,18 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
       }
 
       if (canTep && tep) {
-        // 1. Xin URL tải lên. Khoá do máy chủ đặt.
+        // 1. Xin URL tải lên. Khoá, Content-Type do máy chủ đặt; kích thước được
+        //    ký vào URL. KHÔNG gửi `contentType` - máy chủ trả 400 nếu nhận được.
         setBuoc('Xin chỗ trong kho lưu trữ…');
-        const contentType = tep.type || 'application/octet-stream';
         const cho = await goiJson(
           `/api/content/admin/projects/${slug}/releases/upload-url`,
           'POST',
-          { fileName: tep.name, contentType }
+          { fileName: tep.name, platform: form.platform, fileSize: tep.size }
         );
         // 2. Tệp đi THẲNG vào R2 - không qua Worker (trần 100 MB) hay Render.
-        await putCoTienDo(cho.url, tep, cho.contentType || contentType, (p) =>
+        //    Đúng `Content-Type` máy chủ trả, không fallback: nó đã nằm trong chữ
+        //    ký, lệch một ký tự là kho trả 403.
+        await putCoTienDo(cho.url, tep, cho.contentType, (p) =>
           setBuoc(`Đang tải lên ${p}% (${dungLuong(tep.size)})…`)
         );
         than.storageKey = cho.key;
@@ -245,12 +263,17 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
       setTep(null);
       setHienForm(false);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
+      const { text, thuLai } = thongDiepLoi(
+        thanhLoiApi(err),
+        tep ? duoiHopLe(form.platform, tep.name) : null
+      );
       onMessage(
         'danger',
-        idDaTao
-          ? `Bản phát hành đã được tạo (nháp) nhưng bước sau lỗi: ${msg}. Bấm "Niêm phong" ở danh sách để thử lại.`
-          : msg
+        !idDaTao
+          ? text
+          : thuLai
+          ? `Bản phát hành đã được tạo (nháp) nhưng bước sau lỗi: ${text}. Bấm "Niêm phong" ở danh sách để thử lại.`
+          : `Bản phát hành đã được tạo (nháp) nhưng bước sau lỗi: ${text}`
       );
     } finally {
       setBusy(false);
@@ -265,7 +288,11 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
       await niemPhong(r.id);
       onMessage('success', `Đã niêm phong và ký bản ${r.version}`);
     } catch (err) {
-      onMessage('danger', err instanceof Error ? err.message : String(err));
+      const { text } = thongDiepLoi(
+        thanhLoiApi(err),
+        r.storageKey ? duoiHopLe(r.platform, r.storageKey) : null
+      );
+      onMessage('danger', text);
     } finally {
       setBusy(false);
       setBuoc(null);
@@ -301,7 +328,11 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
     await nap();
   };
 
+  // SOURCE: máy chủ nay nhận tệp .zip/.tar.gz, nhưng giao diện GIỮ đường dẫn ngoài
+  // cho mã nguồn (thường là GitHub) - mở ô chọn tệp cho SOURCE cần thêm một nút
+  // chuyển giữa hai đường, chưa đáng lúc này.
   const canTep = form.platform !== 'WEB' && form.platform !== 'SOURCE';
+  const loiTep = canTep && tep ? kiemTep(form.platform, tep) : null;
 
   return (
     <div className="w-full border-t border-line pt-3 mt-1">
@@ -472,12 +503,18 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
                       <input
                         type="file"
                         required
+                        accept={acceptCho(form.platform)}
                         onChange={(e) => setTep(e.target.files?.[0] ?? null)}
                         className="block w-full text-sm text-fg file:mr-3 file:rounded-md file:border file:border-line-control file:bg-surface file:px-3 file:py-1.5 file:text-fg"
                       />
-                      <span className="mt-1 block text-xs text-fg-muted">
+                      <span
+                        className={`mt-1 block text-xs ${
+                          loiTep ? 'text-danger-ink' : 'text-fg-muted'
+                        }`}
+                        role={loiTep ? 'alert' : undefined}
+                      >
                         {tep
-                          ? `${tep.name} · ${dungLuong(tep.size)}`
+                          ? `${tep.name} · ${dungLuong(tep.size)}${loiTep ? ` - ${loiTep}` : ''}`
                           : 'Tệp đi thẳng vào R2. SHA-256 và chữ ký Ed25519 do máy chủ tính sau khi tải lên - không khai tay.'}
                       </span>
                     </label>
@@ -529,7 +566,7 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
               </div>
 
               <div className="mt-3 flex gap-2">
-                <Button type="submit" size="sm" disabled={busy}>
+                <Button type="submit" size="sm" disabled={busy || !!loiTep}>
                   {busy ? 'Đang lưu…' : canTep ? 'Tải lên và tạo' : 'Tạo bản phát hành'}
                 </Button>
                 <Button
