@@ -3,10 +3,21 @@
 - **Mã phiếu**: 20261105-01
 - **Từ**: phiên 32 - **Đến**: chủ dự án / phiên 33
 - **Thời điểm**: 05/11/2026
-- **Trạng thái**: MỞ - **một việc chặn cần chủ dự án** (§1), hai PR chờ (§3)
+- **Trạng thái**: MỞ - §1 và §4 (1, 2) ĐÃ XONG 05/11; còn §4b (wrangler sai tài khoản) và #101
 - **Thay phiếu**: [`20261029-01`](20261029-01_bo-con-dau-va-24-24.md) - các việc §4.0, §8.3, C1, C2, B1, B2, B3 của phiếu đó đã XONG
 
-## 1. 🔴 VIỆC CHẶN: tsudev.com đang treo - cần `DATABASE_URL` prod
+## 1. ✅ ĐÃ XONG 05/11/2026: tsudev.com treo - thiếu migration trên Neon
+
+Xác nhận: chủ dự án chạy `db:migrate` từ `main`, áp đúng một migration
+`20261028140000_project_release` ⇒ backend sống lại, `prod:dem-noi-dung` ĐẠT.
+Sau đó Manual Deploy bản `main` trên Render: `/health` liệt kê
+`content, storage, identity`; JWKS phát hành 200 (kid `tsu-2026-08-efdb94`, đúng
+khoá cũ); `/api/trust/*`, `/api/newsroom/*` 404. Ngay sau khi Render chuyển bản,
+`prod:dem-noi-dung` TRƯỢT một lượt (503/500) rồi tự ĐẠT ở lượt đo kế tiếp - đó là
+khoảnh khắc chuyển bản, đừng chẩn đoán từ một lượt đo duy nhất.
+Chủ dự án báo đã cập nhật `DATABASE_URL` trên Render (sau khi chuỗi cũ lộ trong log phiên).
+
+Nội dung gốc của mục (giữ để tra):
 
 Đo 04-05/11/2026: `https://tsudev-backend.onrender.com/health` treo quá 150 giây,
 mọi trang có dữ liệu treo; tài nguyên tĩnh (`/favicon.ico`) vẫn 200; Worker
@@ -59,6 +70,10 @@ Nếu sau bước này `/health` vẫn treo: mở log Render, đừng đoán ti�
 Merge trước khi migrate ⇒ `migrationGate` exit(1) ⇒ site sập (đúng sự cố đang diễn ra).
 
 ## 4. Việc tay trên dashboard Render (agent không có quyền)
+
+✅ 05/11: mục 1 và 2 đã làm (chủ dự án báo đã xoá cả `TRUST_SIGNING_*` - tức đợt 2
+phía Render cũng xong; JWKS vẫn ra đúng kid cũ nên `RELEASE_SIGNING_*` đã có giá trị).
+Còn: gỡ nhánh lùi `TRUST_SIGNING_*` trong `signingEnv()` và đặt `TELEGRAM_*`.
 
 1. Chép `TRUST_SIGNING_KEY` → `RELEASE_SIGNING_KEY`, `TRUST_SIGNING_KEY_ID` → `RELEASE_SIGNING_KEY_ID`.
 2. Xoá: `NEWSROOM_*` · `CF_ACCOUNT_ID` · `CF_AI_TOKEN` · `GEMINI_API_KEY` ·
