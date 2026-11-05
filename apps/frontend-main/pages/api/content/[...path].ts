@@ -10,7 +10,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { CONTENT, internalHeaders } from '../../../lib/services';
-import { catchAllSegments, identityHeaders, queryStringOf } from '../../../lib/identity';
+import {
+  catchAllSegments,
+  upstreamPath,
+  identityHeaders,
+  queryStringOf,
+} from '../../../lib/identity';
 import { readSessionToken } from '../../../lib/sessionCookie';
 
 // Danh sách trắng, không phải danh sách đen: thêm nhánh mới phải khai ở đây.
@@ -33,7 +38,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     'Content-Type': 'application/json',
   };
 
-  const path = parts.join('/');
+  const path = upstreamPath(parts);
+  if (path === null) return res.status(400).json({ error: 'Đường dẫn không hợp lệ' });
   const qs = queryStringOf(req.url);
 
   try {

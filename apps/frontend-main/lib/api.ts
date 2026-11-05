@@ -52,6 +52,16 @@ export type Fetched<T> = { data: T; failed: boolean };
  * Hàm này vẫn KHÔNG NÉM LỖI - đó là hợp đồng, và `orThrow()` là chỗ duy nhất
  * được phép đổi ý về điều đó.
  */
+/**
+ * Một slug làm MỘT đoạn URL. Slug đến từ route param mà Next đã giải mã, nên
+ * `/blog/..%2Fadmin%2Fx` cho slug `../admin/x`; ghép trần thì `fetch` chuẩn hoá
+ * thành `/api/admin/x` (kèm token nội bộ). `encodeURIComponent` giữ `/` trong
+ * một đoạn; riêng `.`/`..` không bị nó mã hoá nên đổi thành slug không tồn tại.
+ */
+function seg(slug: string): string {
+  return slug === '.' || slug === '..' ? '_' : encodeURIComponent(slug);
+}
+
 async function getJSON<T>(url: string, fallback: T): Promise<Fetched<T>> {
   try {
     const res = await fetch(url, { headers: internalHeaders() });
@@ -90,7 +100,7 @@ export const api = {
       `${CONTENT}/api/posts?limit=${limit}${tag ? `&tag=${encodeURIComponent(tag)}` : ''}`,
       []
     ),
-  post: (slug: string) => getJSON<Post | null>(`${CONTENT}/api/posts/${slug}`, null),
+  post: (slug: string) => getJSON<Post | null>(`${CONTENT}/api/posts/${seg(slug)}`, null),
   // Tìm/lọc theo SEARCH_AND_FILTER §7. `query` là chuỗi truy vấn đã ghép sẵn
   // (q, tag, sort, page, page_size). Dùng cho SSR trang /search và proxy client.
   searchPosts: (query: string) =>
@@ -116,13 +126,13 @@ export const api = {
     const list = Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : [];
     return { data: list, failed: r.failed };
   },
-  doc: (slug: string) => getJSON<Doc | null>(`${CONTENT}/api/docs/${slug}`, null),
+  doc: (slug: string) => getJSON<Doc | null>(`${CONTENT}/api/docs/${seg(slug)}`, null),
   projects: (limit = 50) => getJSON<Project[]>(`${CONTENT}/api/projects?limit=${limit}`, []),
-  project: (slug: string) => getJSON<Project | null>(`${CONTENT}/api/projects/${slug}`, null),
+  project: (slug: string) => getJSON<Project | null>(`${CONTENT}/api/projects/${seg(slug)}`, null),
 
   /// Bản phát hành của MỘT dự án. Dùng ở trang chi tiết dự án.
   projectReleases: (slug: string) =>
-    getJSON<ProjectRelease[]>(`${CONTENT}/api/projects/${slug}/releases`, []),
+    getJSON<ProjectRelease[]>(`${CONTENT}/api/projects/${seg(slug)}/releases`, []),
 
   /// MỌI dự án CÓ bản phát hành, gộp sẵn. Một lượt mạng, không phải N+1 - xem
   /// lý do ở chính endpoint trong content-service.
