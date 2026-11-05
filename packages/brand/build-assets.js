@@ -473,7 +473,7 @@ async function main() {
       .toBuffer();
 
   // Nền đặc cho những icon mà HỆ ĐIỀU HÀNH tự tô nền nếu ta để trong suốt.
-  // #eef4fb là `--bg-base` chế độ Sáng - trùng `background_color` của manifest bên
+  // #fafaf9 là `--bg-base` chế độ Sáng - trùng `background_color` của manifest bên
   // dưới, nên màn hình chờ PWA không nháy đổi màu. Chọn nó thay vì trắng tinh vì
   // nền của chính bộ nguồn là #f7fbfc (gần trắng, hơi ngả xanh): đặt dấu hiệu lên
   // nền cùng họ thì tương quan màu giữ nguyên như bản gốc, còn 17% pixel sáng ở
@@ -566,8 +566,8 @@ async function main() {
     // ước v1.0.0, ba bản kia lên #eef4fb còn bản này ở lại #eef3fa - lệch một
     // đơn vị ở hai kênh, không ai nhìn ra, và chỉ hiện trên màn hình chờ PWA.
     // Nay `apps/frontend-main/test/themeTokens.test.ts` canh cả bản này.
-    theme_color: '#eef4fb',
-    background_color: '#eef4fb',
+    theme_color: '#fafaf9',
+    background_color: '#fafaf9',
     // `purpose` phải khai TÁCH BẠCH: bản thường ('any') và bản maskable là hai
     // ảnh khác nhau. Gộp thành 'any maskable' trên MỘT ảnh là cách Android vừa
     // dùng nó nguyên khung vừa xén nó theo hình dạng máy - một trong hai lần

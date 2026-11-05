@@ -9,12 +9,21 @@ trực tiếp trong `public/`, vì lần chạy lại script sẽ ghi đè.
 ```
 packages/brand/
   source/                     ← ảnh gốc, độ phân giải cao (sửa ở đây)
-    logo.jpeg                 2048×2048, nền trắng
+    logo.jpeg                 2048×2048, nền trắng - chim cú, biểu tượng chính
+    wordmark-light.svg        chữ "tsudev" dạng đường vẽ, tông chàm, cho nền sáng
+    wordmark-dark.svg         bản cho nền tối
     avatar.png                1490×1490, avatar thương hiệu
     favicons/                 bộ favicon do RealFaviconGenerator xuất
     favicons.zip              bản lưu trữ gốc của bộ favicon
   build-assets.js             script sinh tài nguyên
+  build-wordmark.py           sinh hai wordmark SVG từ font Be Vietnam Pro 700
 ```
+
+Wordmark là **SVG master** của chữ hiệu (kế hoạch Q4 §2, chủ dự án chọn 05/11/2026:
+giữ con cú raster làm biểu tượng, thêm wordmark vector). Header của site vẫn vẽ
+chữ hiệu bằng HTML + token màu để tự đổi theo ba chế độ; SVG dành cho nơi không có
+CSS của site - ảnh OG, README, tài liệu in, nhúng bên ngoài. Đổi màu thương hiệu thì
+sửa `MODES` trong script rồi chạy lại (lệnh ở đầu tệp).
 
 ## Cập nhật tài nguyên
 

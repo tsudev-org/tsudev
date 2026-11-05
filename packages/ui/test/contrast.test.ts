@@ -171,6 +171,7 @@ const PAIRS: Array<[string, string, number, string]> = [
   ['--border-control', '--bg-surface', 3, 'viền vùng tương tác trên card'],
   ['--border-control', '--bg-subtle', 3, 'viền vùng tương tác trên khối lồng'],
   ['--primary', '--bg-base', 3, 'viền/nền nút trên nền trang'],
+  ['--primary', '--bg-base', 4.5, 'chữ chuyển sắc ở tiêu đề hero (đầu chàm)'],
   ['--primary', '--bg-surface', 3, 'viền/nền nút trên card'],
   // Vòng focus phải nhìn thấy được trên MỌI bề mặt nó có thể xuất hiện - kể cả
   // hàng đang hover, nơi nền đã sẫm đi một bậc.

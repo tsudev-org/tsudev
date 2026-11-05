@@ -16,10 +16,10 @@ import React from 'react';
  * Token thì được canh bởi contrast.test.ts ở cả ba chế độ, bộ lọc thì không.
  */
 const VARIANTS = {
-  primary: 'bg-primary text-on-primary hover:bg-primary-hover active:bg-primary-active',
+  primary: 'bg-primary text-on-primary shadow-sm hover:bg-primary-hover active:bg-primary-active',
   secondary: 'bg-surface border border-line-control text-fg hover:bg-hovered hover:border-primary',
   ghost: 'bg-transparent text-fg-secondary hover:bg-hovered hover:text-fg',
-  // Sắc phụ của con dấu tín nhiệm. Chữ dùng --on-status vì nền là màu ngữ nghĩa.
+  // Sắc NHẤN cam của tông thương hiệu. Chữ dùng --on-status vì nền là màu đậm.
   teal: 'bg-accent text-on-status hover:opacity-90',
   danger: 'bg-danger text-on-status hover:opacity-90',
 } as const;
@@ -56,7 +56,7 @@ export const Button = ({
   // Giữ `??` dự phòng dù kiểu đã ràng: các trang gọi component này hiện vẫn là
   // .js chưa được kiểm kiểu, nên giá trị ngoài union vẫn tới được đây lúc chạy.
   const cls = [
-    'inline-flex items-center justify-center gap-2 rounded-md font-semibold cursor-pointer',
+    'inline-flex items-center justify-center gap-2 rounded-lg font-semibold cursor-pointer',
     'transition-colors duration-fast ease-standard',
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
     // Disabled thắng mọi biến thể: `:disabled` chặn cả hover lẫn đổ bóng.

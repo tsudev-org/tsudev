@@ -140,7 +140,9 @@ describe('tokens.css là bản sinh ra, không phải bản viết tay', () => {
     //   typography  ba bậc display cho hero
     //   motion      đường cong easing theo hướng + ba bậc trễ bậc thang
     //   meta        siêu dữ liệu của chính file
-    const KHONG_THEO_CHE_DO = new Set(['typography', 'motion', 'meta']);
+    //   brand       lớp tông thương hiệu - TỰ NÓ chia ba chế độ bên trong, và
+    //               sync-tokens.js ném lỗi nếu nó ghi đè khoá không có ở bảng chuẩn
+    const KHONG_THEO_CHE_DO = new Set(['typography', 'motion', 'meta', 'brand']);
     expect(
       Object.keys(ext)
         .filter((k) => !k.startsWith('$') && !KHONG_THEO_CHE_DO.has(k))

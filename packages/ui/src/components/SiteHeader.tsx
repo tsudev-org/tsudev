@@ -144,7 +144,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
             // và hoạt động cả khi JavaScript chưa kịp tải.
             <a
               href="/login"
-              className="inline-flex items-center h-8 px-4 rounded-md text-sm font-semibold text-on-primary bg-primary hover:brightness-110 transition"
+              className="inline-flex items-center h-8 px-4 rounded-md text-sm font-semibold text-on-primary bg-primary hover:bg-primary-hover transition-colors"
             >
               Đăng nhập
             </a>

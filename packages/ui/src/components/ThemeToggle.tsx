@@ -36,9 +36,9 @@ export type ThemeChoice = ThemeMode | 'system';
 // .standards/tokens/design-tokens.json); có test canh. Dùng cho <meta name="theme-color">,
 // thứ chạy trước khi trình duyệt tính lại style nên không đọc được biến CSS.
 const BASE: Record<ThemeMode, string> = {
-  light: '#eef4fb',
+  light: '#fafaf9',
   warm: '#f6f1e6',
-  dark: '#0f1b2d',
+  dark: '#110f1f',
 };
 
 const CHOICES: Array<{ value: ThemeChoice; label: string; hint: string }> = [

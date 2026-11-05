@@ -86,83 +86,103 @@ export default function Home({
     <Layout active="/" bare>
       <Seo
         path="/"
-        description="Dự án & bản quyền, blog kỹ thuật, tài liệu và con dấu tín nhiệm - website dự án cá nhân của tsudev."
+        description="Tải ứng dụng do tsudev tự phát triển cho Windows, Android, macOS, Linux - kèm SHA-256, chữ ký Ed25519, tài liệu cài đặt và blog kỹ thuật."
       />
 
-      {/* ---------- HERO ---------- */}
-      <section className="relative overflow-hidden border-b border-line">
+      {/* ---------- HERO ----------
+          Tông chàm (phiếu 20261105-03). Khung bên phải trước đây là một
+          "terminal" in cứng `content healthy` - một trạng thái KHÔNG được đo, tức
+          là nói dối khi backend chết. Nay nó mô tả đúng thứ trang này phát hành:
+          nền tảng, checksum, chữ ký - không có con số nào giả vờ là số đo. */}
+      <section className="relative overflow-hidden border-b border-line tsu-hero-bg">
         <div
           className="absolute inset-0 tsu-grid"
-          // `#000` ở đây KHÔNG phải màu hiển thị mà là kênh alpha của mặt nạ -
-          // nó quyết định phần nào của lưới còn nhìn thấy. Không thay bằng token
-          // được, và cũng không cần: nó không bao giờ được vẽ ra màn hình.
+          // `#000` ở đây là kênh alpha của mặt nạ, không phải màu hiển thị.
           style={{
-            maskImage: 'radial-gradient(80% 80% at 60% 0%, #000 30%, transparent 75%)',
-            WebkitMaskImage: 'radial-gradient(80% 80% at 60% 0%, #000 30%, transparent 75%)',
+            maskImage: 'radial-gradient(70% 70% at 70% 0%, #000 25%, transparent 70%)',
+            WebkitMaskImage: 'radial-gradient(70% 70% at 70% 0%, #000 25%, transparent 70%)',
           }}
           aria-hidden="true"
         />
-        <div
-          className="absolute -top-40 right-0 h-96 w-96 rounded-full blur-3xl animate-pulse-glow"
-          style={{ background: 'var(--glow)' }}
-          aria-hidden="true"
-        />
-        <div className="relative max-w-6xl mx-auto px-4 py-20 md:py-28 grid lg:grid-cols-[1.15fr_0.85fr] gap-12 items-center">
+        <div className="relative max-w-6xl mx-auto px-4 py-16 md:py-24 grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
           <div className="animate-fade-up">
-            <Badge tone="teal" mono className="mb-5">
-              {'// tsudev ecosystem v0.1'}
-            </Badge>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-fg text-balance leading-[1.05]">
-              Giải mã tương lai qua
+            <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold text-fg-secondary shadow-sm mb-6">
+              <span className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
+              Ứng dụng tự phát triển · tải miễn phí
+            </span>
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-fg text-balance leading-[1.08]">
+              Phần mềm nhỏ, gọn,
               <br />
-              <span className="text-link">từng dòng code</span>.
+              <span className="tsu-text-gradient">làm ra để dùng thật</span>.
             </h1>
             <p className="mt-6 text-lg text-fg-secondary max-w-xl">
               Nơi tsudev phát hành các ứng dụng tự phát triển - tải bản cài đặt cho Windows,
-              Android, macOS, Linux, kèm checksum và chữ ký để tự kiểm.
+              Android, macOS, Linux, kèm checksum và chữ ký để bạn tự kiểm trước khi cài.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button as="a" href="/projects" size="lg">
+                <Icon name="download" size={18} />
                 Xem & tải ứng dụng
               </Button>
               <Button as="a" href="/docs" variant="secondary" size="lg">
                 Hướng dẫn cài đặt
               </Button>
             </div>
+            <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm text-fg-muted">
+              {['Mã nguồn mở', 'SHA-256 do máy chủ tính', 'Chữ ký Ed25519'].map((t) => (
+                <li key={t} className="inline-flex items-center gap-1.5">
+                  <Icon name="check-circle" size={16} />
+                  {t}
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* terminal-style card */}
           <div className="animate-fade-up hidden lg:block" style={{ animationDelay: '.1s' }}>
-            <Card className="p-0 overflow-hidden">
-              <div className="flex items-center gap-2 px-4 py-3 bg-subtle">
-                {/* Chấm cửa sổ - dùng token trạng thái, không phải mã hex của
-                    macOS: hex cắm cứng không đổi theo ba chế độ, nên ở chế độ Ấm
-                    ba chấm bão hoà đó là ba vệt duy nhất phá tông sepia. */}
-                <span className="h-3 w-3 rounded-full bg-danger" />
-                <span className="h-3 w-3 rounded-full bg-warning" />
-                <span className="h-3 w-3 rounded-full bg-success" />
-                <span className="ml-2 font-mono text-xs text-fg-muted">tsudev@ecosystem: ~</span>
+            <Card className="p-6 shadow-lg">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-glow">
+                  <Icon name="package" size={24} />
+                </span>
+                <div>
+                  <div className="font-semibold text-fg">Một bản phát hành trên tsudev</div>
+                  <div className="text-sm text-fg-muted">gồm những gì bạn nhận được</div>
+                </div>
               </div>
-              <pre className="p-5 font-mono text-sm leading-relaxed text-fg-secondary overflow-x-auto">
-                {/* KHÔNG in số cổng nội bộ ở đây. Hai lý do, cả hai đều thật:
-                    (1) chúng SAI ở production - bốn service backend đã gộp thành
-                    MỘT tiến trình (services/backend-bundle), nên bảng cổng bốn
-                    dòng chỉ còn đúng ở máy dev; (2) tsudev đối ngoại chỉ có MỘT
-                    địa chỉ, và in cổng nội bộ lên trang chủ là tự mâu thuẫn với
-                    chính quy ước đó. Cổng chặn: khẳng định D của
-                    scripts/topology/check.js. Xem docs/url-convention.md. */}
-                <span className="text-accent">$</span> tsudev status --all{'\n'}
-                <span className="text-success-ink">✔</span> content{' '}
-                <span className="text-fg-muted">healthy</span>
-                {'\n'}
-                <span className="text-success-ink">✔</span> storage{' '}
-                <span className="text-fg-muted">healthy</span>
-                {'\n'}
-                <span className="text-success-ink">✔</span> database{' '}
-                <span className="text-fg-muted">connected</span>
-                {'\n'}
-                <span className="text-accent">$</span> _
-              </pre>
+              <div className="mt-5 grid grid-cols-4 gap-2">
+                {(
+                  [
+                    ['windows', 'Windows'],
+                    ['android', 'Android'],
+                    ['apple', 'macOS'],
+                    ['linux', 'Linux'],
+                  ] as [IconName, string][]
+                ).map(([icon, label]) => (
+                  <div
+                    key={label}
+                    className="flex flex-col items-center gap-1.5 rounded-lg border border-line bg-base py-3 text-xs text-fg-secondary"
+                  >
+                    <Icon name={icon} size={20} />
+                    {label}
+                  </div>
+                ))}
+              </div>
+              <dl className="mt-5 space-y-3 text-sm">
+                <div className="flex items-start gap-3">
+                  <Icon name="hash" size={18} />
+                  <div>
+                    <dt className="font-medium text-fg">SHA-256</dt>
+                    <dd className="text-fg-muted">Máy chủ tự tính khi niêm phong tệp.</dd>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Icon name="signature" size={18} />
+                  <div>
+                    <dt className="font-medium text-fg">Chữ ký Ed25519</dt>
+                    <dd className="text-fg-muted">Kiểm được bằng khoá công khai (JWKS).</dd>
+                  </div>
+                </div>
+              </dl>
             </Card>
           </div>
         </div>
@@ -170,23 +190,19 @@ export default function Home({
 
       <div className="max-w-6xl mx-auto px-4">
         {/* ---------- ECOSYSTEM ---------- */}
-        <section className="py-16 reveal">
-          <SectionHeading eyebrow="Hệ sinh thái" title="Bốn phân hệ, một tài khoản" />
+        <section className="pt-16 pb-6 reveal">
+          <SectionHeading eyebrow="Có gì ở đây" title="Mọi thứ cho một ứng dụng, ở một chỗ" />
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {ECOSYSTEM.map((e) => (
-              <a
-                key={e.title}
-                href={e.href}
-                className="p-5 block group rounded-md transition-colors hover:bg-surface"
-              >
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-lg mb-4 bg-glow">
+              <Card as="a" hover key={e.title} href={e.href} className="p-5 block group">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl mb-4 bg-glow">
                   <Icon name={e.icon} size={22} />
                 </span>
                 <h3 className="font-semibold text-fg group-hover:text-link transition-colors">
                   {e.title}
                 </h3>
                 <p className="mt-1.5 text-sm text-fg-muted">{e.desc}</p>
-              </a>
+              </Card>
             ))}
           </div>
         </section>
@@ -198,7 +214,7 @@ export default function Home({
         <DownloadSection items={downloads} failed={downloadsFailed} />
 
         {/* ---------- PROJECTS ---------- */}
-        <section className="py-6 reveal">
+        <section className="py-10 reveal">
           <SectionHeading
             eyebrow="Sản phẩm"
             title="Dự án của tsudev"
@@ -229,7 +245,7 @@ export default function Home({
                   <EmptyState
                     icon="tag"
                     title="Chưa có dự án nào"
-                    explain="Dự án do chủ dự án đăng - agent AI của toà soạn cố ý KHÔNG được tạo dự án mới, vì mỗi dự án mang phiên bản, giấy phép và trạng thái bản quyền."
+                    explain="Dự án do chủ dự án đăng thủ công, vì mỗi dự án mang phiên bản, giấy phép và trạng thái bản quyền."
                   />
                 </div>
               )
@@ -237,10 +253,12 @@ export default function Home({
             {projects.slice(0, 3).map((p: Project) => {
               const cr = copyrightMeta(p.copyrightStatus);
               return (
-                <a
+                <Card
+                  as="a"
+                  hover
                   key={p.id}
                   href={`/projects/${p.slug}`}
-                  className="p-5 flex flex-col group rounded-md transition-colors hover:bg-surface"
+                  className="p-5 flex flex-col group"
                 >
                   <div className="flex flex-wrap gap-1.5 mb-3">
                     <Badge tone="neutral">{KIND_LABEL[p.kind] || p.kind}</Badge>
@@ -254,14 +272,14 @@ export default function Home({
                     <Badge tone={cr.tone}>{cr.label}</Badge>
                     {p.license && <span className="font-mono">{p.license}</span>}
                   </div>
-                </a>
+                </Card>
               );
             })}
           </div>
         </section>
 
         {/* ---------- FEATURED POSTS ---------- */}
-        <section className="py-6 reveal">
+        <section className="py-10 reveal">
           <SectionHeading
             eyebrow="Mới nhất"
             title="Bài viết nổi bật"
@@ -288,17 +306,19 @@ export default function Home({
                   <EmptyState
                     icon="doc"
                     title="Chưa có bài viết"
-                    explain="Toà soạn Agent AI đăng theo nhịp mỗi giờ và có trần số bài mỗi ngày cho từng kênh, nên khoảng trống giữa hai bài là bình thường."
+                    explain="Bài viết do tác giả đăng thủ công, nên khoảng trống giữa hai bài là bình thường."
                     action={{ label: 'Xem toàn bộ blog', href: '/blog' }}
                   />
                 </div>
               )
             )}
             {posts.slice(0, 3).map((p: Post) => (
-              <a
+              <Card
+                as="a"
+                hover
                 key={p.id}
                 href={`/blog/${p.slug}`}
-                className="p-5 flex flex-col group rounded-md transition-colors hover:bg-surface"
+                className="p-5 flex flex-col group"
               >
                 <div className="flex flex-wrap gap-1.5 mb-3">
                   {(p.tags || []).slice(0, 2).map((t: string) => (
@@ -317,15 +337,18 @@ export default function Home({
                   <span>·</span>
                   <span>{timeAgo(p.createdAt)}</span>
                 </div>
-              </a>
+              </Card>
             ))}
           </div>
         </section>
 
         {/* ---------- CTA ---------- */}
         <section className="pb-20">
-          <div className="p-10 md:p-14 text-center">
+          <div className="tsu-cta-bg rounded-2xl border border-line p-10 md:p-14 text-center">
             <div>
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-surface shadow-sm mb-5">
+                <Icon name="shield" size={24} />
+              </span>
               <h2 className="text-2xl md:text-3xl font-bold text-fg text-balance">
                 Tải về rồi mà Windows hay Android cảnh báo?
               </h2>

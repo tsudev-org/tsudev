@@ -2,19 +2,66 @@
   "$note": "Phần MỞ RỘNG riêng của tsudev-web. Bảng dùng chung nằm ở .standards/tokens/design-tokens.json và KHÔNG được sao chép về đây - `npm run tokens:sync` đọc thẳng file đó rồi ghép khối này lên trên để sinh packages/ui/src/tokens.css. Chính bản sao cục bộ (v1.0.0, đã xoá 26/08/2026) là thứ trôi lệch âm thầm khỏi bản chuẩn v2.0.0 mà không cổng nào bắt được.",
   "meta": {
     "name": "tsudev-web-token-extensions",
-    "updated": "26/08/2026",
+    "updated": "05/11/2026",
     "base": ".standards/tokens/design-tokens.json"
   },
-  "$color_note": "accent = sắc phụ (teal) của con dấu tín nhiệm. icon-* = mã màu theo NHÓM HÀNH ĐỘNG: mắt nhận ra nhóm trước khi đọc nhãn, điều một hàng icon cùng màu xám không làm được. Sáu sắc, không nhiều hơn - quá bảy màu thì chúng thôi là mã và trở thành nhiễu. status-ink/status-tint = cặp cho badge: bảng `color` chỉ định nghĩa màu trạng thái ĐẶC (dùng với on-status), còn badge nền nhạt cần một sắc chữ ĐẬM HƠN mới đạt 4.5:1 - ở chế độ Light màu trạng thái gốc chỉ đạt 4.0-4.3:1 trên chính tint 12% của nó. text-muted và border-control KHÔNG còn ở đây: cả hai đã được nhận vào bảng chuẩn (.standards/ v2.8.0) với ĐÚNG giá trị mà khối này từng ghi đè - xem $accessibility_gap.",
+  "brand": {
+    "$note": "Tông thương hiệu CHÀM (chủ dự án chọn 05/11/2026, phiếu 20261105-03): primary #4F46E5, nhấn cam, nền trắng ngà. Ghi đè giá trị của bảng chuẩn lúc sinh - xem colorFor() trong scripts/sync-tokens.js. Chế độ Ấm giữ nền sepia của bảng chuẩn, chỉ đổi sắc chủ đạo. Mọi cặp vẫn bị contrast.test.ts canh ở WCAG AA.",
+    "light": {
+      "bg-base": "#FAFAF9",
+      "bg-surface": "#FFFFFF",
+      "bg-subtle": "#F1F0FB",
+      "bg-hover": "#E9E7F9",
+      "border": "#E4E2F0",
+      "border-strong": "#C4C0E2",
+      "border-control": "#77738F",
+      "text-primary": "#1E1B3A",
+      "text-secondary": "#4A4766",
+      "text-muted": "#575470",
+      "text-link": "#4338CA",
+      "primary": "#4F46E5",
+      "primary-hover": "#4338CA",
+      "primary-active": "#3730A3",
+      "focus-ring": "#4F46E5",
+      "overlay": "rgba(20,17,45,0.45)"
+    },
+    "warm": {
+      "text-link": "#4038B8",
+      "primary": "#4A42C8",
+      "primary-hover": "#3D36AD",
+      "primary-active": "#312B8F",
+      "focus-ring": "#4A42C8"
+    },
+    "dark": {
+      "bg-base": "#110F1F",
+      "bg-surface": "#1A1830",
+      "bg-subtle": "#221F3D",
+      "bg-hover": "#2A2749",
+      "border": "#332F57",
+      "border-strong": "#4A4577",
+      "border-control": "#7F7AA8",
+      "text-primary": "#ECEBF7",
+      "text-secondary": "#B6B3D4",
+      "text-muted": "#A7A4C8",
+      "text-link": "#A5B4FC",
+      "primary": "#8B8CF8",
+      "primary-hover": "#A5A6FB",
+      "primary-active": "#7577EF",
+      "on-primary": "#14122B",
+      "focus-ring": "#8B8CF8",
+      "on-status": "#14122B"
+    }
+  },
+  "$color_note": "accent = sắc NHẤN cam của tông thương hiệu chàm (huy hiệu 'Mới', điểm nhấn hero) - bản đậm để đạt 4.5:1 khi làm chữ. icon-* = mã màu theo NHÓM HÀNH ĐỘNG: mắt nhận ra nhóm trước khi đọc nhãn, điều một hàng icon cùng màu xám không làm được. Sáu sắc, không nhiều hơn - quá bảy màu thì chúng thôi là mã và trở thành nhiễu. status-ink/status-tint = cặp cho badge: bảng `color` chỉ định nghĩa màu trạng thái ĐẶC (dùng với on-status), còn badge nền nhạt cần một sắc chữ ĐẬM HƠN mới đạt 4.5:1 - ở chế độ Light màu trạng thái gốc chỉ đạt 4.0-4.3:1 trên chính tint 12% của nó. text-muted và border-control KHÔNG còn ở đây: cả hai đã được nhận vào bảng chuẩn (.standards/ v2.8.0) với ĐÚNG giá trị mà khối này từng ghi đè - xem $accessibility_gap.",
   "light": {
-    "accent": "#0A6A5B",
-    "glow": "rgba(37,99,235,0.14)",
-    "grid-line": "rgba(28,43,58,0.06)",
-    "icon-nav": "#1D4ED8",
+    "accent": "#C2410C",
+    "glow": "rgba(79,70,229,0.16)",
+    "grid-line": "rgba(30,27,58,0.05)",
+    "icon-nav": "#4338CA",
     "icon-create": "#146C37",
     "icon-edit": "#7A4D00",
     "icon-danger": "#B3243C",
-    "icon-info": "#4A4A8F",
+    "icon-info": "#5B4BB8",
     "icon-trust": "#0A6A5B",
     "success-ink": "#146C37",
     "warning-ink": "#7A4D00",
@@ -26,14 +73,14 @@
     "info-tint": "#E1EDF4"
   },
   "warm": {
-    "accent": "#0A5F52",
-    "glow": "rgba(30,95,194,0.12)",
+    "accent": "#A8410F",
+    "glow": "rgba(74,66,200,0.12)",
     "grid-line": "rgba(46,42,33,0.07)",
-    "icon-nav": "#1A56B8",
+    "icon-nav": "#4038B8",
     "icon-create": "#1B6E38",
     "icon-edit": "#9A4A07",
     "icon-danger": "#BE2020",
-    "icon-info": "#464678",
+    "icon-info": "#4F43A8",
     "icon-trust": "#0A5F52",
     "success-ink": "#1B6E38",
     "warning-ink": "#9A4A07",
@@ -45,23 +92,23 @@
     "info-tint": "#DFE6E2"
   },
   "dark": {
-    "accent": "#3FDDC4",
-    "glow": "rgba(102,163,242,0.22)",
-    "grid-line": "rgba(230,237,245,0.06)",
-    "icon-nav": "#7FB2F7",
+    "accent": "#FB923C",
+    "glow": "rgba(139,140,248,0.22)",
+    "grid-line": "rgba(236,235,247,0.05)",
+    "icon-nav": "#A5B4FC",
     "icon-create": "#4ADE80",
     "icon-edit": "#FBBF24",
     "icon-danger": "#F87171",
-    "icon-info": "#B7B7F0",
+    "icon-info": "#C4B5FD",
     "icon-trust": "#3FDDC4",
     "success-ink": "#4ADE80",
     "warning-ink": "#FBBF24",
     "danger-ink": "#F87171",
     "info-ink": "#38BDF8",
-    "success-tint": "#1C3C44",
-    "warning-tint": "#313839",
-    "danger-tint": "#312F42",
-    "info-tint": "#1A3853"
+    "success-tint": "#183A33",
+    "warning-tint": "#3A2E22",
+    "danger-tint": "#3A2030",
+    "info-tint": "#17304A"
   },
   "typography": {
     "$note": "Thang chữ của DESIGN_SYSTEM.md §4 dừng ở 30px (H1) - đủ cho giao diện công cụ, nhưng khối hero của một website cần bậc lớn hơn. Ba bậc dưới đây nối tiếp 30px theo lưới 4px và CHỈ dùng cho tiêu đề hero/marketing, không dùng trong luồng thao tác.",
@@ -74,7 +121,6 @@
       "display-lg": "60px"
     }
   },
-
   "$motion_note": "Bảng chuẩn khai MỘT đường cong (--motion-easing). Một đường cong dùng cho mọi hướng là sai về cảm nhận: thứ ĐI VÀO màn hình phải giảm tốc (chậm lại khi tới chỗ), thứ ĐI RA phải tăng tốc (biến mất dứt khoát), và thứ cần nhấn mạnh thì vọt lên rồi lắng. Dùng một đường cong cho cả ba làm mọi chuyển động trông như nhau - tức mất hẳn chuyển động như một tín hiệu. Ba bậc trễ dưới đây thay cho việc viết tay `animationDelay: '.1s'` rải rác: trang chủ đang có đúng kiểu đó, và hai chỗ viết tay sẽ lệch nhau ngay lần sửa đầu tiên.",
   "motion": {
     "easing-enter": "cubic-bezier(0.05, 0.7, 0.1, 1)",
