@@ -68,10 +68,13 @@ const SECTIONS = [
           cung cấp thông tin chính xác, đầy đủ và cập nhật khi có thay đổi.
         </p>
         <p>
-          Theo điểm e khoản 3 Điều 23 Nghị định số 147/2024/NĐ-CP, chúng tôi thực hiện xác thực tài
-          khoản bằng số điện thoại di động tại Việt Nam; trường hợp bạn xác nhận không có số điện
-          thoại di động tại Việt Nam thì xác thực bằng số định danh cá nhân theo pháp luật về định
-          danh và xác thực điện tử. Tài khoản chưa xác thực có thể bị giới hạn tính năng đăng tải.
+          Tài khoản được xác thực bằng địa chỉ thư điện tử. tsudev không cung cấp dịch vụ mạng xã
+          hội: người dùng không đăng tải hay trao đổi thông tin với nhau, và nội dung công khai chỉ
+          do tác giả được chủ dự án cấp quyền đăng. Vì vậy chúng tôi không thu thập số điện thoại
+          hay số định danh cá nhân của bạn. Nếu sau này tsudev bổ sung tính năng cho phép người dùng
+          đăng tải hoặc trao đổi thông tin công khai, việc xác thực tài khoản sẽ được thực hiện theo
+          điểm e khoản 3 Điều 23 Nghị định số 147/2024/NĐ-CP, và chúng tôi sẽ thông báo trước khi áp
+          dụng.
         </p>
         <p>
           Bạn chịu trách nhiệm bảo mật thông tin đăng nhập và chịu trách nhiệm với mọi hoạt động

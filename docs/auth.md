@@ -160,6 +160,29 @@ host của database trước khi ghi**; đọc dòng đó.
 Mật khẩu truyền qua **biến môi trường**, không phải tham số dòng lệnh: tham số
 nằm trong `ps` và trong lịch sử shell.
 
+## 6. Xác thực tài khoản theo NĐ 147/2024 - vì sao KHÔNG thu số điện thoại
+
+Quyết định 05/11/2026 (chủ dự án giao agent chọn phương án): tài khoản xác thực
+bằng **email**; site **không** thu số điện thoại hay số định danh.
+
+Điểm e khoản 3 Điều 23 Nghị định 147/2024/NĐ-CP buộc xác thực bằng số điện thoại
+di động Việt Nam (hoặc số định danh) - nhưng đó là nghĩa vụ của bên **cung cấp
+dịch vụ mạng xã hội**. tsudev hiện không phải: người dùng không đăng hay trao đổi
+thông tin với nhau, nội dung công khai chỉ do tài khoản AUTHOR đăng, và AUTHOR chỉ
+OWNER cấp được (§3). Thu số điện thoại khi không có nghĩa vụ thì ngược nguyên tắc
+tối thiểu hoá dữ liệu của Luật BVDLCN 91/2025, thêm dữ liệu D2 phải bảo vệ, và
+OTP qua SMS ở Việt Nam cần brandname nhà mạng - có phí, trái hạ tầng 0 đồng.
+`.standards/docs/AUTH_AND_ACCOUNT.md` cũng cấm SMS làm lớp xác thực thứ hai.
+
+⚠️ **Nghĩa vụ bật lại** ngay khi thêm bất kỳ tính năng nào cho người dùng đăng
+tải hoặc trao đổi thông tin công khai - bình luận, diễn đàn, tin nhắn, hồ sơ
+công khai tự viết. Khi đó phải làm xác thực số điện thoại TRƯỚC khi mở tính năng,
+và sửa `/terms` + `/privacy` cùng commit.
+`apps/frontend-main/test/legalClaims.test.ts` canh hai chiều: văn bản không được
+hứa thu số điện thoại khi schema không có trường đó, và ngược lại.
+
+Đây là nhận định vận hành, không phải ý kiến pháp lý chính thức.
+
 ## Biến môi trường
 
 | Biến                       | Bắt buộc ở production | Ghi chú                                     |
