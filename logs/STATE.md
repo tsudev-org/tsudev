@@ -1,5 +1,15 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 37 BẮT ĐẦU Ở ĐÂY** (cuối phiên 36, 05/11/2026). Phiếu:
+> [`20261105-06`](handover/20261105-06_ket-phien-36-icon-a4.md).
+>
+> ✅ Xanh, CHỜ chủ dự án merge: #137 (icon nền tảng chính thức + hover màu hãng, logo cú
+> AVIF 2-9 kB thay PNG 131 kB) và #138 (A4: dependency-review, actionlint, zizmor, Trivy,
+> Scorecard). Vector hoá cú bằng máy đã đo: 40 kB gzip + mất chi tiết ⇒ không làm.
+>
+> 🔴 Frontend VẪN chưa deploy (T9). Sau #138: thêm 4 check mới vào branch protection +
+> `strict: true` (T15).
+
 > **Phiên 36 BẮT ĐẦU Ở ĐÂY** (cuối phiên 35, 05/11/2026). Phiếu:
 > [`20261105-05`](handover/20261105-05_ket-phien-35-giai-doan-1.md).
 >
