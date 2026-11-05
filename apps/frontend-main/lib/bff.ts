@@ -4,14 +4,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { CONTENT, internalHeaders } from './services';
-import { catchAllSegments, identityHeaders, queryStringOf } from './identity';
+import { identityHeaders, queryStringOf, upstreamPath } from './identity';
 import { readSessionToken } from './sessionCookie';
 
 export function makeAuthedProxy(base: string) {
   return async function handler(req: NextApiRequest, res: NextApiResponse) {
     const token = await readSessionToken(req);
     if (!token) return res.status(401).json({ error: 'Bạn cần đăng nhập' });
-    const path = catchAllSegments(req.query.path).join('/');
+    const path = upstreamPath(req.query.path);
+    if (path === null) return res.status(400).json({ error: 'Đường dẫn không hợp lệ' });
     const qs = queryStringOf(req.url);
     try {
       const upstream = await fetch(`${CONTENT}/api/${base}/${path}${qs}`, {
