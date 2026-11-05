@@ -6,5 +6,5 @@
 
 (TRỐNG - đã nhả toàn bộ khoá của đợt tái cấu trúc 28/10/2026.)
 
-✅ Phiên 34 xong (05/11/2026), không giữ khoá nào. Việc tay còn lại: phiếu
-`logs/handover/20261105-03_ket-phien-34.md` §2.
+✅ Phiên 34 xong (05/11/2026), không giữ khoá nào, không còn tiến trình dev chạy.
+Việc kế tiếp: phiếu `logs/handover/20261105-04_giao-viec-phien-35-attt.md`.

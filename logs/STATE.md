@@ -1,5 +1,16 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 35 BẮT ĐẦU Ở ĐÂY** (cuối phiên 34, 05/11/2026). Phiếu:
+> [`20261105-04`](handover/20261105-04_giao-viec-phien-35-attt.md) - việc chia theo agent.
+>
+> 🎯 Trọng tâm: **kế hoạch an toàn thông tin** (`docs/security-plan.md`) - giai đoạn 1
+> (A1 CI gitleaks + audit + Dependabot · A2 ép 2FA cho ADMIN/OWNER · A3 siết tải lên
+>
+> - magic bytes) rồi giai đoạn 2 (Trung tâm an ninh phát hành `/admin/release-security`).
+>
+> 🔴 Chủ dự án làm trước: **bật 2FA cho `tsudev` (T1) trước khi A2 lên prod**, đồng ý
+> branch protection (T3), ẩn nội dung rác ở `/admin/content` (T4).
+
 > **Phiên 35 - đọc thêm:** kế hoạch ATTT `docs/security-plan.md` - việc kế tiếp của
 > agent là GIAI ĐOẠN 1 (CI gitleaks + audit, ép 2FA cho ADMIN, giới hạn tải lên +
 > magic bytes) rồi GIAI ĐOẠN 2 (Trung tâm an ninh phát hành `/admin/release-security`).
