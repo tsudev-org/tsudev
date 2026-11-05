@@ -118,3 +118,35 @@ Thêm tệp spec mới thì phải khai vào `testMatch` của một project - P
 duy nhất là số test không tăng.
 
 Chạy `full-stack` bằng tay trước khi đụng vào luồng upload.
+
+## Cổng PR và quét bảo mật (A4, 05/11/2026)
+
+Ngoài `ci.yml`, mỗi PR còn qua hai workflow nữa. Tên job là tên check trong
+branch protection - đổi tên thì cập nhật branch protection cùng lúc.
+
+| Workflow            | Job                 | Chặn gì                                                       |
+| ------------------- | ------------------- | ------------------------------------------------------------- |
+| `security-scan.yml` | `gitleaks`          | secret bị commit (toàn lịch sử tới HEAD)                      |
+| `security-scan.yml` | `npm-audit`         | High/Critical trong phụ thuộc production                      |
+| `pr-gates.yml`      | `dependency-review` | PR **thêm/nâng** một gói có lỗ hổng High+                     |
+| `pr-gates.yml`      | `actionlint`        | workflow sai cú pháp, biểu thức, shell (kèm shellcheck)       |
+| `pr-gates.yml`      | `zizmor`            | lỗ hổng trong workflow: tiêm biểu thức, quyền thừa, token sót |
+| `pr-gates.yml`      | `trivy-config`      | Dockerfile cấu hình sai; ngoại lệ ở `.trivyignore.yaml`       |
+| `scorecard.yml`     | `scorecard`         | KHÔNG chặn - chấm điểm chuỗi cung ứng, đẩy SARIF vào Security |
+
+Ba quy tắc khi sửa workflow:
+
+- **Action ghim SHA đầy đủ kèm chú thích tag** (`@<40 ký tự> # v7.0.1`).
+  Dependabot (`github-actions`) nâng cả hai cùng lúc. Kiểm SHA khớp tag:
+  `gh api repos/<owner>/<repo>/commits/<tag> --jq .sha`.
+- **Công cụ CLI tải dạng binary ghim phiên bản + sha256**, không qua action bên
+  thứ ba - xem đầu `pr-gates.yml`.
+- **Không thêm workflow CodeQL**: repo dùng CodeQL default setup, workflow nâng
+  cao sẽ xung đột. Tải SARIF của công cụ khác bằng `codeql-action/upload-sarif`
+  với `category` riêng thì được.
+
+Chạy trước khi đẩy (tải binary cùng phiên bản ghi trong `pr-gates.yml`):
+`actionlint`, `zizmor --offline .github/workflows`,
+`trivy config --ignorefile .trivyignore.yaml --severity HIGH,CRITICAL .`.
+Thêm ngoại lệ Trivy thì ghim CẢ `id` LẪN `paths`, rồi chạy lại **không có**
+`--ignorefile` để chắc tệp ngoại lệ thật sự được đọc.
