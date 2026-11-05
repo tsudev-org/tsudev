@@ -82,7 +82,28 @@ Còn: gỡ nhánh lùi `TRUST_SIGNING_*` trong `signingEnv()` và đặt `TELEGR
    lùi `signingEnv()` trong `releaseSigning.ts`.
 4. Đặt `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` (nửa Render của báo động - còn treo từ phiên 31).
 
-## 4b. 🔴 Deploy frontend THẤT BẠI - wrangler đăng nhập SAI tài khoản Cloudflare
+## 4b. ✅ ĐÃ XỬ LÝ 05/11: Deploy frontend - wrangler SAI tài khoản Cloudflare
+
+Deploy lại thành công 05/11/2026 (Version `201e41a4`) ở tài khoản `dev.nguyentrangtinhsu`
+(`9541f44e...`), bucket `tsudev-next-cache` tạo đúng tài khoản. Nghiệm thu: provider
+chỉ có Mật khẩu/Passkey/GitHub/Google; JWKS phát hành 200 qua tsudev.com; `/trust`,
+`/admin/newsroom` 404; `/blog?tag=` 307 sang `/search`; `x-nextjs-cache: HIT/STALE`.
+
+🔴 **Nguyên nhân THẬT không phải lần đăng nhập**: `wrangler logout && login` KHÔNG
+xoá `node_modules/.cache/wrangler/wrangler-account.json` (có ở gốc VÀ ở
+`apps/frontend-main/`). Tệp đó ghim Account ID cũ, nên sau khi đăng nhập đúng,
+wrangler vẫn gọi API vào tài khoản cũ (`Authentication error [code: 10000]`).
+Xoá cả hai tệp là hết. `wrangler whoami` KHÔNG lộ ra chuyện này - nó in tài khoản
+của token, không phải tài khoản mà lệnh kế tiếp sẽ dùng.
+
+⚠️ Ngay sau deploy, các trang ISR phục vụ bản dựng lúc BUILD (máy build không có
+token nội bộ production ⇒ dữ liệu rỗng, `revalidate` 30 giây). Trong khoảng 30
+giây đầu đó `prod:dem-noi-dung` TRƯỢT `/blog` `/docs`; lượt dựng lại tiếp theo có
+đủ 50 bài/50 tài liệu. Đo lại sau 1 phút trước khi kết luận.
+
+Rác ở tài khoản SAI vẫn còn, chủ dự án tự xoá (mục gốc bên dưới).
+
+Nội dung gốc của mục:
 
 #103 đã merge (05/11/2026), nhưng `npm --workspace apps/frontend-main run deploy`
 dừng ở bước gắn route: `Could not find zone for tsudev.com`. Wrangler trên máy
