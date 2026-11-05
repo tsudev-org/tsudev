@@ -649,7 +649,6 @@ const projectCard = (p: Project) => ({
   copyrightAt: p.copyrightAt,
   repoUrl: p.repoUrl,
   homepageUrl: p.homepageUrl,
-  trustProgramSlug: p.trustProgramSlug,
   featured: p.featured,
 })
 
@@ -725,7 +724,7 @@ function readProjectBody(body: unknown, { partial }: { partial: boolean }): Read
   ]) {
     if (b[k] !== undefined) loose[k] = b[k] === null ? null : String(b[k])
   }
-  for (const k of ['copyrightNo', 'copyrightOwner', 'trustProgramSlug']) {
+  for (const k of ['copyrightNo', 'copyrightOwner']) {
     if (b[k] !== undefined) loose[k] = b[k] === null || b[k] === '' ? null : String(b[k])
   }
   for (const k of ['releasedAt', 'copyrightAt']) {

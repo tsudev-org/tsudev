@@ -77,7 +77,7 @@ test('sitemap không còn liệt kê trang nào của con dấu', async ({ page 
   const res = await page.request.get(`${MAIN}/sitemap.xml`);
   expect(res.status()).toBe(200);
   const xml = await res.text();
-  // '/trust/' chứ không phải '/trust': dự án `tsudev-trust-seal` có chữ trust
+  // '/trust/' chứ không phải '/trust': dự án `tsudev-trust-crypto` có chữ trust
   // trong slug và vẫn phải nằm trong sitemap.
   expect(xml).not.toContain('/trust/');
   expect(xml).not.toContain('/trust<');
@@ -118,8 +118,8 @@ test('dự án: danh sách có dự án thật và mở được trang chi tiế
   const first = page.locator('a[href^="/projects/"]').first();
   await expect(first).toBeVisible();
 
-  await page.goto(`${MAIN}/projects/tsudev-trust-seal`, { waitUntil: 'networkidle' });
-  await expect(page.locator('h1')).toHaveText('Con dấu tín nhiệm tsudev');
+  await page.goto(`${MAIN}/projects/tsudev-trust-crypto`, { waitUntil: 'networkidle' });
+  await expect(page.locator('h1')).toHaveText('Ký bản phát hành tsudev');
   // Dự án này seed ở trạng thái REGISTERED - số giấy chứng nhận PHẢI hiện ra.
   // Đây là khẳng định trung tâm của mục bản quyền, không phải trang trí.
   await expect(page.getByText('TSD-2026-0001')).toBeVisible();

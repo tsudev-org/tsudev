@@ -98,97 +98,11 @@ async function main() {
       category: 'reference',
       position: 2,
       contentMd:
-        '## Endpoint công khai\n\nCon dấu tín nhiệm là phần duy nhất của tsudev có API mở cho bên thứ ba - huy hiệu nhúng trên website khách phải gọi được mà không cần khoá nào.\n\n- `GET /api/trust/programs` - các chương trình cấp dấu\n- `GET /api/trust/directory` - website đang được cấp dấu\n- `GET /api/trust/verify/:serial` - tra cứu một chứng chỉ\n- `GET /api/trust/seal/:serial.svg` - huy hiệu SVG để nhúng\n- `GET /api/trust/jwks` - khoá công khai, dùng để xác minh chữ ký ngoại tuyến\n\nCác đường dẫn nội dung (`/api/posts`, `/api/docs`, `/api/projects`) **không** mở ra ngoài: chúng chỉ phục vụ lớp render của chính site và nằm sau cổng chặn `INTERNAL_API_TOKEN`.',
+        '## Endpoint công khai\n\nĐường công khai duy nhất của tsudev cho bên thứ ba là khoá ký bản phát hành:\n\n- `GET /.well-known/tsudev-release-jwks.json` - khoá công khai Ed25519, dùng để tự xác minh chữ ký của tệp cài đặt mà không cần tin máy chủ tsudev\n\nCác đường dẫn nội dung (`/api/posts`, `/api/docs`, `/api/projects`) **không** mở ra ngoài: chúng chỉ phục vụ lớp render của chính site và nằm sau cổng chặn `INTERNAL_API_TOKEN`.',
     },
   ]
   for (const d of docs) {
     await prisma.doc.upsert({ where: { slug: d.slug }, update: {}, create: d })
-  }
-
-  // --- Trust Seal: chương trình dấu ---
-  // Tiêu chí được công bố công khai trên /trust/programs/<slug>; đổi tiêu chí ở
-  // đây là đổi luôn nội dung trang, không phải sửa code.
-  const programs = [
-    {
-      slug: 'copyright-verified',
-      name: 'Xác minh bản quyền',
-      summary: 'Website sử dụng nội dung của tsudev đúng giấy phép và ghi nguồn đầy đủ.',
-      validityDays: 365,
-      badgeVariant: 'copyright',
-      sortOrder: 1,
-      criteria: [
-        { key: 'source-listed', label: 'Liệt kê đầy đủ nội dung tsudev đang sử dụng' },
-        { key: 'attribution', label: 'Ghi nguồn tsudev ở vị trí người đọc thấy được' },
-        { key: 'license-scope', label: 'Sử dụng đúng phạm vi giấy phép đã cấp' },
-        { key: 'no-derivative-claim', label: 'Không tự nhận là tác giả gốc của nội dung dẫn lại' },
-      ],
-      evidenceSpec: [
-        { kind: 'content-urls', label: 'URL các trang có dùng nội dung tsudev', required: true },
-        { kind: 'license-ref', label: 'Mã giấy phép hoặc thư chấp thuận', required: true },
-      ],
-    },
-    {
-      slug: 'ownership-attested',
-      name: 'Chứng nhận sở hữu',
-      summary: 'tsudev xác nhận sở hữu một phần hoặc toàn bộ website được nêu.',
-      validityDays: 730,
-      badgeVariant: 'ownership',
-      sortOrder: 2,
-      criteria: [
-        { key: 'legal-entity', label: 'Pháp nhân vận hành website được xác định rõ' },
-        { key: 'ownership-share', label: 'Tỉ lệ sở hữu của tsudev được nêu chính xác' },
-        { key: 'domain-control', label: 'Quyền kiểm soát domain đã được xác minh' },
-      ],
-      evidenceSpec: [
-        { kind: 'legal-doc', label: 'Giấy tờ pháp nhân hoặc thoả thuận góp vốn', required: true },
-        { kind: 'ownership-share', label: 'Tỉ lệ sở hữu (%)', required: true },
-      ],
-    },
-    {
-      slug: 'security-compliant',
-      name: 'Chứng chỉ bảo mật',
-      summary: 'Website đáp ứng bộ yêu cầu bảo mật tối thiểu của tsudev.',
-      validityDays: 180,
-      badgeVariant: 'security',
-      sortOrder: 3,
-      criteria: [
-        { key: 'tls', label: 'HTTPS bắt buộc, TLS 1.2 trở lên, chứng chỉ còn hạn' },
-        { key: 'hsts', label: 'Bật HSTS' },
-        { key: 'headers', label: 'Có CSP, X-Content-Type-Options, Referrer-Policy' },
-        { key: 'no-mixed', label: 'Không có nội dung tải qua HTTP trên trang HTTPS' },
-        { key: 'disclosure', label: 'Có kênh tiếp nhận báo lỗi bảo mật' },
-      ],
-      evidenceSpec: [
-        { kind: 'scan-report', label: 'Báo cáo quét bảo mật gần nhất', required: false },
-        { kind: 'contact', label: 'Email tiếp nhận báo lỗi bảo mật', required: true },
-      ],
-    },
-    {
-      slug: 'data-protection',
-      name: 'Tuân thủ bảo vệ dữ liệu',
-      summary: 'Website có cơ chế bảo vệ dữ liệu cá nhân theo tiêu chí tsudev công bố.',
-      validityDays: 365,
-      badgeVariant: 'privacy',
-      sortOrder: 4,
-      criteria: [
-        { key: 'policy', label: 'Có chính sách quyền riêng tư truy cập được công khai' },
-        { key: 'lawful-basis', label: 'Nêu rõ căn cứ và mục đích xử lý dữ liệu' },
-        { key: 'rights', label: 'Có quy trình để người dùng truy cập/xoá dữ liệu của họ' },
-        { key: 'contact', label: 'Có đầu mối phụ trách dữ liệu' },
-        { key: 'retention', label: 'Nêu rõ thời hạn lưu trữ' },
-      ],
-      evidenceSpec: [
-        { kind: 'policy-url', label: 'URL chính sách quyền riêng tư', required: true },
-        { kind: 'dpo-contact', label: 'Đầu mối phụ trách dữ liệu', required: true },
-      ],
-    },
-  ]
-  for (const p of programs) {
-    await prisma.sealProgram.upsert({
-      where: { slug: p.slug },
-      update: { ...p },
-      create: { ...p },
-    })
   }
 
   // --- Dự án & bản quyền ---
@@ -198,7 +112,8 @@ async function main() {
     {
       slug: 'tsudev-platform',
       name: 'tsudev Platform',
-      summary: 'Nền tảng web monorepo: blog, tài liệu, con dấu tín nhiệm, SSO và object storage.',
+      summary:
+        'Nền tảng web monorepo: phát hành ứng dụng, blog, tài liệu, đăng nhập và object storage.',
       descriptionMd:
         '## Tổng quan\n\nMonorepo npm workspaces gồm một ứng dụng Next.js và ba service Express dùng chung một database qua Prisma.\n\n- Một cổng vào duy nhất ở dev, phân biệt bằng subdomain\n- Nguồn sự thật về cổng/tên miền nằm trong `config/topology.json`\n- Trình duyệt không bao giờ gọi thẳng cổng service\n',
       kind: 'APP',
@@ -208,27 +123,24 @@ async function main() {
       repoUrl: 'https://github.com/tsudev-tsudev/tsudev',
       copyrightStatus: 'PENDING',
       copyrightOwner: 'Nguyễn Trang Tình Sử',
-      trustProgramSlug: 'copyright-verified',
       featured: true,
       sortOrder: 1,
     },
     {
-      slug: 'tsudev-trust-seal',
-      name: 'Con dấu tín nhiệm tsudev',
+      slug: 'tsudev-trust-crypto',
+      name: 'Ký bản phát hành tsudev',
       summary:
-        'Dịch vụ cấp và xác thực huy hiệu tín nhiệm cho website: ký Ed25519, xác minh tên miền, giám sát định kỳ.',
+        'Thư viện ký Ed25519 viết bằng Rust biên dịch sang WASM - ký checksum của mọi tệp cài đặt phát hành trên tsudev.com.',
       descriptionMd:
-        '## Con dấu tín nhiệm\n\nCấp huy hiệu cho website dùng mã nguồn tsudev, và chứng nhận cho website do đội ngũ tsudev thực hiện.\n\nMỗi chứng chỉ mang một chữ ký Ed25519 xác minh được độc lập qua JWKS công khai - không cần tin vào máy chủ tsudev để kiểm tra tính toàn vẹn.\n',
-      kind: 'SERVICE',
+        '## Ký bản phát hành\n\nDự án cá nhân không có chứng chỉ ký mã thương mại. Mỗi bản phát hành trên tsudev.com vì thế kèm SHA-256 và một chữ ký Ed25519 xác minh được độc lập qua JWKS công khai - không cần tin máy chủ tsudev.\n',
+      kind: 'LIBRARY',
       status: 'BETA',
       version: '0.1.0',
       license: 'MIT',
-      homepageUrl: '/trust',
       copyrightStatus: 'REGISTERED',
       copyrightNo: 'TSD-2026-0001',
       copyrightAt: new Date('2026-03-14'),
       copyrightOwner: 'Nguyễn Trang Tình Sử',
-      trustProgramSlug: 'ownership-attested',
       featured: true,
       sortOrder: 2,
     },
@@ -312,11 +224,11 @@ async function main() {
       minOsVersion: 'Windows 10 64-bit',
     },
     {
-      slug: 'tsudev-trust-seal',
+      slug: 'tsudev-trust-crypto',
       version: '0.1.0',
-      platform: 'WEB',
-      externalUrl: '/trust',
-      releaseNotesMd: '- Chạy ở chế độ mời\n- Huy hiệu SVG nhúng được\n',
+      platform: 'SOURCE',
+      externalUrl: 'https://github.com/tsudev-tsudev/tsudev/tree/main/packages/trust-crypto',
+      releaseNotesMd: '- Ed25519 bằng Rust → WASM\n- Tương thích từng byte với node:crypto\n',
     },
   ]
   let soRelease = 0
@@ -349,7 +261,6 @@ async function main() {
     users: 3,
     posts: posts.length,
     docs: docs.length,
-    trustPrograms: programs.length,
     projects: projects.length,
     releases: soRelease,
   })
