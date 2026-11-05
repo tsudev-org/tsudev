@@ -243,8 +243,8 @@ export default function SecurityPage() {
           data.error === 'invalid_credentials'
             ? 'Mật khẩu không đúng.'
             : data.error === 'owner_cannot_self_delete'
-            ? 'Tài khoản chủ sở hữu không tự xoá được.'
-            : 'Không thực hiện được.',
+              ? 'Tài khoản chủ sở hữu không tự xoá được.'
+              : 'Không thực hiện được.',
       });
       return;
     }

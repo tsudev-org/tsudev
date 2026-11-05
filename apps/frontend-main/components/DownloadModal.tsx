@@ -201,7 +201,7 @@ export default function DownloadModal({ open, onClose, project, releases }: Down
   useEffect(() => {
     if (!open) return;
     const doan = nenTangCuaThietBi();
-    setDangChon(doan && coSan.includes(doan) ? doan : coSan[0] ?? null);
+    setDangChon(doan && coSan.includes(doan) ? doan : (coSan[0] ?? null));
   }, [open, coSan]);
 
   const dsHienTai = dangChon ? theoNenTang.get(dangChon) || [] : [];

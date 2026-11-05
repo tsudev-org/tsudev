@@ -217,8 +217,9 @@
    * trình duyệt nhảy xuống chuỗi dự phòng và không báo gì. Cổng canh là
    * apps/frontend-main/test/fontSource.test.ts.
    */
-  --font-family: 'Be Vietnam Pro', 'Be Vietnam Pro Fallback', 'Segoe UI', 'Roboto', system-ui,
-    -apple-system, sans-serif;
+  --font-family:
+    'Be Vietnam Pro', 'Be Vietnam Pro Fallback', 'Segoe UI', 'Roboto', system-ui, -apple-system,
+    sans-serif;
   --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Consolas', ui-monospace, monospace;
   --fs-xs: 12px;
   --fs-sm: 13px;

@@ -85,7 +85,7 @@ jobs:
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '20'
+          node-version: '22'
 
       # Không cần `npm ci`: `npm audit` đọc thẳng package-lock.json (đã đo trên bản
       # checkout sạch không có node_modules). ĐỪNG thêm `npm audit fix --omit=dev` -

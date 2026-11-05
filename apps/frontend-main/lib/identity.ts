@@ -75,6 +75,27 @@ export function catchAllSegments(raw: string | string[] | undefined): string[] {
 }
 
 /**
+ * Đường dẫn AN TOÀN để ghép vào URL upstream của proxy, hoặc `null` (⇒ 400).
+ *
+ * Next đã GIẢI MÃ từng đoạn của `req.query.path`, nên `%2e%2e` tới đây thành
+ * `..` và `%2F` thành `/` nằm TRONG một đoạn. Ghép thẳng vào URL thì `fetch`
+ * chuẩn hoá `/api/content/<tiền-tố-hợp-lệ>/../<route khác>` thành
+ * `/api/<route khác>` - vượt danh sách tiền tố của proxy mà vẫn mang danh tính
+ * người dùng (CodeQL js/request-forgery #38-#41, vá 05/11/2026).
+ *
+ * Từ chối đoạn rỗng, `.`, `..`, đoạn chứa `/` hoặc `\`; mã hoá lại từng đoạn
+ * còn lại bằng `encodeURIComponent` để không ký tự nào đổi được cấu trúc URL.
+ * Express phía service giải mã param như cũ, nên route hợp lệ không đổi.
+ */
+export function upstreamPath(raw: string | string[] | undefined): string | null {
+  const parts = catchAllSegments(raw);
+  for (const p of parts) {
+    if (p === '' || p === '.' || p === '..' || p.includes('/') || p.includes('\\')) return null;
+  }
+  return parts.map(encodeURIComponent).join('/');
+}
+
+/**
  * Đọc một route param dạng CHUỖI trong getServerSideProps.
  *
  * `params` có thể vắng mặt, và mỗi giá trị là `string | string[]`. Bản cũ viết

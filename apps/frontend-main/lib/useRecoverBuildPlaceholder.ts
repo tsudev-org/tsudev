@@ -30,14 +30,17 @@ export function useRecoverBuildPlaceholder(failed: boolean): boolean {
     }
     if (tries >= MAX_TRIES) return;
     setTrying(true);
-    const t = setTimeout(() => {
-      try {
-        sessionStorage.setItem(key, String(tries + 1));
-      } catch {
-        /* như trên */
-      }
-      router.replace(router.asPath, undefined, { scroll: false }).finally(() => setTrying(false));
-    }, DELAY_MS * (tries + 1));
+    const t = setTimeout(
+      () => {
+        try {
+          sessionStorage.setItem(key, String(tries + 1));
+        } catch {
+          /* như trên */
+        }
+        router.replace(router.asPath, undefined, { scroll: false }).finally(() => setTrying(false));
+      },
+      DELAY_MS * (tries + 1)
+    );
     return () => clearTimeout(t);
     // `router` cố ý không nằm trong deps: nó đổi định danh sau mỗi lần replace.
     // eslint-disable-next-line react-hooks/exhaustive-deps
