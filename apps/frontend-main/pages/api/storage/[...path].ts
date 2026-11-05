@@ -11,7 +11,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { STORAGE, internalHeaders } from '../../../lib/services';
-import { catchAllSegments, identityHeaders, queryStringOf } from '../../../lib/identity';
+import { identityHeaders, queryStringOf, upstreamPath } from '../../../lib/identity';
 import { readSessionToken } from '../../../lib/sessionCookie';
 
 /** Lỗi có mã HTTP đi kèm - readBody() ném ra khi thân request vượt MAX_BODY. */
@@ -68,7 +68,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const token = await readSessionToken(req);
   if (!token) return res.status(401).json({ error: 'Bạn cần đăng nhập' });
 
-  const path = catchAllSegments(req.query.path).join('/');
+  const path = upstreamPath(req.query.path);
+  if (path === null) return res.status(400).json({ error: 'Đường dẫn không hợp lệ' });
   const qs = queryStringOf(req.url);
 
   let body: Buffer | undefined;
