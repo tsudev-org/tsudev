@@ -314,9 +314,18 @@ nguồn là hiện trạng; TSD là đích đến.
   `test/isrPages.test.ts` canh; đừng đưa trang per-user (`/search`, `/admin/*`)
   vào danh sách. Đã đo khi tắt backend: trang đã cache vẫn 200 đủ nội dung; slug
   CHƯA từng vào cache thì 503 + `Retry-After` qua `pages/_error.tsx` (mã lỗi
-  `UPSTREAM_UNAVAILABLE`; đừng thêm `pages/500.tsx` - nó nuốt mã 503). Ngay sau
-  deploy ~30s đầu là bản dựng lúc build (rỗng - máy build không có token prod),
-  đo lại sau 1 phút trước khi kết luận.
+  `UPSTREAM_UNAVAILABLE`; đừng thêm `pages/500.tsx` - nó nuốt mã 503). Mỗi
+  deploy đẩy lên R2 bản dựng lúc build (rỗng - máy build không có token prod):
+  nó dựng lại sau 1s và `useRecoverBuildPlaceholder` tự nạp lại dữ liệu ở trình
+  duyệt; vẫn đo lại sau 1 phút trước khi kết luận. `failed: true` trong props
+  CHỈ có thể đến từ bản build - lúc chạy, lỗi luôn được NÉM.
+- **IP người gọi ở BFF: chỉ qua `lib/clientIp.ts` (`CF-Connecting-IP`).** Phần tử
+  đầu của `X-Forwarded-For` do NGƯỜI GỬI đặt được trên Cloudflare - đọc nó là
+  cho kẻ tấn công vượt giới hạn đăng nhập theo IP (vá 05/11/2026, test quét nguồn).
+- **Kế hoạch an toàn thông tin: `docs/security-plan.md`** - 12 khoảng trống đo
+  được + Trung tâm an ninh phát hành. Phụ thuộc production phải giữ 0 High/Critical
+  (`npm audit --omit=dev`); ĐỪNG `npm audit fix --omit=dev` - nó gỡ devDependencies
+  (kể cả OpenNext) khỏi node_modules.
 - **`wrangler logout && login` KHÔNG đổi tài khoản lệnh kế tiếp dùng** nếu còn
   `node_modules/.cache/wrangler/wrangler-account.json` (ở gốc VÀ ở
   `apps/frontend-main/`) - tệp đó ghim Account ID. Xoá cả hai. `wrangler whoami`
