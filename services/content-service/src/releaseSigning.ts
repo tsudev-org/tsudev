@@ -10,10 +10,10 @@
  * Khoá công khai công bố ở /.well-known/tsudev-release-jwks.json để bất kỳ ai tự
  * xác minh offline.
  *
- * TÊN BIẾN ĐỔI HAI ĐỢT (§7.6). Đợt này đọc RELEASE_SIGNING_* TRƯỚC, thiếu thì lùi
- * về TRUST_SIGNING_* - để production đang đặt tên cũ vẫn khởi động được. Đợt sau,
- * khi Render đã có tên mới, mới gỡ nhánh lùi. Gỡ tên cũ trước khi đặt tên mới =
- * production từ chối khởi động (cố ý, xem loadPrivateKey).
+ * TÊN BIẾN đã đổi xong HAI ĐỢT (§7.6): đợt 1 đọc RELEASE_SIGNING_* rồi lùi về
+ * TRUST_SIGNING_* của Con dấu; đợt 2 (05/11/2026, sau khi Render đã có tên mới và
+ * đã xoá tên cũ) gỡ nhánh lùi. Nay CHỈ còn tên mới. Đặt `TRUST_SIGNING_*` không
+ * còn tác dụng gì - có test canh, để tên cũ không lặng lẽ sống lại.
  *
  *   RELEASE_SIGNING_KEY           PEM PKCS#8 đã base64 hoá (khoá đang ký)
  *   RELEASE_SIGNING_KEY_ID        kid công bố trong JWKS
@@ -25,11 +25,10 @@
  * có khoá; service từ chối khởi động nếu thiếu.
  */
 
-/** Đọc tên mới trước, lùi về tên cũ của Con dấu. Một chỗ duy nhất biết cả hai tên. */
+/** Một chỗ duy nhất biết tên biến môi trường của vòng khoá. */
 export function signingEnv(suffix: 'KEY' | 'KEY_ID' | 'KEYS_RETIRED'): string | undefined {
-  const fresh = process.env[`RELEASE_SIGNING_${suffix}`]
-  if (fresh !== undefined && fresh !== '') return fresh
-  return process.env[`TRUST_SIGNING_${suffix}`]
+  const v = process.env[`RELEASE_SIGNING_${suffix}`]
+  return v === '' ? undefined : v
 }
 
 import { Buffer } from 'buffer'
@@ -94,9 +93,7 @@ function loadPrivateKey(): LoadedKey {
     return { pem, kid: signingEnv('KEY_ID') || 'default', dev: false }
   }
   if (process.env.NODE_ENV === 'production') {
-    throw new Error(
-      'Thiếu RELEASE_SIGNING_KEY (hoặc tên cũ TRUST_SIGNING_KEY) - không thể ký bản phát hành ở production.'
-    )
+    throw new Error('Thiếu RELEASE_SIGNING_KEY - không thể ký bản phát hành ở production.')
   }
   if (process.env.NODE_ENV !== 'test') {
     console.warn(

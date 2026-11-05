@@ -12,7 +12,7 @@
 // `/blog` và `/feed.xml` chỉ TRỐNG. Lỗi sống ba ngày trên trang công khai.
 //
 // Vì thế cổng này ồn ào có chủ đích: thiếu một migration ⇒ tiến trình KHÔNG lên.
-// Cùng tinh thần với TRUST_SIGNING_KEY - thà chết ồn ào còn hơn phục vụ sai.
+// Cùng tinh thần với RELEASE_SIGNING_KEY - thà chết ồn ào còn hơn phục vụ sai.
 //
 // ⚠️ Hệ quả vận hành, biết trước thì không bất ngờ: Render autoDeploy dựng lại
 // khi merge vào `main`. Merge một PR có migration mà CHƯA chạy `npm run

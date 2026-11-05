@@ -1,5 +1,11 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
+  // TÊN WORKER CỐ Ý GIỮ tên cũ dù thư mục đã đổi thành canh-site-cron (§8.5,
+  // 05/11/2026). Đổi `name` thì `wrangler deploy` tạo một Worker MỚI, còn Worker
+  // cũ vẫn chạy trên Cloudflare với cùng lịch cron - hai bộ giữ ấm, hai lượt đo,
+  // hai tin báo động. Gỡ khỏi repo KHÔNG xoá Worker đang chạy. Muốn đổi tên thật:
+  // deploy tên mới, rồi `wrangler delete --name tsudev-newsroom-cron` trong CÙNG
+  // một lượt làm việc.
   "name": "tsudev-newsroom-cron",
   "main": "src/index.ts",
   "compatibility_date": "2026-08-01",

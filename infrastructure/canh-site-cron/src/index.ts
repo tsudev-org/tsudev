@@ -1,5 +1,9 @@
 /**
- * Nhịp đập của Toà soạn Agent AI - và bộ giữ ấm Render, cùng một lượt gọi.
+ * Worker canh site: giữ ấm Render + đo nội dung thật của tsudev.com hai lần/ngày.
+ *
+ * (Thư mục từng tên `newsroom-cron` - nhịp đập của Toà soạn Agent AI, gỡ
+ * 29/10/2026. Đổi tên thư mục 05/11/2026; tên Worker trên Cloudflare giữ nguyên,
+ * xem `wrangler.jsonc`.)
  *
  * Vì sao là một Worker RIÊNG, không phải scheduled handler nhét vào
  * apps/frontend-main:
@@ -11,7 +15,7 @@
  *   web vẫn chạy, và deploy trang web không đụng tới cron.
  *
  * Worker này CỐ Ý rất ngu: nó không chạm database, không gọi LLM, không giữ
- * trạng thái. Nó chỉ gõ cửa backend. Mọi quyết định nằm ở newsroom-service.
+ * trạng thái. Nó chỉ gõ cửa backend và đếm nội dung trên trang công khai.
  *
  * Chi phí: 0đ. Cron Triggers có trên gói Workers Free (100.000 request/ngày,
  * 10ms CPU mỗi lần gọi). Lượt gọi này chỉ `fetch` rồi chờ I/O - thời gian chờ
@@ -54,9 +58,9 @@
  * truy vấn mỗi 5 phút = compute KHÔNG BAO GIỜ ngủ = ~186 CU-giờ/tháng ở 0,25 CU
  * ⇒ vượt hạn mức ⇒ Neon treo compute ⇒ CẢ SITE trống.
  *
- * 🟢 Việc sắp tới của Worker này: cắm `prod:dem-noi-dung` vào đây (kế hoạch
- * §6.1). Nó là chỗ ĐÚNG vì Worker này miễn phí, có lịch, và KHÔNG có kết nối
- * Postgres - tức vẫn trả lời được đúng lúc database chết, tức đúng lúc cần nhất.
+ * 🟢 Nhịp đo nội dung (`CRON_DEM_NOI_DUNG`, kế hoạch §6.1, xong 29/10/2026) chạy
+ * ở đây vì Worker này miễn phí, có lịch, và KHÔNG có kết nối Postgres - tức vẫn
+ * trả lời được đúng lúc database chết, tức đúng lúc cần nhất.
  */
 
 import { doNoiDung, thanhDong } from './demNoiDung';

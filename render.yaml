@@ -75,11 +75,9 @@ services:
       # production ⇒ nhánh content từ chối khởi động, và vì đã gộp nên CẢ tiến
       # trình không lên. Cố ý: thà chết ồn ào còn hơn ký bằng khoá dev.
       #
-      # ĐỔI TÊN HAI ĐỢT (Con dấu gỡ 04/11/2026): mã đọc RELEASE_SIGNING_* trước,
-      # lùi về TRUST_SIGNING_*. Đợt 1 (bây giờ): chép giá trị TRUST_SIGNING_KEY
-      # và _KEY_ID sang hai khoá RELEASE_ dưới đây trên dashboard. Đợt 2: xoá hai
-      # khoá TRUST_ cũ + TRUST_ISSUER khỏi dashboard, rồi gỡ nhánh lùi trong mã.
-      # Xoá tên cũ TRƯỚC khi đặt tên mới = production không khởi động.
+      # Tên cũ TRUST_SIGNING_* (Con dấu) đã đổi xong hai đợt 05/11/2026 - mã
+      # KHÔNG còn đọc nó. Xoay khoá: chuyển khoá cũ vào RELEASE_SIGNING_KEYS_RETIRED
+      # TRƯỚC, rồi mới thay RELEASE_SIGNING_KEY.
       - key: RELEASE_SIGNING_KEY
         sync: false
       - key: RELEASE_SIGNING_KEY_ID

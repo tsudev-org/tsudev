@@ -977,7 +977,7 @@ app.get(
 ///      tải sẽ im lặng chọn `storageKey`.
 ///   2. `signature` KHÔNG ĐƯỢC đứng một mình. Chữ ký không nói nó được ký bằng
 ///      khoá nào là chữ ký không kiểm được sau lần xoay khoá đầu tiên - và vòng
-///      khoá của repo này CÓ xoay (`TRUST_SIGNING_KEYS_RETIRED`). Nên
+///      khoá của repo này CÓ xoay (`RELEASE_SIGNING_KEYS_RETIRED`). Nên
 ///      `signature` đòi `signingKid`, và cả hai đòi `sha256` vì chữ ký là chữ ký
 ///      CỦA chuỗi sha256.
 ///   3. `sha256` phải đúng hình dạng 64 ký tự thập lục phân. Một checksum sai
