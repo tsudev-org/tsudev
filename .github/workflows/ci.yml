@@ -181,9 +181,11 @@ jobs:
     services:
       postgres:
         image: postgres:16-alpine
+        # `trust`, không mật khẩu: container chỉ sống trong job này, và một chuỗi
+        # POSTGRES_PASSWORD mới bị GitGuardian báo là "Generic Password".
         env:
           POSTGRES_USER: tsudev
-          POSTGRES_PASSWORD: tsudev
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: tsudev
         ports: ['5432:5432']
         options: >-
@@ -206,7 +208,7 @@ jobs:
       # không xảy ra khi cấu hình đủ.
       - name: Migrate rồi khởi động, chờ /health
         env:
-          DATABASE_URL: postgresql://tsudev:tsudev@localhost:5432/tsudev?schema=public
+          DATABASE_URL: postgresql://tsudev@localhost:5432/tsudev?schema=public
         run: |
           set -euo pipefail
           RELEASE_SIGNING_KEY="$(openssl genpkey -algorithm ed25519 | base64 -w0)"
