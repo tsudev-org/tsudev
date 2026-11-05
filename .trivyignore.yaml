@@ -10,20 +10,16 @@
 misconfigurations:
   # DS-0002: không có USER khác root.
   #
-  # Bốn Dockerfile dưới đây KHÔNG được Render dựng (render.yaml chỉ trỏ
+  # Hai Dockerfile dưới đây KHÔNG được Render dựng (render.yaml chỉ trỏ
   # docker/backend-service.Dockerfile, và frontend chạy trên Cloudflare Workers).
   # Chúng chỉ phục vụ stack dev cũ trong docker-compose.yml.
   #
   # Chưa sửa vì đổi USER đổi hành vi lúc chạy (quyền ghi .next/cache, quyền ghi
   # vào thư mục mount ./:/work của e2e-runner) và phải dựng thử thật trước khi
-  # đổi - máy làm việc khi viết ngoại lệ này không có Docker. Hai tệp của
-  # content/storage còn chạy `node src/index.js`, trong khi mã nguồn đã là
-  # src/index.ts biên dịch ra dist/ - tức là đã hỏng sẵn, nên hướng đúng là xoá
-  # chúng chứ không phải vá USER. Gỡ dòng tương ứng ở đây khi xử lý xong.
+  # đổi - máy làm việc khi viết ngoại lệ này không có Docker. Hai Dockerfile
+  # hỏng của content/storage đã XOÁ 05/11/2026 (compose dùng image backend).
   - id: DS-0002
     paths:
       - apps/frontend-main/Dockerfile
       - docker/e2e-runner.Dockerfile
-      - services/content-service/Dockerfile
-      - services/storage-service/Dockerfile
     statement: Dockerfile chỉ dùng cho docker-compose dev, không được Render dựng; xem chú thích ở trên.
