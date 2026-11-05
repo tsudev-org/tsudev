@@ -145,12 +145,23 @@ function OChecksum({ r }: { r: ProjectRelease }) {
             {r.signingKid && <code className="font-mono text-fg-muted">kid={r.signingKid}</code>}
           </span>
           <p className="mt-1.5 text-xs text-fg-muted">
-            Chữ ký của chuỗi SHA-256 ở trên. Khoá công khai để kiểm nằm ở{' '}
+            Máy chủ tsudev tự đọc lại tệp trong kho, tính SHA-256 ở trên rồi ký nó cùng phiên bản,
+            nền tảng và tên tệp. Chữ ký là một JWS (EdDSA); khoá công khai để kiểm nằm ở{' '}
             <a href="/.well-known/tsudev-release-jwks.json" className="text-link hover:underline">
               JWKS của tsudev
             </a>
             .
           </p>
+          {/* `<details>` chứ không hiện thẳng: chuỗi JWS dài vài trăm ký tự, chỉ
+              người tự kiểm chữ ký mới cần, và nó đẩy nút tải xuống dưới nếp gấp. */}
+          <details className="mt-2">
+            <summary className="cursor-pointer text-xs text-link hover:underline">
+              Xem chữ ký
+            </summary>
+            <code className="mt-1 block break-all font-mono text-[11px] leading-relaxed text-fg-secondary">
+              {r.signature}
+            </code>
+          </details>
         </div>
       )}
     </div>

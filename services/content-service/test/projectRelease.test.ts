@@ -28,11 +28,16 @@ process.env.INTERNAL_IDENTITY_SECRET = 'khoa-test-du-dai-cho-hmac-256-bit!!'
 delete process.env.INTERNAL_API_TOKEN
 process.env.S3_PUBLIC_ENDPOINT = 'https://cdn-test.example'
 process.env.S3_BUCKET = 'tsudev-test'
+// Khoá giả: ký URL presign là phép tính cục bộ, không gọi mạng.
+process.env.S3_ACCESS_KEY = 'test-access-key'
+process.env.S3_SECRET_KEY = 'test-secret-key'
 
 const request = require('supertest')
 const { prisma } = require('@tsudev/db')
 const { signIdentity } = require('@tsudev/identity-token')
 const { app } = require('../src/index')
+const { store } = require('../src/objectStore')
+const releaseSigning = require('../src/releaseSigning')
 
 const ADMIN = 'test-admin-release'
 const THUONG = 'test-member-release'
@@ -136,42 +141,51 @@ describe('ba bất biến của thân request', () => {
     expect(res.status).toBe(400)
   })
 
-  test('signature đứng một mình thì 400 - phải có signingKid', async () => {
+  test('client gửi signature thì 400 - chữ ký do MÁY CHỦ tạo', async () => {
     const res = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases`)
       .set(await asUser(ADMIN))
       .send({
         version: '1.0.0',
-        platform: 'ANDROID',
-        storageKey: 'r/a.apk',
+        platform: 'SOURCE',
+        externalUrl: 'https://github.test/x',
         sha256: SHA,
-        signature: 'abc',
-      })
-    expect(res.status).toBe(400)
-    expect(res.body.error).toMatch(/signingKid/)
-  })
-
-  test('signature không có sha256 thì 400 - nó là chữ ký CỦA sha256', async () => {
-    const res = await request(app)
-      .post(`/api/admin/projects/${SLUG}/releases`)
-      .set(await asUser(ADMIN))
-      .send({
-        version: '1.0.0',
-        platform: 'ANDROID',
-        storageKey: 'r/a.apk',
         signature: 'abc',
         signingKid: 'tsu-2026-08',
       })
     expect(res.status).toBe(400)
-    expect(res.body.error).toMatch(/sha256/)
+    expect(res.body.error).toMatch(/máy chủ/)
+  })
+
+  test('sha256 cho tệp trong R2 từ client thì 400 - phải Niêm phong', async () => {
+    const res = await request(app)
+      .post(`/api/admin/projects/${SLUG}/releases`)
+      .set(await asUser(ADMIN))
+      .send({ version: '1.0.0', platform: 'ANDROID', storageKey: 'r/a.apk', sha256: SHA })
+    expect(res.status).toBe(400)
+    expect(res.body.error).toMatch(/Niêm phong/)
   })
 
   test('sha256 sai hình dạng thì 400 - checksum sai còn tệ hơn không có', async () => {
     const res = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases`)
       .set(await asUser(ADMIN))
-      .send({ version: '1.0.0', platform: 'ANDROID', storageKey: 'r/a.apk', sha256: 'khongphai' })
+      .send({
+        version: '1.0.0',
+        platform: 'SOURCE',
+        externalUrl: 'https://github.test/x',
+        sha256: 'khongphai',
+      })
     expect(res.status).toBe(400)
+  })
+
+  test('tệp R2 chưa niêm phong thì KHÔNG công bố được', async () => {
+    const res = await request(app)
+      .post(`/api/admin/projects/${SLUG}/releases`)
+      .set(await asUser(ADMIN))
+      .send({ version: '1.0.0', platform: 'ANDROID', storageKey: 'r/a.apk', published: true })
+    expect(res.status).toBe(400)
+    expect(res.body.error).toMatch(/niêm phong/)
   })
 
   test('platform ngoài enum thì 400', async () => {
@@ -349,13 +363,17 @@ describe('đường đọc công khai', () => {
 })
 
 describe('đường tải', () => {
-  test('tăng downloadCount rồi chuyển hướng 302 tới URL công khai', async () => {
+  // Đích là URL PRESIGN, không phải `endpoint/bucket/key` trần: bucket R2 của
+  // production không mở đọc ẩn danh. Bản trước của test này khẳng định đúng cái
+  // URL trần đó - tức nó canh một hành vi hỏng ở production (objectStore.ts).
+  test('tăng downloadCount rồi chuyển hướng 302 tới URL presign có chữ ký', async () => {
     const r = await prisma.projectRelease.create({
       data: {
         projectId,
         version: '1.0.0',
         platform: 'ANDROID',
         storageKey: 'releases/app.apk',
+        fileName: 'Ứng dụng 1.0.apk',
         publishedAt: new Date(),
       },
     })
@@ -363,7 +381,16 @@ describe('đường tải', () => {
 
     const res = await request(app).get(`/api/projects/${SLUG}/releases/${r.id}/download`)
     expect(res.status).toBe(302)
-    expect(res.headers.location).toBe('https://cdn-test.example/tsudev-test/releases/app.apk')
+    const loc = new URL(res.headers.location)
+    expect(`${loc.origin}${loc.pathname}`).toBe(
+      'https://cdn-test.example/tsudev-test/releases/app.apk'
+    )
+    expect(loc.searchParams.get('X-Amz-Signature')).toMatch(/^[0-9a-f]{64}$/)
+    expect(Number(loc.searchParams.get('X-Amz-Expires'))).toBeLessThanOrEqual(600)
+    // Tên lưu về máy khớp tên hiển thị (đã làm sạch dấu) - người ta gõ nó vào sha256sum.
+    expect(loc.searchParams.get('response-content-disposition')).toBe(
+      'attachment; filename="Ung-dung-1.0.apk"'
+    )
 
     const sau = await prisma.projectRelease.findUnique({ where: { id: r.id } })
     expect(sau?.downloadCount).toBe(1)
@@ -432,3 +459,145 @@ describe('xoá mềm', () => {
 })
 
 export {}
+
+describe('§6.6 - tải lên R2, niêm phong, ký', () => {
+  const thuc = { ...store }
+  afterEach(() => Object.assign(store, thuc))
+
+  test('upload-url: chỉ ADMIN, khoá do máy chủ đặt, không ghi đè nhau', async () => {
+    const tu = await request(app)
+      .post(`/api/admin/projects/${SLUG}/releases/upload-url`)
+      .set(await asUser(THUONG))
+      .send({ fileName: 'a.apk' })
+    expect(tu.status).toBe(403)
+
+    const h = await asUser(ADMIN)
+    const mot = await request(app)
+      .post(`/api/admin/projects/${SLUG}/releases/upload-url`)
+      .set(h)
+      .send({
+        fileName: '../../Bản cài đặt.apk',
+        contentType: 'application/vnd.android.package-archive',
+      })
+    expect(mot.status).toBe(200)
+    expect(mot.body.key).toMatch(new RegExp(`^releases/${SLUG}/[0-9a-f]{12}/Ban-cai-dat\\.apk$`))
+    expect(new URL(mot.body.url).searchParams.get('X-Amz-Signature')).toBeTruthy()
+
+    const hai = await request(app)
+      .post(`/api/admin/projects/${SLUG}/releases/upload-url`)
+      .set(h)
+      .send({ fileName: 'Bản cài đặt.apk' })
+    expect(hai.body.key).not.toBe(mot.body.key)
+  })
+
+  test('seal: máy chủ tính sha256 + dung lượng THẬT rồi ký; chữ ký kiểm được ở JWKS', async () => {
+    const h = await asUser(ADMIN)
+    const tao = await request(app).post(`/api/admin/projects/${SLUG}/releases`).set(h).send({
+      version: '2.0.0',
+      platform: 'ANDROID',
+      storageKey: 'releases/x/app.apk',
+      fileName: 'app.apk',
+      fileSize: 1, // lời khai sai của client - phải bị thay bằng số thật
+    })
+    expect(tao.status).toBe(201)
+    expect(tao.body.sha256).toBeNull()
+    expect(tao.body.signature).toBeNull()
+
+    const SHA_THAT = 'b'.repeat(64)
+    store.hashObject = async (key: string) => {
+      expect(key).toBe('releases/x/app.apk')
+      return { sha256: SHA_THAT, size: 4242 }
+    }
+    const ns = await request(app).post(`/api/admin/releases/${tao.body.id}/seal`).set(h)
+    expect(ns.status).toBe(200)
+    expect(ns.body.sha256).toBe(SHA_THAT)
+    expect(ns.body.fileSize).toBe(4242)
+    expect(ns.body.signingKid).toBe(releaseSigning.kid)
+
+    const v = releaseSigning.verify(ns.body.signature)
+    expect(v.valid).toBe(true)
+    expect(v.payload).toMatchObject({
+      typ: 'tsudev-release',
+      project: SLUG,
+      version: '2.0.0',
+      platform: 'ANDROID',
+      sha256: SHA_THAT,
+      fileSize: 4242,
+    })
+
+    // Niêm phong xong thì công bố được.
+    const cb = await request(app)
+      .patch(`/api/admin/releases/${tao.body.id}`)
+      .set(h)
+      .send({ published: true })
+    expect(cb.status).toBe(200)
+    expect(releaseSigning.verify(cb.body.signature).valid).toBe(true)
+  })
+
+  test('seal: kho lỗi thì 502 nói rõ, không ghi gì', async () => {
+    const h = await asUser(ADMIN)
+    const tao = await request(app)
+      .post(`/api/admin/projects/${SLUG}/releases`)
+      .set(h)
+      .send({ version: '2.1.0', platform: 'ANDROID', storageKey: 'releases/x/b.apk' })
+    store.hashObject = async () => {
+      throw new Error('NoSuchKey')
+    }
+    const ns = await request(app).post(`/api/admin/releases/${tao.body.id}/seal`).set(h)
+    expect(ns.status).toBe(502)
+    const r = await prisma.projectRelease.findUnique({ where: { id: tao.body.id } })
+    expect(r?.sha256).toBeNull()
+  })
+
+  test('seal: MEMBER 403; bản đường dẫn ngoài 409', async () => {
+    const h = await asUser(ADMIN)
+    const tao = await request(app)
+      .post(`/api/admin/projects/${SLUG}/releases`)
+      .set(h)
+      .send({ version: '2.2.0', platform: 'SOURCE', externalUrl: 'https://github.test/x' })
+    expect(
+      (
+        await request(app)
+          .post(`/api/admin/releases/${tao.body.id}/seal`)
+          .set(await asUser(THUONG))
+      ).status
+    ).toBe(403)
+    expect((await request(app).post(`/api/admin/releases/${tao.body.id}/seal`).set(h)).status).toBe(
+      409
+    )
+  })
+
+  test('đường dẫn ngoài + sha256 khai tay ⇒ máy chủ tự ký lời khai', async () => {
+    const res = await request(app)
+      .post(`/api/admin/projects/${SLUG}/releases`)
+      .set(await asUser(ADMIN))
+      .send({
+        version: '2.3.0',
+        platform: 'SOURCE',
+        externalUrl: 'https://github.test/x',
+        sha256: SHA,
+      })
+    expect(res.status).toBe(201)
+    const v = releaseSigning.verify(res.body.signature)
+    expect(v.valid).toBe(true)
+    expect(v.payload).toMatchObject({ sha256: SHA, version: '2.3.0' })
+  })
+
+  test('đổi tệp (storageKey mới) xoá checksum + chữ ký cũ, buộc niêm phong lại', async () => {
+    const h = await asUser(ADMIN)
+    const tao = await request(app)
+      .post(`/api/admin/projects/${SLUG}/releases`)
+      .set(h)
+      .send({ version: '2.4.0', platform: 'ANDROID', storageKey: 'releases/x/c.apk' })
+    store.hashObject = async () => ({ sha256: 'c'.repeat(64), size: 10 })
+    await request(app).post(`/api/admin/releases/${tao.body.id}/seal`).set(h)
+
+    const doi = await request(app)
+      .patch(`/api/admin/releases/${tao.body.id}`)
+      .set(h)
+      .send({ storageKey: 'releases/x/d.apk' })
+    expect(doi.status).toBe(200)
+    expect(doi.body.sha256).toBeNull()
+    expect(doi.body.signature).toBeNull()
+  })
+})

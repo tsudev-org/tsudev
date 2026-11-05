@@ -45,7 +45,9 @@
     "build:ts": "tsc -b",
     "build:services": "tsc -b tsconfig.services.json",
     "db:seed:dev": "node scripts/with-env.js node services/auth-service/scripts/seed-dev-users.js",
-    "prod:dem-noi-dung": "node scripts/dem-noi-dung-prod.js"
+    "prod:dem-noi-dung": "node scripts/dem-noi-dung-prod.js",
+    "r2:cors": "npx wrangler r2 bucket cors set tsudev --file infrastructure/r2/cors.tsudev.json",
+    "r2:cors:list": "npx wrangler r2 bucket cors list tsudev"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

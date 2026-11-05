@@ -59,13 +59,9 @@ type Form = {
   platform: ReleasePlatform;
   channel: ReleaseChannel;
   arch: string;
-  storageKey: string;
   externalUrl: string;
-  fileName: string;
-  fileSize: string;
+  /// Chỉ cho đường dẫn ngoài (WEB/SOURCE). Tệp tải lên thì máy chủ tự tính.
   sha256: string;
-  signature: string;
-  signingKid: string;
   minOsVersion: string;
   releaseNotesMd: string;
   published: boolean;
@@ -76,17 +72,48 @@ const TRONG: Form = {
   platform: 'ANDROID',
   channel: 'STABLE',
   arch: '',
-  storageKey: '',
   externalUrl: '',
-  fileName: '',
-  fileSize: '',
   sha256: '',
-  signature: '',
-  signingKid: '',
   minOsVersion: '',
   releaseNotesMd: '',
   published: false,
 };
+
+const dungLuong = (n: number) =>
+  n >= 1024 * 1024
+    ? `${(n / 1024 / 1024).toFixed(1)} MB`
+    : n >= 1024
+    ? `${(n / 1024).toFixed(0)} KB`
+    : `${n} B`;
+
+/**
+ * PUT tệp thẳng vào R2 qua URL presign, có tiến độ.
+ *
+ * XHR chứ không `fetch`: `fetch` không báo tiến độ tải LÊN, và một thanh tiến độ
+ * đứng im trong hai phút với tệp 200 MB là lý do người ta bấm F5 giữa chừng.
+ */
+function putCoTienDo(
+  url: string,
+  file: File,
+  contentType: string,
+  onTienDo: (phanTram: number) => void
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', url);
+    xhr.setRequestHeader('Content-Type', contentType);
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onTienDo(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () =>
+      xhr.status >= 200 && xhr.status < 300
+        ? resolve()
+        : reject(new Error(`Kho lưu trữ từ chối tệp (HTTP ${xhr.status})`));
+    xhr.onerror = () =>
+      reject(new Error('Không gửi được tệp tới kho lưu trữ (mạng hoặc CORS của bucket)'));
+    xhr.send(file);
+  });
+}
 
 export type ReleaseManagerProps = {
   slug: string;
@@ -101,6 +128,10 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
   const [form, setForm] = useState<Form>(TRONG);
   const [busy, setBusy] = useState(false);
   const [hienForm, setHienForm] = useState(false);
+  const [tep, setTep] = useState<File | null>(null);
+  /// Bước đang chạy của luồng tải lên - NÓI RA, vì niêm phong một tệp lớn mất
+  /// vài chục giây và một nút "Đang lưu…" câm lặng trông y hệt treo.
+  const [buoc, setBuoc] = useState<string | null>(null);
 
   const nap = useCallback(async () => {
     try {
@@ -132,54 +163,113 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
       setForm((f) => ({ ...f, [k]: t.type === 'checkbox' ? t.checked : t.value }));
     };
 
+  const goiJson = async (url: string, method: string, than?: unknown) => {
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: than === undefined ? undefined : JSON.stringify(than),
+    });
+    const body = await res.json().catch(() => ({}));
+    // Hiện NGUYÊN VĂN lỗi của backend. Những phép kiểm ở đó rất cụ thể ("tệp chưa
+    // niêm phong") và dịch chúng thành "Lưu thất bại" là vứt đi đúng phần thông
+    // tin người dùng cần để sửa.
+    if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
+    return body;
+  };
+
+  const niemPhong = async (id: string) => {
+    setBuoc('Máy chủ đang đọc lại tệp để tính SHA-256 và ký…');
+    return goiJson(`/api/content/admin/releases/${id}/seal`, 'POST');
+  };
+
   const guiTao = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (canTep && !tep) return onMessage('danger', 'Chọn tệp cài đặt trước đã');
     setBusy(true);
+    let idDaTao: string | null = null;
     try {
-      // Gửi chuỗi rỗng thành `undefined` để backend không ghi '' vào cột nullable.
-      // `arch` là ngoại lệ: cột đó NOT NULL default '' (xem schema.prisma), nên
-      // chuỗi rỗng là giá trị hợp lệ và đúng nghĩa.
+      // `arch` là chuỗi rỗng hợp lệ: cột đó NOT NULL default '' (xem schema.prisma).
       const than: Record<string, unknown> = {
         version: form.version.trim(),
         platform: form.platform,
         channel: form.channel,
         arch: form.arch.trim(),
-        published: form.published,
       };
-      for (const k of [
-        'storageKey',
-        'externalUrl',
-        'fileName',
-        'sha256',
-        'signature',
-        'signingKid',
-        'minOsVersion',
-        'releaseNotesMd',
-      ] as const) {
+      for (const k of ['minOsVersion', 'releaseNotesMd'] as const) {
         const v = form[k].trim();
         if (v) than[k] = v;
       }
-      if (form.fileSize.trim()) than.fileSize = parseInt(form.fileSize.trim(), 10);
 
-      const res = await fetch(`/api/content/admin/projects/${slug}/releases`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(than),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        // Hiện NGUYÊN VĂN lỗi của backend. Những phép kiểm ở đó rất cụ thể
-        // ("signature phải đi kèm signingKid") và dịch chúng thành "Lưu thất bại"
-        // là vứt đi đúng phần thông tin người dùng cần để sửa.
-        onMessage('danger', body.error || `Tạo thất bại (HTTP ${res.status})`);
-        return;
+      if (canTep && tep) {
+        // 1. Xin URL tải lên. Khoá do máy chủ đặt.
+        setBuoc('Xin chỗ trong kho lưu trữ…');
+        const contentType = tep.type || 'application/octet-stream';
+        const cho = await goiJson(
+          `/api/content/admin/projects/${slug}/releases/upload-url`,
+          'POST',
+          { fileName: tep.name, contentType }
+        );
+        // 2. Tệp đi THẲNG vào R2 - không qua Worker (trần 100 MB) hay Render.
+        await putCoTienDo(cho.url, tep, cho.contentType || contentType, (p) =>
+          setBuoc(`Đang tải lên ${p}% (${dungLuong(tep.size)})…`)
+        );
+        than.storageKey = cho.key;
+        than.fileName = tep.name;
+        than.fileSize = tep.size;
+      } else {
+        than.externalUrl = form.externalUrl.trim();
+        if (form.sha256.trim()) than.sha256 = form.sha256.trim();
       }
-      onMessage('success', `Đã tạo bản ${than.version} cho ${form.platform}`);
+
+      // 3. Tạo dạng NHÁP. Công bố là bước sau cùng: backend chặn công bố một tệp
+      //    chưa niêm phong, và tách bước thì một lần niêm phong lỗi không để lại
+      //    một bản công khai thiếu checksum.
+      setBuoc('Tạo bản phát hành…');
+      const r = await goiJson(`/api/content/admin/projects/${slug}/releases`, 'POST', than);
+      idDaTao = r.id;
+
+      // 4. Niêm phong: máy chủ đọc lại ĐÚNG object trong R2, tính sha256, ký.
+      if (canTep) await niemPhong(r.id);
+
+      // 5. Công bố nếu được yêu cầu.
+      if (form.published) {
+        setBuoc('Công bố…');
+        await goiJson(`/api/content/admin/releases/${r.id}`, 'PATCH', { published: true });
+      }
+
+      onMessage(
+        'success',
+        `Đã tạo bản ${than.version} cho ${form.platform}${canTep ? ' - đã niêm phong và ký' : ''}`
+      );
       setForm(TRONG);
+      setTep(null);
       setHienForm(false);
-      await nap();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      onMessage(
+        'danger',
+        idDaTao
+          ? `Bản phát hành đã được tạo (nháp) nhưng bước sau lỗi: ${msg}. Bấm "Niêm phong" ở danh sách để thử lại.`
+          : msg
+      );
     } finally {
       setBusy(false);
+      setBuoc(null);
+      await nap();
+    }
+  };
+
+  const niemPhongLai = async (r: AdminRelease) => {
+    setBusy(true);
+    try {
+      await niemPhong(r.id);
+      onMessage('success', `Đã niêm phong và ký bản ${r.version}`);
+    } catch (err) {
+      onMessage('danger', err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusy(false);
+      setBuoc(null);
+      await nap();
     }
   };
 
@@ -228,6 +318,11 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
 
       {mo && (
         <div className="mt-3">
+          {buoc && !hienForm && (
+            <p className="mb-2 text-xs text-fg-muted" role="status" aria-live="polite">
+              {buoc}
+            </p>
+          )}
           {dsach === null ? (
             <p className="text-sm text-fg-muted">Đang tải…</p>
           ) : dsach.length === 0 ? (
@@ -291,6 +386,17 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
                       <Button size="sm" variant="secondary" onClick={() => doiCongBo(r)}>
                         {r.publishedAt ? 'Rút khỏi công khai' : 'Công bố'}
                       </Button>
+                      {r.storageKey && !r.sha256 && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          disabled={busy}
+                          onClick={() => niemPhongLai(r)}
+                        >
+                          <Icon name="signature" size={14} />
+                          Niêm phong
+                        </Button>
+                      )}
                       <Button size="sm" variant="ghost" onClick={() => xoa(r)}>
                         Xoá mềm
                       </Button>
@@ -361,59 +467,47 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
                     dẫn đường, backend mới là cổng. */}
                 {canTep ? (
                   <>
-                    <Input
-                      label="Khoá object trong R2"
-                      value={form.storageKey}
-                      onChange={set('storageKey')}
-                      placeholder="releases/app-1.0.0.apk"
-                      required
-                    />
-                    <Input
-                      label="Tên tệp hiển thị"
-                      value={form.fileName}
-                      onChange={set('fileName')}
-                      placeholder="app-1.0.0.apk"
-                    />
-                    <Input
-                      label="Dung lượng (byte)"
-                      value={form.fileSize}
-                      onChange={set('fileSize')}
-                      placeholder="2418176"
-                    />
+                    <label className="block sm:col-span-2">
+                      <span className="block text-sm font-medium text-fg mb-1">Tệp cài đặt</span>
+                      <input
+                        type="file"
+                        required
+                        onChange={(e) => setTep(e.target.files?.[0] ?? null)}
+                        className="block w-full text-sm text-fg file:mr-3 file:rounded-md file:border file:border-line-control file:bg-surface file:px-3 file:py-1.5 file:text-fg"
+                      />
+                      <span className="mt-1 block text-xs text-fg-muted">
+                        {tep
+                          ? `${tep.name} · ${dungLuong(tep.size)}`
+                          : 'Tệp đi thẳng vào R2. SHA-256 và chữ ký Ed25519 do máy chủ tính sau khi tải lên - không khai tay.'}
+                      </span>
+                    </label>
                     <Input
                       label="Yêu cầu hệ điều hành"
                       value={form.minOsVersion}
                       onChange={set('minOsVersion')}
                       placeholder="Android 8.0+"
                     />
+                  </>
+                ) : (
+                  <>
                     <Input
-                      label="SHA-256 (64 ký tự hex)"
+                      label="Đường dẫn ngoài"
+                      value={form.externalUrl}
+                      onChange={set('externalUrl')}
+                      placeholder={
+                        form.platform === 'SOURCE' ? 'https://github.com/…' : 'https://…'
+                      }
+                      required
+                      className="sm:col-span-2"
+                    />
+                    <Input
+                      label="SHA-256 (tuỳ chọn - máy chủ sẽ ký lời khai này)"
                       value={form.sha256}
                       onChange={set('sha256')}
                       placeholder="3f7a1c…"
                       className="sm:col-span-2"
                     />
-                    <Input
-                      label="Chữ ký Ed25519 (cần cả kid)"
-                      value={form.signature}
-                      onChange={set('signature')}
-                    />
-                    <Input
-                      label="kid của khoá đã ký"
-                      value={form.signingKid}
-                      onChange={set('signingKid')}
-                      placeholder="tsu-2026-08-efdb94"
-                    />
                   </>
-                ) : (
-                  <Input
-                    label="Đường dẫn ngoài"
-                    value={form.externalUrl}
-                    onChange={set('externalUrl')}
-                    placeholder={form.platform === 'SOURCE' ? 'https://github.com/…' : 'https://…'}
-                    required
-                    className="sm:col-span-2"
-                  />
                 )}
 
                 <label className="block sm:col-span-2">
@@ -436,20 +530,27 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
 
               <div className="mt-3 flex gap-2">
                 <Button type="submit" size="sm" disabled={busy}>
-                  {busy ? 'Đang lưu…' : 'Tạo bản phát hành'}
+                  {busy ? 'Đang lưu…' : canTep ? 'Tải lên và tạo' : 'Tạo bản phát hành'}
                 </Button>
                 <Button
                   type="button"
                   size="sm"
                   variant="ghost"
+                  disabled={busy}
                   onClick={() => {
                     setHienForm(false);
                     setForm(TRONG);
+                    setTep(null);
                   }}
                 >
                   Huỷ
                 </Button>
               </div>
+              {buoc && (
+                <p className="mt-2 text-xs text-fg-muted" role="status" aria-live="polite">
+                  {buoc}
+                </p>
+              )}
             </form>
           )}
         </div>
