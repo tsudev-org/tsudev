@@ -20,7 +20,7 @@ process.env.NODE_ENV = 'test'
 process.env.INTERNAL_IDENTITY_SECRET = 'khoa-test-du-dai-cho-hmac-256-bit!!'
 // Hai biến dưới chỉ cần cho khối "ép 2FA" (bật TOTP + đăng ký passkey).
 process.env.TOTP_ENCRYPTION_KEY = 'khoa-ma-hoa-totp-du-dai-cho-test-0123456789'
-process.env.NEXT_PUBLIC_MAIN_URL ||= 'http://tsudev.localhost:8080'
+process.env.NEXT_PUBLIC_MAIN_URL ||= 'https://tsudev.test'
 delete process.env.INTERNAL_API_TOKEN
 
 const request = require('supertest')
