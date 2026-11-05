@@ -9,12 +9,14 @@ const SECTIONS = [
     body: (
       <>
         <p>
-          tsudev là nơi lập trình viên trao đổi chuyên môn. Nội quy này tồn tại để giữ cho các cuộc
-          thảo luận có ích, tôn trọng và đáng tin cậy - không phải để hạn chế tranh luận.
+          tsudev là website cá nhân để phát hành các ứng dụng tự phát triển, kèm tài liệu và bài
+          viết kỹ thuật. Nội quy này giữ cho nội dung trên tsudev chính xác, hữu ích và đáng tin cậy
+          - với người đọc bài viết cũng như người tải phần mềm về dùng.
         </p>
         <p>
-          Nguyên tắc gốc rất đơn giản: <strong>phản biện ý kiến, đừng công kích con người</strong>.
-          Bất đồng kỹ thuật là chuyện bình thường và cần thiết; xúc phạm cá nhân thì không.
+          Bài viết và tài liệu chỉ được đăng bởi tài khoản <strong>tác giả</strong> do chủ dự án cấp
+          quyền. Các mục dưới đây áp dụng cho tác giả khi đăng nội dung, và cho mọi người dùng khi
+          sử dụng tài khoản, tải và phân phối phần mềm.
         </p>
         <p>
           Nội quy này bổ sung cho <a href="/terms">Điều khoản sử dụng</a>. Các hành vi vi phạm pháp
@@ -26,33 +28,30 @@ const SECTIONS = [
   },
   {
     id: 'nen-lam',
-    heading: 'Nên làm',
+    heading: 'Chuẩn mực khi đăng bài viết và tài liệu',
     body: (
       <ul>
         <li>
-          <strong>Tìm trước khi hỏi.</strong> Nhiều câu hỏi đã có lời giải trong kho tài liệu.
+          <strong>Chính xác và kiểm chứng được.</strong> Nêu rõ phiên bản, hệ điều hành và môi
+          trường mà hướng dẫn đã được thử.
         </li>
         <li>
-          <strong>Đặt tiêu đề cụ thể.</strong> “Next.js 13 báo lỗi hydration khi dùng
-          useSearchParams” hữu ích hơn nhiều so với “Giúp em với”.
+          <strong>Đặt tiêu đề cụ thể.</strong> “Cài bản Windows khi SmartScreen chặn” hữu ích hơn
+          nhiều so với “Hướng dẫn cài đặt”.
         </li>
         <li>
-          <strong>Nêu đủ ngữ cảnh.</strong> Phiên bản, môi trường, thông báo lỗi nguyên văn, những
-          gì bạn đã thử.
-        </li>
-        <li>
-          <strong>Định dạng mã bằng khối code.</strong> Ảnh chụp màn hình mã nguồn khiến người khác
+          <strong>Định dạng mã bằng khối code.</strong> Ảnh chụp màn hình mã nguồn khiến người đọc
           không thể sao chép và tìm kiếm.
         </li>
         <li>
-          <strong>Đăng đúng chuyên mục</strong> và dùng thẻ phù hợp.
+          <strong>Dùng thẻ phù hợp</strong> để bài viết dễ tìm.
         </li>
         <li>
           <strong>Dẫn nguồn</strong> khi trích dẫn tài liệu, bài viết hoặc mã nguồn của người khác.
         </li>
         <li>
-          <strong>Quay lại đánh dấu lời giải.</strong> Điều này giúp người gặp vấn đề tương tự về
-          sau.
+          <strong>Cập nhật khi lỗi thời.</strong> Hướng dẫn cài đặt phải khớp bản phát hành hiện
+          hành; bài đã lỗi thời cần được sửa hoặc ghi chú rõ.
         </li>
       </ul>
     ),
@@ -63,23 +62,15 @@ const SECTIONS = [
     body: (
       <ul>
         <li>
-          <strong>Công kích cá nhân,</strong> mỉa mai, chế giễu người mới hoặc người hỏi câu cơ bản.
+          <strong>Công kích cá nhân,</strong> mỉa mai, xúc phạm hoặc phân biệt đối xử theo giới
+          tính, dân tộc, tôn giáo, vùng miền, tuổi tác hay trình độ.
         </li>
         <li>
-          <strong>Phân biệt đối xử</strong> theo giới tính, dân tộc, tôn giáo, vùng miền, tuổi tác
-          hay trình độ.
+          <strong>Công khai thông tin cá nhân</strong> của người khác khi chưa được họ đồng ý.
         </li>
         <li>
-          <strong>Quấy rối,</strong> đeo bám, đe dọa, hoặc công khai thông tin cá nhân của người
-          khác khi chưa được họ đồng ý.
-        </li>
-        <li>
-          <strong>Spam:</strong> đăng trùng lặp nhiều nơi, quảng cáo trá hình, chèn liên kết tiếp
-          thị liên kết mà không khai báo.
-        </li>
-        <li>
-          <strong>Thao túng uy tín:</strong> tạo nhiều tài khoản, nhờ bình chọn, tự trả lời để đẩy
-          bài.
+          <strong>Spam:</strong> quảng cáo trá hình, chèn liên kết tiếp thị liên kết mà không khai
+          báo.
         </li>
         <li>
           <strong>Đăng lại nội dung của người khác</strong> như của mình, hoặc chia sẻ phần mềm bẻ
@@ -90,11 +81,16 @@ const SECTIONS = [
           thống mà bạn không có quyền kiểm thử.
         </li>
         <li>
-          <strong>Đưa nội dung không liên quan</strong> về chính trị gây chia rẽ, tôn giáo hoặc nội
-          dung người lớn.
+          <strong>Mạo danh bản phát hành chính thức:</strong> phân phối lại tệp cài đặt đã sửa đổi
+          dưới tên tsudev, hoặc chỉnh sửa checksum, chữ ký đi kèm.
         </li>
         <li>
-          <strong>Lôi kéo giao dịch ra ngoài</strong> để né trách nhiệm khi dùng tính năng Chợ.
+          <strong>Lạm dụng tài khoản:</strong> chia sẻ, mua bán tài khoản, hoặc dùng tài khoản của
+          người khác.
+        </li>
+        <li>
+          <strong>Đưa nội dung không liên quan</strong> về chính trị gây chia rẽ, tôn giáo hoặc nội
+          dung người lớn.
         </li>
       </ul>
     ),
@@ -110,11 +106,11 @@ const SECTIONS = [
         <ul>
           <li>
             <strong>Khai báo rõ</strong> khi phần lớn nội dung do AI tạo ra, nhất là với bài hướng
-            dẫn và câu trả lời kỹ thuật.
+            dẫn kỹ thuật.
           </li>
           <li>
             <strong>Tự kiểm chứng trước khi đăng.</strong> Bạn chịu trách nhiệm về nội dung mình
-            đăng, kể cả khi do AI viết. Câu trả lời sai do AI bịa ra sẽ bị xử lý như thông tin sai
+            đăng, kể cả khi do AI viết. Thông tin sai do AI bịa ra sẽ bị xử lý như thông tin sai
             lệch thông thường.
           </li>
         </ul>
@@ -133,19 +129,19 @@ const SECTIONS = [
         <p>Chúng tôi xử lý theo mức độ tăng dần, tùy tính chất và mức độ lặp lại:</p>
         <ul>
           <li>
-            <strong>Nhắc nhở</strong> - với lỗi hình thức như sai chuyên mục, thiếu định dạng mã.
+            <strong>Nhắc nhở và yêu cầu chỉnh sửa</strong> - với lỗi hình thức như thiếu định dạng
+            mã, thông tin lỗi thời.
           </li>
           <li>
             <strong>Ẩn hoặc gỡ nội dung</strong> - với nội dung vi phạm, kèm lý do gửi tới người
             đăng.
           </li>
           <li>
-            <strong>Hạn chế tính năng</strong> - tạm khóa quyền đăng bài từ 7 đến 30 ngày khi tái
-            phạm.
+            <strong>Thu hồi quyền tác giả</strong> - tạm thời hoặc vĩnh viễn khi tái phạm.
           </li>
           <li>
-            <strong>Khóa tài khoản vĩnh viễn</strong> - với vi phạm nghiêm trọng: quấy rối có hệ
-            thống, lừa đảo, phát tán mã độc, vi phạm pháp luật hình sự.
+            <strong>Khóa tài khoản vĩnh viễn</strong> - với vi phạm nghiêm trọng: lừa đảo, phát tán
+            mã độc, mạo danh bản phát hành, vi phạm pháp luật hình sự.
           </li>
         </ul>
         <p>
@@ -161,9 +157,9 @@ const SECTIONS = [
     body: (
       <>
         <p>
-          Gặp nội dung vi phạm, hãy dùng chức năng báo cáo ngay tại bài viết thay vì tranh cãi trong
-          chủ đề. Với trường hợp khẩn cấp hoặc liên quan đến an toàn của người khác, gửi thư trực
-          tiếp tới <strong>{OPERATOR.abuseEmail}</strong>.
+          Gặp nội dung vi phạm, sai sót trong tài liệu, hoặc một tệp cài đặt mạo danh tsudev, hãy
+          gửi thư tới <strong>{OPERATOR.abuseEmail}</strong>. Lỗ hổng bảo mật xin báo riêng qua địa
+          chỉ này trước khi công khai, để chúng tôi kịp phát hành bản sửa.
         </p>
         <p>
           Khi báo cáo, hãy nêu đường dẫn và mô tả ngắn gọn vấn đề. Báo cáo sai sự thật với mục đích
@@ -183,9 +179,9 @@ export default function RulesPage() {
   return (
     <LegalDoc
       active="/rules"
-      eyebrow="Cộng đồng"
-      title="Nội quy cộng đồng tsudev"
-      lead="Chuẩn mực khi sử dụng nội dung, mã nguồn và con dấu tín nhiệm của tsudev, cùng cách chúng tôi xử lý vi phạm."
+      eyebrow="Pháp lý"
+      title="Nội quy tsudev"
+      lead="Chuẩn mực khi đăng nội dung, sử dụng tài khoản, tải và phân phối phần mềm của tsudev, cùng cách chúng tôi xử lý vi phạm."
       effective={DOC_DATES.effective}
       updated={DOC_DATES.updated}
       sections={SECTIONS}

@@ -53,10 +53,10 @@ async function main() {
     {
       slug: 'welcome-to-tsudev',
       title: 'Chào mừng đến với tsudev',
-      excerpt: 'Dự án & bản quyền, blog, tài liệu và con dấu tín nhiệm.',
+      excerpt: 'Nơi phát hành ứng dụng tự phát triển, kèm tài liệu cài đặt và blog kỹ thuật.',
       tags: ['thông báo', 'giới thiệu'],
       contentMd:
-        '# Chào mừng\n\ntsudev là website dự án cá nhân: nơi công bố **dự án & bản quyền**, viết **blog** kỹ thuật, lưu **tài liệu**, và vận hành **con dấu tín nhiệm** - dịch vụ cấp chứng chỉ Ed25519 cho website, xác minh được ngoại tuyến bằng khoá công khai.\n\n> Decoding the Future, One Commit at a Time.',
+        '# Chào mừng\n\ntsudev là website cá nhân để **phát hành các ứng dụng tự phát triển**: mỗi bản cài đặt kèm **SHA-256** do máy chủ tính và **chữ ký Ed25519** xác minh được bằng khoá công khai, cùng **tài liệu** cài đặt và **blog** kỹ thuật.\n\n> Decoding the Future, One Commit at a Time.',
     },
     {
       slug: 'kien-truc-microservices',
@@ -147,7 +147,8 @@ async function main() {
     {
       slug: 'tsudev-ui',
       name: '@tsudev/ui',
-      summary: 'Hệ thống thiết kế chỉ-chế-độ-tối: token màu, component dùng chung, Storybook.',
+      summary:
+        'Hệ thống thiết kế ba chế độ Sáng · Ấm · Tối: token màu, component dùng chung, Storybook.',
       descriptionMd:
         '## Design system\n\nThứ bậc thị giác dựng bằng độ sáng nền (`--surface` < `--panel` < `--panel-2`) chứ không bằng viền hay đổ bóng.\n',
       kind: 'LIBRARY',

@@ -16,8 +16,8 @@ const SECTIONS = [
         <p>
           Bằng việc truy cập hoặc sử dụng bất kỳ dịch vụ nào của tsudev, bạn xác nhận đã đọc, hiểu
           và đồng ý chịu ràng buộc bởi Điều khoản này cùng{' '}
-          <a href="/privacy">Chính sách quyền riêng tư</a> và <a href="/rules">Nội quy cộng đồng</a>
-          . Nếu không đồng ý, vui lòng ngừng sử dụng dịch vụ.
+          <a href="/privacy">Chính sách quyền riêng tư</a> và <a href="/rules">Nội quy</a>. Nếu
+          không đồng ý, vui lòng ngừng sử dụng dịch vụ.
         </p>
         <p>
           Thỏa thuận được giao kết bằng phương tiện điện tử và có giá trị pháp lý theo Luật Giao
@@ -31,24 +31,24 @@ const SECTIONS = [
     heading: 'Mô tả dịch vụ',
     body: (
       <>
-        <p>tsudev là website dự án cá nhân về công nghệ, bao gồm:</p>
+        <p>
+          tsudev là website cá nhân dùng để phát hành các ứng dụng, công cụ và thư viện do tsudev tự
+          phát triển, bao gồm:
+        </p>
         <ul>
           <li>
-            <strong>Dự án mã nguồn</strong> - ứng dụng, thư viện và công cụ do tsudev phát triển.
+            <strong>Dự án và bản phát hành</strong> - trang giới thiệu từng dự án kèm giấy phép, và
+            tệp cài đặt cho từng nền tảng. Mỗi tệp được công bố kèm mã SHA-256 và chữ ký Ed25519.
           </li>
           <li>
-            <strong>Blog và Tài liệu</strong> - bài viết, hướng dẫn và kho tri thức chuẩn hóa.
+            <strong>Tài liệu</strong> - hướng dẫn cài đặt, nhật ký thay đổi và cách xử lý sự cố.
           </li>
           <li>
-            <strong>Chợ</strong> - nơi đăng và trao đổi sản phẩm, dịch vụ công nghệ giữa các thành
-            viên.
+            <strong>Blog</strong> - bài viết kỹ thuật do tác giả của tsudev đăng.
           </li>
           <li>
-            <strong>Tin nhắn</strong> - trao đổi riêng giữa các thành viên.
-          </li>
-          <li>
-            <strong>Con dấu tín nhiệm</strong> - chứng chỉ tín nhiệm cấp cho tổ chức đã qua thẩm
-            định và xác minh quyền kiểm soát tên miền.
+            <strong>Tài khoản</strong> - đăng nhập, quản lý hồ sơ và bảo mật (xác thực hai lớp, khoá
+            truy cập passkey).
           </li>
         </ul>
         <p>
@@ -131,8 +131,8 @@ const SECTIONS = [
             không dẫn nguồn.
           </li>
           <li>
-            Gửi thư rác, quảng cáo trá hình, thao túng bình chọn, tạo nhiều tài khoản để gian lận uy
-            tín.
+            Gửi thư rác, quảng cáo trá hình, tạo nhiều tài khoản hoặc dò đoán mật khẩu tài khoản của
+            người khác.
           </li>
           <li>
             Thu thập dữ liệu tự động (crawl, scrape) ở quy mô gây ảnh hưởng đến dịch vụ khi chưa
@@ -140,8 +140,8 @@ const SECTIONS = [
           </li>
         </ul>
         <p>
-          Chi tiết về chuẩn mực ứng xử trong thảo luận được quy định tại{' '}
-          <a href="/rules">Nội quy cộng đồng</a>.
+          Chuẩn mực với nội dung đăng trên tsudev được quy định chi tiết tại{' '}
+          <a href="/rules">Nội quy</a>.
         </p>
       </>
     ),
@@ -186,9 +186,9 @@ const SECTIONS = [
       <>
         <p>
           Chúng tôi có quyền gỡ bỏ nội dung, hạn chế tính năng, đình chỉ hoặc chấm dứt tài khoản vi
-          phạm Điều khoản này, Nội quy cộng đồng hoặc pháp luật Việt Nam. Với nội dung vi phạm pháp
-          luật, chúng tôi thực hiện gỡ bỏ theo yêu cầu của cơ quan có thẩm quyền trong thời hạn quy
-          định tại Nghị định số 147/2024/NĐ-CP.
+          phạm Điều khoản này, Nội quy hoặc pháp luật Việt Nam. Với nội dung vi phạm pháp luật,
+          chúng tôi thực hiện gỡ bỏ theo yêu cầu của cơ quan có thẩm quyền trong thời hạn quy định
+          tại Nghị định số 147/2024/NĐ-CP.
         </p>
         <p>
           Trừ trường hợp khẩn cấp hoặc vi phạm nghiêm trọng, chúng tôi sẽ thông báo lý do và cho bạn
@@ -204,28 +204,30 @@ const SECTIONS = [
     ),
   },
   {
-    id: 'giao-dich',
-    heading: 'Giao dịch trên Chợ và Con dấu tín nhiệm',
+    id: 'tai-ve',
+    heading: 'Tải và sử dụng phần mềm do tsudev phát hành',
     body: (
       <>
         <p>
-          Với tính năng <strong>Chợ</strong>, tsudev là nền tảng trung gian kết nối. Người bán chịu
-          trách nhiệm về tính chính xác của tin đăng, chất lượng sản phẩm, dịch vụ, nghĩa vụ thuế và
-          hóa đơn. Người bán là tổ chức, cá nhân kinh doanh phải cung cấp đầy đủ thông tin cho người
-          tiêu dùng theo Luật Bảo vệ quyền lợi người tiêu dùng số 19/2023/QH15, trong đó có quy định
-          riêng về trách nhiệm trong giao dịch từ xa và giao dịch trên không gian mạng.
+          Phần mềm phát hành trên tsudev được cung cấp <strong>miễn phí</strong>. Mỗi dự án ghi rõ
+          giấy phép áp dụng; việc sử dụng, sửa đổi và phân phối lại phần mềm tuân theo giấy phép đó.
         </p>
         <p>
-          Tranh chấp giữa người mua và người bán trước hết do các bên tự thương lượng. Chúng tôi hỗ
-          trợ cung cấp thông tin giao dịch trong phạm vi cho phép và có thể gỡ tin đăng vi phạm.
+          Mã SHA-256 do máy chủ của chúng tôi tự tính khi niêm phong tệp, và chữ ký Ed25519 kiểm
+          được bằng khoá công khai mà tsudev công bố. Hai thông tin này xác nhận tệp bạn tải về đúng
+          là tệp tsudev đã phát hành và chưa bị thay đổi - chúng <strong>không phải</strong> cam kết
+          rằng phần mềm phù hợp với mục đích cụ thể của bạn hay không có lỗi. Chúng tôi khuyến nghị
+          bạn đối chiếu SHA-256 hoặc chữ ký trước khi cài, theo hướng dẫn trong{' '}
+          <a href="/docs">Tài liệu</a>.
         </p>
         <p>
-          <strong>Con dấu tín nhiệm</strong> chứng nhận rằng tổ chức đã hoàn tất quy trình thẩm định
-          và xác minh quyền kiểm soát tên miền tại thời điểm cấp. Con dấu{' '}
-          <strong>không phải</strong> là bảo lãnh về chất lượng sản phẩm, năng lực tài chính hay cam
-          kết thực hiện hợp đồng của tổ chức đó. Con dấu có thể bị đình chỉ hoặc thu hồi khi tổ chức
-          không còn đáp ứng điều kiện. Bạn nên tự kiểm tra tình trạng con dấu tại trang xác thực
-          trước khi giao dịch.
+          tsudev là dự án cá nhân và không dùng chứng chỉ ký mã thương mại, nên hệ điều hành có thể
+          hiện cảnh báo khi cài đặt. Bạn tự quyết định việc cài đặt sau khi đã đối chiếu.
+        </p>
+        <p>
+          Khi phân phối lại bản đã sửa đổi, bạn không được trình bày nó như bản phát hành chính thức
+          của tsudev. Phát hiện lỗ hổng bảo mật trong phần mềm hoặc website, vui lòng báo riêng tới{' '}
+          <strong>{OPERATOR.abuseEmail}</strong> trước khi công khai để chúng tôi kịp khắc phục.
         </p>
       </>
     ),
@@ -240,9 +242,9 @@ const SECTIONS = [
           nhưng không cam kết dịch vụ luôn sẵn sàng, không gián đoạn hay không có lỗi.
         </p>
         <p>
-          Nội dung do thành viên đăng tải thể hiện quan điểm của người đăng, không phải quan điểm
-          của tsudev. Chúng tôi không chịu trách nhiệm về tính chính xác của nội dung do người dùng
-          tạo ra, nhưng sẽ xử lý khi nhận được báo cáo vi phạm.
+          Bài viết thể hiện quan điểm của tác giả tại thời điểm đăng. Chúng tôi nỗ lực giữ nội dung
+          chính xác và cập nhật, nhưng thông tin kỹ thuật có thể lỗi thời theo thời gian; khi phát
+          hiện sai sót, hãy báo cho chúng tôi để chỉnh sửa.
         </p>
         <p>
           Trong phạm vi pháp luật cho phép, chúng tôi không chịu trách nhiệm với thiệt hại gián
@@ -296,7 +298,7 @@ export default function TermsPage() {
       active="/terms"
       eyebrow="Pháp lý"
       title="Điều khoản sử dụng dịch vụ tsudev"
-      lead="Các quy định ràng buộc giữa bạn và tsudev khi sử dụng blog, tài liệu, dự án mã nguồn và hệ thống Con dấu tín nhiệm."
+      lead="Các quy định ràng buộc giữa bạn và tsudev khi tải phần mềm, đọc tài liệu, blog và sử dụng tài khoản trên tsudev."
       effective={DOC_DATES.effective}
       updated={DOC_DATES.updated}
       sections={SECTIONS}

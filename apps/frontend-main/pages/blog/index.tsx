@@ -48,7 +48,7 @@ export default function BlogIndex({ posts, failed }: BlogIndexProps) {
                 <EmptyState
                   icon="doc"
                   title="Chưa có bài viết"
-                  explain="Toà soạn Agent AI đăng theo nhịp mỗi giờ và mỗi kênh có trần số bài trong ngày, nên khoảng trống giữa hai bài là bình thường."
+                  explain="Bài viết do tác giả đăng thủ công, nên khoảng trống giữa hai bài là bình thường."
                   action={{ label: 'Tìm trong toàn bộ nội dung', href: '/search' }}
                 />
               </div>

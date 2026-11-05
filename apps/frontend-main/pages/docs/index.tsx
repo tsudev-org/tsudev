@@ -27,7 +27,7 @@ export default function DocsIndex({ groups, failed }: DocsIndexProps) {
             <EmptyState
               icon="doc"
               title="Chưa có tài liệu"
-              explain="Kênh tài liệu của toà soạn có trần 1 bài/ngày và hàng đợi được nhặt theo thứ tự, nên mục lục này dày lên chậm hơn blog. Đó là thiết kế, không phải sự cố."
+              explain="Tài liệu được viết kèm từng bản phát hành - hướng dẫn cài đặt, nhật ký thay đổi, xử lý sự cố - nên mục lục dày lên theo nhịp phát hành ứng dụng."
               action={{ label: 'Đọc blog', href: '/blog' }}
             />
           )

@@ -15,7 +15,7 @@ import { MAIN_URL } from '@tsudev/ui';
 
 const SITE_NAME = 'tsudev';
 const DEFAULT_DESCRIPTION =
-  'Website dự án cá nhân: dự án & bản quyền, blog kỹ thuật, tài liệu và con dấu tín nhiệm.';
+  'Tải ứng dụng do tsudev tự phát triển cho Windows, Android, macOS, Linux - kèm SHA-256, chữ ký Ed25519, tài liệu cài đặt và blog kỹ thuật.';
 const DEFAULT_IMAGE = '/og-image.png';
 
 type SeoProps = {
@@ -40,7 +40,7 @@ export default function Seo({
 }: SeoProps) {
   const fullTitle = title
     ? `${title} - ${SITE_NAME}`
-    : `${SITE_NAME} - Dự án, bản quyền và con dấu tín nhiệm`;
+    : `${SITE_NAME} - Phát hành ứng dụng tự phát triển`;
   const canonical = `${MAIN_URL}${path === '/' ? '' : path}`;
   const imageUrl = /^https?:\/\//.test(image) ? image : `${MAIN_URL}${image}`;
 
