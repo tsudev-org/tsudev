@@ -1,5 +1,13 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 37 BẮT ĐẦU Ở ĐÂY** (06/11/2026). Phiếu:
+> [`20261106-01`](handover/20261106-01_ket-phien-36b-pr-va-canh-bao.md) - 9 PR chờ merge THEO THỨ TỰ.
+>
+> ✅ Branch protection: 12 check + `strict`. Node 22 bookworm + job CI khởi động image thật (#143),
+> chặn duyệt ngược đường dẫn ở BFF (#149, CodeQL critical), xoá lock lạc (#148, 18 cảnh báo runtime).
+>
+> 🔴 Frontend VẪN chưa deploy (T9). Secret scanning #1 là placeholder - đóng tay (T17).
+
 > **Phiên 37 BẮT ĐẦU Ở ĐÂY** (cuối phiên 36, 05/11/2026). Phiếu:
 > [`20261105-06`](handover/20261105-06_ket-phien-36-icon-a4.md).
 >
