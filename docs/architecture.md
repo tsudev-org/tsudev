@@ -61,6 +61,8 @@ Prisma → PostgreSQL (Neon)   ·   S3/R2 (storage + bản phát hành)
 - **Đọc công khai** (blog, docs, dự án) là trang **ISR**: dựng ở Worker, cache
   trong R2, dựng lại mỗi 5 phút. Backend chết thì trang vẫn trả bản cache gần
   nhất (`lib/isr.ts`, đã nghiệm thu bằng cách tắt backend - kế hoạch Q4 §6.5).
+  Slug chưa từng vào cache thì không có bản cũ: `pages/_error.tsx` trả **503 +
+  `Retry-After`** kèm trang "tạm thời chưa tải được", không cache. Lỗi khác vẫn 500.
 - **Ghi và đọc riêng tư** đi qua route proxy; trình duyệt không tự khai được vai
   trò của mình, danh tính lấy từ phiên next-auth rồi tiêm vào header.
 
