@@ -9,14 +9,22 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: standards-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   check:
     name: Kiểm quy ước
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          # Các script kiểm chỉ đọc cây git và tải bộ quy ước từ repo PUBLIC bằng
+          # curl - không cần token git nào nằm lại trong .git/config.
+          persist-credentials: false
 
       - name: Cổng kiểm quy ước cục bộ
         run: ./scripts/check-standards.sh

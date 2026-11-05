@@ -24,14 +24,22 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
+# Không cấp gì ở cấp workflow; từng job tự khai đúng thứ nó cần. Mọi job ở đây
+# chỉ ĐỌC mã nguồn - không job nào ghi vào repo, PR hay code scanning.
+permissions: {}
+
 jobs:
   lint:
     name: Lint & format
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -73,12 +81,16 @@ jobs:
   wasm:
     name: WASM con dấu - artifact phải khớp mã nguồn
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     timeout-minutes: 25
     defaults:
       run:
         working-directory: packages/trust-crypto
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       # rust-toolchain.toml ghim phiên bản và target; `rustup show` cài đúng bộ đó.
       - name: Toolchain Rust (ghim trong rust-toolchain.toml)
         run: rustup show
@@ -106,6 +118,8 @@ jobs:
   test:
     name: Migrate & test services
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     timeout-minutes: 25
     services:
       postgres:
@@ -121,8 +135,10 @@ jobs:
     env:
       DATABASE_URL: postgresql://tsudev:tsudev@localhost:5432/tsudev?schema=public
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -151,6 +167,8 @@ jobs:
   e2e-app:
     name: E2E - smoke các trang được giữ
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     timeout-minutes: 25
     services:
       postgres:
@@ -176,8 +194,10 @@ jobs:
       # và dotenv không ghi đè biến đã có, nên env của job là nguồn duy nhất.
       TOTP_ENCRYPTION_KEY: ci-only-totp-key-khong-phai-bi-mat-chi-dung-cho-e2e
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -186,7 +206,7 @@ jobs:
       # Chromium (~140MB) qua mạng, và ĐÓ LÀ CHỖ CI ĐÃ TREO BA LẦN - xem
       # timeout-minutes ngay dưới.
       - name: Cache trình duyệt Playwright
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -233,7 +253,7 @@ jobs:
       # Playwright tự dựng các service, frontend-main và
       # dev-proxy (webServer trong e2e/playwright.config.js).
       - run: npm run e2e:app
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: playwright-report
@@ -243,10 +263,14 @@ jobs:
   build:
     name: Build frontends
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '20'
           cache: 'npm'
