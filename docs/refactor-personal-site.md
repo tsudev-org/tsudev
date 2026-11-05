@@ -1,5 +1,8 @@
 # Kế hoạch tái cấu trúc: từ hệ sinh thái cộng đồng về website dự án cá nhân
 
+> 🗄️ Ghi chú 05/11/2026: kế hoạch này "giữ và làm sâu Con dấu tín nhiệm" - quyết
+> định đó đã bị thay: Con dấu gỡ hẳn tháng 11/2026 (`refactor-tsudev-2026-q4.md` §7).
+
 Bỏ Diễn đàn và các chức năng cộng đồng đi kèm; giữ và làm sâu Con dấu tín nhiệm;
 thêm mục Dự án/Bản quyền làm trọng tâm mới. Đích đến là **một website dự án cá
 nhân hoàn chỉnh**, không phải một diễn đàn bị cắt bớt.

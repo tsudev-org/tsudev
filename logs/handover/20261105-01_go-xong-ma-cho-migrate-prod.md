@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20261105-01
 - **Từ**: phiên 32 - **Đến**: chủ dự án / phiên 33
 - **Thời điểm**: 05/11/2026
-- **Trạng thái**: MỞ - §1, §3, §4 (1, 2), §4b ĐÃ XONG 05/11; còn việc §5 (2-4) của agent
+- **Trạng thái**: ĐÃ ĐÓNG 05/11/2026 - thay bởi [`20261105-02`](20261105-02_ke-hoach-q4-xong.md)
 - **Thay phiếu**: [`20261029-01`](20261029-01_bo-con-dau-va-24-24.md) - các việc §4.0, §8.3, C1, C2, B1, B2, B3 của phiếu đó đã XONG
 
 ## 1. ✅ ĐÃ XONG 05/11/2026: tsudev.com treo - thiếu migration trên Neon

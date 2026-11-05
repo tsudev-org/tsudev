@@ -1,5 +1,9 @@
 # Kế hoạch: Toà soạn Agent AI (Newsroom)
 
+> 🗄️ **HỒ SƠ ĐÃ ĐÓNG (05/11/2026).** Toà soạn Agent AI đã GỠ HẲN (tắt 29/10, mã gỡ
+> 04/11, dữ liệu DROP 05/11/2026 - `refactor-tsudev-2026-q4.md` §8). Tài liệu giữ
+> lại làm lịch sử quyết định; mọi đường dẫn mã bên dưới không còn tồn tại.
+
 > **Trạng thái: 5/5 đợt ĐÃ DỰNG XONG ở cây làm việc, CHƯA PHÁT HÀNH.**
 > Phạm vi chốt 18/08/2026; toàn bộ mã đã viết, mọi cổng kiểm xanh, 189 test
 > đơn vị + 4 E2E.

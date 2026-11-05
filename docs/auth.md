@@ -33,7 +33,7 @@ không đăng nhập được - một nút bấm câm là lỗi khó chẩn đo�
 
 **Không có provider dev nào.** Đăng nhập ở local đi qua đúng đường của
 production: mật khẩu Argon2id trong DB. Tài khoản dev do `npm run db:seed:dev`
-đặt (`tsudev` ADMIN · `alice` MEMBER · `bob` VIP, mật khẩu `tsudev-dev-2026!`).
+đặt (`tsudev` ADMIN · `alice` MEMBER · `bob` AUTHOR, mật khẩu `tsudev-dev-2026!`).
 
 > Bản trước có provider `e2e-dev` nhận **bất kỳ username nào** với mật khẩu
 > `devpass`, gác sau một cờ môi trường bỏ qua xác thực. Ngày 16/08/2026 bản
@@ -69,18 +69,15 @@ và Render. Lệch nhau ⇒ mọi đường ghi đã xác thực trả 401.
   có thì đi tiếp. Blog/tài liệu/dự án là nội dung công khai và SSR gọi không kèm
   token. Đường ghi nằm dưới `/api/admin` và tự gọi `requireAdmin()`.
 - `storage-service`: `requireRole('MEMBER')` theo từng route.
-- `trust-service`: **mặc định ĐÓNG** từ 18/08/2026. Cả `/api/trust` đi qua
-  `auth` rồi `requireRole('VIP')`; chỉ còn danh sách miễn trừ `PUBLIC_PATHS` gồm
-  đúng `/health` và JWKS. Trước đó nó gắn auth theo nhánh (`AUTH_PREFIXES`) và
-  mặc định là công khai - quên khai một nhánh là nó lặng lẽ mở.
-  `test/authCoverage.test.ts` canh cả bảng định tuyến lẫn phản hồi thật
-  (401 cho khách, 403 cho MEMBER, 200 cho VIP).
+- Đường ghi của AUTHOR dưới `/api/author/*` tự gọi `requireAuthor()` (đọc) và
+  `requireVerifiedAuthor()` (ghi - đòi email đã xác minh).
 - `auth-service`: **không có endpoint công khai nào**; mọi thứ đi qua BFF.
 
 ## 3. Phân quyền
 
-**MỘT nguồn sự thật: cột `User.role`.** `Role`: `GUEST` · `MEMBER` · `VIP` ·
-`MODERATOR` · `ADMIN`.
+**MỘT nguồn sự thật: cột `User.role`.** Thang: `GUEST` < `MEMBER` < `VIP` <
+`AUTHOR` < `MODERATOR` < `ADMIN` < `OWNER`. `VIP` còn trong enum (Postgres không
+`DROP VALUE`) nhưng không cấp được nữa - nó là vé vào Con dấu tín nhiệm, đã gỡ.
 
 `requireRole(role)` từ `@tsudev/auth` **fail closed**, không có biến môi trường
 nào tắt được. Lỗi DB cho 503, không phải "cho qua". Claim `role` trong khẳng
@@ -90,33 +87,21 @@ Muốn dùng lại vai trò từ token của nhà cung cấp bên ngoài thì ph
 `User.role` TRƯỚC. Đừng dựng hệ thứ hai chạy song song: bản trước đã có, gác sau
 `REQUIRE_ROLE_ENFORCEMENT`, và nó chưa bao giờ hoạt động ở production.
 
-### Mã mời → VIP
+### Đường nâng vai trò: chỉ còn trang quản lý tài khoản
 
-Vùng Con dấu tín nhiệm chỉ mở cho `VIP` trở lên, và đường lên VIP là **đổi mã
-mời** (`POST /api/identity/invite/redeem`, xem `services/auth-service/src/invite.ts`).
+`/api/identity/useradmin/*` (gác `requireOwner`) - chỉ OWNER, cấp được tối đa
+ADMIN. `ASSIGNABLE_ROLES = MEMBER · AUTHOR · MODERATOR · ADMIN`: CỐ Ý bỏ OWNER và
+GUEST (để dữ liệu nói được bậc cao nhất là ai ghi vào bảng role cũng tự cấp
+OWNER), và bỏ VIP từ 04/11/2026. OWNER cấp duy nhất bằng seed/DB.
 
-Nó nằm ở auth-service chứ không ở trust-service vì nó **ghi vào `User.role`** -
-tức là thuộc ranh giới danh tính. trust-service chỉ việc gọi `requireRole('VIP')`
-và không cần biết mã mời tồn tại.
-
-Bốn bất biến, cả bốn đều hỏng âm thầm nếu làm sai:
-
-| Bất biến                                | Vì sao                                                                                   |
-| --------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Trần cứng ở VIP, ghi trong MÃ           | Nếu dữ liệu nói được bậc vai trò thì ai ghi được vào bảng mã mời là tự cấp được ADMIN    |
-| Không hạ vai trò                        | ADMIN đổi mã vẫn là ADMIN                                                                |
-| Đếm lượt bằng `updateMany` có điều kiện | Đọc-rồi-ghi cho hai người cùng tiêu lượt cuối cùng                                       |
-| DB chỉ giữ SHA-256 của mã               | Cùng lý do với `AuthToken.tokenHash` - bản sao DB bị rò không thành một xấp mã dùng được |
-
-`sessionVersion` **không** tăng khi đổi mã: nâng quyền không phải lý do đá người
-ta ra khỏi phiên đang dùng, và phiên cũ mang vai trò cũ thì chỉ có ít quyền hơn.
+Mã mời (đường lên VIP của Con dấu, `invite.ts`) đã gỡ cùng Con dấu 04/11/2026.
 
 ⚠️ **`token.role` của next-auth chỉ được ghi ở lần đăng nhập ĐẦU TIÊN.** Sau khi
-đổi mã, DB nói VIP còn phiên vẫn nói MEMBER. `POST /api/identity/session-state`
+OWNER đổi vai trò, DB nói AUTHOR còn phiên vẫn nói MEMBER. `POST /api/identity/session-state`
 và nhánh `trigger === 'update'` ở callback `jwt` tồn tại đúng vì chuyện đó - vai
 trò được đọc lại **từ DB**, không bao giờ từ tham số mà client truyền vào
 `update()`. Trang nào lọc giao diện theo `session.role` mà không đi qua đường đó
-sẽ hiển thị vai trò cũ, và triệu chứng là "đổi mã xong mà không thấy gì đổi".
+sẽ hiển thị vai trò cũ, và triệu chứng là "đổi vai trò xong mà không thấy gì đổi".
 
 ## 4. auth-service - nơi giữ bí mật
 
@@ -134,7 +119,6 @@ thể chạy ở đó.
 | Mã dự phòng        | 10 mã, chỉ lưu SHA-256, dùng một lần                                 |
 | Passkey            | WebAuthn qua `@simplewebauthn/server`                                |
 | Token một lần      | Chỉ lưu SHA-256; đổi bằng `updateMany` có điều kiện `usedAt: null`   |
-| Mã mời             | Chỉ lưu SHA-256; nâng lên VIP, trần cứng trong mã (xem §3)           |
 
 ### Vì sao đăng nhập bằng passkey không hỏi thêm TOTP
 

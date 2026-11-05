@@ -25,9 +25,10 @@ Bạn phụ trách `packages/db`: `prisma/schema.prisma`, `prisma/migrations/`,
   đồng của nhiều service cùng lúc. Trước khi đổi/xoá trường:
   `grep -rn "<tênTrường>" services/ apps/ --include=*.js` để biết ai đang dùng.
 - Seed chính (`prisma/seed.js`) chạy được ở **mọi** môi trường ⇒ chỉ chứa dữ
-  liệu tham chiếu và ba tài khoản dev. Dữ liệu giả để xem giao diện thuộc
-  `services/trust-service/scripts/seed-demo.js`.
-- `enum Role`: `GUEST` · `MEMBER` · `VIP` · `MODERATOR` · `ADMIN`. Đây là vai trò
+  liệu tham chiếu và ba tài khoản dev. Dữ liệu giả để xem giao diện KHÔNG được
+  vào seed chính (production sẽ hiện nó).
+- `enum Role`: `GUEST` · `MEMBER` · `VIP` · `AUTHOR` · `MODERATOR` · `ADMIN` · `OWNER`
+  (`VIP` còn trong enum vì Postgres không `DROP VALUE`, nhưng không cấp được nữa). Đây là vai trò
   **ứng dụng** và là NGUỒN SỰ THẬT DUY NHẤT - claim `role` trong khẳng định
   danh tính chỉ để tham khảo và không nâng được quyền.
 

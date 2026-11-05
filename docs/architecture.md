@@ -3,84 +3,92 @@
 Monorepo npm workspaces (`apps/*`, `services/*`, `packages/*`). Không có công cụ
 build monorepo (Turbo/Nx): mọi thứ chạy qua `npm --workspace <path> run <script>`.
 
-**Một app, ba service.** tsudev là website dự án cá nhân: dự án/bản quyền, blog,
-tài liệu và con dấu tín nhiệm. Diễn đàn, chợ ký quỹ, tin nhắn và hồ sơ thành
-viên đã được gỡ - xem [refactor-personal-site.md](refactor-personal-site.md).
+**Một app, ba service, một tiến trình ở production.** tsudev là website cá nhân
+để **phát hành file cài đặt của các app tự phát triển** (SHA-256 + chữ ký
+Ed25519), kèm dự án/bản quyền, blog và tài liệu. Đã gỡ: diễn đàn, chợ, tin nhắn
+([refactor-personal-site.md](refactor-personal-site.md)); Toà soạn Agent AI
+(29/10/2026) và Con dấu tín nhiệm (04/11/2026) -
+[refactor-tsudev-2026-q4.md](refactor-tsudev-2026-q4.md) §7, §8.
 
 ## Bản đồ
 
 ```
 apps/
-  frontend-main/     Next.js 15 + React 19 · tsudev.localhost · app DUY NHẤT
-                     trang chủ, dự án, blog, docs, trust, admin
-services/            Express + CommonJS, mỗi service một tiến trình
-  content-service/   :4001  blog, docs, dự án & bản quyền
+  frontend-main/     Next.js 16 (Pages Router) + React 19 · app DUY NHẤT
+                     trang chủ, dự án + tải app, blog, docs, author, admin
+                     production: Cloudflare Workers qua @opennextjs/cloudflare
+services/            Express + CommonJS, mỗi service một tiến trình ở dev
+  content-service/   :4001  blog, docs, dự án, bản phát hành (ký + niêm phong)
   storage-service/   :4002  presign S3/R2, upload phía server, liệt kê file
-  trust-service/     :4003  con dấu tín nhiệm (cấp, ký, xác thực, giám sát)
+  auth-service/      :4004  mật khẩu, 2FA, passkey - RANH GIỚI BẢO MẬT
+  backend-bundle/    :4000  production: gộp ba service vào MỘT tiến trình (Render)
+infrastructure/
+  canh-site-cron/    Worker có lịch: giữ ấm Render, đo nội dung, canh hạn mức Neon
+  r2/                cấu hình CORS của bucket
 packages/
   @tsudev/db         Prisma schema + migration + seed (nguồn dữ liệu duy nhất)
-  @tsudev/ui         design system: 17 component + tokens.css + Storybook
-  @tsudev/types      kiểu dùng chung
-  @tsudev/utils      tiện ích dùng chung
+  @tsudev/auth       kiểm danh tính + phân quyền dùng chung
+  @tsudev/identity-token  hợp đồng khẳng định danh tính BFF→service
+  @tsudev/trust-crypto    Ed25519 bằng Rust→WASM (ký bản phát hành)
+  @tsudev/search · @tsudev/ratelimit · @tsudev/types
+  @tsudev/ui         design system + tokens.css + Storybook
   brand/             ảnh gốc logo/avatar/favicon + script sinh asset
-  observability/     initSentry.js · notify.js (Telegram/email) - thư mục thuần,
-                     không có package.json, import theo đường dẫn tương đối
+  observability/     initSentry.js · notify.js (Telegram/email)
 ```
 
 ## Luồng request
 
 Ở dev, mọi thứ trình duyệt chạm tới đi qua **một cổng vào duy nhất**
-(`scripts/dev-proxy.js`, cổng 8080) và phân biệt bằng subdomain -
-`tsudev.localhost`, `auth.…`, `cdn.…` - đúng hình trạng production. Bảng cổng:
+(`scripts/dev-proxy.js`, cổng 8080) và phân biệt bằng subdomain. Bảng cổng:
 `config/topology.json`.
 
 ```
 trình duyệt
-   │  chỉ gọi cùng origin (tsudev.localhost)
+   │  chỉ gọi cùng origin
    ▼
-Next.js: getServerSideProps  •  hoặc  API route (pages/api/<domain>/[...path].js)
-   │  chuyển tiếp kèm token, thêm header nội bộ
+Worker (Next): trang ISR (getStaticProps + R2 incremental cache)
+          •    API route (pages/api/<domain>/[...path].ts)
+   │  chuyển tiếp kèm header nội bộ + khẳng định danh tính
    ▼
-service Express  (:4001-:4003)
+backend-bundle (Render) → bảng tiền tố → content / storage / identity
    │  jose kiểm khẳng định danh tính do BFF ký (@tsudev/identity-token)
    ▼
-Prisma → PostgreSQL      ·      S3/R2 (chỉ storage-service)
+Prisma → PostgreSQL (Neon)   ·   S3/R2 (storage + bản phát hành)
 ```
 
 **Trình duyệt không bao giờ gọi thẳng cổng service.** Hai đường vào service:
 
-- **Đọc công khai** (blog, docs, dự án, danh bạ dấu) đi qua
-  `getServerSideProps` - chạy trên server, không cần proxy.
+- **Đọc công khai** (blog, docs, dự án) là trang **ISR**: dựng ở Worker, cache
+  trong R2, dựng lại mỗi 5 phút. Backend chết thì trang vẫn trả bản cache gần
+  nhất (`lib/isr.ts`, đã nghiệm thu bằng cách tắt backend - kế hoạch Q4 §6.5).
 - **Ghi và đọc riêng tư** đi qua route proxy; trình duyệt không tự khai được vai
   trò của mình, danh tính lấy từ phiên next-auth rồi tiêm vào header.
 
-| Proxy                                        | Đích            |
-| -------------------------------------------- | --------------- |
-| `/api/content/[...path]` - chỉ nhánh `admin` | content-service |
-| `/api/storage/[...path]`                     | storage-service |
-| `/api/trust/[...path]`, `/api/trust/jwks`    | trust-service   |
+| Proxy                                                          | Đích            |
+| -------------------------------------------------------------- | --------------- |
+| `/api/content/[...path]` - nhánh `admin`, `author`             | content-service |
+| `/api/storage/[...path]`                                       | storage-service |
+| `/api/identity/*`, `/api/account/*`                            | auth-service    |
+| `/api/releases/<slug>/<id>` (tải về, công khai)                | content-service |
+| `/api/releases/jwks` ← `/.well-known/tsudev-release-jwks.json` | content-service |
 
-Nhờ vậy mã nhúng của bên thứ ba (huy hiệu trust) chỉ trỏ tới **một** domain, và
-hạ tầng phía sau đổi được mà không phiền ai. Thêm endpoint service mới thì phải
-thêm/mở rộng proxy tương ứng, nếu không trình duyệt sẽ chặn CORS.
+Proxy dùng **danh sách trắng tiền tố**: nhánh chưa khai thì 404. Bỏ sót một nhánh
+là nó không chạy - an toàn hơn lỡ mở cả `/api`.
 
-Cả `/api/content/*` và `/api/trust/*` dùng **danh sách trắng tiền tố**, không
-phải danh sách đen: nhánh chưa khai thì 404. Bỏ sót một nhánh là nó không chạy -
-an toàn hơn lỡ mở cả `/api`.
+Tệp phát hành KHÔNG đi qua Worker hay Render: trình duyệt PUT thẳng vào R2 bằng
+URL presign, tải về qua URL presign GET - xem [release-signing.md](release-signing.md).
 
 ## Bề mặt API
 
-Đầy đủ trong mã (`services/*/src/index.js`). Nhóm chính:
+Đầy đủ trong mã (`services/*/src/index.ts`). Nhóm chính:
 
 - **content-service** - `/api/posts`, `/api/docs`, `/api/projects`,
-  `/api/admin/projects` (chỉ ADMIN)
+  `/api/releases`, `/api/projects/:slug/releases*`, `/api/author/*` (AUTHOR),
+  `/api/admin/*` (ADMIN), `/.well-known/tsudev-release-jwks.json`
 - **storage-service** - `/api/presign`, `/api/upload`, `/api/files`
-- **trust-service** - `/api/trust/*`, `/api/trust/admin/*`,
-  `/.well-known/tsudev-trust-jwks.json`
+- **auth-service** - `/api/identity/*`
 
-Mọi service có `GET /health` (Render dùng làm health check).
-`content-service` có `GET /debug/boom` chỉ bật ngoài production - dùng để nghiệm
-thu đường cảnh báo (§6.3 của TSD).
+Mọi service có `GET /health` (Render dùng làm health check; nó KHÔNG chạm DB).
 
 ## Dữ liệu
 
@@ -88,28 +96,23 @@ Một database PostgreSQL, một schema Prisma dùng chung
 (`packages/db/prisma/schema.prisma`). Các service **không** có DB riêng - đây là
 microservice về mặt tiến trình, không phải về mặt dữ liệu.
 
-13 model: `User` `Post` `Doc` `FileObject` `Project`, cộng 8 model của con dấu
-(`TrustOrganization` `TrustDomain` `SealProgram` `SealApplication`
-`SealEvidence` `TrustCertificate` `TrustCheck` `TrustAuditLog`).
+16 model (sau migration DROP 04/11/2026, 17 bảng của Toà soạn + Con dấu đã xoá):
+nội dung `Post` `Doc` `Project` `ProjectRelease` `FileObject`; danh tính `User`
+`OAuthAccount` `WebAuthnCredential` `WebAuthnChallenge` `TotpCredential`
+`BackupCode` `AuthToken` `LoginAttempt` `EmailAlias` `SecurityEvent`; và
+`TrustAuditLog` - **giữ lại** dù mang tên Con dấu: auth-service dùng nó làm nhật
+ký thao tác quản trị tài khoản.
 
-- Vai trò: enum `Role` = `GUEST`, `MEMBER`, `VIP`, `MODERATOR`, `ADMIN` - mặc định `MEMBER`.
-- Migration đã áp dụng là **bất biến** - sửa file cũ làm lệch checksum và
-  `prisma migrate deploy` sẽ dừng, kéo theo CI đỏ và deploy không boot. Cần đổi
-  thì tạo migration mới.
-- Đổi `schema.prisma` xong phải chạy `npm run db:generate`, nếu không build
-  frontend đỏ vì client Prisma cũ.
+- Vai trò: enum `Role` = `GUEST` < `MEMBER` < `VIP` < `AUTHOR` < `MODERATOR` <
+  `ADMIN` < `OWNER`. `VIP` còn trong enum (Postgres không `DROP VALUE`) nhưng
+  không cấp được nữa.
+- Xoá mềm: trigger Postgres chặn DELETE cứng (`deletedAt`).
+- Migration đã áp dụng là **bất biến**. Thứ tự phát hành: `db:migrate` lên Neon
+  TRƯỚC, merge SAU - backend có `migrationGate` thoát 1 khi DB thiếu migration.
+- Đổi `schema.prisma` xong phải chạy `npm run db:generate`.
 
 ## Điểm lệch cần biết
 
-- **Tín dụng đã bị gỡ (16/08/2026).** `User.credits`, `SealProgram.feeCredits`,
-  `SealApplication.feeCharged` không còn; mọi chương trình dấu miễn phí. Trước
-  đó `credits` là bẫy: tên gợi ý ví của chợ ký quỹ đã xoá, nhưng trust-service
-  dùng nó để thu phí nộp đơn. Đường nộp đơn nay có test riêng
-  (`applicationSubmit.test.ts`) nên bẫy đó không tái diễn.
-- **Uy tín không phải điểm số.** `ReputationEvent` và `User.reputation` đã bị
-  xoá. "Uy tín" nay là hồ sơ tổ chức (`/trust/org/<id>`), dẫn ra từ dữ liệu cấp
-  dấu đã có: chứng chỉ hiệu lực, tên miền đã xác minh, thâm niên, tỉ lệ vượt
-  giám sát. Cố ý không quy về một con số.
 - `services/api-gateway` xuất hiện trong TSD nhưng **không tồn tại** trong repo;
   vai trò gateway hiện do các route proxy của Next đảm nhiệm.
 - **Cây thư mục theo Hình trạng B (monorepo) của

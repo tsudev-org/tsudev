@@ -1,7 +1,9 @@
 # CLAUDE.md - tsudev
 
-Website dự án cá nhân: dự án & bản quyền, blog, tài liệu, xác thực, object
-storage, con dấu tín nhiệm. Monorepo npm workspaces.
+Website cá nhân để **phát hành file cài đặt của các app tự phát triển** (SHA-256
+do máy chủ tính + chữ ký Ed25519), kèm dự án & bản quyền, blog, tài liệu, xác
+thực. Monorepo npm workspaces. Toà soạn Agent AI (gỡ 29/10/2026) và Con dấu tín
+nhiệm (gỡ 04/11/2026, dữ liệu DROP 05/11/2026) KHÔNG còn tồn tại - đừng dựng lại.
 Repo: Public (từ 21/08/2026), `github.com/tsudev-tsudev/tsudev`.
 
 > File này là NGỮ CẢNH TĨNH được nạp + cache ở đầu MỌI phiên. Đọc kỹ một lần,
@@ -14,10 +16,8 @@ Hàng đợi việc nằm ở đó, không còn ở `HANDOFF.md`. Khoá file mì
 `logs/LOCKS.md` trước khi bắt tay.
 
 [`HANDOFF.md`](HANDOFF.md) nay chỉ còn hai việc: nhật ký từng phiên (§0) và kho
-kỹ thuật đã trả giá để học (§0.7). Mục "Bắt đầu từ đâu" của nó cho trạng thái
-production đã đo. Tính tới 20/08/2026 **không còn việc chặn nào**: production
-chạy đủ, Toà soạn Agent AI đang sản xuất, chi phí bằng 0. Việc còn lại phần lớn
-cần MẮT NGƯỜI (rà giao diện) hoặc QUYẾT ĐỊNH của chủ dự án.
+kỹ thuật đã trả giá để học (§0.7). Trạng thái production mới nhất nằm ở phiếu
+bàn giao mới nhất trong `logs/handover/`, không ở HANDOFF.md.
 
 `HANDOFF.md` §0.7 ghi **mười sáu kỹ thuật đã trả giá để học**. Bốn cái đắt nhất,
 vì mỗi cái đều từng để một sự cố sống nhiều ngày mà không ai biết:
@@ -45,23 +45,22 @@ biệt bằng subdomain, đúng hình trạng production.
 
 | Thành phần                | Địa chỉ dev                        | Cổng nội bộ | Ghi chú                          |
 | ------------------------- | ---------------------------------- | ----------- | -------------------------------- |
-| `apps/frontend-main`      | `tsudev.localhost:8080`            | 3000        | Next 15 · app DUY NHẤT: dự án, blog, docs, trust, admin |
+| `apps/frontend-main`      | `tsudev.localhost:8080`            | 3000        | Next 16 · app DUY NHẤT: dự án + tải app, blog, docs, author, admin |
 | MinIO / R2                | `cdn.tsudev.localhost:8080`        | 9000        | đích của URL presign             |
-| `services/content-service`| *(chỉ SSR/BFF)*                    | 4001        | blog, docs, dự án & bản quyền    |
+| `services/content-service`| *(chỉ SSR/BFF)*                    | 4001        | blog, docs, dự án, bản phát hành (ký + niêm phong) |
 | `services/storage-service`| *(chỉ SSR/BFF)*                    | 4002        | presign S3/R2, upload            |
-| `services/trust-service`  | *(chỉ SSR/BFF)*                    | 4003        | con dấu tín nhiệm                |
 | `services/auth-service`   | *(chỉ SSR/BFF)*                    | 4004        | mật khẩu, 2FA, passkey - RANH GIỚI BẢO MẬT |
 | PostgreSQL                | -                                  | 5433        | cluster user-space, **không** phải 5432 |
 
-⚠️ **Production KHÔNG chạy bốn tiến trình như bảng trên.** Bốn service backend
+⚠️ **Production KHÔNG chạy ba tiến trình như bảng trên.** Ba service backend
 gộp thành MỘT tiến trình `services/backend-bundle` (cổng 4000, `npm run
 dev:merged`). Render free chỉ cho 750 giờ instance/tháng cho cả tài khoản; nhiều
 tiến trình chạy liên tục thì không giữ ấm được cái nào. Dev vẫn bốn cổng cho dễ lặp.
 
 `packages/`: `@tsudev/db` (Prisma) · `@tsudev/auth` (kiểm danh tính + phân quyền
 dùng chung) · `@tsudev/identity-token` (hợp đồng khẳng định danh tính BFF→service,
-dùng chung giữa Workers và Node) · `@tsudev/trust-crypto` (Ed25519 bằng Rust→WASM)
-· `@tsudev/ui` (design system) ·
+dùng chung giữa Workers và Node) · `@tsudev/trust-crypto` (Ed25519 bằng Rust→WASM,
+nay ký BẢN PHÁT HÀNH - tên package giữ từ thời Con dấu) · `@tsudev/ui` (design system) ·
 `@tsudev/types` · `brand/` (ảnh nguồn) · `observability/`
 (thư mục thuần, không phải workspace). `@tsudev/utils` **đã bị gỡ 20/08/2026** -
 nó chứa đúng một hàm và không nơi nào dùng; đừng dựng lại chỉ để có chỗ đặt.
@@ -78,7 +77,7 @@ Mở ở **http://tsudev.localhost:8080**.
 `*.localhost` tự trỏ loopback - không phải sửa `/etc/hosts`. Proxy hỏng thì
 `DEV_PROXY=0 npm run dev:local` quay về gõ thẳng cổng từng app.
 
-Đăng nhập dev: `tsudev`=ADMIN · `alice`=MEMBER · `bob`=VIP, mật khẩu
+Đăng nhập dev: `tsudev`=ADMIN · `alice`=MEMBER · `bob`=AUTHOR, mật khẩu
 `tsudev-dev-2026!` (do `npm run db:seed:dev` đặt - hash Argon2id THẬT, đi qua
 đúng đường của production). **Không còn** "bất kỳ username + devpass".
 
@@ -98,8 +97,8 @@ Chi tiết → `docs/development.md`.
 Mục lục: `docs/README.md`. Theo vùng: kiến trúc → `docs/architecture.md` ·
 chạy local → `docs/development.md` · địa chỉ chính tắc → `docs/url-convention.md` ·
 auth/RBAC → `docs/auth.md` · test/CI → `docs/testing.md` · giao diện →
-`docs/design-system.md` · production → `docs/deployment.md` · con dấu →
-`docs/trust-seal.md`. Quy ước dùng chung nằm ở `.standards/` (bản chỉ-đọc, phiên
+`docs/design-system.md` · production → `docs/deployment.md` · phát hành app
+(R2, niêm phong, ký) → `docs/release-signing.md` · hạn mức 0đ → `docs/free-tier.md`. Quy ước dùng chung nằm ở `.standards/` (bản chỉ-đọc, phiên
 bản ở `.standards-version`) - `docs/` **không giữ bản sao nào** của chúng từ
 24/08/2026.
 
@@ -195,29 +194,22 @@ nguồn là hiện trạng; TSD là đích đến.
 - **`requireRole()` (từ `@tsudev/auth`) đọc `User.role` trong DB và FAIL CLOSED.**
   Không còn biến môi trường nào tắt được nó. `role` là union `Role` nên gõ sai là
   lỗi biên dịch, không phải một cổng lặng lẽ cho qua.
-- **trust-service MẶC ĐỊNH ĐÓNG: cả `/api/trust` đi qua `auth` rồi
-  `requireRole('VIP')`** (Con dấu chạy ở chế độ mời từ 18/08/2026). Miễn trừ chỉ
-  có hai đường, khai ở hằng `PUBLIC_PATHS` được xuất ra: `/health` và
-  `/.well-known/tsudev-trust-jwks.json`. Bản trước gắn auth theo NHÁNH và mặc
-  định công khai - quên khai một nhánh riêng tư là nó lặng lẽ mở; nay quên khai
-  một miễn trừ chỉ làm route đó đóng lại, tức hỏng ồn ào.
-  `test/authCoverage.test.ts` canh cả bảng định tuyến lẫn phản hồi thật.
-  **Đổi bề mặt này phải sửa BỐN chỗ trong cùng một commit**: hằng ở
-  `services/trust-service/src/index.ts`, `ALLOWED_PREFIXES` của proxy
-  `apps/frontend-main/pages/api/trust/[...path].ts`, `authCoverage.test.ts`, và
-  `services/backend-bundle/test/routing.test.ts` - chỗ thứ tư này nằm ở workspace
-  KHÁC nên dễ lọt lưới, và nó đã lọt: bản đầu của đợt gác bề mặt xanh cả bốn cổng
-  gốc ở local mà đỏ CI. Lệch một nhịp là hoặc route riêng tư lộ ra, hoặc trang
-  chết - cả hai đều im lặng. Trang `/trust` và `/trust/redeem` CỐ Ý không bị gác: một cái là đích của
-  mọi chuyển hướng, cái kia là đường vào lại.
-- **`TRUST_ISSUER` được ký vào chứng chỉ**; `TRUST_SIGNING_KEY` thiếu ở
-  production ⇒ service từ chối khởi động (cố ý). Xoay khoá phải chuyển khoá cũ
-  vào `TRUST_SIGNING_KEYS_RETIRED` trước.
+- **Bản phát hành: chữ ký và sha256 của tệp R2 chỉ do MÁY CHỦ tạo.** Client gửi
+  `signature`/`signingKid` ⇒ 400; khai sha256 cho tệp R2 ⇒ 400; tệp chưa niêm
+  phong (`POST /api/admin/releases/:id/seal`) không công bố được. Đường tải là
+  URL presign GET - bucket R2 KHÔNG mở đọc ẩn danh, `endpoint/bucket/key` trần
+  trả 403 (bản đầu làm đúng điều đó, và test khi ấy khẳng định chính URL trần).
+  `RELEASE_SIGNING_KEY` thiếu ở production ⇒ backend từ chối khởi động (cố ý).
+  Xoay khoá: chuyển khoá cũ vào `RELEASE_SIGNING_KEYS_RETIRED` TRƯỚC. Tên cũ
+  `TRUST_SIGNING_*` không còn được đọc. Chi tiết: `docs/release-signing.md`.
+- **Bucket R2 production cần CORS cho PUT từ trình duyệt** -
+  `npm run r2:cors` (`infrastructure/r2/`). `ensureBucket()` của storage-service
+  KHÔNG đặt được nó trên R2 (khoá S3 thiếu quyền) và chỉ để lại một dòng warn.
 - **`packages/trust-crypto/pkg/trust_crypto.wasm` là artifact ĐƯỢC COMMIT.**
   Render dựng image Docker từ git và image không có Rust, nên không thể dựng lúc
   phát hành. Sửa `src/lib.rs` ⇒ chạy
   `npm --workspace packages/trust-crypto run build:wasm` rồi **commit lại
-  `.wasm`**; quên là job "WASM con dấu" của CI đỏ vì artifact không khớp nguồn.
+  `.wasm`**; quên là job "WASM" của CI đỏ vì artifact không khớp nguồn.
   Cần Rust ở máy dev (`rustup`, target `wasm32-unknown-unknown`) - chỉ để sửa
   mảnh đó, mọi thứ còn lại không cần.
 - **`REQUIRE_ROLE_ENFORCEMENT` ĐÃ BỊ GỠ. Đừng đặt lại.** Nó từng gác một nhánh
@@ -229,9 +221,8 @@ nguồn là hiện trạng; TSD là đích đến.
   Phân quyền nay chỉ có MỘT nguồn: cột `User.role` trong DB, qua `@tsudev/auth`.
   Claim `role` trong khẳng định danh tính CHỈ ĐỂ THAM KHẢO và không nâng được
   quyền - có test canh. Đừng dựng lại hệ thứ hai chạy song song.
-- **`INTERNAL_API_TOKEN` gác `/api` của content/storage** khi được đặt
-  (không đặt = no-op). `trust-service` cố ý đứng ngoài - endpoint của nó phải
-  công khai cho bên thứ ba.
+- **`INTERNAL_API_TOKEN` gác `/api` của content/storage/identity** khi được đặt
+  (không đặt = no-op). JWKS phát hành (`/.well-known/...`) nằm ngoài `/api`.
 - **`INTERNAL_IDENTITY_SECRET` phải GIỐNG NHAU ở Cloudflare Workers và Render.**
   BFF ký khẳng định danh tính bằng nó, service kiểm bằng nó. Lệch nhau ⇒ mọi
   đường ghi đã xác thực trả 401, và triệu chứng là "đăng nhập rồi mà vẫn 401" -
@@ -239,7 +230,7 @@ nguồn là hiện trạng; TSD là đích đến.
   nói rõ lý do, cố ý ồn ào.
 - **`TOTP_ENCRYPTION_KEY` đổi = MỌI thiết bị 2FA đang dùng hỏng.** Bí mật TOTP
   không băm được (kiểm mã cần chính giá trị đó) nên nó được mã hoá bằng khoá
-  này. Sao lưu cùng chỗ với `TRUST_SIGNING_KEY`.
+  này. Sao lưu cùng chỗ với `RELEASE_SIGNING_KEY`.
 - **auth-service là service DUY NHẤT đọc `User.passwordHash`.** Nó tách riêng vì
   `frontend-main` chạy trên Cloudflare Workers - không có kết nối Postgres, không
   nạp được native module, nên Argon2id KHÔNG THỂ chạy ở tầng biên. Đừng "tối ưu"
@@ -259,31 +250,22 @@ nguồn là hiện trạng; TSD là đích đến.
   `currentUser`) cũng vậy - và hai bản cục bộ chính là hai nơi phép so sánh
   `sessionVersion` bị bỏ sót, nên thu hồi phiên không có tác dụng ở đó. Đừng
   dựng lại bản cục bộ trong service.
-- **Tín dụng ĐÃ BỊ GỠ. Đừng dựng lại.** `User.credits`, `SealProgram.feeCredits`
-  và `SealApplication.feeCharged` đã bị xoá - mọi chương trình dấu nay miễn phí,
-  theo quyết định "dự án cá nhân miễn phí". Trước đây `credits` là bẫy thật:
-  nhìn tên tưởng là ví của chợ ký quỹ đã xoá, nhưng trust-service dùng nó để thu
-  phí nộp đơn, và **không test nào bắt được** nếu xoá nhầm. Nay đường nộp đơn
-  được canh bởi `services/trust-service/test/applicationSubmit.test.ts` - thêm
-  lại cơ chế thu phí thì phải sửa test đó trước, không sửa lén được.
 - **Thang vai trò: `GUEST<MEMBER<VIP<AUTHOR<MODERATOR<ADMIN<OWNER`** (rank ở
-  `packages/types`). AUTHOR = tài khoản đăng bài (đặc quyền tối thiểu), đặt TRÊN
-  VIP có chủ đích để khách VIP của Con dấu KHÔNG đăng bài được. **OWNER là trần,
+  `packages/types`). AUTHOR = tài khoản đăng bài (đặc quyền tối thiểu). `VIP`
+  là vé vào Con dấu đã gỡ: còn trong enum (Postgres không `DROP VALUE`) nhưng
+  KHÔNG cấp được nữa. **OWNER là trần,
   chỉ tài khoản `tsudev` giữ, và CẤP DUY NHẤT bằng seed/DB - không endpoint nào
   cấp được.** Đổi thang này nhớ chạy `db:generate` (enum Prisma) và thêm migration.
-- **Hai đường nâng vai trò bằng dữ liệu, cả hai chặn trần TRONG MÃ:**
-  1. **Mã mời** (`services/auth-service/src/invite.ts`) - trần cứng VIP, quyết
-     định bởi mã chứ không phải cột trong `TrustInvite`.
-  2. **Trang quản lý tài khoản** (`/api/identity/useradmin/*`, gác `requireOwner`)
-     - chỉ OWNER, cấp được tối đa ADMIN. `ASSIGNABLE_ROLES` CỐ Ý bỏ OWNER/GUEST:
-     để dữ liệu nói được bậc cao nhất nghĩa là ai ghi vào bảng role là tự cấp
-     OWNER. Bề mặt này khớp BỐN chỗ trong một commit: route auth-service +
-     `ASSIGNABLE_ROLES`, `ALLOWED` của proxy `pages/api/account/[...path].ts`,
-     `test/useradmin.test.ts`, và trang `pages/admin/accounts.tsx`.
-  Cả hai nằm ở auth-service (ghi `User.role`); trust-service chỉ gọi
-  `requireRole('VIP')` và không cần biết chúng tồn tại.
+- **MỘT đường nâng vai trò bằng dữ liệu: trang quản lý tài khoản**
+  (`/api/identity/useradmin/*`, gác `requireOwner`) - chỉ OWNER, cấp tối đa
+  ADMIN. `ASSIGNABLE_ROLES` = MEMBER · AUTHOR · MODERATOR · ADMIN: CỐ Ý bỏ
+  OWNER/GUEST (để dữ liệu nói được bậc cao nhất là ai ghi bảng role cũng tự cấp
+  OWNER) và VIP. Bề mặt này khớp BỐN chỗ trong một commit: route auth-service +
+  `ASSIGNABLE_ROLES`, `ALLOWED` của proxy `pages/api/account/[...path].ts`,
+  `test/useradmin.test.ts`, và `pages/admin/accounts.tsx`. (Mã mời → VIP đã gỡ
+  cùng Con dấu.) `TrustAuditLog` GIỮ dù mang tên Con dấu: nó là nhật ký useradmin.
 - **`token.role` của next-auth CHỈ được ghi ở lần đăng nhập ĐẦU TIÊN.** Mọi thứ
-  đổi `User.role` giữa chừng (đổi mã mời, admin sửa tay) sẽ đúng ở tầng service
+  đổi `User.role` giữa chừng (OWNER đổi ở `/admin/accounts`, sửa tay trong DB) sẽ đúng ở tầng service
   mà SAI ở phiên trình duyệt cho tới lần đăng nhập sau - giao diện lọc theo
   `session.role` vì thế hiện vai trò cũ, và triệu chứng là "làm xong mà không
   thấy gì đổi". Đường sửa đã có: `POST /api/identity/session-state` + nhánh
@@ -296,11 +278,11 @@ nguồn là hiện trạng; TSD là đích đến.
   là `.husky/pre-push`, chỉ có sau khi `npm install`. Vượt có chủ đích:
   `ALLOW_MAIN_FORCE=1 git push`.
 - **`backend-bundle` điều phối theo BẢNG TIỀN TỐ đường dẫn**, không mount chồng
-  bốn app. Mount thẳng thì `/api/trust/*` đi vào app content trước và dính cổng
-  chặn `INTERNAL_API_TOKEN` của nó ⇒ huy hiệu SVG, trang xác minh và JWKS (bắt
-  buộc công khai) trả 401, **không có gì báo lỗi**. Thêm route có tiền tố chưa
+  ba app. Mount thẳng thì request của app này đi vào app kia trước và dính cổng
+  chặn `INTERNAL_API_TOKEN` của nó ⇒ route công khai (thời Con dấu: huy hiệu,
+  JWKS) trả 401, **không có gì báo lỗi**. `/.well-known` nay thuộc content. Thêm route có tiền tố chưa
   nằm trong bảng ⇒ route đó **404 ở production** dù chạy service riêng vẫn sống.
-  Sửa route thì sửa bảng trong `services/backend-bundle/src/index.js`.
+  Sửa route thì sửa bảng trong `services/backend-bundle/src/index.ts`.
 - **`/api` của content-service dùng XÁC THỰC TUỲ CHỌN, không phải chặn cứng.**
   Blog/tài liệu/dự án là nội dung công khai và BFF gọi SSR không mang Bearer
   token. Chặn cứng từng làm production **trống trơn** - `lib/api.js` nuốt 401
@@ -325,6 +307,27 @@ nguồn là hiện trạng; TSD là đích đến.
   `upload` truyền biến thẳng vào shell qua `scripts/topology/prod-url.js` -
   biến shell thì Next không ghi đè. Bỏ đoạn đó là canonical, ảnh OG và
   `sitemap.xml` của production mang URL dev, **không có gì báo lỗi**.
+- **7 trang đọc công khai là ISR, KHÔNG phải SSR** (`/`, `/blog`, `/docs`,
+  `/projects` + 3 trang slug): `getStaticProps` + `revalidate` 300s, cache trong
+  R2 (`NEXT_INC_CACHE_R2_BUCKET`). Lỗi upstream lúc chạy ⇒ `keepStaleOnFailure()`
+  NÉM để Next giữ bản cache tốt (trả `failed:true` thì Next cache luôn trang lỗi).
+  `test/isrPages.test.ts` canh; đừng đưa trang per-user (`/search`, `/admin/*`)
+  vào danh sách. Đã đo khi tắt backend: trang đã cache vẫn 200 đủ nội dung; slug
+  CHƯA từng vào cache thì 500. Ngay sau deploy ~30s đầu là bản dựng lúc build
+  (rỗng - máy build không có token prod), đo lại sau 1 phút trước khi kết luận.
+- **`wrangler logout && login` KHÔNG đổi tài khoản lệnh kế tiếp dùng** nếu còn
+  `node_modules/.cache/wrangler/wrangler-account.json` (ở gốc VÀ ở
+  `apps/frontend-main/`) - tệp đó ghim Account ID. Xoá cả hai. `wrangler whoami`
+  không lộ chuyện này. Ngày 04/11/2026 một lần deploy rơi vào tài khoản sai đúng
+  theo đường đó (Worker + bucket rác ở tài khoản `dieuhanhcongviecxanuicam`).
+- **Thứ tự phát hành migration: `db:migrate` lên Neon TRƯỚC, merge SAU.** Backend
+  có `migrationGate` thoát 1 khi DB thiếu migration ⇒ cả site trống (sự cố 05/11:
+  #93 merge mà chưa migrate). Migration có DROP thì `pg_dump` trước nữa - Neon
+  chạy Postgres 18, `pg_dump` 16 từ chối: `/usr/lib/postgresql/18/bin/pg_dump`.
+- **Xoá một service/thư mục ⇒ liệt kê test nằm TRONG nó mà canh thứ NGOÀI nó.**
+  `cronContract.test.ts` (canh lịch cron giữ Neon ngủ) sống trong newsroom-service
+  và bị xoá theo ở #99 dù chú thích dặn chuyển đi; CI xanh vì cổng bị xoá thì không
+  đỏ. Khôi phục 05/11/2026 ở `apps/frontend-main/test/`.
 - `.prettierignore` cố ý bỏ qua `documents-tsudev.md` và `CLAUDE.md` - prettier
   đánh số lại danh sách và escape ký tự trong hai file này. Đừng gỡ ra.
 

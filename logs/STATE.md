@@ -1,5 +1,17 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 34 bắt đầu ở đây** (cập nhật cuối phiên 33, 05/11/2026). Phiếu:
+> [`20261105-02`](handover/20261105-02_ke-hoach-q4-xong.md).
+>
+> ✅ **Kế hoạch Q4/2026 XONG phần agent làm được.** Production chạy đủ: ISR + R2
+> (trang còn nội dung khi backend chết - đã đo), Toà soạn + Con dấu gỡ hẳn kể cả
+> dữ liệu (DROP sau `pg_dump`), tải tệp phát hành lên R2 + máy chủ niêm phong
+> sha256 + ký Ed25519 (#109), cổng hạn mức Neon trong Worker cron (#111).
+>
+> 🔴 **Việc tay của chủ dự án** (phiếu §2): `npm run r2:cors` (thiếu thì không tải
+> tệp lên được) · đổi mật khẩu Neon · secret Telegram/Neon cho cron · xoá rác ở
+> tài khoản Cloudflare sai · sửa dự án `tsudev-trust-seal` · quyết định logo/màu.
+
 > **Phiên 33 bắt đầu ở đây** (cập nhật cuối phiên 32, 05/11/2026). Phiếu:
 > [`20261105-01`](handover/20261105-01_go-xong-ma-cho-migrate-prod.md).
 >

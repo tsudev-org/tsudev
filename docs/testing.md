@@ -5,23 +5,31 @@
 Mỗi service tự chạy test của mình - **không** có lệnh test ở gốc repo.
 
 ```bash
-npm --workspace services/content-service test
-npm --workspace services/storage-service test
-npm --workspace services/trust-service test
+node scripts/with-env.js npm --workspace services/content-service test
+node scripts/with-env.js npm --workspace services/storage-service test
+node scripts/with-env.js npm --workspace services/auth-service test
+node scripts/with-env.js npm --workspace services/backend-bundle test
+node scripts/with-env.js npm --workspace apps/frontend-main test
 ```
 
-Hiện có:
+`with-env.js` nạp `.env` gốc (cần `DATABASE_URL` của Postgres local cổng 5433 -
+phần lớn test service là test TÍCH HỢP chạm DB thật). Tệp test TypeScript phải có
+`export {}`, nếu không các biến top-level của nhiều tệp đụng tên nhau (TS2451).
 
-| File                                          | Giữ hợp đồng gì                       |
-| --------------------------------------------- | ------------------------------------- |
-| `content-service/test/auth.test.js`           | request không xác thực bị từ chối     |
-| `storage-service/test/authMiddleware.test.js` | presign/upload đòi xác thực + vai trò |
-| `trust-service/test/signing.test.js`          | vòng khoá ký, quy trình xoay khoá     |
-| `trust-service/test/recheck.test.js`          | ba luật giám sát tên miền             |
+Vài bộ canh đáng biết:
 
-Test service chạy **không cần DB** - đó là chủ đích, giữ chúng chạy được trong
-CI mà không phải dựng Postgres. Cần chạm DB thì viết test tích hợp, đừng làm hỏng
-tính chất này.
+| File                                          | Giữ hợp đồng gì                                                       |
+| --------------------------------------------- | --------------------------------------------------------------------- |
+| `content-service/test/projectRelease.test.ts` | đường ghi bản phát hành, niêm phong sha256, chữ ký, đường tải presign |
+| `content-service/test/releaseSigning.test.ts` | vòng khoá Ed25519, xoay khoá, tên biến `RELEASE_SIGNING_*`            |
+| `content-service/test/authorDocs.test.ts`     | đường ghi tài liệu của AUTHOR                                         |
+| `content-service/test/softDelete.test.ts`     | trigger chặn DELETE cứng                                              |
+| `auth-service/test/useradmin.test.ts`         | trần cấp vai trò (`ASSIGNABLE_ROLES`)                                 |
+| `backend-bundle/test/routing.test.ts`         | bảng tiền tố của tiến trình gộp - thiếu tiền tố là 404 ở production   |
+| `apps/frontend-main/test/isrPages.test.ts`    | 7 trang đọc là ISR, lỗi lúc chạy GIỮ bản cache                        |
+
+Dọn dữ liệu test: DELETE cứng bị trigger chặn - dùng
+`SET LOCAL tsudev.allow_hard_delete = 'on'` trong cùng transaction.
 
 Mỗi service export `app` và `startServer` riêng để test `supertest` được mà
 không phải mở cổng.
@@ -100,10 +108,10 @@ Ba lỗi CI hay gặp và nguyên nhân thật:
 
 E2E chia làm hai project, và chỉ MỘT trong hai chạy trong CI:
 
-| Project      | Tệp                               | Cần gì               | Trong CI           |
-| ------------ | --------------------------------- | -------------------- | ------------------ |
-| `app`        | `smoke.spec.js`, `invite.spec.js` | Postgres + 4 service | ✅ (job `e2e-app`) |
-| `full-stack` | `upload.spec.js`                  | thêm MinIO           | ❌ chạy tay        |
+| Project      | Tệp              | Cần gì               | Trong CI           |
+| ------------ | ---------------- | -------------------- | ------------------ |
+| `app`        | `smoke.spec.js`  | Postgres + 3 service | ✅ (job `e2e-app`) |
+| `full-stack` | `upload.spec.js` | thêm MinIO           | ❌ chạy tay        |
 
 Thêm tệp spec mới thì phải khai vào `testMatch` của một project - Playwright
 **không** tự nhặt. Quên là spec đó im lặng không bao giờ chạy, và triệu chứng

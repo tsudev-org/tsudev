@@ -32,7 +32,7 @@ Chỉ **một** cổng công khai - phần còn lại nghe loopback và không c
 | http://cdn.tsudev.localhost:8080 | MinIO           | 9000        |
 | _(chỉ SSR/BFF gọi)_              | content-service | 4001        |
 | _(chỉ SSR/BFF gọi)_              | storage-service | 4002        |
-| _(chỉ SSR/BFF gọi)_              | trust-service   | 4003        |
+| _(chỉ SSR/BFF gọi)_              | auth-service    | 4004        |
 | _(chỉ service gọi)_              | PostgreSQL      | 5433        |
 
 `*.localhost` phân giải sẵn về loopback - **không** phải sửa `/etc/hosts`. Trên
@@ -72,7 +72,7 @@ production là sai), nên nếu dùng preview thì phải biết trước điề
 Đường lui khi proxy hỏng: `DEV_PROXY=0 npm run dev:local` → quay lại gõ thẳng
 cổng của từng app như trước giai đoạn 3.
 
-Cổng bận: `fuser -k 8080/tcp 3000/tcp 4001/tcp 4002/tcp 4003/tcp`.
+Cổng bận: `fuser -k 8080/tcp 3000/tcp 4001/tcp 4002/tcp 4004/tcp`.
 **Đừng** `fuser -k 5433/tcp` - dừng DB bằng `pg_ctl` (xem dưới).
 
 ## PostgreSQL user-space
@@ -136,9 +136,9 @@ Tài khoản đã seed:
 
 | Username | Vai trò | Dùng để thử                                 |
 | -------- | ------- | ------------------------------------------- |
-| `tsudev` | ADMIN   | `/admin`, `/admin/trust`, `/admin/projects` |
+| `tsudev` | ADMIN   | `/admin`, `/admin/projects` (bản phát hành) |
 | `alice`  | MEMBER  | luồng người dùng thường                     |
-| `bob`    | VIP     | quyền theo hạng                             |
+| `bob`    | AUTHOR  | `/author` - đăng bài và tài liệu            |
 
 Gọi API trực tiếp (không qua trình duyệt) thì tự ký một khẳng định danh tính bằng `@tsudev/identity-token` - xem
 [auth.md](auth.md).

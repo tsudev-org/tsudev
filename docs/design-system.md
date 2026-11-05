@@ -83,7 +83,7 @@ Bộ chuẩn v1.0.0 không có sẵn ba nhóm dưới đây; chúng nằm ở
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `--icon-*` (6 màu)                  | Mã màu theo **nhóm hành động** - mắt nhận ra nhóm trước khi đọc nhãn. Sáu, không hơn: quá bảy màu thì chúng thôi là mã và thành nhiễu.                                  |
 | `--<trạng thái>-ink` / `-tint`      | §5 đòi badge "nền trạng thái nhạt 12% + chữ màu trạng thái đậm", nhưng ở chế độ Sáng cặp đó chỉ đạt ~4.1-4.3:1. `-ink` là sắc đậm hơn cho chữ, `-tint` là nền tính sẵn. |
-| `--accent`, `--glow`, `--grid-line` | Sắc phụ (teal) của con dấu tín nhiệm và hai hoạ tiết nền.                                                                                                               |
+| `--accent`, `--glow`, `--grid-line` | Sắc phụ (teal) - huy hiệu checksum/chữ ký của bản phát hành - và hai hoạ tiết nền.                                                                                      |
 
 ⚠️ **Hai token của bảng chuẩn v1.0.0 KHÔNG đạt chính quy tắc bắt buộc của §1**, đo
 được bằng `contrast.test.ts` - số đo giữ ở `$accessibility_gap` trong

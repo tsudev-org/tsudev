@@ -7,6 +7,20 @@
 Soạn 28/10/2026. Mọi con số trong file này là **số đo thật** lấy trong phiên
 soạn, không phải suy luận. Chỗ nào chưa đo được thì ghi rõ là chưa đo.
 
+## Tình trạng - cập nhật 05/11/2026 (phiên 33): kế hoạch XONG phần agent làm được
+
+| pha                    | tình trạng           | nghiệm thu đo được                                                                                                                                                                                                                      |
+| ---------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **§0** cứu DB          | ✅ **XONG**          | site trống 05/11 do migration chưa áp lên Neon (không phải hạn mức) - áp xong, `prod:dem-noi-dung` ĐẠT: 111 URL, 50 bài, 50 tài liệu, 620 kết quả tìm                                                                                   |
+| **§6.1** cổng đếm cron | ✅ **XONG** (29/10)  | Worker `/dem` trả `dat: true`; `cronContract.test.ts` 9/9 (bị mất ở #99, khôi phục 05/11)                                                                                                                                               |
+| **§6.2-6.4** ISR + R2  | ✅ **LIVE** 05/11    | 7 trang ● SSG; `x-nextjs-cache: HIT/STALE` trên tsudev.com; `isrPages.test.ts`                                                                                                                                                          |
+| **§6.5** nghiệm thu    | ✅ **ĐO** 05/11      | build OpenNext + `wrangler dev`, nạp cache, TẮT backend: `/`, `/blog`, `/docs` 200 đủ link qua HIT → STALE (hết 300s) → HIT; log `Revalidation failed ... 500` + `UpstreamUnavailableError`. Giới hạn: slug CHƯA từng vào cache trả 500 |
+| **§6.6** tải lên R2    | ✅ **LIVE** 05/11    | upload-url + seal (máy chủ tính sha256, ký JWS); đầu-cuối MinIO: sha256 khớp `sha256sum`, URL trần 403 ⇒ đường tải đổi sang presign GET. CÒN: `npm run r2:cors`                                                                         |
+| **§6.7** hạn mức       | ✅ **MỘT PHẦN**      | Neon: cổng trong Worker cron (`hanMuc.ts`, 5 test) - CÒN `npm run cron:secret-neon`. Render: không có API, giữ bằng lịch. Workers AI: không còn dùng                                                                                    |
+| **§7** gỡ Con dấu      | ✅ **XONG**          | mã #102 (04/11), DROP #101 sau `pg_dump` (05/11); vòng khoá đổi vai sang ký bản phát hành; tên biến đổi xong 2 đợt                                                                                                                      |
+| **§8** gỡ Toà soạn     | ✅ **XONG**          | 8.3 #98, C1+C2 #99, C3 cùng migration #101; thư mục cron đổi tên `canh-site-cron` (tên Worker giữ)                                                                                                                                      |
+| **§2** logo · màu      | 🟡 **CHỜ CHỦ DỰ ÁN** | logo SVG master và tông màu riêng cần quyết định - §2.3                                                                                                                                                                                 |
+
 ## Tình trạng - cập nhật 28/10/2026 (cùng ngày soạn)
 
 | pha                          | tình trạng                                   | nghiệm thu đo được                                                                                                                                                             |

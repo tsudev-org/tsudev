@@ -145,7 +145,7 @@ Lệnh hỏi lần lượt `TELEGRAM_BOT_TOKEN` rồi `TELEGRAM_CHAT_ID`. Dán g
 Kiểm đã nhận:
 
 ```bash
-npx wrangler secret list --config infrastructure/newsroom-cron/wrangler.jsonc
+npx wrangler secret list --config infrastructure/canh-site-cron/wrangler.jsonc
 ```
 
 Phải thấy cả hai tên. Lệnh này in **tên**, không in giá trị - đúng như phải vậy.
@@ -209,13 +209,13 @@ curl -s https://tsudev-newsroom-cron.dev-nguyentrangtinhsu.workers.dev/dem \
 Hoặc chạy trọn nhánh báo động ở local:
 
 ```bash
-npx wrangler dev --config infrastructure/newsroom-cron/wrangler.jsonc \
+npx wrangler dev --config infrastructure/canh-site-cron/wrangler.jsonc \
   --test-scheduled --port 8788
 # cửa sổ khác:
 curl "http://localhost:8788/__scheduled?cron=23+1,13+*+*+*"
 ```
 
-> Bản `wrangler dev` đọc secret từ `infrastructure/newsroom-cron/.dev.vars`, KHÔNG
+> Bản `wrangler dev` đọc secret từ `infrastructure/canh-site-cron/.dev.vars`, KHÔNG
 > đọc secret trên Cloudflare. Nên lượt thử local chứng minh **mã** chạy đúng, còn
 > việc **secret đã tới production** thì chỉ `secret list` và `cron:tail` trả lời
 > được. Hai câu hỏi khác nhau.
@@ -242,11 +242,11 @@ Nhưng im lặng không phải bằng chứng là tốt. Muốn chắc cổng c�
 
 ## Xoay và thu hồi
 
-| việc                | làm gì                                                                                                                                             |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| token lộ            | `/revoke` ở @BotFather → cấp token mới → đặt lại ở **cả hai** chỗ (4a và 4b)                                                                       |
-| đổi chat đích       | lấy chat id mới (bước 2) → đặt lại ở cả hai chỗ                                                                                                    |
-| tắt báo động Worker | `npx wrangler secret delete TELEGRAM_BOT_TOKEN --config infrastructure/newsroom-cron/wrangler.jsonc` - cổng vẫn chạy và vẫn log, chỉ không gửi tin |
+| việc                | làm gì                                                                                                                                              |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| token lộ            | `/revoke` ở @BotFather → cấp token mới → đặt lại ở **cả hai** chỗ (4a và 4b)                                                                        |
+| đổi chat đích       | lấy chat id mới (bước 2) → đặt lại ở cả hai chỗ                                                                                                     |
+| tắt báo động Worker | `npx wrangler secret delete TELEGRAM_BOT_TOKEN --config infrastructure/canh-site-cron/wrangler.jsonc` - cổng vẫn chạy và vẫn log, chỉ không gửi tin |
 
 ⚠️ Đặt lại ở **một** chỗ thôi là chỗ kia im lặng, và sự im lặng đó trông giống hệt
 "không có sự cố". Đó đúng là hình dạng của sự cố hai tháng.

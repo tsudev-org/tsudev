@@ -1,5 +1,8 @@
 # Kế hoạch tái cấu trúc cổng & tên miền
 
+> 🗄️ Ghi chú 05/11/2026: cổng 4003 (trust-service) và 4005 (newsroom-service) đã
+> gỡ khỏi `config/topology.json` cùng hai service đó. Phần còn lại vẫn đúng.
+
 Mục tiêu: gỡ mười cổng `localhost` rải rác thành **một hợp đồng mạng duy nhất**,
 để hình trạng lúc dev trùng khớp hình trạng production (`tsudev.com` +
 subdomain), và mọi giá trị cổng/hostname chỉ tồn tại ở **một** file.

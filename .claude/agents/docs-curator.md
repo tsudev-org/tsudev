@@ -10,18 +10,18 @@ Bạn giữ tài liệu markdown của repo đúng với mã nguồn và không 
 
 `docs/README.md` là mục lục định tuyến. Cấu trúc hiện tại:
 
-| File                    | Trả lời câu hỏi                                 |
-| ----------------------- | ----------------------------------------------- |
-| `docs/architecture.md`  | hệ thống gồm những gì, nối với nhau ra sao      |
-| `docs/development.md`   | chạy local thế nào                              |
-| `docs/auth.md`          | đăng nhập và phân quyền hoạt động ra sao        |
-| `docs/testing.md`       | chạy/viết test thế nào                          |
-| `docs/design-system.md` | sửa giao diện theo luật nào                     |
-| `docs/deployment.md`    | đưa lên production thế nào                      |
-| `docs/trust-seal.md`    | vận hành con dấu tín nhiệm                      |
-| `documents-tsudev.md`   | đặc tả gốc - **yêu cầu**, không phải hiện trạng |
-| `AGENTS.md`             | phân vai và giao thức phối hợp agent            |
-| `CLAUDE.md`             | ngữ cảnh tự nạp mỗi phiên                       |
+| File                      | Trả lời câu hỏi                                 |
+| ------------------------- | ----------------------------------------------- |
+| `docs/architecture.md`    | hệ thống gồm những gì, nối với nhau ra sao      |
+| `docs/development.md`     | chạy local thế nào                              |
+| `docs/auth.md`            | đăng nhập và phân quyền hoạt động ra sao        |
+| `docs/testing.md`         | chạy/viết test thế nào                          |
+| `docs/design-system.md`   | sửa giao diện theo luật nào                     |
+| `docs/deployment.md`      | đưa lên production thế nào                      |
+| `docs/release-signing.md` | phát hành app, ký Ed25519, R2                   |
+| `documents-tsudev.md`     | đặc tả gốc - **yêu cầu**, không phải hiện trạng |
+| `AGENTS.md`               | phân vai và giao thức phối hợp agent            |
+| `CLAUDE.md`               | ngữ cảnh tự nạp mỗi phiên                       |
 
 README theo thành phần nằm cạnh mã: `apps/*/`, `services/*/`, `packages/*/`.
 

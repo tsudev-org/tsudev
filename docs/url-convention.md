@@ -13,7 +13,7 @@
 
 Ngoài hai dòng đó, **không có địa chỉ thứ ba nào được gõ tay**. Cụ thể:
 
-- `localhost:3000` (cổng nội bộ của Next), `:4001`-`:4005` (service backend),
+- `localhost:3000` (cổng nội bộ của Next), `:4001`-`:4004` (service backend),
   `:5433` (Postgres), `:9000` (MinIO) là **chi tiết cài đặt**. Chúng tồn tại,
   nhưng không ai - kể cả người phát triển - cần gõ chúng để dùng site.
 - Trình duyệt không bao giờ gọi thẳng cổng service. Mọi lời gọi đi qua route
@@ -56,12 +56,12 @@ triệu chứng là _thành công giả_ - đăng nhập trả 200 mà phiên kh
 - **Không dấu `/` ở cuối** (Next mặc định `trailingSlash: false` và tự trả 308
   cho biến thể có dấu).
 - **Danh từ số nhiều cho khu vực, slug cho từng mục**: `/projects/<slug>`,
-  `/blog/<slug>`, `/docs/<slug>`, `/trust/verify/<serial>`.
+  `/blog/<slug>`, `/docs/<slug>`.
 - **Điều hướng trong site dùng href TƯƠNG ĐỐI.** tsudev chỉ còn một origin;
   `MAIN_URL` của `@tsudev/ui` chỉ dành cho URL tuyệt đối thật sự cần: thẻ
-  canonical, ảnh OG, `sitemap.xml`, `robots.txt`, mã nhúng huy hiệu.
+  canonical, ảnh OG, `sitemap.xml`, `robots.txt`.
 - **`/api/*` là bề mặt máy gọi máy**, không phải trang. `robots.txt` chặn nó;
-  khu vực riêng tư (`/admin`, `/settings`, `/trust`) thì dùng thẻ `noindex` chứ
+  khu vực riêng tư (`/admin`, `/settings`, `/author`) thì dùng thẻ `noindex` chứ
   KHÔNG dùng `Disallow` - lý do ghi ở đầu `pages/robots.txt.ts`.
 
 ## 4. Cổng chặn hồi quy
