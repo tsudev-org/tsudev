@@ -41,6 +41,10 @@ const SERVICES = [
       '/api/posts',
       '/api/docs',
       '/api/projects',
+      // Thiếu dòng này từ #109 tới 05/11/2026: khối "Tải app" ở trang chủ hiện
+      // "Không tải được danh sách bản phát hành" trên production (404 trần).
+      // test/prefixCoverage.test.ts nay đọc route từ router Express để bắt lần sau.
+      '/api/releases',
       '/api/admin',
       '/api/author',
       '/.well-known',
