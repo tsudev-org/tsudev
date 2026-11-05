@@ -62,9 +62,7 @@ export const SiteFooter = () => {
         </div>
         {COLS.map((c) => (
           <div key={c.title}>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-fg-muted font-mono">
-              {c.title}
-            </h4>
+            <h4 className="text-sm font-semibold text-fg">{c.title}</h4>
             <ul className="mt-2.5 space-y-1.5">
               {c.links.map(([label, href]) => (
                 <li key={label}>

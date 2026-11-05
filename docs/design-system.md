@@ -83,7 +83,25 @@ Bộ chuẩn v1.0.0 không có sẵn ba nhóm dưới đây; chúng nằm ở
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `--icon-*` (6 màu)                  | Mã màu theo **nhóm hành động** - mắt nhận ra nhóm trước khi đọc nhãn. Sáu, không hơn: quá bảy màu thì chúng thôi là mã và thành nhiễu.                                  |
 | `--<trạng thái>-ink` / `-tint`      | §5 đòi badge "nền trạng thái nhạt 12% + chữ màu trạng thái đậm", nhưng ở chế độ Sáng cặp đó chỉ đạt ~4.1-4.3:1. `-ink` là sắc đậm hơn cho chữ, `-tint` là nền tính sẵn. |
-| `--accent`, `--glow`, `--grid-line` | Sắc phụ (teal) - huy hiệu checksum/chữ ký của bản phát hành - và hai hoạ tiết nền.                                                                                      |
+| `--accent`, `--glow`, `--grid-line` | Sắc NHẤN cam của tông chàm (huy hiệu "Mới", điểm nhấn hero, đầu cam của chữ chuyển sắc) và hai hoạ tiết nền.                                                            |
+
+### Tông thương hiệu chàm (05/11/2026)
+
+Chủ dự án chọn tông **chàm `#4F46E5` + nhấn cam, nền trắng ngà `#FAFAF9`** thay
+cho bảng xanh dương của bảng chuẩn. Giá trị bảng chuẩn KHÔNG bị sửa: khối `brand`
+trong `tokens/extensions.tsudev-web.json` ghi đè lúc sinh (`colorFor()` trong
+`scripts/sync-tokens.js`), và script ném lỗi khi khối đó gõ sai tên khoá hoặc trùng
+khoá với khối mở rộng. Chế độ Ấm giữ nền sepia, chỉ đổi sắc chủ đạo.
+
+Đổi màu nền (`--bg-base`) thì phải đổi theo **bốn bản chép** ngoài `tokens.css`
+(`_document.tsx`, `ThemeToggle.tsx`, `site.webmanifest`, `build-assets.js`) VÀ băm
+CSP `THEME_SCRIPT_HASH` trong `proxy.ts` - script chống nháy màu chứa mã màu nền,
+lệch băm thì trên HTTPS script bị chặn và trang nháy màu, ở dev không thấy gì.
+`themeTokens.test.ts` và `csp.test.ts` canh cả hai.
+
+Lớp trang trí của trang chủ dùng ba class trong `styles/globals.css`:
+`tsu-hero-bg`, `tsu-cta-bg`, `tsu-text-gradient` - đều trộn từ token, không mã hex.
+Wordmark SVG: `packages/brand/source/wordmark-{light,dark}.svg`.
 
 ⚠️ **Hai token của bảng chuẩn v1.0.0 KHÔNG đạt chính quy tắc bắt buộc của §1**, đo
 được bằng `contrast.test.ts` - số đo giữ ở `$accessibility_gap` trong

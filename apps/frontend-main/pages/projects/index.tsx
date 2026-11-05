@@ -44,8 +44,8 @@ export default function ProjectsIndex({ projects, failed }: ProjectsIndexProps) 
           }
         />
         <p className="-mt-2 mb-6 text-sm text-fg-muted max-w-2xl">
-          Mỗi dự án ghi rõ giấy phép mã nguồn và trạng thái đăng ký quyền tác giả. Dự án đã đăng ký
-          là căn cứ để cấp con dấu cho website sử dụng nó.
+          Mỗi dự án ghi rõ giấy phép mã nguồn và trạng thái đăng ký quyền tác giả. Mỗi bản phát hành
+          kèm SHA-256 và chữ ký Ed25519 để bạn tự kiểm trước khi cài.
         </p>
 
         <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Lọc theo loại">

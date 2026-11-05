@@ -40,6 +40,33 @@ const tokens = JSON.parse(fs.readFileSync(JSON_PATH, 'utf8'));
 const ext = JSON.parse(fs.readFileSync(EXT_PATH, 'utf8'));
 const usage = ext.$usage;
 
+/**
+ * Lớp tông THƯƠNG HIỆU (kế hoạch Q4 §2.6, chủ dự án chọn chàm 05/11/2026).
+ *
+ * Đường DUY NHẤT để đổi giá trị của bảng chuẩn - bảng `.standards/` vẫn bất khả
+ * xâm phạm, lớp này chỉ thay giá trị lúc SINH. Hai luật, cả hai ném lỗi:
+ *  - chỉ ghi đè khoá ĐÃ có trong bảng chuẩn (gõ sai tên = một biến không ai đọc,
+ *    im lặng - đúng kiểu lỗi --lh-long đã sống nhiều tháng);
+ *  - không khai trùng khoá với khối mở rộng của chế độ (hai nguồn cho một biến).
+ * Biến bị ghi đè được liệt kê trong chú thích của tokens.css để người đọc artifact
+ * biết giá trị nào KHÔNG phải của bảng chuẩn.
+ */
+const brand = ext.brand || {};
+const colorFor = (mode) => {
+  const over = Object.fromEntries(
+    Object.entries(brand[mode] || {}).filter(([k]) => !k.startsWith('$'))
+  );
+  for (const k of Object.keys(over)) {
+    if (!(k in tokens.color[mode])) {
+      throw new Error(`brand.${mode}.${k}: khoá không có trong bảng chuẩn - gõ sai tên?`);
+    }
+    if (k in ext[mode]) {
+      throw new Error(`brand.${mode}.${k}: trùng khoá với khối mở rộng ${mode}`);
+    }
+  }
+  return { values: { ...tokens.color[mode], ...over }, overridden: Object.keys(over) };
+};
+
 /** Thứ tự khai báo giữ 1:1 với JSON - DESIGN_SYSTEM.md §7 đòi vậy. */
 const emitVars = (obj, indent = '  ') =>
   Object.entries(obj)
@@ -64,7 +91,7 @@ const MODES = [
     'dark',
     ":root[data-theme='dark']",
     'dark',
-    'Tối - cho phòng tối. Nền là navy #0F1B2D chứ KHÔNG phải đen tuyền: đen tuyệt\n   đối bị DESIGN_SYSTEM.md §1 cấm ở mọi chế độ vì độ chói giữa chữ và nền quá\n   gắt khi đọc lâu.',
+    'Tối - cho phòng tối. Nền là mực chàm sẫm chứ KHÔNG phải đen tuyền: đen tuyệt\n   đối bị DESIGN_SYSTEM.md §1 cấm ở mọi chế độ vì độ chói giữa chữ và nền quá\n   gắt khi đọc lâu.',
   ],
 ];
 
@@ -93,8 +120,12 @@ let out = header;
 
 for (const [mode, selector, colorScheme, note] of MODES) {
   out += `\n/* ${note} */\n${selector} {\n  color-scheme: ${colorScheme};\n\n`;
+  const { values, overridden } = colorFor(mode);
   out += `  /* Bảng chuẩn hệ sinh thái - .standards/tokens/design-tokens.json > color.${mode} */\n`;
-  out += emitVars(tokens.color[mode]);
+  if (overridden.length) {
+    out += `  /* Tông thương hiệu ghi đè ${overridden.length} khoá - tokens/extensions.tsudev-web.json > brand.${mode} */\n`;
+  }
+  out += emitVars(values);
   out += `\n\n  /* Mở rộng riêng của tsudev-web - tokens/extensions.tsudev-web.json > ${mode} */\n`;
   out += emitVars(ext[mode]);
   out += '\n}\n';

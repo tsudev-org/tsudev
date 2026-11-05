@@ -11,7 +11,7 @@ export const SectionHeading = ({ eyebrow, title, action, className = '' }: Secti
   <div className={`flex items-end justify-between gap-4 mb-6 ${className}`}>
     <div>
       {eyebrow && (
-        <div className="font-mono text-xs uppercase tracking-[0.14em] text-accent font-semibold mb-1.5">
+        <div className="inline-flex items-center rounded-full bg-glow px-3 py-1 text-xs font-semibold text-link mb-2.5">
           {eyebrow}
         </div>
       )}

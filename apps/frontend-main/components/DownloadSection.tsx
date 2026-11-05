@@ -47,7 +47,7 @@ export default function DownloadSection({ items, failed }: DownloadSectionProps)
   if (!failed && items.length === 0) return null;
 
   return (
-    <section className="py-6 reveal">
+    <section className="py-10 reveal">
       <SectionHeading
         eyebrow="Tải về"
         title="Ứng dụng & công cụ"
