@@ -43,6 +43,8 @@ const SKIP_DIR = new Set([
   'node_modules',
   '.next',
   '.open-next',
+  // Trạng thái cục bộ của `wrangler dev` (bundle tạm chứa cổng dev) - gitignore, không bao giờ lên prod.
+  '.wrangler',
   '.turbo',
   'dist',
   'build',
