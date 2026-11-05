@@ -24,7 +24,7 @@
 //   - NEXT_PUBLIC_* (nội suy lúc build) ← apps/frontend-main/.env.production
 //   - biến/secret lúc chạy            ← wrangler.jsonc `vars` + `wrangler secret`
 
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { loadTopology, prodUrl } = require('./topology/load');
@@ -80,11 +80,12 @@ try {
     // vệ mọi biến dev, kể cả những biến chưa tồn tại lúc viết dòng này.
   };
 
-  execSync(`npx opennextjs-cloudflare build && npx opennextjs-cloudflare ${action}`, {
-    cwd: APP,
-    stdio: 'inherit',
-    env,
-  });
+  // execFileSync, KHÔNG qua shell: `action` đã qua danh sách trắng ở đầu tệp,
+  // nhưng ghép nó vào một chuỗi shell là để lớp an toàn duy nhất nằm cách đó 40
+  // dòng. Truyền dạng mảng đối số thì không ký tự nào thành lệnh được.
+  const opts = { cwd: APP, stdio: 'inherit', env };
+  execFileSync('npx', ['opennextjs-cloudflare', 'build'], opts);
+  execFileSync('npx', ['opennextjs-cloudflare', action], opts);
 } finally {
   restore();
 }

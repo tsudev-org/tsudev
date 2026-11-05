@@ -15,11 +15,16 @@ import type { ErrorRequestHandler, Request, RequestHandler, Response } from 'exp
 
 import { prisma } from '@tsudev/db'
 import type { Prisma } from '@prisma/client'
-import { createAuthMiddleware, lookupUser, requireSecondFactor } from '@tsudev/auth'
+import {
+  createAuthMiddleware,
+  internalTokenMatches,
+  lookupUser,
+  requireSecondFactor,
+} from '@tsudev/auth'
 import { parsePaging, pageMeta, ROLES } from '@tsudev/types'
 import type { Role } from '@tsudev/types'
-import { largePageRateLimit } from '@tsudev/ratelimit'
-import { createHash } from 'crypto'
+import { createRateLimit, identityKey, largePageRateLimit } from '@tsudev/ratelimit'
+import { createHash, randomInt } from 'crypto'
 
 import {
   checkPasswordPolicy,
@@ -91,9 +96,64 @@ app.get('/health', (req, res) => res.json({ status: 'ok', service: 'auth-service
 const INTERNAL_TOKEN = process.env.INTERNAL_API_TOKEN || ''
 app.use('/api', (req, res, next) => {
   if (!INTERNAL_TOKEN) return next()
-  if (req.get('x-internal-token') === INTERNAL_TOKEN) return next()
+  if (internalTokenMatches(req, INTERNAL_TOKEN)) return next()
   return res.status(401).json({ error: 'Thiếu hoặc sai x-internal-token' })
 })
+
+// ---------------------------------------------------------------------------
+// Giới hạn tần suất CHUNG cho mọi route identity (sau cổng token).
+//
+// Trước đây chỉ đường đăng nhập/quên mật khẩu có throttle (DB, theo IP). Mọi
+// route khác - đăng ký, đặt lại mật khẩu, đổi mật khẩu, xác nhận TOTP, xác nhận
+// mã email - không có giới hạn nào: một phiên đăng nhập bị chiếm (hoặc một vòng
+// lặp lỗi) gọi được không đếm xuể.
+//
+// Khoá: request CÓ danh tính ⇒ theo tài khoản (`sub` của khẳng định, identityKey);
+// không có ⇒ theo IP mà BFF đặt vào X-Forwarded-For (lấy từ CF-Connecting-IP,
+// tin được vì đã qua cổng token). Bộ đếm trong bộ nhớ - một tiến trình, xem
+// @tsudev/ratelimit.
+// ---------------------------------------------------------------------------
+const identityKeyOrIp = (req: Request): string =>
+  typeof req.headers.authorization === 'string'
+    ? identityKey(req)
+    : `ip:${callerIp(req.headers as Record<string, unknown>, req.ip || '0.0.0.0')}`
+
+app.use(
+  '/api/identity',
+  createRateLimit({
+    name: 'identity-chung',
+    windowMs: 60_000,
+    max: Number(process.env.RATE_LIMIT_IDENTITY_MAX) || 120,
+    keyOf: identityKeyOrIp,
+  })
+)
+
+// Tầng CHẶT cho những route mà kẻ tấn công thắng bằng cách THỬ NHIỀU LẦN: mã 6
+// số (TOTP, mã email), mật khẩu hiện tại khi đổi mật khẩu, token đặt lại/xác
+// minh, và đăng ký (chống tạo tài khoản hàng loạt). 10 lượt/phút/khoá: người
+// thật gõ sai vài lần không chạm tới, máy dò 10^6 mã thì cần hơn 69 ngày.
+const SENSITIVE = [
+  '/api/identity/register',
+  '/api/identity/verify-email',
+  '/api/identity/reset-password',
+  '/api/identity/confirm-email-change',
+  '/api/identity/password/change',
+  '/api/identity/totp/confirm',
+  '/api/identity/totp/disable',
+  '/api/identity/verify/code/confirm',
+  '/api/identity/verify/code/send',
+  '/api/identity/verify/resend',
+  '/api/identity/email/change',
+]
+app.use(
+  SENSITIVE,
+  createRateLimit({
+    name: 'identity-nhay-cam',
+    windowMs: 60_000,
+    max: Number(process.env.RATE_LIMIT_SENSITIVE_MAX) || 10,
+    keyOf: identityKeyOrIp,
+  })
+)
 
 const asyncHandler =
   (fn: (req: Request, res: Response) => Promise<unknown>): RequestHandler =>
@@ -337,7 +397,7 @@ async function generateUsername(base: string): Promise<string> {
       select: { id: true },
     })
     if (!taken) return candidate
-    candidate = `${slug}${Math.floor(1000 + Math.random() * 9000)}`
+    candidate = `${slug}${randomInt(1000, 10000)}`
   }
   return `${slug}${Date.now().toString(36)}`
 }

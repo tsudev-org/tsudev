@@ -6,6 +6,7 @@ import { startAuthentication } from '@simplewebauthn/browser';
 import { Button, Input, Icon } from '@tsudev/ui';
 
 import { AuthShell, Notice } from '../components/AuthShell';
+import { safeNext } from '../lib/safeNext';
 
 /**
  * Đăng nhập.
@@ -89,12 +90,10 @@ export default function LoginPage({ oauth }: LoginProps) {
     if (needTotp) totpRef.current?.focus();
   }, [needTotp]);
 
-  const rawNext = typeof router.query.callbackUrl === 'string' ? router.query.callbackUrl : '/';
-  // CHỈ chấp nhận đường dẫn tương đối trong site. `callbackUrl` đến từ URL, nên
-  // một giá trị như `https://ke-tan-cong.example` biến trang đăng nhập thành
-  // bàn đạp chuyển hướng mở - người dùng thấy tên miền tsudev.com trong thanh
-  // địa chỉ rồi bị đẩy sang nơi khác ngay sau khi đăng nhập.
-  const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/';
+  // CHỈ chấp nhận đường dẫn trong site. `callbackUrl` đến từ URL, nên một giá
+  // trị như `https://ke-tan-cong.example` (hay `/\ke-tan-cong.example`) biến
+  // trang đăng nhập thành bàn đạp chuyển hướng mở. Xem lib/safeNext.ts.
+  const next = safeNext(router.query.callbackUrl);
 
   const queryError = typeof router.query.error === 'string' ? router.query.error : '';
   const shown =

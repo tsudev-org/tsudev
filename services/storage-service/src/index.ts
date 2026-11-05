@@ -52,6 +52,13 @@ function safeObjectKey(raw: unknown, opts: { allowIssued?: boolean } = {}): stri
 }
 
 /** Thông điệp lỗi từ một giá trị `catch` (luôn là `unknown`). */
+/** Một dòng log: bỏ CR/LF/ký tự điều khiển để giá trị do người gọi đặt không giả được dòng log mới. */
+const oneLine = (v: unknown): string =>
+  String(v)
+    // eslint-disable-next-line no-control-regex -- CỐ Ý: chặn ký tự điều khiển (CR/LF, tab…)
+    .replace(/[\u0000-\u001f\u007f]+/g, ' ')
+    .slice(0, 300)
+
 const errMsg = (e: unknown): string => (e instanceof Error ? e.message : String(e))
 
 /** Hình dạng nội bộ của một lớp router Express - chỉ phần thực sự được đọc. */
@@ -88,9 +95,9 @@ const {
 } = require('@aws-sdk/client-s3')
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { prisma } from '@tsudev/db'
-import { createAuthMiddleware, requireRole } from '@tsudev/auth'
+import { createAuthMiddleware, internalTokenMatches, requireRole } from '@tsudev/auth'
 import { pageMeta, parsePaging } from '@tsudev/types'
-import { createRateLimit, largePageRateLimit } from '@tsudev/ratelimit'
+import { createRateLimit, identityKey, largePageRateLimit, peerIp } from '@tsudev/ratelimit'
 
 const app = express()
 const port = process.env.PORT || process.env.PORT_STORAGE_SERVICE || 4002
@@ -100,7 +107,9 @@ const bindHost = process.env.BIND_HOST || '0.0.0.0'
 
 // Basic request logging for troubleshooting
 app.use((req, res, next) => {
-  console.log(`[storage] ${req.method} ${req.url}`)
+  // Chỉ đường dẫn, không query (query có thể mang khoá/tên tệp), và bỏ xuống
+  // dòng để một request không giả được thêm dòng log.
+  console.log('[storage] %s %s', req.method, oneLine(req.path))
   next()
 })
 
@@ -139,18 +148,9 @@ app.use((_req, res, next) => {
   next()
 })
 
-// Log JSON request bodies for troubleshooting small requests (safe-size only)
-app.use((req, res, next) => {
-  try {
-    const ct = (req.headers['content-type'] || '').toLowerCase()
-    if (ct.includes('application/json') && req.method !== 'GET') {
-      console.log('[storage] request body:', JSON.stringify(req.body))
-    }
-  } catch (e) {
-    /* body không tuần tự hoá được - chỉ là log gỡ rối, không chặn request */
-  }
-  next()
-})
+// KHÔNG log thân request. Bản trước ghi nguyên JSON của mọi POST ra log: tên tệp,
+// khoá object, siêu dữ liệu tải lên - và bất cứ thứ gì client gửi kèm. Log của
+// Render giữ nhiều ngày và đọc được bằng tài khoản Render, không cần quyền DB.
 
 // Helper to wrap async route handlers and forward errors to express
 // Bọc handler async: Promise bị từ chối mà không có .catch sẽ không bao giờ tới
@@ -253,19 +253,35 @@ const INTERNAL_TOKEN = process.env.INTERNAL_API_TOKEN || ''
 // @tsudev/ratelimit). Ngưỡng chặt hơn content, chỉnh được qua env.
 const directLimit = createRateLimit({
   name: 'storage-direct',
+  // IP NGANG HÀNG (phần tử cuối XFF): phần tử đầu do người gửi tự đặt được.
+  keyOf: peerIp,
   windowMs: 60_000,
   max: Number(process.env.RATE_LIMIT_DIRECT_MAX) || 120,
 })
 app.use('/api', (req, res, next) => {
-  if (INTERNAL_TOKEN && req.get('x-internal-token') === INTERNAL_TOKEN) return next()
+  if (internalTokenMatches(req, INTERNAL_TOKEN)) return next()
   return directLimit(req, res, next)
 })
 
 app.use('/api', (req, res, next) => {
   if (!INTERNAL_TOKEN) return next()
-  if (req.get('x-internal-token') === INTERNAL_TOKEN) return next()
+  if (internalTokenMatches(req, INTERNAL_TOKEN)) return next()
   return res.status(401).json({ error: 'Thiếu hoặc sai x-internal-token' })
 })
+
+// Giới hạn THEO TÀI KHOẢN cho lưu lượng đã xác thực đi qua BFF. `directLimit` ở
+// trên miễn trừ BFF (mọi người dùng chung IP egress của Worker), nên trước đây
+// một tài khoản đã đăng nhập gọi được các đường ghi KHÔNG giới hạn. Khoá là `sub`
+// của khẳng định danh tính (identityKey); chỉ đếm request CÓ danh tính - SSR ẩn
+// danh của các trang công khai không bị gộp vào một xô.
+const accountLimit = createRateLimit({
+  name: 'storage-account',
+  windowMs: 60_000,
+  max: Number(process.env.RATE_LIMIT_ACCOUNT_MAX) || 120,
+  keyOf: identityKey,
+  when: (req) => typeof req.headers.authorization === 'string',
+})
+app.use('/api', accountLimit)
 
 app.get(
   '/api/files',
@@ -312,8 +328,9 @@ app.get(
       ContentType: contentType,
     })
     const url = await generatePresign(cmd)
-    console.log('[storage] generated presign (GET)', objectKey)
-    console.log('[storage] presign URL (GET):', url)
+    // KHÔNG log URL presign: nó MANG CHỮ KÝ, sống 30 phút, ai đọc được log là
+    // tải được tệp. Trước 06/11/2026 dòng này ghi nguyên URL ra log Render.
+    console.log('[storage] generated presign (GET) %s', oneLine(objectKey))
     res.json({ url, key: objectKey, publicUrl: publicUrlOf(objectKey) })
   })
 )
@@ -333,7 +350,8 @@ app.post(
       ContentType: contentType || 'application/octet-stream',
     })
     const url = await generatePresign(cmd)
-    console.log('[storage] presign URL (POST):', url)
+    // Không log URL - xem nhánh GET ở trên.
+    console.log('[storage] generated presign (PUT) %s', oneLine(objectKey))
     res.json({ url, key: objectKey })
   })
 )
@@ -359,7 +377,10 @@ app.post(
     // (đường dự phòng khi PUT trực tiếp lên S3 thất bại), nên phải giữ nguyên.
     const fileName = safeObjectKey(fromHeader || keyQuery, { allowIssued: true })
     const contentType = req.headers['content-type'] || 'application/octet-stream'
-    if (!req.body || req.body.length === 0) {
+    // express.raw cho ra Buffer - nhưng `req.body` là kiểu any và một middleware
+    // khác (hoặc Content-Type lạ) có thể để lại object/mảng. Kiểm KIỂU trước khi
+    // đọc `.length`, không thì `size` ghi vào DB là thứ người gọi tự chọn.
+    if (!Buffer.isBuffer(req.body) || req.body.length === 0) {
       return res.status(400).json({ error: 'Empty body' })
     }
     let storageWarning = null
