@@ -10,6 +10,8 @@ import type { PageMeta } from '@tsudev/types';
 
 import { useUrlPaging, useUrlPagingSync } from '../../lib/useUrlPaging';
 import { EmailAliases } from '../../components/EmailAliases';
+import { MfaRequiredNotice } from '../../components/MfaRequiredNotice';
+import { isMfaRequired } from '../../lib/mfa';
 import {
   AccountFilters,
   EMPTY_FILTER,
@@ -124,6 +126,9 @@ export default function AdminAccounts() {
   const { page, setPage, pageSize, setPageSize, meta } = paging;
   useUrlPagingSync([paging]);
   const [denied, setDenied] = useState(false);
+  /// 403 MFA_REQUIRED: là OWNER nhưng chưa bật 2FA - KHÁC "không có quyền", và
+  /// thay cả trang bằng hướng dẫn bật 2FA, thôi gọi API từ đó.
+  const [mfaRequired, setMfaRequired] = useState(false);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<AccountFilter>(EMPTY_FILTER);
   const [facets, setFacets] = useState<Facets>({ role: [], country: [] });
@@ -240,9 +245,11 @@ export default function AdminAccounts() {
   const flash = (tone: BadgeTone, text: string) => setMsg({ tone, text });
   const flashErr = (data: { error?: string; detail?: string }) =>
     flash('danger', ERR[data?.error || ''] || data?.detail || data?.error || 'Có lỗi xảy ra.');
+  const fail = (r: { status: number; data: { error?: string; detail?: string } }) =>
+    isMfaRequired(r.status, r.data) ? setMfaRequired(true) : flashErr(r.data);
 
   const load = useCallback(async () => {
-    if (!paging.ready) return;
+    if (!paging.ready || mfaRequired) return;
     setLoading(true);
     // Đổi mốc PHẢI tải lại từ máy chủ (DATA_TABLE.md mục 4). Tải sẵn 200 dòng
     // rồi cắt ở máy khách thì mốc 10 không tiết kiệm được gì.
@@ -258,6 +265,10 @@ export default function AdminAccounts() {
     });
     setLoading(false);
     setBooted(true);
+    if (isMfaRequired(r.status, r.data)) {
+      setMfaRequired(true);
+      return;
+    }
     if (r.status === 401 || r.status === 403) {
       setDenied(true);
       return;
@@ -274,7 +285,7 @@ export default function AdminAccounts() {
     if (typeof body?.total_unfiltered === 'number') setTotalUnfiltered(body.total_unfiltered);
     // `paging` cố ý không nằm trong deps: nó là object mới mỗi lần dựng.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, paging.ready, filterKey]);
+  }, [page, pageSize, paging.ready, filterKey, mfaRequired]);
 
   useEffect(() => {
     if (status === 'authenticated') load();
@@ -286,7 +297,7 @@ export default function AdminAccounts() {
     setCreating(true);
     const r = await call('useradmin/create', form);
     setCreating(false);
-    if (!r.ok) return flashErr(r.data);
+    if (!r.ok) return fail(r);
     flash('success', `Đã tạo tài khoản "${form.username}".`);
     setForm({ username: '', email: '', displayName: '', password: '', role: 'AUTHOR' });
     load();
@@ -295,7 +306,7 @@ export default function AdminAccounts() {
   async function changeRole(u: AccountRow, role: string) {
     if (role === u.role) return;
     const r = await call('useradmin/role', { id: u.id, role });
-    if (!r.ok) return flashErr(r.data);
+    if (!r.ok) return fail(r);
     flash('success', `Vai trò của "${u.username}" → ${ROLE_LABEL[role]}.`);
     load();
   }
@@ -308,7 +319,7 @@ export default function AdminAccounts() {
     )
       return;
     const r = await call('useradmin/revoke', { id: u.id });
-    if (!r.ok) return flashErr(r.data);
+    if (!r.ok) return fail(r);
     flash('success', `Đã thu hồi phiên của "${u.username}".`);
   }
 
@@ -336,6 +347,12 @@ export default function AdminAccounts() {
     let failed = 0;
     for (const u of targets) {
       const r = await call('useradmin/revoke', { id: u.id });
+      // Dừng ở lỗi ĐẦU: chưa bật 2FA thì mọi tài khoản còn lại cũng bị chặn y hệt.
+      if (isMfaRequired(r.status, r.data)) {
+        setBulkBusy(false);
+        setMfaRequired(true);
+        return;
+      }
       if (r.ok) done++;
       else failed++;
     }
@@ -348,7 +365,7 @@ export default function AdminAccounts() {
   async function remove(u: AccountRow) {
     if (!confirm(`Xoá vĩnh viễn tài khoản "${u.username}"? Không thể hoàn tác.`)) return;
     const r = await call('useradmin/delete', { id: u.id });
-    if (!r.ok) return flashErr(r.data);
+    if (!r.ok) return fail(r);
     flash('success', `Đã xoá tài khoản "${u.username}".`);
     load();
   }
@@ -371,6 +388,14 @@ export default function AdminAccounts() {
             Đăng nhập
           </Button>
         </Card>
+      </Layout>
+    );
+
+  if (mfaRequired)
+    return (
+      <Layout>
+        <Seo title="Quản lý tài khoản" path="/admin/accounts" noindex />
+        <MfaRequiredNotice />
       </Layout>
     );
 
@@ -466,7 +491,10 @@ export default function AdminAccounts() {
         </form>
       </Card>
 
-      <EmailAliases onMessage={(tone, text) => flash(tone as BadgeTone, text)} />
+      <EmailAliases
+        onMessage={(tone, text) => flash(tone as BadgeTone, text)}
+        onMfaRequired={() => setMfaRequired(true)}
+      />
 
       <Card className="mt-6 p-4">
         <AccountFilters value={filter} onChange={setFilter} facets={facets} busy={loading} />

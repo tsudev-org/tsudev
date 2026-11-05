@@ -23,3 +23,19 @@ bảo vệ mà không hề được bảo vệ**, và bật cờ lên thì chún
 
 Gói này bỏ hẳn nhánh đọc-claim. `requireRole()` nay đọc `User.role` từ DB, **fail
 closed**, không có cờ nào tắt được nó.
+
+## Ép 2FA cho quản trị (G6)
+
+`requireSecondFactor(user, res)` cho qua CHỈ khi tài khoản có TOTP **đã xác
+nhận** (`TotpCredential.confirmedAt` khác NULL; kiểm bằng `hasConfirmedTotp`).
+**Passkey KHÔNG được tính**: đăng nhập mật khẩu ở auth-service chỉ đòi bước hai
+khi có TOTP đã xác nhận, nên tài khoản chỉ có passkey vẫn vào được bằng mật khẩu
+đơn thuần - tính passkey ở đây thì một mật khẩu bị lộ đủ để vào khu quản trị.
+Fail closed cho tới khi phiên ghi được phương thức xác thực (amr), cùng step-up
+B3. Cổng dựa vào bất biến "TOTP đã xác nhận ⇒ đăng nhập mật khẩu thiếu mã ⇒ 401
+`totp_required`", có test ở `services/auth-service/test/ownerMfaGate.test.ts`.
+Thiếu ⇒ 403 `{ error, code: 'MFA_REQUIRED' }`; lỗi DB ⇒ 503 (fail closed).
+Gọi SAU bước kiểm vai trò - `requireAdmin` (content-service) và `requireOwner`
+(auth-service) dùng nó. **Đừng** gắn nó vào các route `/api/identity/totp/*`
+hay `/api/identity/passkey/register-*`: đó là đường duy nhất để quản trị viên
+chưa có 2FA tự bật nó.

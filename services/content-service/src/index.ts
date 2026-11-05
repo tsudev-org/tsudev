@@ -15,7 +15,7 @@ try {
 import express from 'express'
 import type { ErrorRequestHandler, NextFunction, Request, RequestHandler, Response } from 'express'
 import { prisma } from '@tsudev/db'
-import { createAuthMiddleware, lookupUser } from '@tsudev/auth'
+import { createAuthMiddleware, lookupUser, requireSecondFactor } from '@tsudev/auth'
 import { createRateLimit, largePageRateLimit } from '@tsudev/ratelimit'
 import type { Doc, Post, Prisma, Project, ProjectRelease, User } from '@prisma/client'
 import { hasAtLeastRole, emailUsable, pageMeta, parsePaging, MAX_PAGE_SIZE } from '@tsudev/types'
@@ -618,6 +618,9 @@ async function requireAdmin(req: Request, res: Response): Promise<User | null> {
     res.status(403).json({ error: 'Yêu cầu quyền quản trị' })
     return null
   }
+  // Ép 2FA (G6): ADMIN chưa có TOTP đã xác nhận ⇒ 403
+  // MFA_REQUIRED (passkey KHÔNG tính - xem hasConfirmedTotp); lỗi DB ⇒ 503. Kiểm ở @tsudev/auth, dùng chung với requireOwner.
+  if (!(await requireSecondFactor(user, res))) return null
   return user
 }
 

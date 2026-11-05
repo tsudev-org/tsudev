@@ -40,6 +40,18 @@ beforeAll(async () => {
       create: { username, email: `${username}@tsudev.local`, displayName: username, role },
     })
   }
+  // Ép 2FA (G6): requireAdmin đòi TOTP đã xác nhận hoặc passkey.
+  await prisma.user.update({
+    where: { username: ADMIN },
+    data: {
+      totp: {
+        upsert: {
+          create: { secretEnc: 'test', confirmedAt: new Date() },
+          update: { confirmedAt: new Date() },
+        },
+      },
+    },
+  })
   await prisma.doc.create({
     data: { slug: `${PREFIX}ai-1`, title: 'AI 1', contentMd: 'x', authoredByAgentId: 'agent' },
   })

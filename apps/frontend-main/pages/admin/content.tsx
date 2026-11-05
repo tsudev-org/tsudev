@@ -5,6 +5,8 @@ import { Layout, Card, Button, Badge, SectionHeading, RecordFooter, Modal } from
 import type { PageMeta } from '@tsudev/types';
 import { useUrlPaging, useUrlPagingSync } from '../../lib/useUrlPaging';
 import { formatDateTimeVN } from '../../lib/format';
+import { isMfaRequired } from '../../lib/mfa';
+import { MfaRequiredNotice } from '../../components/MfaRequiredNotice';
 
 /**
  * Kiểm duyệt nội dung (bài viết, tài liệu) cho ADMIN.
@@ -82,12 +84,14 @@ export default function AdminContent() {
   const [busy, setBusy] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [msg, setMsg] = useState<{ tone: 'success' | 'danger'; text: string } | null>(null);
+  /// 403 MFA_REQUIRED ⇒ thay trang bằng hướng dẫn bật 2FA và thôi gọi API.
+  const [mfaRequired, setMfaRequired] = useState(false);
   const paging = useUrlPaging('admin-content');
   const { page, setPage, pageSize, setPageSize, meta } = paging;
   useUrlPagingSync([paging]);
 
   const load = useCallback(async () => {
-    if (!paging.ready) return;
+    if (!paging.ready || mfaRequired) return;
     setLoading(true);
     const q = new URLSearchParams({
       kind,
@@ -99,6 +103,10 @@ export default function AdminContent() {
     const res = await fetch(`/api/content/admin/content?${q}`);
     setLoading(false);
     if (!res.ok) {
+      if (isMfaRequired(res.status, await res.json().catch(() => null))) {
+        setMfaRequired(true);
+        return;
+      }
       setMsg({ tone: 'danger', text: 'Không tải được danh sách. Bạn có quyền quản trị không?' });
       return;
     }
@@ -108,7 +116,7 @@ export default function AdminContent() {
     setSelected(new Set());
     // `paging` cố ý không nằm trong deps: nó là object mới mỗi lần dựng.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kind, state, origin, page, pageSize, paging.ready]);
+  }, [kind, state, origin, page, pageSize, paging.ready, mfaRequired]);
 
   useEffect(() => {
     if (session) load();
@@ -146,6 +154,10 @@ export default function AdminContent() {
     setConfirmOpen(false);
     if (!res.ok) {
       const e = (await res.json().catch(() => ({}))) as { error?: string };
+      if (isMfaRequired(res.status, e)) {
+        setMfaRequired(true);
+        return;
+      }
       setMsg({ tone: 'danger', text: e.error || 'Thao tác thất bại.' });
       return;
     }
@@ -175,6 +187,16 @@ export default function AdminContent() {
           <h1 className="text-2xl font-bold text-fg mb-2">Kiểm duyệt nội dung</h1>
           <p className="text-fg-muted mb-4">Đăng nhập bằng tài khoản quản trị.</p>
           <Button onClick={() => signIn()}>Đăng nhập</Button>
+        </div>
+      </Layout>
+    );
+
+  if (mfaRequired)
+    return (
+      <Layout active="/admin" bare>
+        <Seo title="Kiểm duyệt nội dung" path="/admin/content" noindex />
+        <div className="px-4 py-16">
+          <MfaRequiredNotice />
         </div>
       </Layout>
     );

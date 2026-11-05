@@ -97,4 +97,101 @@ describe('content-service: đọc công khai, ghi cần quản trị', () => {
   })
 })
 
+// G6 (docs/security-plan.md): ADMIN chưa có TOTP ĐÃ XÁC NHẬN thì
+// requireAdmin trả 403 MFA_REQUIRED. Dùng GET /api/admin/projects làm đại diện:
+// mọi route /api/admin/* đi qua cùng một requireAdmin.
+describe('content-service: ép 2FA cho ADMIN', () => {
+  const ADMIN = 'test-admin-mfa-content'
+  let adminId = ''
+
+  beforeEach(async () => {
+    await prisma.user.deleteMany({ where: { username: ADMIN } })
+    const u = await prisma.user.create({
+      data: { username: ADMIN, email: `${ADMIN}@tsudev.local`, displayName: ADMIN, role: 'ADMIN' },
+    })
+    adminId = u.id
+  })
+
+  afterAll(async () => {
+    await prisma.user.deleteMany({ where: { username: ADMIN } })
+  })
+
+  test('ADMIN không 2FA ⇒ 403 MFA_REQUIRED ở cả đường đọc lẫn ghi', async () => {
+    const h = await asUser(ADMIN)
+    const doc = await request(app).get('/api/admin/projects').set(h)
+    expect(doc.status).toBe(403)
+    expect(doc.body.code).toBe('MFA_REQUIRED')
+    expect(doc.body.error).toMatch(/settings\/security/)
+    const ghi = await request(app)
+      .post('/api/admin/projects')
+      .set(h)
+      .send({ slug: 'test-mfa-khong-duoc', name: 'X', summary: 'Y' })
+    expect(ghi.status).toBe(403)
+    expect(ghi.body.code).toBe('MFA_REQUIRED')
+    const kd = await request(app).get('/api/admin/content?kind=doc').set(h)
+    expect(kd.status).toBe(403)
+    expect(kd.body.code).toBe('MFA_REQUIRED')
+  })
+
+  test('TOTP CHƯA xác nhận ⇒ vẫn 403 MFA_REQUIRED', async () => {
+    await prisma.totpCredential.create({ data: { userId: adminId, secretEnc: 'test' } })
+    const res = await request(app)
+      .get('/api/admin/projects')
+      .set(await asUser(ADMIN))
+    expect(res.status).toBe(403)
+    expect(res.body.code).toBe('MFA_REQUIRED')
+  })
+
+  test('TOTP đã xác nhận ⇒ 200', async () => {
+    await prisma.totpCredential.create({
+      data: { userId: adminId, secretEnc: 'test', confirmedAt: new Date() },
+    })
+    const res = await request(app)
+      .get('/api/admin/projects')
+      .set(await asUser(ADMIN))
+    expect(res.status).toBe(200)
+  })
+
+  test('chỉ có passkey (không TOTP) ⇒ 403 MFA_REQUIRED', async () => {
+    // Passkey KHÔNG đạt cổng: đăng nhập mật khẩu chỉ đòi bước hai khi có TOTP
+    // đã xác nhận, nên tài khoản chỉ có passkey vẫn vào được bằng mật khẩu đơn
+    // thuần. Tính passkey ở đây = mật khẩu lộ là vào được khu quản trị. Fail
+    // closed cho tới khi phiên ghi được amr (step-up B3).
+    await prisma.webAuthnCredential.create({
+      data: { userId: adminId, credentialId: `test-mfa-content-${Date.now()}`, publicKey: 'x' },
+    })
+    const res = await request(app)
+      .get('/api/admin/projects')
+      .set(await asUser(ADMIN))
+    expect(res.status).toBe(403)
+    expect(res.body.code).toBe('MFA_REQUIRED')
+  })
+
+  test('MEMBER vẫn nhận 403 cũ, không phải MFA_REQUIRED', async () => {
+    const res = await request(app)
+      .get('/api/admin/projects')
+      .set(await asUser(MEMBER))
+    expect(res.status).toBe(403)
+    expect(res.body.code).toBeUndefined()
+  })
+
+  test('lỗi tra DB khi kiểm 2FA ⇒ từ chối (fail closed), không cho qua', async () => {
+    await prisma.totpCredential.create({
+      data: { userId: adminId, secretEnc: 'test', confirmedAt: new Date() },
+    })
+    const spy = jest
+      .spyOn(prisma.totpCredential, 'findFirst')
+      .mockRejectedValueOnce(new Error('DB sập giả lập'))
+    try {
+      const res = await request(app)
+        .get('/api/admin/projects')
+        .set(await asUser(ADMIN))
+      expect(spy).toHaveBeenCalled()
+      expect(res.status).toBe(503)
+    } finally {
+      spy.mockRestore()
+    }
+  })
+})
+
 export {}

@@ -158,3 +158,59 @@ export function requireRole(role: Role): RequestHandler {
     }
   };
 }
+
+/** Mã máy đọc được của lỗi "tài khoản quản trị chưa bật 2FA". Frontend bắt mã này. */
+export const MFA_REQUIRED = 'MFA_REQUIRED';
+
+/** Thông điệp đi kèm `MFA_REQUIRED` - nói rõ người dùng phải làm gì, ở đâu. */
+export const MFA_REQUIRED_MESSAGE =
+  'Tài khoản quản trị phải bật ứng dụng xác thực (TOTP) ở /settings/security trước khi dùng chức năng này. Passkey hiện chưa được tính cho khu quản trị.';
+
+/**
+ * Tài khoản có TOTP ĐÃ XÁC NHẬN không - yếu tố thứ hai DUY NHẤT mà cổng quản
+ * trị chấp nhận.
+ *
+ * Vì sao KHÔNG tính passkey: đăng nhập mật khẩu ở auth-service
+ * (`/api/identity/verify-credentials`) chỉ đòi bước hai khi có TOTP đã xác nhận.
+ * Tài khoản chỉ có passkey vẫn đăng nhập được bằng MẬT KHẨU ĐƠN THUẦN, và phiên
+ * đó không ghi lại phương thức xác thực (amr) - nên tính passkey ở đây nghĩa là
+ * một mật khẩu bị lộ đủ để vào khu quản trị. Fail closed cho tới khi phiên mang
+ * được amr (cùng step-up B3, docs/security-plan.md).
+ *
+ * TOTP chưa xác nhận (`confirmedAt` NULL) KHÔNG tính - đó là bí mật đã sinh mà
+ * người dùng chưa từng chứng minh mình giữ, và đăng nhập cũng không hỏi mã cho
+ * nó. Cổng này đúng CHỈ KHI bất biến sau còn giữ: TOTP đã xác nhận ⇒ đăng nhập
+ * mật khẩu thiếu mã bị 401 `totp_required` (auth-service/test/ownerMfaGate.test.ts).
+ *
+ * NÉM khi lỗi DB - người gọi phải coi đó là từ chối (xem `requireSecondFactor`).
+ */
+export async function hasConfirmedTotp(userId: string): Promise<boolean> {
+  const totp = await prisma.totpCredential.findFirst({
+    where: { userId, confirmedAt: { not: null } },
+    select: { id: true },
+  });
+  return Boolean(totp);
+}
+
+/**
+ * Ép 2FA cho bề mặt quản trị (G6, docs/security-plan.md). Gọi SAU khi đã kiểm
+ * vai trò, để người không đủ vai trò vẫn nhận đúng 403 cũ.
+ *
+ * Trả `true` nếu cho qua; nếu không, đã ghi phản hồi và trả `false`:
+ *   - chưa có TOTP đã xác nhận ⇒ 403 `{ error, code: 'MFA_REQUIRED' }`;
+ *   - lỗi tra DB ⇒ 503. FAIL CLOSED: lỗi không bao giờ thành "cho qua".
+ *
+ * KHÔNG dùng cho các route tự bật TOTP/passkey của chính tài khoản - chặn ở đó
+ * thì ADMIN/OWNER chưa có 2FA không còn đường nào bật nó, tự khoá mình ngoài.
+ */
+export async function requireSecondFactor(user: Pick<User, 'id'>, res: Response): Promise<boolean> {
+  try {
+    if (await hasConfirmedTotp(user.id)) return true;
+    res.status(403).json({ error: MFA_REQUIRED_MESSAGE, code: MFA_REQUIRED });
+    return false;
+  } catch (e) {
+    console.error('[auth] requireSecondFactor lỗi:', e instanceof Error ? e.message : e);
+    res.status(503).json({ error: 'Không kiểm tra được xác thực hai lớp' });
+    return false;
+  }
+}

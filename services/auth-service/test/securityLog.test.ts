@@ -68,7 +68,14 @@ beforeAll(async () => {
       data: { username: U2, email: `${U2}@tsudev.local`, role: 'MEMBER', passwordHash: pwHash },
     }),
     prisma.user.create({
-      data: { username: OWN, email: `${OWN}@tsudev.local`, role: 'OWNER', passwordHash: pwHash },
+      // Ép 2FA (G6): requireOwner đòi TOTP đã xác nhận hoặc passkey.
+      data: {
+        username: OWN,
+        email: `${OWN}@tsudev.local`,
+        role: 'OWNER',
+        passwordHash: pwHash,
+        totp: { create: { secretEnc: 'test', confirmedAt: new Date() } },
+      },
     }),
   ])
   u1Id = a.id

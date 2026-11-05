@@ -123,9 +123,11 @@ bao giờ được trỏ vào tên miền tuỳ chỉnh của R2 - xem `docs/dep
 
 ## Đăng nhập khi dev
 
-Ba tài khoản dev do `npm run db:seed:dev` đặt: `tsudev` (ADMIN), `alice`
-(MEMBER), `bob` (VIP) - mật khẩu `tsudev-dev-2026!` (đổi bằng
+Ba tài khoản dev do `npm run db:seed:dev` đặt: `tsudev` (OWNER), `alice`
+(MEMBER), `bob` (AUTHOR) - mật khẩu `tsudev-dev-2026!` (đổi bằng
 `DEV_SEED_PASSWORD`).
+
+`tsudev` có TOTP đã bật (cổng quản trị ép 2FA) với bí mật CHỈ DÀNH CHO DEV `TSUDEVDEVONLYTOTPTSUDEVDEVONLY22` (đổi bằng `DEV_SEED_TOTP_SECRET`): lấy mã bằng `oathtool --totp -b TSUDEVDEVONLYTOTPTSUDEVDEVONLY22` hoặc thêm vào app authenticator. Script chỉ chạy khi `DATABASE_URL` trỏ localhost và cần `TOTP_ENCRYPTION_KEY`.
 
 Chúng là hash Argon2id THẬT trong DB và đi qua đúng luồng đăng nhập của
 production. Không còn provider dev nào nhận "bất kỳ username nào": một đường
@@ -136,7 +138,7 @@ Tài khoản đã seed:
 
 | Username | Vai trò | Dùng để thử                                 |
 | -------- | ------- | ------------------------------------------- |
-| `tsudev` | ADMIN   | `/admin`, `/admin/projects` (bản phát hành) |
+| `tsudev` | OWNER   | `/admin`, `/admin/projects` (bản phát hành) |
 | `alice`  | MEMBER  | luồng người dùng thường                     |
 | `bob`    | AUTHOR  | `/author` - đăng bài và tài liệu            |
 

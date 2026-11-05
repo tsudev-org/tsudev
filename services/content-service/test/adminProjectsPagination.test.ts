@@ -47,6 +47,18 @@ beforeAll(async () => {
       role: 'ADMIN',
     },
   })
+  // Ép 2FA (G6): requireAdmin đòi TOTP đã xác nhận hoặc passkey.
+  await prisma.user.update({
+    where: { username: ADMIN },
+    data: {
+      totp: {
+        upsert: {
+          create: { secretEnc: 'test', confirmedAt: new Date() },
+          update: { confirmedAt: new Date() },
+        },
+      },
+    },
+  })
   // 3 dự án còn sống + 2 đã xoá mềm: đủ để phép đếm của hai tập KHÁC nhau.
   for (let i = 0; i < 3; i++) {
     await prisma.project.create({

@@ -1,5 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Badge, Button, Card } from '@tsudev/ui';
+
+import { isMfaRequired } from '../lib/mfa';
 
 /**
  * Quản lý bí danh thư nội bộ `*@tsudev.com` (Cloudflare Email Routing).
@@ -53,7 +55,15 @@ async function call(action: string, body: Record<string, unknown> = {}) {
   return { ok: r.ok, status: r.status, data } as const;
 }
 
-export function EmailAliases({ onMessage }: { onMessage: (tone: string, text: string) => void }) {
+export function EmailAliases({
+  onMessage,
+  onMfaRequired,
+}: {
+  onMessage: (tone: string, text: string) => void;
+  /// Backend trả 403 MFA_REQUIRED (chủ sở hữu chưa bật 2FA): trang cha thay cả
+  /// trang bằng hướng dẫn bật 2FA.
+  onMfaRequired?: () => void;
+}) {
   const [rows, setRows] = useState<Alias[]>([]);
   const [domain, setDomain] = useState('tsudev.com');
   const [configProblem, setConfigProblem] = useState<string | null>(null);
@@ -62,14 +72,24 @@ export function EmailAliases({ onMessage }: { onMessage: (tone: string, text: st
   const [sync, setSync] = useState<SyncReport | null>(null);
   const [form, setForm] = useState({ localPart: '', destination: '' });
 
-  const fail = (data: { error?: string; detail?: string }) =>
-    onMessage('danger', ERR[data?.error || ''] || data?.detail || 'Có lỗi xảy ra.');
+  // Ref chứ không phải dependency: trang cha truyền một arrow mới mỗi lần vẽ,
+  // đưa nó vào deps của `load` là nạp lại danh sách sau MỖI lần vẽ.
+  const mfaRef = useRef(onMfaRequired);
+  mfaRef.current = onMfaRequired;
+
+  const fail = (r: { status: number; data: { error?: string; detail?: string } }) =>
+    isMfaRequired(r.status, r.data)
+      ? onMfaRequired?.()
+      : onMessage('danger', ERR[r.data?.error || ''] || r.data?.detail || 'Có lỗi xảy ra.');
 
   const load = useCallback(async () => {
     setLoading(true);
     const r = await call('alias/list', { page_size: 200 });
     setLoading(false);
-    if (!r.ok) return;
+    if (!r.ok) {
+      if (isMfaRequired(r.status, r.data)) mfaRef.current?.();
+      return;
+    }
     const b = r.data as {
       data?: Alias[];
       domain?: string;
@@ -89,7 +109,7 @@ export function EmailAliases({ onMessage }: { onMessage: (tone: string, text: st
     setBusy(true);
     const r = await call('alias/create', form);
     setBusy(false);
-    if (!r.ok) return fail(r.data);
+    if (!r.ok) return fail(r);
     onMessage('success', `Đã tạo ${form.localPart}@${domain}.`);
     setForm({ localPart: '', destination: '' });
     load();
@@ -98,7 +118,7 @@ export function EmailAliases({ onMessage }: { onMessage: (tone: string, text: st
   async function remove(a: Alias) {
     if (!confirm(`Xoá bí danh ${a.address}? Thư gửi tới địa chỉ này sẽ bị trả về.`)) return;
     const r = await call('alias/delete', { id: a.id });
-    if (!r.ok) return fail(r.data);
+    if (!r.ok) return fail(r);
     onMessage('success', `Đã xoá ${a.address}.`);
     load();
   }
@@ -107,7 +127,7 @@ export function EmailAliases({ onMessage }: { onMessage: (tone: string, text: st
     setBusy(true);
     const r = await call('alias/sync');
     setBusy(false);
-    if (!r.ok) return fail(r.data);
+    if (!r.ok) return fail(r);
     const rep = r.data as SyncReport;
     setSync(rep);
     const lech =
