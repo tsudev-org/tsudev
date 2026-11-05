@@ -62,12 +62,12 @@ export const Upload = ({ onGetPresign, onUploadComplete, onServerUpload }: Uploa
             throw err;
           }
         });
-        onUploadComplete && onUploadComplete({ key: presign.key || f.name });
+        onUploadComplete?.({ key: presign.key || f.name });
       } else {
         // No presign URL -> try server upload if provided
         if (onServerUpload) {
           await onServerUpload(f, presign?.key, (p) => setProgress(p));
-          onUploadComplete && onUploadComplete({ key: presign?.key || f.name });
+          onUploadComplete?.({ key: presign?.key || f.name });
         } else {
           throw new Error('No presign URL and no server upload handler provided');
         }

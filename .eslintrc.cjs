@@ -40,6 +40,11 @@ module.exports = {
     // các cột bên phải (WCAG 2.1.1). Ở đây `tabindex` trên phần tử không tương
     // tác là ĐÚNG, không phải sơ suất, nên nới đúng một vai trò thay vì tắt luật
     // hoặc rải `eslint-disable` ở từng bảng.
+    // typescript-eslint 8 đổi mặc định `caughtErrors` từ 'none' sang 'all': mọi
+    // `catch (e) { /* bỏ qua có chủ đích */ }` thành lỗi (32 chỗ). Giữ ngữ nghĩa
+    // của v6 thay vì rải `catch {}` khắp repo chỉ vì một lần nâng phiên bản.
+    '@typescript-eslint/no-unused-vars': ['error', { caughtErrors: 'none' }],
+
     'jsx-a11y/no-noninteractive-tabindex': [
       'error',
       { tags: [], roles: ['tabpanel', 'region'], allowExpressionValues: true },
@@ -74,8 +79,14 @@ module.exports = {
       // (source-map-support, dotenv). Chuyển chúng thành `import` là đổi hành vi
       // - import bị nâng lên đầu và ném lỗi lúc nạp module, đúng thứ mà các
       // try/catch đó sinh ra để tránh.
+      //
+      // typescript-eslint 8 thay `no-var-requires` bằng `no-require-imports` (và
+      // đưa nó vào `recommended`) - cùng lý do, cùng phạm vi miễn trừ.
       files: ['**/*.js', '**/*.cjs', 'services/**/*.ts'],
-      rules: { '@typescript-eslint/no-var-requires': 'off' },
+      rules: {
+        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/no-require-imports': 'off',
+      },
     },
     {
       files: ['**/test/**', '**/*.test.js', '**/*.spec.js'],
