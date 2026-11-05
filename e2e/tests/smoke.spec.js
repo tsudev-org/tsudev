@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const { loadTopology, publicUrl } = require('../../scripts/topology/load');
+const { signIn: signInAs, submitPassword, TOTP_INPUT } = require('./helpers/login');
 
 // LƯỚI AN TOÀN cho việc chuyển thành website dự án cá nhân.
 //
@@ -14,25 +15,9 @@ const { loadTopology, publicUrl } = require('../../scripts/topology/load');
 const MAIN = process.env.E2E_MAIN_URL || publicUrl(loadTopology(), 'main');
 
 // Đăng nhập bằng ĐÚNG luồng của người dùng thật - mật khẩu Argon2id trong DB,
-// kiểm bởi auth-service. Không còn provider `e2e-dev` nhận mọi username với
-// `devpass`. Tài khoản do `npm run db:seed:dev` đặt.
-const DEV_PASSWORD = process.env.DEV_SEED_PASSWORD || 'tsudev-dev-2026!';
-
-const signIn = async (page, user = 'tsudev') => {
-  // Qua chính trang /login của site, không phải trang mặc định của next-auth -
-  // đó là màn hình người dùng thật nhìn thấy, nên đó là màn hình phải được kiểm.
-  await page.goto(`${MAIN}/login`, { waitUntil: 'networkidle' });
-  await page.fill('input[name="identifier"]', user);
-  await page.fill('input[name="password"]', DEV_PASSWORD);
-  await Promise.all([
-    page.waitForNavigation({ waitUntil: 'networkidle' }).catch(() => {}),
-    // Phải NEO vào chính biểu mẫu đăng nhập. Từ 26/08/2026 (SEARCH-HEADER) ô tìm
-    // kiếm ở header là <form> THẬT và mang một nút gửi `sr-only` - nút đó nằm
-    // TRƯỚC nút của trang trong DOM, nên `button[type="submit"]` trần khớp 2 phần
-    // tử và Playwright bấm nhầm cái ở header (bị icon kính lúp che ⇒ treo 60s).
-    page.click('form:has(input[name="identifier"]) button[type="submit"]'),
-  ]);
-};
+// kiểm bởi auth-service, rồi mã TOTP cho tài khoản đã bật 2FA. Helper dùng
+// chung: e2e/tests/helpers/login.js.
+const signIn = (page, user = 'tsudev') => signInAs(page, MAIN, user);
 
 test('trang chủ dựng được và mang thương hiệu tsudev', async ({ page }) => {
   await page.goto(MAIN, { waitUntil: 'networkidle' });
@@ -94,6 +79,31 @@ test('đăng nhập dev hoạt động', async ({ page }) => {
   await signIn(page);
   await page.goto(MAIN, { waitUntil: 'networkidle' });
   await expect(page.locator('header button:has-text("Đăng xuất")')).toBeVisible({ timeout: 10000 });
+});
+
+// alice không bật 2FA: đăng nhập phải xong ở bước MỘT, không bị đòi mã. Canh
+// để việc ép 2FA cho quản trị không lan sang tài khoản thường.
+test('alice (không TOTP) đăng nhập một bước', async ({ page }) => {
+  await submitPassword(page, MAIN, 'alice');
+  await expect(page.locator(TOTP_INPUT)).toHaveCount(0);
+  await page.goto(MAIN, { waitUntil: 'networkidle' });
+  await expect(page.locator('header button:has-text("Đăng xuất")')).toBeVisible({ timeout: 10000 });
+});
+
+// tsudev là OWNER và có TOTP đã xác nhận (seed dev). Mật khẩu đúng mà thiếu mã
+// thì PHẢI dừng ở bước hai, không có phiên. Hỏng chỗ này là 2FA chỉ để trang trí:
+// lộ mật khẩu là đủ vào khu quản trị.
+test('tsudev: mật khẩu đúng mà thiếu mã TOTP thì không có phiên', async ({ page }) => {
+  await submitPassword(page, MAIN, 'tsudev');
+  await expect(page.locator(TOTP_INPUT)).toBeVisible();
+  expect(new URL(page.url()).pathname).toBe('/login');
+
+  const session = await page.request.get(`${MAIN}/api/auth/session`);
+  const body = await session.json().catch(() => ({}));
+  expect(body?.user ?? null).toBeNull();
+
+  await page.goto(MAIN, { waitUntil: 'networkidle' });
+  await expect(page.locator('header button:has-text("Đăng xuất")')).toHaveCount(0);
 });
 
 test('khu vực quản trị mở được sau khi đăng nhập bằng tsudev', async ({ page }) => {
