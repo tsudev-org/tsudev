@@ -20,6 +20,8 @@ import { createRateLimit, largePageRateLimit } from '@tsudev/ratelimit'
 import type { Doc, Post, Prisma, Project, ProjectRelease, User } from '@prisma/client'
 import { hasAtLeastRole, emailUsable, pageMeta, parsePaging, MAX_PAGE_SIZE } from '@tsudev/types'
 import * as releaseSigning from './releaseSigning'
+import { store as objectStore, safeFileName } from './objectStore'
+import { randomBytes } from 'crypto'
 import { buildDocSearch, buildPostSearch, buildSnippet, viNormalizeText } from '@tsudev/search'
 
 type Notifier = { alert: (payload: Record<string, unknown>) => Promise<void> }
@@ -591,27 +593,6 @@ const PROJECT_KINDS = new Set(['APP', 'TOOL', 'LIBRARY', 'SERVICE'])
 const RELEASE_CHANNELS = new Set(['STABLE', 'BETA', 'ALPHA'])
 const RELEASE_PLATFORMS = new Set(['ANDROID', 'WINDOWS', 'MACOS', 'LINUX', 'WEB', 'SOURCE'])
 
-/// URL đọc CÔNG KHAI của một object trong R2/MinIO.
-///
-/// ⚠️ TRÙNG LẶP CÓ CHỦ ĐÍCH với `publicUrlOf` của storage-service, và đây là
-/// trùng lặp duy nhất được phép. Gộp lại thành một hàm dùng chung thì phải đưa
-/// nó vào một package, và package đó sẽ kéo cấu hình S3 vào mọi workspace nhập
-/// nó - kể cả `frontend-main`, thứ chạy trên Cloudflare Workers và không được
-/// biết khoá S3 nào. Hai bản bốn dòng rẻ hơn một dependency sai hướng.
-///
-/// ⚠️ `S3_PUBLIC_ENDPOINT` khác `S3_ENDPOINT` Ở DEV và TRÙNG ở production:
-/// ở dev `S3_ENDPOINT` trỏ `minio:9000` trong mạng docker mà trình duyệt không
-/// với tới. Và ĐỪNG đặt nó thành `cdn.tsudev.com`: tên miền tuỳ chỉnh của R2
-/// không cài đặt giao thức chữ ký S3, nên URL presign sẽ bị từ chối.
-const publicObjectUrl = (key: string): string => {
-  const base = (
-    process.env.S3_PUBLIC_ENDPOINT ||
-    process.env.S3_ENDPOINT ||
-    'http://minio:9000'
-  ).replace(/\/+$/, '')
-  const bucket = process.env.S3_BUCKET || 'tsudev'
-  return `${base}/${bucket}/${key.split('/').map(encodeURIComponent).join('/')}`
-}
 const PROJECT_STATUSES = new Set(['WIP', 'BETA', 'STABLE', 'ARCHIVED'])
 const COPYRIGHT_STATUSES = new Set(['NONE', 'PENDING', 'REGISTERED'])
 
@@ -924,11 +905,15 @@ app.get(
         publishedAt: { not: null },
         project: { slug: req.params.slug, published: true, deletedAt: null },
       },
-      select: { id: true, storageKey: true, externalUrl: true },
+      select: { id: true, storageKey: true, externalUrl: true, fileName: true },
     })
     if (!release) return res.status(404).json({ error: 'Không tìm thấy bản phát hành' })
 
-    const dich = release.storageKey ? publicObjectUrl(release.storageKey) : release.externalUrl
+    // Tệp trong R2 đi qua URL PRESIGN thời hạn ngắn, không phải `endpoint/bucket/key`
+    // trần: bucket production không mở đọc ẩn danh - xem objectStore.ts.
+    const dich = release.storageKey
+      ? await objectStore.presignGet(release.storageKey, release.fileName)
+      : release.externalUrl
     if (!dich)
       return res
         .status(409)
@@ -1057,13 +1042,17 @@ function readReleaseBody(
     data.sha256 = sha ? sha.toLowerCase() : null
   }
 
-  for (const k of ['signature', 'signingKid']) {
-    if (b[k] === null) data[k] = null
-    else {
-      const v = str(k)
-      if (v !== undefined) data[k] = v || null
+  // Chữ ký do MÁY CHỦ tạo, không bao giờ nhận từ client (§6.6, 05/11/2026).
+  //
+  // Trước đó form quản trị có ô dán `signature` + `signingKid`. Một chữ ký dán
+  // tay không ai kiểm: nó có thể ký một sha256 khác, bằng một khoá không có
+  // trong JWKS, và trang tải vẫn hiện "Đã ký Ed25519". Nay `kyLaiNeuCo()` ký
+  // mỗi lần ghi, bằng chính vòng khoá phát hành ở JWKS.
+  if (b.signature !== undefined || b.signingKid !== undefined)
+    return {
+      ok: false,
+      error: 'signature/signingKid do máy chủ tạo khi ghi, không nhận từ client',
     }
-  }
 
   // `publishedAt` là CÔNG TẮC công bố. Nhận boolean cho tiện gọi từ giao diện
   // (`published: true`) và nhận cả mốc thời gian tường minh.
@@ -1092,6 +1081,7 @@ function kiemBatBienRelease(m: {
   sha256?: unknown
   signature?: unknown
   signingKid?: unknown
+  publishedAt?: unknown
 }): string | null {
   const coKhoa = Boolean(m.storageKey)
   const coUrl = Boolean(m.externalUrl)
@@ -1100,6 +1090,51 @@ function kiemBatBienRelease(m: {
   if (m.signature && !m.signingKid)
     return 'signature phải đi kèm signingKid - chữ ký không nói được ký bằng khoá nào thì không kiểm được sau khi xoay khoá'
   if (m.signature && !m.sha256) return 'signature là chữ ký CỦA sha256, nên phải có sha256'
+  // Tệp trong R2 chưa NIÊM PHONG (máy chủ chưa đọc lại để tính sha256) thì không
+  // được công bố: nút tải sẽ phát một tệp không ai đối chiếu được.
+  if (coKhoa && m.publishedAt && !m.sha256)
+    return 'tệp chưa niêm phong (chưa có sha256 do máy chủ tính) - bấm "Niêm phong" trước khi công bố'
+  return null
+}
+
+/// Ký bản phát hành nếu nó có sha256; xoá chữ ký nếu không.
+///
+/// Payload ký gồm cả danh tính bản phát hành, không chỉ sha256: chữ ký trên MỘT
+/// chuỗi sha256 trần thì bê được sang bất kỳ bản nào khác cùng tệp ("bản 0.9
+/// beta" mượn chữ ký của "bản 1.0 stable"). Ký lại MỖI lần ghi để payload không
+/// bao giờ lệch khỏi hàng trong database.
+function kyLaiNeuCo(
+  slug: string,
+  m: Record<string, unknown>
+): { signature: string | null; signingKid: string | null } {
+  if (!m.sha256) return { signature: null, signingKid: null }
+  const payload = {
+    typ: 'tsudev-release',
+    project: slug,
+    version: m.version,
+    platform: m.platform,
+    channel: m.channel ?? 'STABLE',
+    arch: (m.arch as string) || null,
+    fileName: m.fileName ?? null,
+    fileSize: m.fileSize ?? null,
+    sha256: m.sha256,
+    iat: Math.floor(Date.now() / 1000),
+  }
+  return { signature: releaseSigning.sign(payload), signingKid: releaseSigning.kid }
+}
+
+/// Tệp trong R2 thì sha256 CHỈ đến từ máy chủ (đường niêm phong), không từ client.
+///
+/// Với `externalUrl` (WEB/SOURCE) không có tệp nào để máy chủ đọc lại, nên chủ dự
+/// án được khai sha256 bằng tay - và máy chủ ký lời khai đó như một lời xác nhận.
+/// Với `storageKey` thì có: nhận sha256 từ client ở đây là ký một con số thay vì
+/// ký tệp thật (xem objectStore.ts).
+function shaTuClientChoTep(
+  ghep: Record<string, unknown>,
+  than: Record<string, unknown> = ghep
+): string | null {
+  if (ghep.storageKey && than.sha256)
+    return 'sha256 của tệp trong R2 do máy chủ tính (Niêm phong), không nhận từ client'
   return null
 }
 
@@ -1133,6 +1168,8 @@ app.post(
 
     const parsed = readReleaseBody(req.body, { partial: false })
     if (!parsed.ok) return res.status(400).json({ error: parsed.error })
+    const loiSha = shaTuClientChoTep(parsed.data)
+    if (loiSha) return res.status(400).json({ error: loiSha })
     const loi = kiemBatBienRelease(parsed.data)
     if (loi) return res.status(400).json({ error: loi })
 
@@ -1140,6 +1177,7 @@ app.post(
       const r = await prisma.projectRelease.create({
         data: {
           ...parsed.data,
+          ...kyLaiNeuCo(String(req.params.slug), parsed.data),
           projectId: project.id,
         } as Prisma.ProjectReleaseUncheckedCreateInput,
       })
@@ -1167,12 +1205,31 @@ app.patch(
     const parsed = readReleaseBody(req.body, { partial: true })
     if (!parsed.ok) return res.status(400).json({ error: parsed.error })
 
-    const loi = kiemBatBienRelease({ ...current, ...parsed.data })
+    const ghep: Record<string, unknown> = { ...current, ...parsed.data }
+    const loiSha = shaTuClientChoTep(ghep, parsed.data)
+    if (loiSha) return res.status(400).json({ error: loiSha })
+    // Đổi tệp (storageKey mới) thì checksum cũ không còn là của tệp này nữa:
+    // xoá, buộc niêm phong lại.
+    if (parsed.data.storageKey !== undefined && parsed.data.storageKey !== current.storageKey) {
+      ghep.sha256 = null
+      ghep.fileSize = null
+      parsed.data.sha256 = null
+      parsed.data.fileSize = null
+    }
+    // Chữ ký cũ không tính: `kyLaiNeuCo()` thay nó ngay dưới đây.
+    const loi = kiemBatBienRelease({ ...ghep, signature: null, signingKid: null })
     if (loi) return res.status(400).json({ error: loi })
 
+    const project = await prisma.project.findUnique({
+      where: { id: current.projectId },
+      select: { slug: true },
+    })
     const r = await prisma.projectRelease.update({
       where: { id: current.id },
-      data: parsed.data as Prisma.ProjectReleaseUncheckedUpdateInput,
+      data: {
+        ...parsed.data,
+        ...kyLaiNeuCo(project?.slug ?? '', ghep),
+      } as Prisma.ProjectReleaseUncheckedUpdateInput,
     })
     res.json(r)
   })
@@ -1196,6 +1253,80 @@ app.delete(
       data: { deletedAt: new Date() },
     })
     res.json({ ok: true })
+  })
+)
+
+/// Cấp URL tải tệp phát hành LÊN thẳng R2 (§6.6).
+///
+/// Tệp đi THẲNG từ trình duyệt vào bucket, không qua Worker hay Render: Worker
+/// giới hạn thân request 100 MB, Render free có 512 MB RAM, còn bản cài đặt có
+/// thể lớn hơn cả hai. Khoá do MÁY CHỦ đặt (không nhận khoá từ client) và gắn
+/// một đoạn ngẫu nhiên, để hai lần tải cùng tên tệp không ghi đè lên nhau - tệp
+/// cũ có thể đang là đích của một bản đã công bố với checksum đã phát ra ngoài.
+app.post(
+  '/api/admin/projects/:slug/releases/upload-url',
+  asyncHandler(async (req, res) => {
+    if (!(await requireAdmin(req, res))) return
+    const project = await prisma.project.findUnique({
+      where: { slug: String(req.params.slug || '') },
+      select: { slug: true },
+    })
+    if (!project) return res.status(404).json({ error: 'Không tìm thấy dự án' })
+
+    const b = (req.body ?? {}) as Record<string, unknown>
+    const fileName = typeof b.fileName === 'string' ? b.fileName.trim() : ''
+    if (!fileName) return res.status(400).json({ error: 'thiếu fileName' })
+    const contentType =
+      typeof b.contentType === 'string' && b.contentType.trim()
+        ? b.contentType.trim()
+        : 'application/octet-stream'
+
+    const key = `releases/${project.slug}/${randomBytes(6).toString('hex')}/${safeFileName(
+      fileName
+    )}`
+    const url = await objectStore.presignPut(key, contentType)
+    res.json({ url, key, contentType })
+  })
+)
+
+/// NIÊM PHONG một bản phát hành có tệp trong R2: máy chủ đọc lại trọn object,
+/// tính sha256 + dung lượng THẬT, rồi ký bằng khoá phát hành (§6.6).
+///
+/// Tách khỏi POST tạo vì đọc lại một tệp vài trăm MB mất thời gian, và một lượt
+/// niêm phong thất bại (tệp chưa lên xong, R2 chập chờn) phải thử lại được mà
+/// không tạo lại bản phát hành. Gọi lại nhiều lần là an toàn - kết quả như nhau.
+app.post(
+  '/api/admin/releases/:id/seal',
+  asyncHandler(async (req, res) => {
+    if (!(await requireAdmin(req, res))) return
+    const current = await prisma.projectRelease.findUnique({
+      where: { id: String(req.params.id) },
+      include: { project: { select: { slug: true } } },
+    })
+    if (!current) return res.status(404).json({ error: 'Không tìm thấy bản phát hành' })
+    if (current.deletedAt) return res.status(409).json({ error: 'Bản phát hành đã bị xoá' })
+    if (!current.storageKey)
+      return res
+        .status(409)
+        .json({ error: 'Chỉ niêm phong được bản có tệp trong R2 (không phải đường dẫn ngoài)' })
+
+    let doc: { sha256: string; size: number }
+    try {
+      doc = await objectStore.hashObject(current.storageKey)
+    } catch (e) {
+      console.error('[content] niêm phong: không đọc được object', current.storageKey, e)
+      return res.status(502).json({
+        error: 'Không đọc được tệp trong kho - tệp đã tải lên xong chưa? Thử lại sau giây lát.',
+      })
+    }
+
+    const { project, ...hang } = current
+    const ghep: Record<string, unknown> = { ...hang, sha256: doc.sha256, fileSize: doc.size }
+    const r = await prisma.projectRelease.update({
+      where: { id: current.id },
+      data: { sha256: doc.sha256, fileSize: doc.size, ...kyLaiNeuCo(project.slug, ghep) },
+    })
+    res.json(r)
   })
 )
 
