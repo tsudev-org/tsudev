@@ -60,6 +60,22 @@ Và nguyên nhân THẬT của lần deploy sai tài khoản Cloudflare: tệp c
 - Giữ bản dump `~/tsudev-backups/` tới khi chắc không cần khôi phục gì từ 17 bảng
   đã DROP; nó nằm trên máy dev, không trong repo.
 
+## 3b. Phân việc phiên 34 - theo agent (`.claude/agents/`)
+
+Mỗi việc chỉ bắt đầu khi điều kiện ở cột 3 đã đúng. Khoá file vào `logs/LOCKS.md`
+trước khi sửa.
+
+| agent             | việc                                                                                                               | điều kiện bắt đầu                          | nghiệm thu                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------ |
+| `release-signing` | Nghiệm thu đầu-cuối trên PRODUCTION: tải một tệp nhỏ ở `/admin/projects` → niêm phong → công bố → tải về qua modal | chủ dự án đã chạy `npm run r2:cors` (§2.1) | `sha256sum` tệp tải về khớp modal; JWS kiểm được bằng JWKS; `downloadCount` +1 |
+| `infra-deploy`    | Kiểm báo động thật: `curl .../dem` + `npm run cron:tail` thấy `báo động → Telegram 200` hoặc dòng Neon CU-giờ      | chủ dự án đã đặt secret cron (§2.3)        | log Worker có dòng `[cron] Neon x/100 CU-giờ`; không còn dòng "CHƯA cấu hình"  |
+| `frontend-web`    | Trang slug CHƯA từng vào cache trả 500 khi backend chết → trả 503 + trang lỗi thân thiện, KHÔNG cache trang lỗi    | bất kỳ lúc nào                             | test mới cạnh `isrPages.test.ts`; đo lại bằng `wrangler dev` + tắt backend     |
+| `docs-curator`    | Sau khi §2 xong: bỏ các dòng "CHƯA cấu hình" ở `docs/free-tier.md`, `docs/alerting.md`; đóng phiếu này             | §2.1-§2.5 xong                             | `grep -n "CHƯA" docs/free-tier.md docs/alerting.md` không còn mục đã làm       |
+| `design-system`   | §2 kế hoạch Q4: logo SVG master + tông màu thương hiệu                                                             | CHỜ quyết định của chủ dự án (§2.6)        | `tokens:check` + `contrast.test.ts` ba chế độ xanh                             |
+
+KHÔNG có việc cho `backend-api`, `data-schema`, `qa-test` ở phiên 34 trừ khi phát
+sinh. Không còn PR mở; `main` = commit merge của PR phân việc này.
+
 ## 4. Bẫy gặp trong phiên 33
 
 - `!` trong prompt Claude Code KHÔNG nhận nhập phím: `read -s` thoát ngay và cả
