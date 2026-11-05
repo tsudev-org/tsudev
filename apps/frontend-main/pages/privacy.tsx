@@ -10,8 +10,8 @@ const SECTIONS = [
       <>
         <p>
           Chính sách này mô tả cách tsudev thu thập, sử dụng, lưu trữ, chia sẻ và bảo vệ dữ liệu cá
-          nhân của bạn khi bạn truy cập và sử dụng các dịch vụ tại tsudev: trang dự án & bản quyền,
-          blog, kho tài liệu và hệ thống Con dấu tín nhiệm.
+          nhân của bạn khi bạn truy cập và sử dụng các dịch vụ tại tsudev: trang dự án và tải phần
+          mềm, kho tài liệu, blog và tài khoản người dùng.
         </p>
         <p>
           Bên Kiểm soát dữ liệu cá nhân là <strong>{OPERATOR.legalName}</strong> (mã số{' '}
@@ -48,8 +48,16 @@ const SECTIONS = [
             cá nhân, trong phạm vi bắt buộc theo điểm e khoản 3 Điều 23 Nghị định số 147/2024/NĐ-CP.
           </li>
           <li>
-            <strong>Nội dung bạn tạo ra:</strong> hồ sơ đăng ký Con dấu tín nhiệm, tài liệu chứng
-            minh kèm theo và các tệp bạn tải lên.
+            <strong>Nội dung bạn tạo ra:</strong> với tài khoản tác giả - bài viết, tài liệu và tệp
+            đính kèm bạn tải lên.
+          </li>
+          <li>
+            <strong>Dữ liệu bảo mật tài khoản:</strong> thiết lập xác thực hai lớp, khoá truy cập
+            passkey (chỉ phần khoá công khai) và lịch sử đăng nhập phục vụ cảnh báo bảo mật.
+          </li>
+          <li>
+            <strong>Lượt tải phần mềm:</strong> chỉ được đếm thành con số tổng cho từng bản phát
+            hành; chúng tôi không ghi lại ai đã tải tệp nào.
           </li>
           <li>
             <strong>Dữ liệu kỹ thuật:</strong> địa chỉ IP, loại trình duyệt và thiết bị, hệ điều
@@ -84,8 +92,8 @@ const SECTIONS = [
         </p>
         <ul>
           <li>
-            <strong>Cung cấp dịch vụ:</strong> tạo và quản lý tài khoản, đăng nhập, tiếp nhận và xử
-            lý hồ sơ cấp dấu, phát hành và giám sát chứng chỉ Con dấu tín nhiệm.
+            <strong>Cung cấp dịch vụ:</strong> tạo và quản lý tài khoản, đăng nhập, xuất bản bài
+            viết và tài liệu, phân phối tệp cài đặt và đếm lượt tải.
           </li>
           <li>
             <strong>Bảo đảm an toàn:</strong> phát hiện và ngăn chặn truy cập trái phép, gian lận,
@@ -93,7 +101,7 @@ const SECTIONS = [
           </li>
           <li>
             <strong>Kiểm duyệt nội dung:</strong> tiếp nhận báo cáo vi phạm, gỡ bỏ nội dung vi phạm
-            pháp luật và xử lý tài khoản vi phạm nội quy.
+            pháp luật và xử lý tài khoản vi phạm Nội quy.
           </li>
           <li>
             <strong>Cải thiện sản phẩm:</strong> phân tích tổng hợp, ẩn danh về mức độ sử dụng nhằm
@@ -173,9 +181,8 @@ const SECTIONS = [
           luật quy định khác. Nếu từ chối, chúng tôi sẽ nêu rõ lý do bằng văn bản.
         </p>
         <p>
-          Xin lưu ý: việc xóa tài khoản không đương nhiên xóa các bài viết công khai mà người khác
-          đã trích dẫn hoặc trả lời. Bạn có thể yêu cầu gỡ riêng từng nội dung trước khi xóa tài
-          khoản.
+          Xin lưu ý: với tài khoản tác giả, việc xóa tài khoản không đương nhiên xóa các bài viết
+          công khai đã đăng. Bạn có thể yêu cầu gỡ riêng từng bài trước khi xóa tài khoản.
         </p>
       </>
     ),
@@ -197,9 +204,8 @@ const SECTIONS = [
             đồng có điều khoản bảo vệ dữ liệu.
           </li>
           <li>
-            <strong>Nội dung bạn chủ động công khai:</strong> thông tin tổ chức và tên miền trong hồ
-            sơ đăng ký Con dấu tín nhiệm là công khai với mọi người truy cập, kể cả người chưa đăng
-            nhập.
+            <strong>Nội dung bạn chủ động công khai:</strong> tên hiển thị, ảnh đại diện và bài viết
+            của tác giả hiển thị công khai với mọi người truy cập, kể cả người chưa đăng nhập.
           </li>
           <li>
             <strong>Cơ quan nhà nước có thẩm quyền:</strong> khi có yêu cầu hợp pháp bằng văn bản.
@@ -230,8 +236,9 @@ const SECTIONS = [
         <ul>
           <li>Mã hóa đường truyền bằng TLS cho toàn bộ kết nối tới dịch vụ.</li>
           <li>
-            Không lưu mật khẩu dạng rõ; xác thực qua nhà cung cấp định danh với phiên làm việc có
-            thời hạn.
+            Không lưu mật khẩu dạng rõ: mật khẩu được băm bằng Argon2id; hỗ trợ xác thực hai lớp và
+            passkey; khoá xác thực hai lớp được mã hoá khi lưu; phiên làm việc có thời hạn và thu
+            hồi được.
           </li>
           <li>
             Phân quyền theo vai trò, giới hạn nhân sự được tiếp cận dữ liệu theo nguyên tắc tối

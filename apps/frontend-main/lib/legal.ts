@@ -31,8 +31,8 @@ export const OPERATOR = {
 // Ngày ban hành/hiệu lực của chính các văn bản này trên tsudev - không phải
 // ngày hiệu lực của luật.
 export const DOC_DATES = {
-  effective: '01/08/2026',
-  updated: '31/07/2026',
+  effective: '05/11/2026',
+  updated: '05/11/2026',
 };
 
 // Cơ sở pháp lý được viện dẫn trong cả ba văn bản. Rà lại mỗi khi luật thay đổi:
@@ -57,10 +57,6 @@ export const LEGAL_BASIS = [
   },
   {
     title: 'Luật Giao dịch điện tử số 20/2023/QH15',
-    note: 'Hiệu lực từ 01/7/2024.',
-  },
-  {
-    title: 'Luật Bảo vệ quyền lợi người tiêu dùng số 19/2023/QH15',
     note: 'Hiệu lực từ 01/7/2024.',
   },
   {

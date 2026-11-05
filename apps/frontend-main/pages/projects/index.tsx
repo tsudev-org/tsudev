@@ -87,7 +87,7 @@ export default function ProjectsIndex({ projects, failed }: ProjectsIndexProps) 
                   title={projects.length === 0 ? 'Chưa có dự án nào' : 'Không có dự án khớp bộ lọc'}
                   explain={
                     projects.length === 0
-                      ? 'Dự án do chủ dự án đăng. Agent AI của toà soạn cố ý KHÔNG được tạo dự án mới - mỗi dự án mang phiên bản, giấy phép và trạng thái bản quyền, tức dữ liệu pháp lý - nên trang này sẽ không tự dày lên.'
+                      ? 'Dự án do chủ dự án đăng thủ công, vì mỗi dự án mang phiên bản, giấy phép và trạng thái bản quyền.'
                       : 'Có dự án trong hệ thống, nhưng không cái nào thuộc mục đang chọn. Chọn "Tất cả" để xem toàn bộ.'
                   }
                 />
