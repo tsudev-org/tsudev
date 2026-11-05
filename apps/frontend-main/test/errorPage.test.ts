@@ -27,7 +27,7 @@ const fakeRes = (statusCode = 500) => {
 };
 
 describe('resolveErrorStatus', () => {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const isr = require('../lib/isr') as typeof import('../lib/isr');
 
   test('lỗi do keepStaleOnFailure ⇒ 503 + Retry-After', () => {

@@ -6,7 +6,7 @@ import { NextRequest } from 'next/server';
 
 // middleware đọc NODE_ENV lúc GỌI, nên require một lần rồi đổi env trước mỗi lần
 // gọi là đủ (không cần require lại/xoá cache).
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { proxy: middleware } = require('../proxy') as {
   proxy: (r: NextRequest) => Response;
 };

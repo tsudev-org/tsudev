@@ -8,7 +8,7 @@ export default function App({ Component, pageProps }: AppProps) {
     (async () => {
       try {
         const obs = await import('../../../packages/observability/initSentry');
-        obs && obs.initBrowser && obs.initBrowser();
+        obs?.initBrowser?.();
       } catch (e) {
         // ignore if observability package or @sentry/browser not available
       }

@@ -67,7 +67,7 @@ describe('hạ tầng cache ở biên', () => {
 describe('lib/isr.ts - lỗi lúc chạy GIỮ bản cũ', () => {
   const load = () => {
     jest.resetModules();
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     return require('../lib/isr') as typeof import('../lib/isr');
   };
   const prev = process.env.NEXT_PHASE;

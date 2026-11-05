@@ -1,7 +1,7 @@
 // Nạp .env TRƯỚC mọi import khác. Đây là lý do phải dùng require chứ không phải
 // import: `import` bị nâng lên đầu module, nên biến môi trường sẽ chưa có mặt
 // khi next-auth đọc chúng ở thân module.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require('dotenv').config();
 import NextAuth from 'next-auth';
 import { clientIp } from '../../../lib/clientIp';
