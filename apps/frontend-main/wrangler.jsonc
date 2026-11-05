@@ -6,7 +6,7 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
   },
   // Tên miền tuỳ chỉnh. `custom_domain: true` khiến wrangler tự tạo luôn bản ghi
   // DNS trong zone tsudev.com (zone phải nằm cùng tài khoản Cloudflare) - không
@@ -14,7 +14,7 @@
   // phát ra luôn trỏ về apex nên không có chuyện trùng lặp nội dung.
   "routes": [
     { "pattern": "tsudev.com", "custom_domain": true },
-    { "pattern": "www.tsudev.com", "custom_domain": true }
+    { "pattern": "www.tsudev.com", "custom_domain": true },
   ],
   // Bucket R2 của incremental cache (open-next.config.ts). Tên binding CỐ ĐỊNH -
   // OpenNext đọc đúng NEXT_INC_CACHE_R2_BUCKET. Thiếu binding thì mọi trang ISR
@@ -25,13 +25,13 @@
       // Self-reference service binding, the service name must match the worker name
       // see https://opennext.js.org/cloudflare/caching
       "binding": "WORKER_SELF_REFERENCE",
-      "service": "tsudev"
-    }
+      "service": "tsudev",
+    },
   ],
   "images": {
     // Enable image optimization
     // see https://opennext.js.org/cloudflare/howtos/image
-    "binding": "IMAGES"
+    "binding": "IMAGES",
   },
   // Biến LÚC CHẠY của Worker (khác NEXT_PUBLIC_*, thứ được nội suy lúc build -
   // xem apps/frontend-main/.env.production). Chỉ để giá trị KHÔNG bí mật ở đây;
@@ -58,6 +58,6 @@
     "STORAGE_SERVICE_URL": "https://tsudev-backend.onrender.com",
     "AUTH_SERVICE_URL": "https://tsudev-backend.onrender.com",
     "NEXTAUTH_URL": "https://tsudev.com",
-    "NEXTAUTH_COOKIE_DOMAIN": ".tsudev.com"
-  }
+    "NEXTAUTH_COOKIE_DOMAIN": ".tsudev.com",
+  },
 }

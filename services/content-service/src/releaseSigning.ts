@@ -40,8 +40,7 @@ import {
 } from '@tsudev/trust-crypto'
 
 export type VerifyResult =
-  | { valid: true; payload: unknown; keyId: string }
-  | { valid: false; reason: string }
+  { valid: true; payload: unknown; keyId: string } | { valid: false; reason: string }
 
 /**
  * Khoá đang ký. Giữ nguyên văn PEM chứ không giữ đối tượng khoá đã phân giải:

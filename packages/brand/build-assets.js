@@ -142,12 +142,12 @@ function networkGlobeSvg({ hue = 210, size = 256, detail = DETAIL.lg } = {}) {
   <circle cx="${c}" cy="${c}" r="${c}" fill="url(#disc)"/>
   <g filter="url(#glow)">
     <g fill="none" stroke="${arcDim}" stroke-width="${((S / 170) * strokeScale).toFixed(
-    2
-  )}" opacity="0.85">${meridians}${latitudes}</g>
+      2
+    )}" opacity="0.85">${meridians}${latitudes}</g>
     <circle cx="${c}" cy="${c}" r="${R.toFixed(1)}" fill="none" stroke="${arc}" stroke-width="${(
-    (S / 140) *
-    strokeScale
-  ).toFixed(2)}"/>
+      (S / 140) *
+      strokeScale
+    ).toFixed(2)}"/>
     <g>${nodes.join('')}</g>
   </g>
 </svg>`;

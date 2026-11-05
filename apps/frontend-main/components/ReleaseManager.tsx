@@ -92,8 +92,8 @@ const dungLuong = (n: number) =>
   n >= 1024 * 1024
     ? `${(n / 1024 / 1024).toFixed(1)} MB`
     : n >= 1024
-    ? `${(n / 1024).toFixed(0)} KB`
-    : `${n} B`;
+      ? `${(n / 1024).toFixed(0)} KB`
+      : `${n} B`;
 
 /**
  * PUT tệp thẳng vào R2 qua URL presign, có tiến độ.
@@ -299,8 +299,8 @@ export default function ReleaseManager({ slug, onMessage, onMfaRequired }: Relea
         !idDaTao
           ? text
           : thuLai
-          ? `Bản phát hành đã được tạo (nháp) nhưng bước sau lỗi: ${text}. Bấm "Niêm phong" ở danh sách để thử lại.`
-          : `Bản phát hành đã được tạo (nháp) nhưng bước sau lỗi: ${text}`
+            ? `Bản phát hành đã được tạo (nháp) nhưng bước sau lỗi: ${text}. Bấm "Niêm phong" ở danh sách để thử lại.`
+            : `Bản phát hành đã được tạo (nháp) nhưng bước sau lỗi: ${text}`
       );
     } finally {
       setBusy(false);

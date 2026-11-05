@@ -68,7 +68,7 @@
   //
   // Đừng xoá thư mục này khi gỡ Toà soạn - nó nay canh hạn mức Neon.
   "triggers": {
-    "crons": ["*/5 0-17,23 * * *", "23 1,13 * * *"]
+    "crons": ["*/5 0-17,23 * * *", "23 1,13 * * *"],
   },
 
   // KHÔNG có route/custom_domain: Worker này không phục vụ người dùng. Nó vẫn
@@ -84,10 +84,10 @@
   // công khai trống, và đó chính là hình dạng của sự cố hai tháng.
   "vars": {
     "BACKEND_URL": "https://tsudev-backend.onrender.com",
-    "SITE_URL": "https://tsudev.com"
+    "SITE_URL": "https://tsudev.com",
   },
 
   "observability": {
-    "enabled": true
-  }
+    "enabled": true,
+  },
 }
