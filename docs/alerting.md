@@ -10,7 +10,8 @@ dung **rỗng hoàn toàn** - `sitemap.xml` còn đúng 7 URL tĩnh, `feed.xml` 
 Việc đó sống **hai tháng**.
 
 Nay đã có cổng đo (`prod:dem-noi-dung`, chạy tự động trong Worker cron hai lượt
-mỗi ngày) và nó phát hiện đúng. Nhưng **nó chưa gửi được tin cho ai**:
+mỗi ngày) và nó phát hiện đúng. Trước khi đặt secret, **nó không gửi được tin cho
+ai** (secret phía Worker đã đặt - kiểm 05/11/2026; xem bước 4 để nghiệm thu):
 
 ```
 [cron] CHƯA cấu hình Telegram - báo động chỉ nằm ở log này:

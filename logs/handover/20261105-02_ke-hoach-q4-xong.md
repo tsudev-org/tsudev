@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20261105-02
 - **Từ**: phiên 33 - **Đến**: chủ dự án / phiên 34
 - **Thời điểm**: 05/11/2026
-- **Trạng thái**: MỞ - chỉ còn việc TAY của chủ dự án (§2) và một quyết định (§2, mục 6)
+- **Trạng thái**: ĐÃ ĐÓNG (phiên 34) - mục còn mở chuyển sang [`20261105-03`](20261105-03_ket-phien-34.md)
 - **Thay phiếu**: [`20261105-01`](20261105-01_go-xong-ma-cho-migrate-prod.md) - ĐÃ ĐÓNG (mọi mục xong)
 
 ## 1. Đã LIVE trên production trong phiên 33 (đo, không suy)

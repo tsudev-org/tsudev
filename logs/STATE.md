@@ -1,5 +1,18 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 35 bắt đầu ở đây** (cập nhật cuối phiên 34, 05/11/2026). Phiếu:
+> [`20261105-03`](handover/20261105-03_ket-phien-34.md).
+>
+> ✅ CORS bucket R2 `tsudev` ĐÃ áp (preflight 204/403 đo được) ⇒ nút tải tệp ở
+> `/admin/projects` không còn bị CORS chặn. Secret cron Telegram/Neon đã có trên
+> Worker. Slug ISR chưa cache + backend chết nay trả **503 + Retry-After** kèm
+> trang thân thiện, 404 có trang tĩnh (#114, deploy `4f5920be`).
+>
+> 🔴 **Việc tay của chủ dự án** (phiếu §2): đổi mật khẩu Neon · `TELEGRAM_*` trên
+> Render · xoá rác ở tài khoản Cloudflare sai · sửa dự án `tsudev-trust-seal` ·
+> quyết định logo/màu. Nghiệm thu chờ: tải tệp thật ở production (cần ADMIN),
+> log cron nhịp `23 1,13` UTC.
+
 > **Phiên 34 bắt đầu ở đây** (cập nhật cuối phiên 33, 05/11/2026). Phiếu:
 > [`20261105-02`](handover/20261105-02_ke-hoach-q4-xong.md).
 >
