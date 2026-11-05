@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20261105-04
 - **Từ**: phiên 34 - **Đến**: phiên 35 (các agent ở `.claude/agents/`) + chủ dự án
 - **Thời điểm**: 05/11/2026, cuối phiên 34
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÃ ĐÓNG (giai đoạn 1 xong ở phiên 35 - xem [`20261105-05`](20261105-05_ket-phien-35-giai-doan-1.md); bảng giai đoạn 2 §3 vẫn dùng)
 - **Thay phiếu**: [`20261105-03`](20261105-03_ket-phien-34.md) - ĐÃ ĐÓNG (mục còn mở chuyển sang đây)
 - **Tài liệu gốc của mọi việc dưới đây**: [`docs/security-plan.md`](../../docs/security-plan.md) - đọc §2.3 (khoảng trống G1-G12), §3 (thiết kế Trung tâm an ninh phát hành), §4 (lộ trình + tiêu chí nghiệm thu)
 

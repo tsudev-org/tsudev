@@ -1,5 +1,18 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 36 BẮT ĐẦU Ở ĐÂY** (cuối phiên 35, 05/11/2026). Phiếu:
+> [`20261105-05`](handover/20261105-05_ket-phien-35-giai-doan-1.md).
+>
+> ✅ Giai đoạn 1 ATTT đã merge: #127 (gitleaks + npm audit + Dependabot), #129 (siết tải
+> lên + magic bytes), #128 (ép TOTP cho ADMIN/OWNER). Branch protection `main` BẬT
+> (8 check bắt buộc, mọi thay đổi qua PR). Secret scanning + push protection + CodeQL bật.
+>
+> 🔴 **Frontend CHƯA deploy** ⇒ tải tệp lên ở `/admin/projects` hỏng tới khi chủ dự án chạy
+> `npm --workspace apps/frontend-main run deploy` (agent bị chặn deploy production).
+>
+> 🎯 Kế tiếp: nghiệm thu sau deploy → A4 cổng PR (nhánh `ci/cong-pr-chuyen-nghiep`, WIP) →
+> Dependabot major #133-#135 (không merge mù) → giai đoạn 2 (phiếu 04 §3).
+
 > **Phiên 35 BẮT ĐẦU Ở ĐÂY** (cuối phiên 34, 05/11/2026). Phiếu:
 > [`20261105-04`](handover/20261105-04_giao-viec-phien-35-attt.md) - việc chia theo agent.
 >
