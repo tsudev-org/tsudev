@@ -1,0 +1,42 @@
+# Dependabot - G1 của docs/security-plan.md.
+#
+# npm: MỘT mục ở thư mục gốc là đủ - repo là npm workspaces với một
+# package-lock.json duy nhất, Dependabot đọc nó cho mọi workspace.
+#
+# Nhóm để giảm PR rác: phụ thuộc dev gộp một PR/tuần, bản vá+minor của production
+# gộp một PR/tuần. Major của production vẫn đi PR riêng - đó là chỗ cần người đọc.
+# Cảnh báo bảo mật (security updates) KHÔNG bị nhóm này giữ lại: Dependabot mở
+# chúng ngay khi có advisory, độc lập với nhịp tuần.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Ho_Chi_Minh
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore(deps)'
+    groups:
+      dev-dependencies:
+        dependency-type: development
+        patterns: ['*']
+      prod-minor-patch:
+        dependency-type: production
+        update-types: [minor, patch]
+        patterns: ['*']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Ho_Chi_Minh
+    commit-message:
+      prefix: 'chore(ci)'
+    groups:
+      github-actions:
+        patterns: ['*']
