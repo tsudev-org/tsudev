@@ -10,8 +10,6 @@
 # ── Miễn trừ VĨNH VIỄN ──────────────────────────────────────────────────────
 # HEALTHCHECK chạy BÊN TRONG container - `localhost` ở đó đúng nghĩa đen, không
 # có gì để thay bằng biến.
-services/content-service/Dockerfile
-services/storage-service/Dockerfile
 
 # Giá trị do scripts/topology/gen-env.js quản lý, phần còn lại là tài liệu.
 .env.example
