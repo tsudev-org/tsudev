@@ -64,6 +64,7 @@
  */
 
 import { doNoiDung, thanhDong } from './demNoiDung';
+import { danhGiaNeon, type NeonProject } from './hanMuc';
 
 /** Nhịp ĐO NỘI DUNG. Phải TRÙNG NGUYÊN VĂN một phần tử trong `triggers.crons`. */
 const CRON_DEM_NOI_DUNG = '23 1,13 * * *';
@@ -76,6 +77,15 @@ export interface Env {
   /** Bot Telegram để báo động. Đặt bằng `wrangler secret put`. Thiếu = chỉ log. */
   TELEGRAM_BOT_TOKEN?: string;
   TELEGRAM_CHAT_ID?: string;
+  /**
+   * Cổng hạn mức Neon (§6.7, hanMuc.ts). Thiếu một trong hai ⇒ bỏ qua và LOG ra
+   * (không im lặng). Đặt cả hai bằng `npm run cron:secret-neon`.
+   * `NEON_CU_HOURS_LIMIT` là biến thường (đổi khi đổi gói Neon).
+   */
+  NEON_API_KEY?: string;
+  NEON_PROJECT_ID?: string;
+  /** Mặc định 100 - hạn mức gói free ghi ở docs/free-tier.md. */
+  NEON_CU_HOURS_LIMIT?: string;
 }
 
 // `NEWSROOM_TICK_TOKEN` đã bị gỡ khỏi đây 29/10/2026. Nó gác đường `/tick`, và
@@ -179,6 +189,57 @@ async function demNoiDung(env: Env): Promise<void> {
   );
 }
 
+/**
+ * Đọc mức tiêu compute của Neon và báo động khi gần cạn (§6.7).
+ *
+ * Lỗi gọi API cũng BÁO ĐỘNG chứ không chỉ log: một cổng canh hạn mức mà khoá API
+ * hết hạn rồi lặng lẽ ngừng đọc là đúng kiểu "cổng chết đang chạy".
+ */
+async function canhHanMucNeon(env: Env): Promise<void> {
+  if (!env.NEON_API_KEY || !env.NEON_PROJECT_ID) {
+    console.error(
+      '[cron] CHƯA cấu hình NEON_API_KEY/NEON_PROJECT_ID - bỏ qua cổng hạn mức Neon (§6.7)'
+    );
+    return;
+  }
+  const hanMuc = Number(env.NEON_CU_HOURS_LIMIT || 100);
+  let project: NeonProject;
+  try {
+    const res = await fetch(
+      `https://console.neon.tech/api/v2/projects/${encodeURIComponent(env.NEON_PROJECT_ID)}`,
+      {
+        headers: { authorization: `Bearer ${env.NEON_API_KEY}`, accept: 'application/json' },
+        signal: AbortSignal.timeout(20_000),
+      }
+    );
+    if (!res.ok) throw new Error(`Neon API HTTP ${res.status}`);
+    project = ((await res.json()) as { project: NeonProject }).project;
+  } catch (err) {
+    await baoDong(
+      env,
+      'KHÔNG đọc được hạn mức Neon',
+      `${err instanceof Error ? err.message : String(err)}\nKhoá API hết hạn? Cổng §6.7 đang mù.`
+    );
+    return;
+  }
+  const dg = danhGiaNeon(project, hanMuc, new Date());
+  console.log(
+    `[cron] Neon ${dg.cuGio.toFixed(1)}/${hanMuc} CU-giờ (${Math.round(dg.phanTram * 100)}%)` +
+      (dg.duBaoCuoiKy !== null ? `, dự báo cuối kỳ ${dg.duBaoCuoiKy.toFixed(0)}` : '')
+  );
+  if (dg.canhBao.length === 0) return;
+  await baoDong(
+    env,
+    'Neon sắp cạn hạn mức compute',
+    [
+      ...dg.canhBao,
+      '',
+      'Cạn = Neon treo compute tới đầu tháng sau = CẢ SITE trống (sự cố 28/10/2026).',
+      'Tìm thứ đang giữ Neon thức: docs/free-tier.md "Ngân sách chật số 2".',
+    ].join('\n')
+  );
+}
+
 export default {
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
     // HAI nhịp, và sự khác nhau giữa chúng là CHẠM DATABASE hay không:
@@ -187,7 +248,13 @@ export default {
     //   CRON_DEM_NOI_DUNG → đo trang công khai, các trang đó CÓ chạm database
     //
     // Vì thế nhịp đo nội dung phải THƯA. Xem khối chú thích ở `demNoiDung.ts`.
-    ctx.waitUntil(event.cron === CRON_DEM_NOI_DUNG ? demNoiDung(env) : keepWarm(env));
+    // Cổng hạn mức Neon đi cùng nhịp đo nội dung: hai lần/ngày là đủ cho một
+    // con số tính theo tháng, và nó không chạm database (control plane).
+    ctx.waitUntil(
+      event.cron === CRON_DEM_NOI_DUNG
+        ? Promise.all([demNoiDung(env), canhHanMucNeon(env)])
+        : keepWarm(env)
+    );
   },
 
   /**

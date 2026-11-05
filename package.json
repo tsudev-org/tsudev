@@ -12,6 +12,7 @@
     "cron:typecheck": "tsc --noEmit -p infrastructure/canh-site-cron/tsconfig.json",
     "cron:deploy": "npm --prefix infrastructure/canh-site-cron exec -- wrangler deploy --config infrastructure/canh-site-cron/wrangler.jsonc",
     "cron:secret-telegram": "npm --prefix infrastructure/canh-site-cron run secret-telegram",
+    "cron:secret-neon": "npm --prefix infrastructure/canh-site-cron run secret-neon",
     "cron:tail": "npx wrangler tail --config infrastructure/canh-site-cron/wrangler.jsonc",
     "dev": "npm run env:local && concurrently \"npm --workspace services/content-service run dev\" \"npm --workspace services/storage-service run dev\" \"npm --workspace services/auth-service run dev\" \"npm --workspace apps/frontend-main run dev\"",
     "dev:local": "npm run build:ts && node scripts/run-dev.js",

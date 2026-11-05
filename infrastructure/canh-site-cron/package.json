@@ -6,7 +6,8 @@
     "deploy": "wrangler deploy",
     "tail": "wrangler tail",
     "typecheck": "tsc --noEmit",
-    "secret-telegram": "wrangler secret put TELEGRAM_BOT_TOKEN && wrangler secret put TELEGRAM_CHAT_ID"
+    "secret-telegram": "wrangler secret put TELEGRAM_BOT_TOKEN && wrangler secret put TELEGRAM_CHAT_ID",
+    "secret-neon": "wrangler secret put NEON_API_KEY && wrangler secret put NEON_PROJECT_ID"
   },
   "devDependencies": {
     "wrangler": "^3.114.14"
