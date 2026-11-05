@@ -41,7 +41,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
       - run: npm ci
       - name: Hợp đồng mạng (cổng/tên miền)
@@ -140,7 +140,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
       - run: npm ci
       - name: Prisma generate + migrate (deploy)
@@ -163,6 +163,80 @@ jobs:
           npm --workspace apps/frontend-main test
           # Cổng tương phản của hệ token màu - đọc thẳng packages/ui/src/tokens.css.
           npm --workspace packages/ui test
+
+  # Dựng CHÍNH image mà Render dựng (docker/backend-service.Dockerfile) rồi khởi
+  # động nó đúng như dockerCommand trong render.yaml, NODE_ENV=production, với
+  # Postgres thật - và đòi /health trả 200.
+  #
+  # Vì sao cần: mọi job khác chạy mã trên Node của runner, KHÔNG trong image. Đổi
+  # base image (Node, Debian, OpenSSL cho engine Prisma) hay quên COPY một tệp thì
+  # cả CI xanh mà production không boot - và Render tự deploy khi merge vào main.
+  # Đây là lớp duy nhất thấy được những lỗi chỉ tồn tại trong image.
+  backend-image:
+    name: Image backend - dựng + khởi động như Render
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: tsudev
+          POSTGRES_PASSWORD: tsudev
+          POSTGRES_DB: tsudev
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U tsudev"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Dựng image
+        run: docker build -f docker/backend-service.Dockerfile -t tsudev-backend:ci .
+      # Bí mật ở đây đều SINH MỚI mỗi lượt, chỉ sống trong job này. Khoá ký bản
+      # phát hành phải là Ed25519 thật: thiếu nó thì production CỐ Ý từ chối khởi
+      # động (releaseSigning.ts), và đó đúng là điều job này cần chứng minh là
+      # không xảy ra khi cấu hình đủ.
+      - name: Migrate rồi khởi động, chờ /health
+        env:
+          DATABASE_URL: postgresql://tsudev:tsudev@localhost:5432/tsudev?schema=public
+        run: |
+          set -euo pipefail
+          RELEASE_SIGNING_KEY="$(openssl genpkey -algorithm ed25519 | base64 -w0)"
+          INTERNAL_IDENTITY_SECRET="$(openssl rand -hex 32)"
+          TOTP_ENCRYPTION_KEY="$(openssl rand -hex 32)"
+          export RELEASE_SIGNING_KEY INTERNAL_IDENTITY_SECRET TOTP_ENCRYPTION_KEY
+          run() {
+            docker run --rm --network host \
+              -e NODE_ENV=production -e PORT=4000 -e DATABASE_URL \
+              -e RELEASE_SIGNING_KEY -e RELEASE_SIGNING_KEY_ID=ci \
+              -e INTERNAL_IDENTITY_SECRET -e TOTP_ENCRYPTION_KEY \
+              "$@"
+          }
+          # migrationGate thoát 1 khi DB thiếu migration - áp trước, bằng chính
+          # prisma CLI trong image.
+          run tsudev-backend:ci npm exec --workspace packages/db -- prisma migrate deploy
+          run -d --name backend tsudev-backend:ci node services/backend-bundle/dist/index.js
+          for i in $(seq 1 30); do
+            code="$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4000/health || true)"
+            echo "lượt $i: /health -> $code"
+            if [ "$code" = 200 ]; then
+              curl -s http://127.0.0.1:4000/health; echo
+              docker rm -f backend >/dev/null
+              exit 0
+            fi
+            if [ -z "$(docker ps -q -f name=backend)" ]; then
+              echo "::error::tiến trình backend đã CHẾT trước khi /health trả 200"
+              break
+            fi
+            sleep 2
+          done
+          echo '--- log backend ---'
+          docker logs backend || true
+          docker rm -f backend >/dev/null 2>&1 || true
+          exit 1
 
   e2e-app:
     name: E2E - smoke các trang được giữ
@@ -199,7 +273,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
       - run: npm ci
       # Cache trình duyệt của Playwright. Không cache thì mỗi lượt chạy tải lại
@@ -272,7 +346,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
       - run: npm ci
       - name: Generate Prisma client
