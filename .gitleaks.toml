@@ -1,0 +1,39 @@
+# Cấu hình gitleaks - chạy bởi `.github/workflows/security-scan.yml`.
+#
+# Giữ NGUYÊN bộ luật mặc định của gitleaks; tệp này chỉ thêm các ngoại lệ HẸP cho
+# dương tính giả ĐÃ KIỂM bằng mắt ở lần quét toàn lịch sử đầu tiên (05/11/2026,
+# gitleaks 8.30.1, 7 phát hiện, cả 7 là dương tính giả).
+#
+# Quy tắc khi thêm ngoại lệ:
+#   - Mỗi ngoại lệ ghim CẢ luật (targetRules) LẪN đường dẫn LẪN giá trị (regexes),
+#     nối bằng condition = "AND". Không bao giờ allowlist cả một thư mục hay cả
+#     một luật - làm thế là mở cửa cho secret thật đi qua đúng chỗ đó.
+#   - Secret THẬT từng bị commit thì KHÔNG allowlist. Xoay khoá, rồi mới tính
+#     chuyện lịch sử.
+
+[extend]
+useDefault = true
+
+# Giá trị cố định của bộ test 2FA. Không phải khoá production: TOTP_ENCRYPTION_KEY
+# thật chỉ nằm ở Render (sync: false). Chuỗi GEZDGNBV... là vector kiểm thử công
+# khai của RFC 6238 phụ lục B (ASCII "12345678901234567890" mã hoá base32).
+[[allowlists]]
+description = "Fixture test TOTP/2FA của auth-service (khoá test + vector RFC 6238)"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''^services/auth-service/test/(totp|twoFactor)\.test\.ts$''']
+regexes = [
+  '''^khoa-ma-hoa-totp-du-dai-cho-test-0123456789$''',
+  '''^mot-khoa-hoan-toan-khac-nhung-van-du-dai-32$''',
+  '''^GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ$''',
+]
+
+# Test Rust của trust-crypto dựng PEM bằng format!("-----BEGIN PRIVATE KEY-----\n{b64}...").
+# Thân khoá là placeholder `{b64}` của Rust, không có vật liệu khoá nào trong mã nguồn.
+# Ghim vào đúng chuỗi mở đầu bằng `{b64}` - một khoá PEM thật không bao giờ có thân đó.
+[[allowlists]]
+description = "Khuôn PEM dùng placeholder {b64} trong test Rust của trust-crypto"
+targetRules = ["private-key"]
+condition = "AND"
+paths = ['''^packages/trust-crypto/src/lib\.rs$''']
+regexes = ['''^-----BEGIN PRIVATE KEY-----\\n\{b64\}\\n-----END PRIVATE KEY-----''']
