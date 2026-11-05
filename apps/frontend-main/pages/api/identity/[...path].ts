@@ -9,6 +9,7 @@
 // để giới hạn tần suất của auth-service đếm đúng người gọi chứ không phải đếm
 // tiến trình Next.
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { clientIp } from '../../../lib/clientIp';
 
 import { IDENTITY, internalHeaders } from '../../../lib/services';
 import { catchAllSegments } from '../../../lib/identity';
@@ -43,9 +44,8 @@ const ALLOWED = new Set([
  * đăng nhập bằng passkey mất quốc gia trong khi mật khẩu và OAuth thì có.
  */
 function callerHeaders(req: NextApiRequest): Record<string, string> {
-  const raw = req.headers['x-forwarded-for'];
-  const first = Array.isArray(raw) ? raw[0] : raw;
-  const ip = (first?.split(',')[0]?.trim() || req.socket?.remoteAddress || '').slice(0, 45);
+  // IP thật từ CF-Connecting-IP - xem lib/clientIp.ts vì sao KHÔNG đọc X-Forwarded-For đầu.
+  const ip = clientIp(req.headers, req.socket?.remoteAddress);
   const cc = req.headers['cf-ipcountry'];
   const country = (Array.isArray(cc) ? cc[0] : cc)?.trim() || '';
   return {

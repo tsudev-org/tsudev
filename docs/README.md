@@ -3,29 +3,30 @@
 Đọc **chọn lọc** theo vùng công việc. Không nạp cả thư mục: mỗi file thừa là
 token trả tiền mà không dùng đến.
 
-| Đang làm việc ở đâu                                  | Đọc file nào                                                                       |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Mới vào repo, cần bản đồ tổng thể                    | [architecture.md](architecture.md)                                                 |
-| Dựng môi trường, chạy local, gỡ lỗi khởi động        | [development.md](development.md)                                                   |
-| Địa chỉ nào là chính tắc, hình dạng đường dẫn        | [url-convention.md](url-convention.md)                                             |
-| Đăng nhập, mật khẩu, 2FA, passkey, RBAC              | [auth.md](auth.md)                                                                 |
-| Viết/chạy test, E2E presign-upload                   | [testing.md](testing.md)                                                           |
-| **Quy tắc** giao diện (hệ sinh thái, KHÔNG SỬA)      | [../.standards/docs/DESIGN_SYSTEM.md](../.standards/docs/DESIGN_SYSTEM.md)         |
-| Repo này hiện thực quy tắc đó bằng file nào          | [design-system.md](design-system.md)                                               |
-| Cấu trúc thư mục chuẩn (hệ sinh thái, KHÔNG SỬA)     | [../.standards/docs/PROJECT_STRUCTURE.md](../.standards/docs/PROJECT_STRUCTURE.md) |
-| _(hồ sơ đã đóng)_ hai mã màu chuẩn không đạt WCAG    | [token-upstream-proposal.md](token-upstream-proposal.md)                           |
-| _(hồ sơ đã đóng)_ cây thư mục monorepo               | [structure-upstream-proposal.md](structure-upstream-proposal.md)                   |
-| Đưa lên production, biến môi trường, CI              | [deployment.md](deployment.md)                                                     |
-| Hạn mức gói miễn phí, van chi phí                    | [free-tier.md](free-tier.md)                                                       |
-| Nhận báo động khi site hỏng (Telegram)               | [alerting.md](alerting.md)                                                         |
-| Phát hành app: tải lên R2, niêm phong, ký Ed25519    | [release-signing.md](release-signing.md)                                           |
-| Vì sao repo mất Diễn đàn/Chợ/Tin nhắn                | [refactor-personal-site.md](refactor-personal-site.md)                             |
-| Vì sao chỉ còn một cổng vào ở dev                    | [refactor-network-topology.md](refactor-network-topology.md)                       |
-| _(hồ sơ đã đóng - Con dấu gỡ 04/11/2026)_ chế độ mời | [refactor-trust-invite-access.md](refactor-trust-invite-access.md)                 |
-| _(hồ sơ đã đóng - Toà soạn gỡ 29/10/2026)_ Newsroom  | [refactor-newsroom-agents.md](refactor-newsroom-agents.md)                         |
-| Kế hoạch tái cấu trúc Q4/2026 (xong 05/11/2026)      | [refactor-tsudev-2026-q4.md](refactor-tsudev-2026-q4.md)                           |
-| Logo, favicon, avatar                                | [../packages/brand/README.md](../packages/brand/README.md)                         |
-| Hạ tầng Cloudflare/giám sát (kế hoạch)               | [../infrastructure/README.md](../infrastructure/README.md)                         |
+| Đang làm việc ở đâu                                      | Đọc file nào                                                                       |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Mới vào repo, cần bản đồ tổng thể                        | [architecture.md](architecture.md)                                                 |
+| Dựng môi trường, chạy local, gỡ lỗi khởi động            | [development.md](development.md)                                                   |
+| Địa chỉ nào là chính tắc, hình dạng đường dẫn            | [url-convention.md](url-convention.md)                                             |
+| Đăng nhập, mật khẩu, 2FA, passkey, RBAC                  | [auth.md](auth.md)                                                                 |
+| Viết/chạy test, E2E presign-upload                       | [testing.md](testing.md)                                                           |
+| **Quy tắc** giao diện (hệ sinh thái, KHÔNG SỬA)          | [../.standards/docs/DESIGN_SYSTEM.md](../.standards/docs/DESIGN_SYSTEM.md)         |
+| Repo này hiện thực quy tắc đó bằng file nào              | [design-system.md](design-system.md)                                               |
+| Cấu trúc thư mục chuẩn (hệ sinh thái, KHÔNG SỬA)         | [../.standards/docs/PROJECT_STRUCTURE.md](../.standards/docs/PROJECT_STRUCTURE.md) |
+| _(hồ sơ đã đóng)_ hai mã màu chuẩn không đạt WCAG        | [token-upstream-proposal.md](token-upstream-proposal.md)                           |
+| _(hồ sơ đã đóng)_ cây thư mục monorepo                   | [structure-upstream-proposal.md](structure-upstream-proposal.md)                   |
+| Đưa lên production, biến môi trường, CI                  | [deployment.md](deployment.md)                                                     |
+| Hạn mức gói miễn phí, van chi phí                        | [free-tier.md](free-tier.md)                                                       |
+| Nhận báo động khi site hỏng (Telegram)                   | [alerting.md](alerting.md)                                                         |
+| Phát hành app: tải lên R2, niêm phong, ký Ed25519        | [release-signing.md](release-signing.md)                                           |
+| Kế hoạch an toàn thông tin + Trung tâm an ninh phát hành | [security-plan.md](security-plan.md)                                               |
+| Vì sao repo mất Diễn đàn/Chợ/Tin nhắn                    | [refactor-personal-site.md](refactor-personal-site.md)                             |
+| Vì sao chỉ còn một cổng vào ở dev                        | [refactor-network-topology.md](refactor-network-topology.md)                       |
+| _(hồ sơ đã đóng - Con dấu gỡ 04/11/2026)_ chế độ mời     | [refactor-trust-invite-access.md](refactor-trust-invite-access.md)                 |
+| _(hồ sơ đã đóng - Toà soạn gỡ 29/10/2026)_ Newsroom      | [refactor-newsroom-agents.md](refactor-newsroom-agents.md)                         |
+| Kế hoạch tái cấu trúc Q4/2026 (xong 05/11/2026)          | [refactor-tsudev-2026-q4.md](refactor-tsudev-2026-q4.md)                           |
+| Logo, favicon, avatar                                    | [../packages/brand/README.md](../packages/brand/README.md)                         |
+| Hạ tầng Cloudflare/giám sát (kế hoạch)                   | [../infrastructure/README.md](../infrastructure/README.md)                         |
 
 ## Tài liệu viết HOA là quy ước dùng chung, và chúng KHÔNG nằm ở đây
 
