@@ -44,8 +44,9 @@ const SECTIONS = [
             cung cấp định danh khi bạn chọn đăng nhập một lần (SSO).
           </li>
           <li>
-            <strong>Dữ liệu xác thực:</strong> số điện thoại di động tại Việt Nam hoặc số định danh
-            cá nhân, trong phạm vi bắt buộc theo điểm e khoản 3 Điều 23 Nghị định số 147/2024/NĐ-CP.
+            <strong>Dữ liệu xác thực:</strong> địa chỉ thư điện tử đã xác minh. Chúng tôi{' '}
+            <strong>không</strong> thu thập số điện thoại hay số định danh cá nhân của người dùng,
+            theo nguyên tắc chỉ thu thập dữ liệu cần thiết cho mục đích xử lý.
           </li>
           <li>
             <strong>Nội dung bạn tạo ra:</strong> với tài khoản tác giả - bài viết, tài liệu và tệp
