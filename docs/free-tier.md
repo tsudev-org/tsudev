@@ -147,9 +147,12 @@ Ba cái quan trọng nhất đều đã được chứng minh ĐỎ bằng cách
 
 Cộng với: nhịp GIỮ ẤM chỉ gọi `/health`, và `TICK_CRON` không còn tồn tại.
 
-⚠️ **Báo động hiện CHƯA được cấu hình** (đo 05/11/2026). `TELEGRAM_BOT_TOKEN` và
-`TELEGRAM_CHAT_ID` chưa đặt, nên cổng chỉ `console.error` - đọc được bằng
-`npm run cron:tail`. Bật bằng `npm run cron:secret-telegram`.
+**Secret báo động đã có trên Worker** (`wrangler secret list` 05/11/2026, phiên
+34: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `NEON_API_KEY`, `NEON_PROJECT_ID`).
+Chưa có bằng chứng ĐẦU-CUỐI: dòng `[cron] báo động → Telegram 200` hay
+`[cron] Neon x/100 CU-giờ` chỉ xuất hiện ở nhịp `23 1,13` UTC - đọc bằng
+`npm run cron:tail` quanh giờ đó. Thấy `CHƯA cấu hình` trong log thì secret
+không tới được Worker: chạy lại `npm run cron:secret-telegram` / `cron:secret-neon`.
 
 **Cổng hạn mức Neon** (§6.7, `infrastructure/canh-site-cron/src/hanMuc.ts`) chạy
 cùng nhịp đếm, đọc CU-giờ đã tiêu qua API điều khiển của Neon (không đánh thức

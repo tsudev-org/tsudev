@@ -51,6 +51,17 @@ Cấu hình ở `infrastructure/r2/cors.tsudev.json` (origin hẹp: `tsudev.com`
 `www.tsudev.com`). `ensureBucket()` của storage-service KHÔNG đặt được CORS trên
 R2 (khoá S3 không có quyền quản trị bucket) và chỉ để lại một dòng cảnh báo.
 
+Đã áp lên bucket `tsudev` production ngày 05/11/2026 (phiên 34). Kiểm không cần
+đăng nhập - preflight trực tiếp vào endpoint S3 của R2:
+
+```
+curl -s -o /dev/null -w '%{http_code}\n' -X OPTIONS \
+  "https://<account-id>.r2.cloudflarestorage.com/tsudev/probe" \
+  -H "Origin: https://tsudev.com" -H "Access-Control-Request-Method: PUT"
+```
+
+`204` là đúng; origin lạ phải nhận `403`.
+
 ## Khoá ký và xoay khoá
 
 Vòng khoá: `services/content-service/src/releaseSigning.ts`, Ed25519 qua
