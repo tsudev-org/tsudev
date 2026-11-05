@@ -144,14 +144,17 @@ describe('vòng khoá ký', () => {
   })
 })
 
-describe('đổi tên biến HAI đợt (§7.6) - tên cũ của Con dấu vẫn chạy', () => {
-  test('chỉ có TRUST_SIGNING_* (production hiện tại) ⇒ vẫn nạp đúng khoá', () => {
+describe('đổi tên biến HAI đợt (§7.6) - đợt 2 xong: tên cũ của Con dấu HẾT tác dụng', () => {
+  // Đợt 2 (05/11/2026): Render đã xoá TRUST_SIGNING_*. Một nhánh lùi còn sống thì
+  // ai đó đặt lại tên cũ "cho chắc" là có HAI nguồn khoá - và cái nào thắng phụ
+  // thuộc vào việc tên mới có bị để trống hay không.
+  test('chỉ có TRUST_SIGNING_* ⇒ KHÔNG nạp (dev: khoá dev; prod: từ chối khởi động)', () => {
     const s = loadSigning({ TRUST_SIGNING_KEY: KEY_A.privB64, TRUST_SIGNING_KEY_ID: 'key-cu' })
-    expect(s.kid).toBe('key-cu')
-    expect(s.usingDevKey).toBe(false)
+    expect(s.kid).not.toBe('key-cu')
+    expect(s.usingDevKey).toBe(true)
   })
 
-  test('có cả hai ⇒ tên MỚI thắng', () => {
+  test('có cả hai ⇒ chỉ tên MỚI được đọc', () => {
     const s = loadSigning({
       TRUST_SIGNING_KEY: KEY_A.privB64,
       TRUST_SIGNING_KEY_ID: 'key-cu',

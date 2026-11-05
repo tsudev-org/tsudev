@@ -14,7 +14,7 @@
 //      không có gì báo lỗi - nó chỉ là một hàng nữa trong danh sách.
 //
 //   3. `signature` phải đi kèm `signingKid`. Vòng khoá của repo này CÓ xoay
-//      (`TRUST_SIGNING_KEYS_RETIRED`), nên một chữ ký không nói nó được ký bằng
+//      (`RELEASE_SIGNING_KEYS_RETIRED`), nên một chữ ký không nói nó được ký bằng
 //      khoá nào là chữ ký không kiểm được sau lần xoay đầu tiên. Lúc đó người
 //      tải chạy phép kiểm, thất bại, và kết luận tệp đã bị can thiệp.
 //
