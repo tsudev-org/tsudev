@@ -460,6 +460,8 @@ describe('xoá mềm', () => {
 
 export {}
 
+const ZIP_HEAD = Buffer.from('504b0304140000000800', 'hex')
+
 describe('§6.6 - tải lên R2, niêm phong, ký', () => {
   const thuc = { ...store }
   afterEach(() => Object.assign(store, thuc))
@@ -468,17 +470,14 @@ describe('§6.6 - tải lên R2, niêm phong, ký', () => {
     const tu = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases/upload-url`)
       .set(await asUser(THUONG))
-      .send({ fileName: 'a.apk' })
+      .send({ fileName: 'a.apk', platform: 'ANDROID', fileSize: 10 })
     expect(tu.status).toBe(403)
 
     const h = await asUser(ADMIN)
     const mot = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases/upload-url`)
       .set(h)
-      .send({
-        fileName: '../../Bản cài đặt.apk',
-        contentType: 'application/vnd.android.package-archive',
-      })
+      .send({ fileName: '../../Bản cài đặt.apk', platform: 'ANDROID', fileSize: 4242 })
     expect(mot.status).toBe(200)
     expect(mot.body.key).toMatch(new RegExp(`^releases/${SLUG}/[0-9a-f]{12}/Ban-cai-dat\\.apk$`))
     expect(new URL(mot.body.url).searchParams.get('X-Amz-Signature')).toBeTruthy()
@@ -486,7 +485,7 @@ describe('§6.6 - tải lên R2, niêm phong, ký', () => {
     const hai = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases/upload-url`)
       .set(h)
-      .send({ fileName: 'Bản cài đặt.apk' })
+      .send({ fileName: 'Bản cài đặt.apk', platform: 'ANDROID', fileSize: 4242 })
     expect(hai.body.key).not.toBe(mot.body.key)
   })
 
@@ -506,7 +505,7 @@ describe('§6.6 - tải lên R2, niêm phong, ký', () => {
     const SHA_THAT = 'b'.repeat(64)
     store.hashObject = async (key: string) => {
       expect(key).toBe('releases/x/app.apk')
-      return { sha256: SHA_THAT, size: 4242 }
+      return { sha256: SHA_THAT, size: 4242, head: ZIP_HEAD, tail: Buffer.alloc(0) }
     }
     const ns = await request(app).post(`/api/admin/releases/${tao.body.id}/seal`).set(h)
     expect(ns.status).toBe(200)
@@ -589,7 +588,12 @@ describe('§6.6 - tải lên R2, niêm phong, ký', () => {
       .post(`/api/admin/projects/${SLUG}/releases`)
       .set(h)
       .send({ version: '2.4.0', platform: 'ANDROID', storageKey: 'releases/x/c.apk' })
-    store.hashObject = async () => ({ sha256: 'c'.repeat(64), size: 10 })
+    store.hashObject = async () => ({
+      sha256: 'c'.repeat(64),
+      size: 10,
+      head: ZIP_HEAD,
+      tail: Buffer.alloc(0),
+    })
     await request(app).post(`/api/admin/releases/${tao.body.id}/seal`).set(h)
 
     const doi = await request(app)
@@ -599,5 +603,216 @@ describe('§6.6 - tải lên R2, niêm phong, ký', () => {
     expect(doi.status).toBe(200)
     expect(doi.body.sha256).toBeNull()
     expect(doi.body.signature).toBeNull()
+  })
+})
+
+// §3.3 kế hoạch ATTT (G3): siết tải lên. Mỗi lớp chặn một thứ khác nhau - đuôi
+// theo danh sách trắng + trần ở `upload-url`, `Content-Length` ký vào URL ở kho,
+// và byte đầu/cuối của chính tệp lúc niêm phong. Lớp cuối là lớp duy nhất nhìn
+// NỘI DUNG: `ghi-chu.txt` đổi đuôi `.apk` qua được hai lớp đầu.
+describe('§3.3 - siết tải lên: fileSize, trần, đuôi, magic bytes', () => {
+  const thuc = { ...store }
+  afterEach(() => Object.assign(store, thuc))
+  const url = `/api/admin/projects/${SLUG}/releases/upload-url`
+  const hop = { fileName: 'app.apk', platform: 'ANDROID', fileSize: 4242 }
+
+  test('upload-url ký Content-Length + Content-Type do máy chủ suy vào URL', async () => {
+    const res = await request(app)
+      .post(url)
+      .set(await asUser(ADMIN))
+      .send(hop)
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({
+      contentType: 'application/vnd.android.package-archive',
+      fileSize: 4242,
+      maxBytes: 2 * 1024 ** 3,
+    })
+    const ky = new URL(res.body.url).searchParams.get('X-Amz-SignedHeaders')!.split(';')
+    expect(ky).toEqual(expect.arrayContaining(['content-length', 'content-type', 'host']))
+  })
+
+  test.each([
+    ['thiếu', undefined],
+    ['0', 0],
+    ['âm', -5],
+    ['thập phân', 1.5],
+    ['chuỗi', '4242'],
+  ])('fileSize %s ⇒ 400 FILE_SIZE_KHONG_HOP_LE', async (_ten, fileSize) => {
+    const res = await request(app)
+      .post(url)
+      .set(await asUser(ADMIN))
+      .send({ ...hop, fileSize })
+    expect(res.status).toBe(400)
+    expect(res.body.code).toBe('FILE_SIZE_KHONG_HOP_LE')
+  })
+
+  test('vượt trần 2 GB ⇒ 413 VUOT_TRAN_KICH_THUOC; đúng trần thì qua', async () => {
+    const h = await asUser(ADMIN)
+    const vuot = await request(app)
+      .post(url)
+      .set(h)
+      .send({ ...hop, fileSize: 2 * 1024 ** 3 + 1 })
+    expect(vuot.status).toBe(413)
+    expect(vuot.body.code).toBe('VUOT_TRAN_KICH_THUOC')
+    const tran = await request(app)
+      .post(url)
+      .set(h)
+      .send({ ...hop, fileSize: 2 * 1024 ** 3 })
+    expect(tran.status).toBe(200)
+  })
+
+  test.each([
+    ['ANDROID', 'app.exe'],
+    ['ANDROID', 'ghi-chu.txt'],
+    ['WINDOWS', 'app.apk'],
+    ['LINUX', 'app.gz'],
+    ['SOURCE', 'nguon.exe'],
+    ['MACOS', 'dmg'],
+  ])('%s + %s ⇒ 400 DUOI_TEP_KHONG_CHO_PHEP', async (platform, fileName) => {
+    const res = await request(app)
+      .post(url)
+      .set(await asUser(ADMIN))
+      .send({ ...hop, platform, fileName })
+    expect(res.status).toBe(400)
+    expect(res.body.code).toBe('DUOI_TEP_KHONG_CHO_PHEP')
+  })
+
+  test('đuôi trong danh sách trắng: không phân biệt hoa thường, giữ đuôi khi tên dài', async () => {
+    const h = await asUser(ADMIN)
+    for (const [platform, fileName, duoi, ct] of [
+      ['LINUX', 'Tool-x86_64.appimage', '.AppImage', 'application/vnd.appimage'],
+      ['LINUX', 'tool-1.0.TAR.GZ', '.tar.gz', 'application/gzip'],
+      ['WINDOWS', 'Setup.MSI', '.msi', 'application/x-msi'],
+      ['MACOS', 'App.dmg', '.dmg', 'application/x-apple-diskimage'],
+      ['SOURCE', 'src.zip', '.zip', 'application/zip'],
+      ['ANDROID', `${'a'.repeat(300)}.apk`, '.apk', 'application/vnd.android.package-archive'],
+    ]) {
+      const res = await request(app)
+        .post(url)
+        .set(h)
+        .send({ ...hop, platform, fileName })
+      expect(res.status).toBe(200)
+      expect(res.body.key.endsWith(duoi)).toBe(true)
+      expect(res.body.contentType).toBe(ct)
+    }
+  })
+
+  test('WEB không có tệp ⇒ 400; platform lạ ⇒ 400; contentType từ client ⇒ 400', async () => {
+    const h = await asUser(ADMIN)
+    const web = await request(app)
+      .post(url)
+      .set(h)
+      .send({ ...hop, platform: 'WEB', fileName: 'x.zip' })
+    expect(web.status).toBe(400)
+    expect(web.body.code).toBe('NEN_TANG_KHONG_CO_TEP')
+    const la = await request(app)
+      .post(url)
+      .set(h)
+      .send({ ...hop, platform: 'SYMBIAN' })
+    expect(la.status).toBe(400)
+    expect(la.body.code).toBe('PLATFORM_KHONG_HOP_LE')
+    const ct = await request(app)
+      .post(url)
+      .set(h)
+      .send({ ...hop, contentType: 'text/html' })
+    expect(ct.status).toBe(400)
+    expect(ct.body.code).toBe('CONTENT_TYPE_DO_MAY_CHU')
+  })
+
+  const taoNhap = async (version: string, platform: string, storageKey: string) => {
+    const tao = await request(app)
+      .post(`/api/admin/projects/${SLUG}/releases`)
+      .set(await asUser(ADMIN))
+      .send({ version, platform, storageKey })
+    expect(tao.status).toBe(201)
+    return tao.body.id as string
+  }
+
+  test('seal: .txt đổi đuôi .apk ⇒ 422 SAI_LOAI_TEP, không ghi gì, không ký', async () => {
+    const id = await taoNhap('5.0.0', 'ANDROID', 'releases/x/ghi-chu.apk')
+    const noiDung = Buffer.from('Day chi la mot tep van ban thuong.\n')
+    store.hashObject = async () => ({
+      sha256: 'd'.repeat(64),
+      size: noiDung.length,
+      head: noiDung.subarray(0, 16),
+      tail: noiDung,
+    })
+    const ns = await request(app)
+      .post(`/api/admin/releases/${id}/seal`)
+      .set(await asUser(ADMIN))
+    expect(ns.status).toBe(422)
+    expect(ns.body.code).toBe('SAI_LOAI_TEP')
+    const r = await prisma.projectRelease.findUnique({ where: { id } })
+    expect(r?.sha256).toBeNull()
+    expect(r?.signature).toBeNull()
+  })
+
+  test('seal: đuôi storageKey ngoài danh sách trắng ⇒ 422, không đọc kho', async () => {
+    const id = await taoNhap('5.1.0', 'ANDROID', 'releases/x/app.txt')
+    let daDoc = false
+    store.hashObject = async () => {
+      daDoc = true
+      return { sha256: 'e'.repeat(64), size: 1, head: ZIP_HEAD, tail: Buffer.alloc(0) }
+    }
+    const ns = await request(app)
+      .post(`/api/admin/releases/${id}/seal`)
+      .set(await asUser(ADMIN))
+    expect(ns.status).toBe(422)
+    expect(ns.body.code).toBe('DUOI_TEP_KHONG_CHO_PHEP')
+    expect(daDoc).toBe(false)
+  })
+
+  test('seal: tệp thật trong kho vượt trần ⇒ 422 VUOT_TRAN_KICH_THUOC', async () => {
+    const id = await taoNhap('5.2.0', 'ANDROID', 'releases/x/to.apk')
+    store.hashObject = async () => ({
+      sha256: 'f'.repeat(64),
+      size: 2 * 1024 ** 3 + 1,
+      head: ZIP_HEAD,
+      tail: Buffer.alloc(0),
+    })
+    const ns = await request(app)
+      .post(`/api/admin/releases/${id}/seal`)
+      .set(await asUser(ADMIN))
+    expect(ns.status).toBe(422)
+    expect(ns.body.code).toBe('VUOT_TRAN_KICH_THUOC')
+    const r = await prisma.projectRelease.findUnique({ where: { id } })
+    expect(r?.signature).toBeNull()
+  })
+
+  test.each([
+    ['WINDOWS', 'releases/x/a.exe', Buffer.from('MZ\x90\x00', 'latin1'), Buffer.alloc(0)],
+    ['MACOS', 'releases/x/a.pkg', Buffer.from('xar!\x00\x1c', 'latin1'), Buffer.alloc(0)],
+    ['LINUX', 'releases/x/a.AppImage', Buffer.from('\x7fELF\x02\x01', 'latin1'), Buffer.alloc(0)],
+    ['LINUX', 'releases/x/a.deb', Buffer.from('!<arch>\ndebian', 'latin1'), Buffer.alloc(0)],
+    ['LINUX', 'releases/x/a.tar.gz', Buffer.from([0x1f, 0x8b, 0x08]), Buffer.alloc(0)],
+    [
+      'MACOS',
+      'releases/x/a.dmg',
+      Buffer.from([0x78, 0xda]),
+      Buffer.concat([Buffer.from('koly'), Buffer.alloc(508)]),
+    ],
+  ])('seal: %s %s đúng magic ⇒ niêm phong + ký', async (platform, key, head, tail) => {
+    const id = await taoNhap(`6.0.0-${key.split('.').slice(1).join('-')}`, platform, key)
+    store.hashObject = async () => ({ sha256: '1'.repeat(64), size: 100, head, tail })
+    const ns = await request(app)
+      .post(`/api/admin/releases/${id}/seal`)
+      .set(await asUser(ADMIN))
+    expect(ns.status).toBe(200)
+    expect(releaseSigning.verify(ns.body.signature).valid).toBe(true)
+  })
+
+  test('seal: .dmg thiếu khối koly ở 512 byte cuối ⇒ 422 SAI_LOAI_TEP', async () => {
+    const id = await taoNhap('6.1.0', 'MACOS', 'releases/x/b.dmg')
+    store.hashObject = async () => ({
+      sha256: '2'.repeat(64),
+      size: 600,
+      head: ZIP_HEAD,
+      tail: Buffer.alloc(512),
+    })
+    const ns = await request(app)
+      .post(`/api/admin/releases/${id}/seal`)
+      .set(await asUser(ADMIN))
+    expect(ns.status).toBe(422)
+    expect(ns.body.code).toBe('SAI_LOAI_TEP')
   })
 })
