@@ -10,6 +10,9 @@
 //      Ai lỡ gắn cổng 2FA lên đó thì OWNER tự khoá mình khỏi khu quản trị.
 //   3. Thứ tự cổng: phiên bị thu hồi (sessionVersion) bị chặn 401 TRƯỚC bước
 //      kiểm 2FA.
+//   4. Bất biến mà cổng DỰA VÀO: thứ đạt cổng (TOTP đã xác nhận) cũng chính là
+//      thứ khiến đăng nhập mật khẩu đòi mã. Passkey KHÔNG đạt cổng vì đăng nhập
+//      mật khẩu không đòi bước hai cho nó (lỗ mật-khẩu-đơn-thuần).
 export {}
 process.env.NODE_ENV = 'test'
 process.env.INTERNAL_IDENTITY_SECRET = 'khoa-test-du-dai-cho-hmac-256-bit!!'
@@ -23,6 +26,8 @@ const request = require('supertest')
 const { prisma } = require('@tsudev/db')
 const { signIdentity } = require('@tsudev/identity-token')
 const { app } = require('../src/index')
+const { hashPassword } = require('../src/password')
+const { encryptSecret, generateSecret } = require('../src/totp')
 
 const P = 'test-omfa-'
 const OWNER = `${P}owner`
@@ -185,4 +190,69 @@ describe('thứ tự cổng: thu hồi phiên chặn TRƯỚC kiểm 2FA', () =>
       .send({})
     expect(cur.status).toBe(200)
   }, 20000)
+})
+
+// Cổng quản trị chỉ có nghĩa nếu "đạt cổng" kéo theo "đăng nhập đã phải qua bước
+// hai". Phiên chưa ghi phương thức xác thực (amr), nên cổng không hỏi được phiên
+// NÀY đã dùng yếu tố nào - nó chỉ hỏi được tài khoản CÓ yếu tố nào, và dựa vào
+// việc đăng nhập mật khẩu ép dùng đúng yếu tố đó. Đổi một bên mà quên bên kia
+// thì khu quản trị lại mở cho mật khẩu đơn thuần.
+describe('bất biến: đạt cổng 2FA ⇒ đăng nhập mật khẩu đã phải qua bước hai', () => {
+  const PASSWORD = 'mot-mat-khau-du-dai-2026-omfa'
+  const IP = '203.0.113.77'
+
+  const login = (body: Record<string, unknown> = {}) =>
+    request(app)
+      .post('/api/identity/verify-credentials')
+      .set('x-forwarded-for', IP)
+      .send({ identifier: OWNER, password: PASSWORD, ...body })
+
+  beforeEach(async () => {
+    await prisma.loginAttempt.deleteMany({ where: { identifier: IP } })
+    await prisma.user.update({
+      where: { id: ownerId },
+      data: { passwordHash: await hashPassword(PASSWORD) },
+    })
+  })
+
+  afterAll(async () => {
+    await prisma.loginAttempt.deleteMany({ where: { identifier: IP } })
+  })
+
+  test('TOTP đã xác nhận: đạt cổng, VÀ đăng nhập mật khẩu thiếu mã ⇒ 401 totp_required', async () => {
+    await prisma.totpCredential.create({
+      data: {
+        userId: ownerId,
+        secretEnc: encryptSecret(generateSecret()),
+        confirmedAt: new Date(),
+      },
+    })
+    const gate = await request(app)
+      .post('/api/identity/useradmin/list')
+      .set(await asUser(OWNER))
+      .send({})
+    expect(gate.status).toBe(200)
+
+    const res = await login()
+    expect(res.status).toBe(401)
+    expect(res.body.error).toBe('totp_required')
+    const after = await prisma.user.findUnique({ where: { id: ownerId } })
+    expect(after.lastLoginAt).toBeNull()
+  }, 30000)
+
+  test('chỉ có passkey: mật khẩu đơn thuần đăng nhập được, NÊN cổng phải chặn', async () => {
+    await prisma.webAuthnCredential.create({
+      data: { userId: ownerId, credentialId: `${P}cred-${Date.now()}`, publicKey: 'x' },
+    })
+    // Đây là lỗ mà cổng phải bù: không mã, không passkey, vẫn 200.
+    const res = await login()
+    expect(res.status).toBe(200)
+
+    const gate = await request(app)
+      .post('/api/identity/useradmin/list')
+      .set(await asUser(OWNER))
+      .send({})
+    expect(gate.status).toBe(403)
+    expect(gate.body.code).toBe('MFA_REQUIRED')
+  }, 30000)
 })

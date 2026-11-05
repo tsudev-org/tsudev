@@ -1288,8 +1288,8 @@ const requireOwner = async (req: Request, res: Response) => {
     res.status(403).json({ error: 'forbidden' })
     return null
   }
-  // Ép 2FA (G6): OWNER chưa có TOTP đã xác nhận hoặc passkey ⇒ 403
-  // MFA_REQUIRED; lỗi DB ⇒ 503. Các route /totp/* và /passkey/register-* KHÔNG
+  // Ép 2FA (G6): OWNER chưa có TOTP đã xác nhận ⇒ 403
+  // MFA_REQUIRED (passkey KHÔNG tính - xem hasConfirmedTotp); lỗi DB ⇒ 503. Các route /totp/* và /passkey/register-* KHÔNG
   // đi qua requireOwner nên vẫn mở để OWNER tự bật 2FA.
   if (!(await requireSecondFactor(user, res))) return null
   return user

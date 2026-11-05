@@ -71,7 +71,7 @@ beforeEach(async () => {
           email: `${username}@tsudev.local`,
           displayName: username,
           role,
-          // Ép 2FA (G6): requireOwner đòi TOTP đã xác nhận hoặc passkey.
+          // Ép 2FA (G6): requireOwner đòi TOTP đã xác nhận (passkey không tính).
           // Các ca thiếu 2FA nằm ở khối "ép 2FA" cuối tệp.
           ...(role === 'OWNER'
             ? { totp: { create: { secretEnc: 'test', confirmedAt: new Date() } } }
@@ -261,7 +261,7 @@ describe('phân quyền, thu hồi, xoá', () => {
   }, 20000)
 })
 
-// G6 (docs/security-plan.md): OWNER chưa có TOTP ĐÃ XÁC NHẬN hoặc passkey thì
+// G6 (docs/security-plan.md): OWNER chưa có TOTP ĐÃ XÁC NHẬN thì
 // mọi route dưới requireOwner trả 403 MFA_REQUIRED - nhưng các route TỰ BẬT
 // 2FA phải vẫn mở, nếu không OWNER tự khoá mình khỏi khu quản trị.
 describe('ép 2FA cho OWNER', () => {
@@ -313,11 +313,17 @@ describe('ép 2FA cho OWNER', () => {
     expect((await post('list', BARE)).status).toBe(200)
   }, 20000)
 
-  test('có passkey (không TOTP) ⇒ 200', async () => {
+  test('chỉ có passkey (không TOTP) ⇒ 403 MFA_REQUIRED', async () => {
+    // Passkey KHÔNG đạt cổng: đăng nhập mật khẩu chỉ đòi bước hai khi có TOTP
+    // đã xác nhận, nên tài khoản chỉ có passkey vẫn vào được bằng mật khẩu đơn
+    // thuần. Tính passkey ở đây = mật khẩu lộ là vào được khu quản trị. Fail
+    // closed cho tới khi phiên ghi được amr (step-up B3).
     await prisma.webAuthnCredential.create({
       data: { userId: bareId, credentialId: `test-ua-cred-${Date.now()}`, publicKey: 'x' },
     })
-    expect((await post('list', BARE)).status).toBe(200)
+    const res = await post('list', BARE)
+    expect(res.status).toBe(403)
+    expect(res.body.code).toBe('MFA_REQUIRED')
   }, 20000)
 
   test('ADMIN (không phải OWNER) vẫn nhận 403 cũ, không phải MFA_REQUIRED', async () => {

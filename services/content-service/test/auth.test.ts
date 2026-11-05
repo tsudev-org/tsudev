@@ -97,7 +97,7 @@ describe('content-service: đọc công khai, ghi cần quản trị', () => {
   })
 })
 
-// G6 (docs/security-plan.md): ADMIN chưa có TOTP ĐÃ XÁC NHẬN hoặc passkey thì
+// G6 (docs/security-plan.md): ADMIN chưa có TOTP ĐÃ XÁC NHẬN thì
 // requireAdmin trả 403 MFA_REQUIRED. Dùng GET /api/admin/projects làm đại diện:
 // mọi route /api/admin/* đi qua cùng một requireAdmin.
 describe('content-service: ép 2FA cho ADMIN', () => {
@@ -152,14 +152,19 @@ describe('content-service: ép 2FA cho ADMIN', () => {
     expect(res.status).toBe(200)
   })
 
-  test('có passkey (không TOTP) ⇒ 200', async () => {
+  test('chỉ có passkey (không TOTP) ⇒ 403 MFA_REQUIRED', async () => {
+    // Passkey KHÔNG đạt cổng: đăng nhập mật khẩu chỉ đòi bước hai khi có TOTP
+    // đã xác nhận, nên tài khoản chỉ có passkey vẫn vào được bằng mật khẩu đơn
+    // thuần. Tính passkey ở đây = mật khẩu lộ là vào được khu quản trị. Fail
+    // closed cho tới khi phiên ghi được amr (step-up B3).
     await prisma.webAuthnCredential.create({
       data: { userId: adminId, credentialId: `test-mfa-content-${Date.now()}`, publicKey: 'x' },
     })
     const res = await request(app)
       .get('/api/admin/projects')
       .set(await asUser(ADMIN))
-    expect(res.status).toBe(200)
+    expect(res.status).toBe(403)
+    expect(res.body.code).toBe('MFA_REQUIRED')
   })
 
   test('MEMBER vẫn nhận 403 cũ, không phải MFA_REQUIRED', async () => {

@@ -135,14 +135,20 @@ describe('OWNER bị ép như ADMIN', () => {
     expect(res.status).toBe(200)
   })
 
-  test('OWNER có passkey ⇒ 200', async () => {
+  test('OWNER chỉ có passkey ⇒ 403 MFA_REQUIRED', async () => {
+    // Passkey KHÔNG đạt cổng: đăng nhập mật khẩu chỉ đòi bước hai khi có TOTP
+    // đã xác nhận, nên tài khoản chỉ có passkey vẫn vào được bằng mật khẩu đơn
+    // thuần. Tính passkey ở đây = mật khẩu lộ là vào được khu quản trị. Fail
+    // closed cho tới khi phiên ghi được amr (step-up B3).
     await prisma.webAuthnCredential.create({
       data: { userId: idOf(OWNER), credentialId: `${P}cred-${Date.now()}`, publicKey: 'x' },
     })
     const res = await request(app)
       .get('/api/admin/projects')
       .set(await asUser(OWNER))
-    expect(res.status).toBe(200)
+    expect(res.status).toBe(403)
+    expect(res.body.code).toBe('MFA_REQUIRED')
+    expect(res.body.error).toMatch(/TOTP/)
   })
 })
 

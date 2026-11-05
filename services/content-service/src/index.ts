@@ -612,8 +612,8 @@ async function requireAdmin(req: Request, res: Response): Promise<User | null> {
     res.status(403).json({ error: 'Yêu cầu quyền quản trị' })
     return null
   }
-  // Ép 2FA (G6): ADMIN chưa có TOTP đã xác nhận hoặc passkey ⇒ 403
-  // MFA_REQUIRED; lỗi DB ⇒ 503. Kiểm ở @tsudev/auth, dùng chung với requireOwner.
+  // Ép 2FA (G6): ADMIN chưa có TOTP đã xác nhận ⇒ 403
+  // MFA_REQUIRED (passkey KHÔNG tính - xem hasConfirmedTotp); lỗi DB ⇒ 503. Kiểm ở @tsudev/auth, dùng chung với requireOwner.
   if (!(await requireSecondFactor(user, res))) return null
   return user
 }
