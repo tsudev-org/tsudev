@@ -187,7 +187,10 @@ export type BaoCao = {
  * - với một cổng chạy hai lần một ngày thì vài giây không là gì.
  */
 export async function doNoiDung(base: string): Promise<BaoCao> {
-  const goc = base.replace(/\/+$/, '');
+  // Cắt '/' cuối bằng vòng lặp: `/\/+$/` thử lại từ MỌI vị trí của một chuỗi
+  // dài toàn '/' - đa thức (CodeQL js/polynomial-redos).
+  let goc = base;
+  while (goc.endsWith('/')) goc = goc.slice(0, -1);
   const ketQua: KetQua[] = [];
   for (const p of PHEP_DO) ketQua.push(await doMot(goc, p));
   const truot = ketQua.filter((r) => !r.chiGhiNhan && !r.dat);

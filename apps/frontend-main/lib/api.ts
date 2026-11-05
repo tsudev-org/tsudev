@@ -58,6 +58,16 @@ export type Fetched<T> = { data: T; failed: boolean };
  * thành `/api/admin/x` (kèm token nội bộ). `encodeURIComponent` giữ `/` trong
  * một đoạn; riêng `.`/`..` không bị nó mã hoá nên đổi thành slug không tồn tại.
  */
+/** Một dòng log: bỏ ký tự điều khiển (CR/LF…) khỏi giá trị do người gọi đặt. */
+function oneLine(v: unknown): string {
+  return (
+    String(v)
+      // eslint-disable-next-line no-control-regex -- CỐ Ý: chặn ký tự điều khiển (CR/LF, tab…)
+      .replace(/[\u0000-\u001f\u007f]+/g, ' ')
+      .slice(0, 300)
+  );
+}
+
 function seg(slug: string): string {
   return slug === '.' || slug === '..' ? '_' : encodeURIComponent(slug);
 }
@@ -69,12 +79,19 @@ async function getJSON<T>(url: string, fallback: T): Promise<Fetched<T>> {
       // Log ở phía server: đây là tầng duy nhất BIẾT lượt gọi đã thất bại, nên
       // im lặng ở đây là mất dấu vĩnh viễn. `console.error` của Worker đi vào
       // `wrangler tail`.
-      console.error(`[api] ${res.status} ${res.statusText} khi gọi ${url}`);
+      // Chuỗi định dạng CỐ ĐỊNH, giá trị đi qua %s: URL chứa slug do người gọi đặt,
+      // ghép thẳng vào đối số đầu thì `%o`/`%c` trong slug thành chỉ thị định dạng
+      // và xuống dòng giả được dòng log mới (CodeQL tainted-format-string, log-injection).
+      console.error('[api] %s %s khi gọi %s', res.status, oneLine(res.statusText), oneLine(url));
       return { data: fallback, failed: true };
     }
     return { data: (await res.json()) as T, failed: false };
   } catch (e) {
-    console.error(`[api] không gọi được ${url}:`, e instanceof Error ? e.message : e);
+    console.error(
+      '[api] không gọi được %s: %s',
+      oneLine(url),
+      oneLine(e instanceof Error ? e.message : e)
+    );
     return { data: fallback, failed: true };
   }
 }

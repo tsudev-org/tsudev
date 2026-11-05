@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from 'crypto';
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import { prisma } from '@tsudev/db';
 import type { User } from '@prisma/client';
@@ -213,4 +214,23 @@ export async function requireSecondFactor(user: Pick<User, 'id'>, res: Response)
     res.status(503).json({ error: 'Không kiểm tra được xác thực hai lớp' });
     return false;
   }
+}
+
+/**
+ * `x-internal-token` của request có khớp `expected` không - so THỜI GIAN HẰNG.
+ *
+ * `===` dừng ở byte sai đầu tiên, nên thời gian phản hồi rò rỉ độ dài tiền tố
+ * đúng: đủ lượt đo là đoán được token từng byte một. Token này là thứ duy nhất
+ * đứng giữa Internet và `/api` của ba service (backend chạy công khai trên
+ * Render), nên không chấp nhận `===` ở đây. Băm SHA-256 trước để hai bên luôn
+ * cùng độ dài - `timingSafeEqual` ném lỗi khi độ dài khác, và chính việc ném đó
+ * lại rò rỉ độ dài.
+ */
+export function internalTokenMatches(req: Request, expected: string): boolean {
+  if (!expected) return false;
+  const got = req.get('x-internal-token');
+  if (typeof got !== 'string' || !got) return false;
+  const a = createHash('sha256').update(got).digest();
+  const b = createHash('sha256').update(expected).digest();
+  return timingSafeEqual(a, b);
 }

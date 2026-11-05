@@ -122,6 +122,53 @@ export function callerIp(req: Request): string {
 }
 
 /**
+ * IP của bên kết nối TỚI HẠ TẦNG - phần tử CUỐI của `x-forwarded-for`.
+ *
+ * Phần tử ĐẦU do người gửi tự đặt được: gửi `X-Forwarded-For: <ip giả>` thì
+ * proxy của Render chỉ NỐI THÊM IP thật vào cuối. Giới hạn lưu lượng TRỰC TIẾP
+ * (không token) theo phần tử đầu là cho kẻ tấn công một xô mới ở mỗi request -
+ * cùng lỗi đã vá ở BFF ngày 05/11/2026 (lib/clientIp.ts). Phần tử cuối là thứ
+ * proxy tin cậy gần nhất ghi, người gửi không sửa được.
+ *
+ * `callerIp` (phần tử đầu) vẫn đúng cho lưu lượng ĐÃ QUA cổng token: khi đó BFF
+ * là bên đặt header, bằng IP thật lấy từ CF-Connecting-IP.
+ */
+export function peerIp(req: Request): string {
+  const raw = req.headers['x-forwarded-for'];
+  const joined = Array.isArray(raw) ? raw.join(',') : raw || '';
+  const parts = joined
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return (parts[parts.length - 1] || req.ip || 'unknown').slice(0, 45);
+}
+
+/**
+ * Khoá xô theo TÀI KHOẢN cho lưu lượng đã qua BFF: `sub` trong khẳng định danh
+ * tính (`Authorization: Bearer <jwt>`), lùi về `callerIp` khi không có.
+ *
+ * Đọc `sub` mà KHÔNG kiểm chữ ký - cố ý: đây chỉ là chọn xô, không phải xác
+ * thực (middleware xác thực chạy sau và vẫn kiểm đầy đủ). Kẻ không có
+ * INTERNAL_API_TOKEN không tới được đây; BFF ký khẳng định cho đúng người dùng
+ * thật, nên `sub` là tài khoản thật. Không giải mã được thì lùi về IP.
+ */
+export function identityKey(req: Request): string {
+  const h = req.headers.authorization;
+  const m = typeof h === 'string' ? /^Bearer\s+([^.\s]+)\.([^.\s]+)\./.exec(h) : null;
+  if (m) {
+    try {
+      const payload = JSON.parse(Buffer.from(m[2] as string, 'base64url').toString('utf8'));
+      if (payload && typeof payload.sub === 'string' && payload.sub) {
+        return `u:${payload.sub.slice(0, 64)}`;
+      }
+    } catch {
+      // rơi xuống IP
+    }
+  }
+  return `ip:${callerIp(req)}`;
+}
+
+/**
  * Giới hạn riêng cho yêu cầu xin mốc `page_size` LỚN (>= 100).
  *
  * DATA_TABLE.md mục 8.4 gọi đây là "cái giá của việc nâng trần từ 100 lên 200,

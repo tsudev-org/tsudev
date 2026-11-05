@@ -15,8 +15,13 @@ try {
 import express from 'express'
 import type { ErrorRequestHandler, NextFunction, Request, RequestHandler, Response } from 'express'
 import { prisma } from '@tsudev/db'
-import { createAuthMiddleware, lookupUser, requireSecondFactor } from '@tsudev/auth'
-import { createRateLimit, largePageRateLimit } from '@tsudev/ratelimit'
+import {
+  createAuthMiddleware,
+  internalTokenMatches,
+  lookupUser,
+  requireSecondFactor,
+} from '@tsudev/auth'
+import { createRateLimit, identityKey, largePageRateLimit, peerIp } from '@tsudev/ratelimit'
 import type { Doc, Post, Prisma, Project, ProjectRelease, User } from '@prisma/client'
 import { hasAtLeastRole, emailUsable, pageMeta, parsePaging, MAX_PAGE_SIZE } from '@tsudev/types'
 import * as releaseSigning from './releaseSigning'
@@ -123,19 +128,35 @@ const INTERNAL_TOKEN = process.env.INTERNAL_API_TOKEN || ''
 // rẻ tiền. Ngưỡng chỉnh được qua env cho vận hành và test.
 const directLimit = createRateLimit({
   name: 'content-direct',
+  // IP NGANG HÀNG (phần tử cuối XFF): phần tử đầu do người gửi tự đặt được.
+  keyOf: peerIp,
   windowMs: 60_000,
   max: Number(process.env.RATE_LIMIT_DIRECT_MAX) || 300,
 })
 app.use('/api', (req, res, next) => {
-  if (INTERNAL_TOKEN && req.get('x-internal-token') === INTERNAL_TOKEN) return next()
+  if (internalTokenMatches(req, INTERNAL_TOKEN)) return next()
   return directLimit(req, res, next)
 })
 
 app.use('/api', (req, res, next) => {
   if (!INTERNAL_TOKEN) return next()
-  if (req.get('x-internal-token') === INTERNAL_TOKEN) return next()
+  if (internalTokenMatches(req, INTERNAL_TOKEN)) return next()
   return res.status(401).json({ error: 'Thiếu hoặc sai x-internal-token' })
 })
+
+// Giới hạn THEO TÀI KHOẢN cho lưu lượng đã xác thực đi qua BFF. `directLimit` ở
+// trên miễn trừ BFF (mọi người dùng chung IP egress của Worker), nên trước đây
+// một tài khoản đã đăng nhập gọi được các đường ghi KHÔNG giới hạn. Khoá là `sub`
+// của khẳng định danh tính (identityKey); chỉ đếm request CÓ danh tính - SSR ẩn
+// danh của các trang công khai không bị gộp vào một xô.
+const accountLimit = createRateLimit({
+  name: 'content-account',
+  windowMs: 60_000,
+  max: Number(process.env.RATE_LIMIT_ACCOUNT_MAX) || 600,
+  keyOf: identityKey,
+  when: (req) => typeof req.headers.authorization === 'string',
+})
+app.use('/api', accountLimit)
 
 // XÁC THỰC TUỲ CHỌN, không phải chặn cứng. Gắn req.user nếu người gọi có mang
 // danh tính; KHÔNG từ chối nếu không có.
@@ -1611,13 +1632,17 @@ async function requireVerifiedAuthor(req: Request, res: Response): Promise<User 
 // Suy slug từ tiêu đề tiếng Việt: bỏ dấu (NFD tách dấu ra rồi xoá), đ→d, gom
 // mọi thứ không phải [a-z0-9] thành gạch nối. Kết quả vẫn được SLUG_RE kiểm lại.
 const slugify = (s: string): string =>
+  // Cắt độ dài TRƯỚC: tiêu đề do người dùng gửi, và mọi bước sau tỉ lệ với nó.
   s
+    .slice(0, 500)
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .replace(/[đĐ]/g, 'd')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+    // Bước trên đã gom mọi chuỗi ký tự lạ thành MỘT '-', nên mỗi đầu có tối đa
+    // một '-'. `/^-+|-+$/` trên chuỗi dài toàn '-' là đa thức (js/polynomial-redos).
+    .replace(/^-|-$/g, '')
 
 type PostRef = { label: string; url: string }
 type PostWritable = {
