@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20261105-05
 - **Từ**: phiên 35 - **Đến**: phiên 36 (các agent ở `.claude/agents/`) + chủ dự án
 - **Thời điểm**: 05/11/2026, cuối phiên 35
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÃ ĐÓNG (phiên 36 - mục còn mở chuyển sang [`20261105-06`](20261105-06_ket-phien-36-icon-a4.md))
 - **Thay phiếu**: [`20261105-04`](20261105-04_giao-viec-phien-35-attt.md) - ĐÃ ĐÓNG (giai đoạn 1 xong; mục còn mở chuyển sang đây)
 - **Tài liệu gốc**: [`docs/security-plan.md`](../../docs/security-plan.md) §2.3, §3, §4. Bảng giai đoạn 2 (B1-B7) vẫn ở phiếu 04 §3 - đọc ở đó.
 

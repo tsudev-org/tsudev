@@ -10,7 +10,7 @@
     "pretest": "tsc -b ../.."
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "dependencies": {
     "@node-rs/argon2": "2.2.2",
