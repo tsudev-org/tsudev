@@ -801,6 +801,68 @@ describe('§3.3 - siết tải lên: fileSize, trần, đuôi, magic bytes', () 
     expect(releaseSigning.verify(ns.body.signature).valid).toBe(true)
   })
 
+  test('seal: đuôi storageKey viết HOA vẫn nhận ra loại và ký', async () => {
+    const id = await taoNhap('6.2.0', 'ANDROID', 'releases/x/APP.APK')
+    store.hashObject = async () => ({
+      sha256: '3'.repeat(64),
+      size: 100,
+      head: ZIP_HEAD,
+      tail: Buffer.alloc(0),
+    })
+    const ns = await request(app)
+      .post(`/api/admin/releases/${id}/seal`)
+      .set(await asUser(ADMIN))
+    expect(ns.status).toBe(200)
+    expect(releaseSigning.verify(ns.body.signature).valid).toBe(true)
+  })
+
+  test('seal: đuôi HOA nhưng nội dung sai loại vẫn 422 - hoa thường không mở cửa sau', async () => {
+    const id = await taoNhap('6.3.0', 'WINDOWS', 'releases/x/SETUP.EXE')
+    store.hashObject = async () => ({
+      sha256: '4'.repeat(64),
+      size: 100,
+      head: ZIP_HEAD,
+      tail: Buffer.alloc(0),
+    })
+    const ns = await request(app)
+      .post(`/api/admin/releases/${id}/seal`)
+      .set(await asUser(ADMIN))
+    expect(ns.status).toBe(422)
+    expect(ns.body.code).toBe('SAI_LOAI_TEP')
+  })
+
+  test('seal: tệp hợp lệ nhưng đuôi thuộc nền tảng KHÁC ⇒ 422, không đọc kho', async () => {
+    const id = await taoNhap('6.4.0', 'WINDOWS', 'releases/x/app.apk')
+    let daDoc = false
+    store.hashObject = async () => {
+      daDoc = true
+      return { sha256: '5'.repeat(64), size: 100, head: ZIP_HEAD, tail: Buffer.alloc(0) }
+    }
+    const ns = await request(app)
+      .post(`/api/admin/releases/${id}/seal`)
+      .set(await asUser(ADMIN))
+    expect(ns.status).toBe(422)
+    expect(ns.body.code).toBe('DUOI_TEP_KHONG_CHO_PHEP')
+    expect(daDoc).toBe(false)
+  })
+
+  test('bất biến cũ vẫn giữ sau khi siết: signingKid trần ⇒ 400, sha256 tệp R2 khai tay ⇒ 400', async () => {
+    const h = await asUser(ADMIN)
+    const kid = await request(app)
+      .post(`/api/admin/projects/${SLUG}/releases`)
+      .set(h)
+      .send({ version: '6.5.0', platform: 'ANDROID', storageKey: 'r/a.apk', signingKid: 'k' })
+    expect(kid.status).toBe(400)
+    const id = await taoNhap('6.5.1', 'ANDROID', 'releases/x/e.apk')
+    for (const than of [{ sha256: SHA }, { signature: 'abc' }, { signingKid: 'k' }]) {
+      const p = await request(app).patch(`/api/admin/releases/${id}`).set(h).send(than)
+      expect(p.status).toBe(400)
+    }
+    const r = await prisma.projectRelease.findUnique({ where: { id } })
+    expect(r?.sha256).toBeNull()
+    expect(r?.signature).toBeNull()
+  })
+
   test('seal: .dmg thiếu khối koly ở 512 byte cuối ⇒ 422 SAI_LOAI_TEP', async () => {
     const id = await taoNhap('6.1.0', 'MACOS', 'releases/x/b.dmg')
     store.hashObject = async () => ({
