@@ -1144,6 +1144,27 @@ function shaTuClientChoTep(
   return null
 }
 
+/// `storageKey` phải nằm dưới `releases/<slug>/` của ĐÚNG dự án (§3.3, 05/11/2026).
+///
+/// `storageKey` do `upload-url` cấp nhưng đi vòng qua client rồi mới quay lại ở
+/// bước tạo/sửa. Không kiểm thì một bản phát hành của dự án A trỏ được vào tệp
+/// của dự án B (hay bất kỳ object nào trong bucket), và niêm phong sẽ ký tệp đó
+/// dưới tên dự án A. Chặn cả đoạn rỗng, `.` và `..`: khoá S3 không chuẩn hoá
+/// đường dẫn, nhưng một khoá trông như leo thư mục thì không có lý do để nhận.
+function loiKhoaKhongThuocDuAn(slug: string, key: unknown): string | null {
+  if (typeof key !== 'string' || !key) return null
+  const tienTo = `releases/${slug}/`
+  const sai =
+    !slug ||
+    !key.startsWith(tienTo) ||
+    key.length === tienTo.length ||
+    key.includes('\\') ||
+    key.split('/').some((d) => d === '' || d === '.' || d === '..')
+  return sai
+    ? `storageKey phải nằm dưới ${tienTo} (khoá do upload-url của chính dự án này cấp)`
+    : null
+}
+
 /// Danh sách phát hành cho trang quản trị - GỒM CẢ bản nháp và bản đã xoá mềm.
 app.get(
   '/api/admin/projects/:slug/releases',
@@ -1176,6 +1197,8 @@ app.post(
     if (!parsed.ok) return res.status(400).json({ error: parsed.error })
     const loiSha = shaTuClientChoTep(parsed.data)
     if (loiSha) return res.status(400).json({ error: loiSha })
+    const loiKhoa = loiKhoaKhongThuocDuAn(String(req.params.slug), parsed.data.storageKey)
+    if (loiKhoa) return res.status(400).json({ code: 'STORAGE_KEY_SAI_DU_AN', error: loiKhoa })
     const loi = kiemBatBienRelease(parsed.data)
     if (loi) return res.status(400).json({ error: loi })
 
@@ -1214,9 +1237,41 @@ app.patch(
     const ghep: Record<string, unknown> = { ...current, ...parsed.data }
     const loiSha = shaTuClientChoTep(ghep, parsed.data)
     if (loiSha) return res.status(400).json({ error: loiSha })
+
+    const project = await prisma.project.findUnique({
+      where: { id: current.projectId },
+      select: { slug: true },
+    })
+    const slug = project?.slug ?? ''
+    if (parsed.data.storageKey) {
+      const loiKhoa = loiKhoaKhongThuocDuAn(slug, parsed.data.storageKey)
+      if (loiKhoa) return res.status(400).json({ code: 'STORAGE_KEY_SAI_DU_AN', error: loiKhoa })
+    }
+
+    // Đổi NỀN TẢNG của bản có tệp trong R2: loại tệp phải hợp với nền tảng mới,
+    // và checksum + chữ ký cũ phải bỏ. Chữ ký phủ `platform`, nên giữ sha256 rồi
+    // ký lại là chứng thực "bản WINDOWS" cho một tệp chỉ từng được kiểm magic
+    // bytes như một `.apk` (lỗi qa-test tìm ra ở A3, 05/11/2026). Đuôi không
+    // hợp ⇒ 422, không ghi gì; hợp ⇒ xoá, buộc niêm phong lại (seal kiểm magic
+    // bytes theo nền tảng mới).
+    const doiNenTang =
+      parsed.data.platform !== undefined && parsed.data.platform !== current.platform
+    if (doiNenTang && ghep.storageKey) {
+      const nenTang = String(parsed.data.platform)
+      if (!loaiTepPhatHanh(nenTang, String(ghep.storageKey)))
+        return res.status(422).json({
+          code: 'DUOI_TEP_KHONG_CHO_PHEP',
+          error: `tệp hiện tại không thuộc danh sách trắng của ${nenTang} - chỉ nhận: ${
+            (RELEASE_FILE_TYPES[nenTang] ?? []).map((l) => l.duoi).join(' ') || '(không có tệp)'
+          }`,
+        })
+    }
     // Đổi tệp (storageKey mới) thì checksum cũ không còn là của tệp này nữa:
-    // xoá, buộc niêm phong lại.
-    if (parsed.data.storageKey !== undefined && parsed.data.storageKey !== current.storageKey) {
+    // xoá, buộc niêm phong lại. Đổi nền tảng của tệp R2 cũng vậy (xem trên).
+    if (
+      (parsed.data.storageKey !== undefined && parsed.data.storageKey !== current.storageKey) ||
+      (doiNenTang && ghep.storageKey)
+    ) {
       ghep.sha256 = null
       ghep.fileSize = null
       parsed.data.sha256 = null
@@ -1226,15 +1281,11 @@ app.patch(
     const loi = kiemBatBienRelease({ ...ghep, signature: null, signingKid: null })
     if (loi) return res.status(400).json({ error: loi })
 
-    const project = await prisma.project.findUnique({
-      where: { id: current.projectId },
-      select: { slug: true },
-    })
     const r = await prisma.projectRelease.update({
       where: { id: current.id },
       data: {
         ...parsed.data,
-        ...kyLaiNeuCo(project?.slug ?? '', ghep),
+        ...kyLaiNeuCo(slug, ghep),
       } as Prisma.ProjectReleaseUncheckedUpdateInput,
     })
     res.json(r)
@@ -1374,6 +1425,9 @@ app.post(
       return res
         .status(409)
         .json({ error: 'Chỉ niêm phong được bản có tệp trong R2 (không phải đường dẫn ngoài)' })
+
+    const loiKhoa = loiKhoaKhongThuocDuAn(current.project.slug, current.storageKey)
+    if (loiKhoa) return res.status(422).json({ code: 'STORAGE_KEY_SAI_DU_AN', error: loiKhoa })
 
     const loai = loaiTepPhatHanh(current.platform, current.storageKey)
     if (!loai)

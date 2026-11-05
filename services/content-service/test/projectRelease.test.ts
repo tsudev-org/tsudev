@@ -94,7 +94,7 @@ describe('phân quyền đường ghi', () => {
   test('không đăng nhập thì POST trả 401', async () => {
     const res = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases`)
-      .send({ version: '1.0.0', platform: 'ANDROID', storageKey: 'r/a.apk' })
+      .send({ version: '1.0.0', platform: 'ANDROID', storageKey: `releases/${SLUG}/r/a.apk` })
     expect(res.status).toBe(401)
   })
 
@@ -102,14 +102,19 @@ describe('phân quyền đường ghi', () => {
     const res = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases`)
       .set(await asUser(THUONG))
-      .send({ version: '1.0.0', platform: 'ANDROID', storageKey: 'r/a.apk' })
+      .send({ version: '1.0.0', platform: 'ANDROID', storageKey: `releases/${SLUG}/r/a.apk` })
     expect(res.status).toBe(403)
   })
 
   test('PATCH và DELETE cũng tự gọi requireAdmin', async () => {
     const h = await asUser(THUONG)
     const r = await prisma.projectRelease.create({
-      data: { projectId, version: '1.0.0', platform: 'ANDROID', storageKey: 'r/a.apk' },
+      data: {
+        projectId,
+        version: '1.0.0',
+        platform: 'ANDROID',
+        storageKey: `releases/${SLUG}/r/a.apk`,
+      },
     })
     expect((await request(app).patch(`/api/admin/releases/${r.id}`).set(h).send({})).status).toBe(
       403
@@ -135,7 +140,7 @@ describe('ba bất biến của thân request', () => {
       .send({
         version: '1.0.0',
         platform: 'ANDROID',
-        storageKey: 'r/a.apk',
+        storageKey: `releases/${SLUG}/r/a.apk`,
         externalUrl: 'https://x.test/a.apk',
       })
     expect(res.status).toBe(400)
@@ -161,7 +166,12 @@ describe('ba bất biến của thân request', () => {
     const res = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases`)
       .set(await asUser(ADMIN))
-      .send({ version: '1.0.0', platform: 'ANDROID', storageKey: 'r/a.apk', sha256: SHA })
+      .send({
+        version: '1.0.0',
+        platform: 'ANDROID',
+        storageKey: `releases/${SLUG}/r/a.apk`,
+        sha256: SHA,
+      })
     expect(res.status).toBe(400)
     expect(res.body.error).toMatch(/Niêm phong/)
   })
@@ -183,7 +193,12 @@ describe('ba bất biến của thân request', () => {
     const res = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases`)
       .set(await asUser(ADMIN))
-      .send({ version: '1.0.0', platform: 'ANDROID', storageKey: 'r/a.apk', published: true })
+      .send({
+        version: '1.0.0',
+        platform: 'ANDROID',
+        storageKey: `releases/${SLUG}/r/a.apk`,
+        published: true,
+      })
     expect(res.status).toBe(400)
     expect(res.body.error).toMatch(/niêm phong/)
   })
@@ -192,7 +207,7 @@ describe('ba bất biến của thân request', () => {
     const res = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases`)
       .set(await asUser(ADMIN))
-      .send({ version: '1.0.0', platform: 'SYMBIAN', storageKey: 'r/a.apk' })
+      .send({ version: '1.0.0', platform: 'SYMBIAN', storageKey: `releases/${SLUG}/r/a.apk` })
     expect(res.status).toBe(400)
   })
 
@@ -214,7 +229,7 @@ describe('ba bất biến của thân request', () => {
    */
   test('trùng khi KHÔNG khai arch cũng phải 409 - NULL != NULL trong SQL', async () => {
     const h = await asUser(ADMIN)
-    const than = { version: '3.0.0', platform: 'ANDROID', storageKey: 'r/a.apk' }
+    const than = { version: '3.0.0', platform: 'ANDROID', storageKey: `releases/${SLUG}/r/a.apk` }
     const dau = await request(app).post(`/api/admin/projects/${SLUG}/releases`).set(h).send(than)
     expect(dau.status).toBe(201)
     // Đối ngoại `arch` vẫn là null dù trong database là chuỗi rỗng.
@@ -229,18 +244,28 @@ describe('ba bất biến của thân request', () => {
     const a = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases`)
       .set(h)
-      .send({ version: '4.0.0', platform: 'LINUX', storageKey: 'r/a.deb', arch: null })
+      .send({
+        version: '4.0.0',
+        platform: 'LINUX',
+        storageKey: `releases/${SLUG}/r/a.deb`,
+        arch: null,
+      })
     expect(a.status).toBe(201)
     const b = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases`)
       .set(h)
-      .send({ version: '4.0.0', platform: 'LINUX', storageKey: 'r/b.deb' })
+      .send({ version: '4.0.0', platform: 'LINUX', storageKey: `releases/${SLUG}/r/b.deb` })
     expect(b.status).toBe(409)
   })
 
   test('trùng (version, platform, arch) thì 409, không phải 500', async () => {
     const h = await asUser(ADMIN)
-    const than = { version: '1.0.0', platform: 'ANDROID', arch: 'arm64', storageKey: 'r/a.apk' }
+    const than = {
+      version: '1.0.0',
+      platform: 'ANDROID',
+      arch: 'arm64',
+      storageKey: `releases/${SLUG}/r/a.apk`,
+    }
     expect(
       (await request(app).post(`/api/admin/projects/${SLUG}/releases`).set(h).send(than)).status
     ).toBe(201)
@@ -256,7 +281,7 @@ describe('đường đọc công khai', () => {
         projectId,
         version: '1.0.0',
         platform: 'ANDROID',
-        storageKey: 'releases/bi-mat.apk',
+        storageKey: `releases/${SLUG}/bi-mat.apk`,
         publishedAt: new Date(),
       },
     })
@@ -279,7 +304,12 @@ describe('đường đọc công khai', () => {
 
   test('bản NHÁP không lọt ra công khai, nhưng admin thấy', async () => {
     await prisma.projectRelease.create({
-      data: { projectId, version: '2.0.0-nhap', platform: 'WINDOWS', storageKey: 'r/n.exe' },
+      data: {
+        projectId,
+        version: '2.0.0-nhap',
+        platform: 'WINDOWS',
+        storageKey: `releases/${SLUG}/r/n.exe`,
+      },
     })
     const congKhai = await request(app).get(`/api/projects/${SLUG}/releases`)
     expect(congKhai.body).toHaveLength(0)
@@ -299,7 +329,7 @@ describe('đường đọc công khai', () => {
           version: '1.0.0',
           platform: 'ANDROID',
           channel: 'STABLE',
-          storageKey: 'r/s.apk',
+          storageKey: `releases/${SLUG}/r/s.apk`,
           publishedAt: new Date(),
         },
         {
@@ -307,7 +337,7 @@ describe('đường đọc công khai', () => {
           version: '1.1.0',
           platform: 'ANDROID',
           channel: 'BETA',
-          storageKey: 'r/b.apk',
+          storageKey: `releases/${SLUG}/r/b.apk`,
           publishedAt: new Date(),
         },
       ],
@@ -325,7 +355,7 @@ describe('đường đọc công khai', () => {
         projectId,
         version: '1.0.0',
         platform: 'ANDROID',
-        storageKey: 'r/a.apk',
+        storageKey: `releases/${SLUG}/r/a.apk`,
         publishedAt: new Date(),
         deletedAt: new Date(),
       },
@@ -347,7 +377,7 @@ describe('đường đọc công khai', () => {
         projectId,
         version: '1.0.0',
         platform: 'ANDROID',
-        storageKey: 'r/a.apk',
+        storageKey: `releases/${SLUG}/r/a.apk`,
         publishedAt: new Date(),
       },
     })
@@ -413,7 +443,12 @@ describe('đường tải', () => {
 
   test('bản nháp KHÔNG tải được - cổng không chỉ ở đường liệt kê', async () => {
     const r = await prisma.projectRelease.create({
-      data: { projectId, version: '9.9.9', platform: 'ANDROID', storageKey: 'r/n.apk' },
+      data: {
+        projectId,
+        version: '9.9.9',
+        platform: 'ANDROID',
+        storageKey: `releases/${SLUG}/r/n.apk`,
+      },
     })
     const res = await request(app).get(`/api/projects/${SLUG}/releases/${r.id}/download`)
     expect(res.status).toBe(404)
@@ -428,7 +463,7 @@ describe('đường tải', () => {
         projectId: khac.id,
         version: '1.0.0',
         platform: 'ANDROID',
-        storageKey: 'r/x.apk',
+        storageKey: `releases/${SLUG}/r/x.apk`,
         publishedAt: new Date(),
       },
     })
@@ -444,7 +479,12 @@ describe('đường tải', () => {
 describe('xoá mềm', () => {
   test('DELETE đặt deletedAt, không xoá hàng', async () => {
     const r = await prisma.projectRelease.create({
-      data: { projectId, version: '1.0.0', platform: 'ANDROID', storageKey: 'r/a.apk' },
+      data: {
+        projectId,
+        version: '1.0.0',
+        platform: 'ANDROID',
+        storageKey: `releases/${SLUG}/r/a.apk`,
+      },
     })
     const res = await request(app)
       .delete(`/api/admin/releases/${r.id}`)
@@ -491,20 +531,23 @@ describe('§6.6 - tải lên R2, niêm phong, ký', () => {
 
   test('seal: máy chủ tính sha256 + dung lượng THẬT rồi ký; chữ ký kiểm được ở JWKS', async () => {
     const h = await asUser(ADMIN)
-    const tao = await request(app).post(`/api/admin/projects/${SLUG}/releases`).set(h).send({
-      version: '2.0.0',
-      platform: 'ANDROID',
-      storageKey: 'releases/x/app.apk',
-      fileName: 'app.apk',
-      fileSize: 1, // lời khai sai của client - phải bị thay bằng số thật
-    })
+    const tao = await request(app)
+      .post(`/api/admin/projects/${SLUG}/releases`)
+      .set(h)
+      .send({
+        version: '2.0.0',
+        platform: 'ANDROID',
+        storageKey: `releases/${SLUG}/x/app.apk`,
+        fileName: 'app.apk',
+        fileSize: 1, // lời khai sai của client - phải bị thay bằng số thật
+      })
     expect(tao.status).toBe(201)
     expect(tao.body.sha256).toBeNull()
     expect(tao.body.signature).toBeNull()
 
     const SHA_THAT = 'b'.repeat(64)
     store.hashObject = async (key: string) => {
-      expect(key).toBe('releases/x/app.apk')
+      expect(key).toBe(`releases/${SLUG}/x/app.apk`)
       return { sha256: SHA_THAT, size: 4242, head: ZIP_HEAD, tail: Buffer.alloc(0) }
     }
     const ns = await request(app).post(`/api/admin/releases/${tao.body.id}/seal`).set(h)
@@ -538,7 +581,7 @@ describe('§6.6 - tải lên R2, niêm phong, ký', () => {
     const tao = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases`)
       .set(h)
-      .send({ version: '2.1.0', platform: 'ANDROID', storageKey: 'releases/x/b.apk' })
+      .send({ version: '2.1.0', platform: 'ANDROID', storageKey: `releases/${SLUG}/x/b.apk` })
     store.hashObject = async () => {
       throw new Error('NoSuchKey')
     }
@@ -587,7 +630,7 @@ describe('§6.6 - tải lên R2, niêm phong, ký', () => {
     const tao = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases`)
       .set(h)
-      .send({ version: '2.4.0', platform: 'ANDROID', storageKey: 'releases/x/c.apk' })
+      .send({ version: '2.4.0', platform: 'ANDROID', storageKey: `releases/${SLUG}/x/c.apk` })
     store.hashObject = async () => ({
       sha256: 'c'.repeat(64),
       size: 10,
@@ -599,7 +642,7 @@ describe('§6.6 - tải lên R2, niêm phong, ký', () => {
     const doi = await request(app)
       .patch(`/api/admin/releases/${tao.body.id}`)
       .set(h)
-      .send({ storageKey: 'releases/x/d.apk' })
+      .send({ storageKey: `releases/${SLUG}/x/d.apk` })
     expect(doi.status).toBe(200)
     expect(doi.body.sha256).toBeNull()
     expect(doi.body.signature).toBeNull()
@@ -729,7 +772,7 @@ describe('§3.3 - siết tải lên: fileSize, trần, đuôi, magic bytes', () 
   }
 
   test('seal: .txt đổi đuôi .apk ⇒ 422 SAI_LOAI_TEP, không ghi gì, không ký', async () => {
-    const id = await taoNhap('5.0.0', 'ANDROID', 'releases/x/ghi-chu.apk')
+    const id = await taoNhap('5.0.0', 'ANDROID', `releases/${SLUG}/x/ghi-chu.apk`)
     const noiDung = Buffer.from('Day chi la mot tep van ban thuong.\n')
     store.hashObject = async () => ({
       sha256: 'd'.repeat(64),
@@ -748,7 +791,7 @@ describe('§3.3 - siết tải lên: fileSize, trần, đuôi, magic bytes', () 
   })
 
   test('seal: đuôi storageKey ngoài danh sách trắng ⇒ 422, không đọc kho', async () => {
-    const id = await taoNhap('5.1.0', 'ANDROID', 'releases/x/app.txt')
+    const id = await taoNhap('5.1.0', 'ANDROID', `releases/${SLUG}/x/app.txt`)
     let daDoc = false
     store.hashObject = async () => {
       daDoc = true
@@ -763,7 +806,7 @@ describe('§3.3 - siết tải lên: fileSize, trần, đuôi, magic bytes', () 
   })
 
   test('seal: tệp thật trong kho vượt trần ⇒ 422 VUOT_TRAN_KICH_THUOC', async () => {
-    const id = await taoNhap('5.2.0', 'ANDROID', 'releases/x/to.apk')
+    const id = await taoNhap('5.2.0', 'ANDROID', `releases/${SLUG}/x/to.apk`)
     store.hashObject = async () => ({
       sha256: 'f'.repeat(64),
       size: 2 * 1024 ** 3 + 1,
@@ -780,14 +823,24 @@ describe('§3.3 - siết tải lên: fileSize, trần, đuôi, magic bytes', () 
   })
 
   test.each([
-    ['WINDOWS', 'releases/x/a.exe', Buffer.from('MZ\x90\x00', 'latin1'), Buffer.alloc(0)],
-    ['MACOS', 'releases/x/a.pkg', Buffer.from('xar!\x00\x1c', 'latin1'), Buffer.alloc(0)],
-    ['LINUX', 'releases/x/a.AppImage', Buffer.from('\x7fELF\x02\x01', 'latin1'), Buffer.alloc(0)],
-    ['LINUX', 'releases/x/a.deb', Buffer.from('!<arch>\ndebian', 'latin1'), Buffer.alloc(0)],
-    ['LINUX', 'releases/x/a.tar.gz', Buffer.from([0x1f, 0x8b, 0x08]), Buffer.alloc(0)],
+    ['WINDOWS', `releases/${SLUG}/x/a.exe`, Buffer.from('MZ\x90\x00', 'latin1'), Buffer.alloc(0)],
+    ['MACOS', `releases/${SLUG}/x/a.pkg`, Buffer.from('xar!\x00\x1c', 'latin1'), Buffer.alloc(0)],
+    [
+      'LINUX',
+      `releases/${SLUG}/x/a.AppImage`,
+      Buffer.from('\x7fELF\x02\x01', 'latin1'),
+      Buffer.alloc(0),
+    ],
+    [
+      'LINUX',
+      `releases/${SLUG}/x/a.deb`,
+      Buffer.from('!<arch>\ndebian', 'latin1'),
+      Buffer.alloc(0),
+    ],
+    ['LINUX', `releases/${SLUG}/x/a.tar.gz`, Buffer.from([0x1f, 0x8b, 0x08]), Buffer.alloc(0)],
     [
       'MACOS',
-      'releases/x/a.dmg',
+      `releases/${SLUG}/x/a.dmg`,
       Buffer.from([0x78, 0xda]),
       Buffer.concat([Buffer.from('koly'), Buffer.alloc(508)]),
     ],
@@ -802,7 +855,7 @@ describe('§3.3 - siết tải lên: fileSize, trần, đuôi, magic bytes', () 
   })
 
   test('seal: đuôi storageKey viết HOA vẫn nhận ra loại và ký', async () => {
-    const id = await taoNhap('6.2.0', 'ANDROID', 'releases/x/APP.APK')
+    const id = await taoNhap('6.2.0', 'ANDROID', `releases/${SLUG}/x/APP.APK`)
     store.hashObject = async () => ({
       sha256: '3'.repeat(64),
       size: 100,
@@ -817,7 +870,7 @@ describe('§3.3 - siết tải lên: fileSize, trần, đuôi, magic bytes', () 
   })
 
   test('seal: đuôi HOA nhưng nội dung sai loại vẫn 422 - hoa thường không mở cửa sau', async () => {
-    const id = await taoNhap('6.3.0', 'WINDOWS', 'releases/x/SETUP.EXE')
+    const id = await taoNhap('6.3.0', 'WINDOWS', `releases/${SLUG}/x/SETUP.EXE`)
     store.hashObject = async () => ({
       sha256: '4'.repeat(64),
       size: 100,
@@ -832,7 +885,7 @@ describe('§3.3 - siết tải lên: fileSize, trần, đuôi, magic bytes', () 
   })
 
   test('seal: tệp hợp lệ nhưng đuôi thuộc nền tảng KHÁC ⇒ 422, không đọc kho', async () => {
-    const id = await taoNhap('6.4.0', 'WINDOWS', 'releases/x/app.apk')
+    const id = await taoNhap('6.4.0', 'WINDOWS', `releases/${SLUG}/x/app.apk`)
     let daDoc = false
     store.hashObject = async () => {
       daDoc = true
@@ -851,9 +904,14 @@ describe('§3.3 - siết tải lên: fileSize, trần, đuôi, magic bytes', () 
     const kid = await request(app)
       .post(`/api/admin/projects/${SLUG}/releases`)
       .set(h)
-      .send({ version: '6.5.0', platform: 'ANDROID', storageKey: 'r/a.apk', signingKid: 'k' })
+      .send({
+        version: '6.5.0',
+        platform: 'ANDROID',
+        storageKey: `releases/${SLUG}/r/a.apk`,
+        signingKid: 'k',
+      })
     expect(kid.status).toBe(400)
-    const id = await taoNhap('6.5.1', 'ANDROID', 'releases/x/e.apk')
+    const id = await taoNhap('6.5.1', 'ANDROID', `releases/${SLUG}/x/e.apk`)
     for (const than of [{ sha256: SHA }, { signature: 'abc' }, { signingKid: 'k' }]) {
       const p = await request(app).patch(`/api/admin/releases/${id}`).set(h).send(than)
       expect(p.status).toBe(400)
@@ -864,7 +922,7 @@ describe('§3.3 - siết tải lên: fileSize, trần, đuôi, magic bytes', () 
   })
 
   test('seal: .dmg thiếu khối koly ở 512 byte cuối ⇒ 422 SAI_LOAI_TEP', async () => {
-    const id = await taoNhap('6.1.0', 'MACOS', 'releases/x/b.dmg')
+    const id = await taoNhap('6.1.0', 'MACOS', `releases/${SLUG}/x/b.dmg`)
     store.hashObject = async () => ({
       sha256: '2'.repeat(64),
       size: 600,
@@ -876,5 +934,131 @@ describe('§3.3 - siết tải lên: fileSize, trần, đuôi, magic bytes', () 
       .set(await asUser(ADMIN))
     expect(ns.status).toBe(422)
     expect(ns.body.code).toBe('SAI_LOAI_TEP')
+  })
+
+  // Lỗi qa-test tìm ra ở A3: PATCH đổi `platform` sau niêm phong giữ sha256 và
+  // ký lại với nền tảng mới ⇒ "bản WINDOWS" trỏ vào tệp .apk được công bố.
+  const niemPhongApk = async (version: string) => {
+    const id = await taoNhap(version, 'ANDROID', `releases/${SLUG}/x/a.apk`)
+    store.hashObject = async () => ({
+      sha256: '7'.repeat(64),
+      size: 100,
+      head: ZIP_HEAD,
+      tail: Buffer.alloc(0),
+    })
+    const ns = await request(app)
+      .post(`/api/admin/releases/${id}/seal`)
+      .set(await asUser(ADMIN))
+    expect(ns.status).toBe(200)
+    return id
+  }
+
+  test('PATCH đổi platform sang nền tảng không nhận đuôi tệp ⇒ 422, không ghi gì', async () => {
+    const id = await niemPhongApk('7.0.0')
+    const truoc = await prisma.projectRelease.findUnique({ where: { id } })
+    const p = await request(app)
+      .patch(`/api/admin/releases/${id}`)
+      .set(await asUser(ADMIN))
+      .send({ platform: 'WINDOWS', published: true })
+    expect(p.status).toBe(422)
+    expect(p.body.code).toBe('DUOI_TEP_KHONG_CHO_PHEP')
+    const sau = await prisma.projectRelease.findUnique({ where: { id } })
+    expect(sau?.platform).toBe('ANDROID')
+    expect(sau?.publishedAt).toBeNull()
+    expect(sau?.sha256).toBe(truoc?.sha256)
+    expect(sau?.signature).toBe(truoc?.signature)
+  })
+
+  test('PATCH đổi platform mà đuôi vẫn hợp ⇒ xoá sha256 + chữ ký, buộc niêm phong lại', async () => {
+    const h = await asUser(ADMIN)
+    const id = await taoNhap('7.1.0', 'WINDOWS', `releases/${SLUG}/x/app.zip`)
+    store.hashObject = async () => ({
+      sha256: '8'.repeat(64),
+      size: 100,
+      head: ZIP_HEAD,
+      tail: Buffer.alloc(0),
+    })
+    expect((await request(app).post(`/api/admin/releases/${id}/seal`).set(h)).status).toBe(200)
+
+    // Kèm `published: true`: tệp vừa mất niêm phong nên không công bố được.
+    const congBo = await request(app)
+      .patch(`/api/admin/releases/${id}`)
+      .set(h)
+      .send({ platform: 'MACOS', published: true })
+    expect(congBo.status).toBe(400)
+
+    const doi = await request(app)
+      .patch(`/api/admin/releases/${id}`)
+      .set(h)
+      .send({ platform: 'MACOS' })
+    expect(doi.status).toBe(200)
+    expect(doi.body.platform).toBe('MACOS')
+    expect(doi.body.sha256).toBeNull()
+    expect(doi.body.fileSize).toBeNull()
+    expect(doi.body.signature).toBeNull()
+    expect(doi.body.signingKid).toBeNull()
+
+    const lai = await request(app).post(`/api/admin/releases/${id}/seal`).set(h)
+    expect(lai.status).toBe(200)
+    expect(releaseSigning.verify(lai.body.signature).payload).toMatchObject({ platform: 'MACOS' })
+  })
+
+  test('PATCH không đổi platform (gửi lại đúng giá trị cũ) thì giữ niêm phong', async () => {
+    const id = await niemPhongApk('7.2.0')
+    const p = await request(app)
+      .patch(`/api/admin/releases/${id}`)
+      .set(await asUser(ADMIN))
+      .send({ platform: 'ANDROID', published: true })
+    expect(p.status).toBe(200)
+    expect(p.body.sha256).toBe('7'.repeat(64))
+    expect(releaseSigning.verify(p.body.signature).valid).toBe(true)
+  })
+
+  test.each([
+    ['dự án khác', 'releases/du-an-khac/abc/a.apk'],
+    ['ngoài releases/', 'uploads/a.apk'],
+    ['leo thư mục', `releases/${SLUG}/../du-an-khac/a.apk`],
+    ['đoạn rỗng', `releases/${SLUG}//a.apk`],
+    ['chỉ có tiền tố', `releases/${SLUG}/`],
+    ['tiền tố của slug dài hơn', `releases/${SLUG}-x/abc/a.apk`],
+  ])('create/PATCH storageKey %s ⇒ 400 STORAGE_KEY_SAI_DU_AN', async (_ten, storageKey) => {
+    const h = await asUser(ADMIN)
+    const tao = await request(app)
+      .post(`/api/admin/projects/${SLUG}/releases`)
+      .set(h)
+      .send({ version: '8.0.0', platform: 'ANDROID', storageKey })
+    expect(tao.status).toBe(400)
+    expect(tao.body.code).toBe('STORAGE_KEY_SAI_DU_AN')
+
+    const id = await taoNhap(`8.0.1-${_ten.length}`, 'ANDROID', `releases/${SLUG}/x/f.apk`)
+    const p = await request(app).patch(`/api/admin/releases/${id}`).set(h).send({ storageKey })
+    expect(p.status).toBe(400)
+    expect(p.body.code).toBe('STORAGE_KEY_SAI_DU_AN')
+    const r = await prisma.projectRelease.findUnique({ where: { id } })
+    expect(r?.storageKey).toBe(`releases/${SLUG}/x/f.apk`)
+  })
+
+  test('seal: storageKey ngoài tiền tố dự án (hàng cũ, ghi thẳng DB) ⇒ 422, không đọc kho', async () => {
+    const r = await prisma.projectRelease.create({
+      data: {
+        projectId,
+        version: '8.1.0',
+        platform: 'ANDROID',
+        storageKey: 'releases/du-an-khac/abc/a.apk',
+      },
+    })
+    let daDoc = false
+    store.hashObject = async () => {
+      daDoc = true
+      return { sha256: '9'.repeat(64), size: 100, head: ZIP_HEAD, tail: Buffer.alloc(0) }
+    }
+    const ns = await request(app)
+      .post(`/api/admin/releases/${r.id}/seal`)
+      .set(await asUser(ADMIN))
+    expect(ns.status).toBe(422)
+    expect(ns.body.code).toBe('STORAGE_KEY_SAI_DU_AN')
+    expect(daDoc).toBe(false)
+    const sau = await prisma.projectRelease.findUnique({ where: { id: r.id } })
+    expect(sau?.sha256).toBeNull()
   })
 })
