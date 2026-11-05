@@ -313,8 +313,10 @@ nguồn là hiện trạng; TSD là đích đến.
   NÉM để Next giữ bản cache tốt (trả `failed:true` thì Next cache luôn trang lỗi).
   `test/isrPages.test.ts` canh; đừng đưa trang per-user (`/search`, `/admin/*`)
   vào danh sách. Đã đo khi tắt backend: trang đã cache vẫn 200 đủ nội dung; slug
-  CHƯA từng vào cache thì 500. Ngay sau deploy ~30s đầu là bản dựng lúc build
-  (rỗng - máy build không có token prod), đo lại sau 1 phút trước khi kết luận.
+  CHƯA từng vào cache thì 503 + `Retry-After` qua `pages/_error.tsx` (mã lỗi
+  `UPSTREAM_UNAVAILABLE`; đừng thêm `pages/500.tsx` - nó nuốt mã 503). Ngay sau
+  deploy ~30s đầu là bản dựng lúc build (rỗng - máy build không có token prod),
+  đo lại sau 1 phút trước khi kết luận.
 - **`wrangler logout && login` KHÔNG đổi tài khoản lệnh kế tiếp dùng** nếu còn
   `node_modules/.cache/wrangler/wrangler-account.json` (ở gốc VÀ ở
   `apps/frontend-main/`) - tệp đó ghim Account ID. Xoá cả hai. `wrangler whoami`
