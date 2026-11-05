@@ -1,0 +1,137 @@
+name: Cổng PR
+
+# A4 của docs/security-plan.md - bốn cổng rẻ, chạy song song, chặn bốn loại lỗi
+# mà ci.yml không nhìn thấy:
+#
+#   dependency-review  PR thêm/nâng một gói có lỗ hổng High+ (npm audit ở
+#                      security-scan.yml chỉ thấy trạng thái SAU khi merge).
+#   actionlint         workflow sai cú pháp/biểu thức/shell - lỗi kiểu này chỉ lộ
+#                      ra khi job chạy tới bước đó, nhiều khi là trên `main`.
+#   zizmor             lỗ hổng BẢO MẬT trong workflow: tiêm biểu thức vào `run:`,
+#                      token git nằm lại trong .git/config, quyền thừa, action
+#                      không ghim SHA.
+#   trivy-config       cấu hình sai trong Dockerfile (chạy bằng root…). Ngoại lệ
+#                      ở .trivyignore.yaml, ghim theo CẢ mã luật lẫn đường dẫn.
+#
+# Tên job ỔN ĐỊNH: chúng được đưa vào branch protection của `main`. Đổi tên ⇒
+# cập nhật branch protection cùng lúc, không thì PR kẹt "Expected".
+#
+# Công cụ tải dạng BINARY ghim phiên bản + sha256 (như gitleaks ở
+# security-scan.yml), không qua action của bên thứ ba: action có thể bị chiếm
+# rồi đẩy lại tag (đã xảy ra với tj-actions/changed-files và trivy-action).
+# Nâng phiên bản: đổi CẢ HAI dòng, lấy checksum từ trang phát hành tương ứng.
+
+on:
+  pull_request: {}
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: pr-gates-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  dependency-review:
+    name: dependency-review
+    # Chỉ có nghĩa trên PR: nó so sánh đồ thị phụ thuộc của nhánh với nhánh đích.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+          # Không bình luận vào PR: việc đó cần `pull-requests: write`, mà kết quả
+          # đã nằm trong log + tóm tắt của job.
+          comment-summary-in-pr: never
+
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      ACTIONLINT_VERSION: '1.7.12'
+      ACTIONLINT_SHA256: '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Tải actionlint (ghim phiên bản, kiểm checksum)
+        run: |
+          set -euo pipefail
+          tarball="actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl -sSfL -o "$RUNNER_TEMP/$tarball" \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/${tarball}"
+          echo "${ACTIONLINT_SHA256}  $RUNNER_TEMP/$tarball" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$tarball" -C "$RUNNER_TEMP" actionlint
+      # shellcheck có sẵn trên ubuntu-latest; actionlint tự dùng nó để kiểm
+      # từng khối `run:`.
+      - run: '"$RUNNER_TEMP/actionlint" -color'
+
+  zizmor:
+    name: zizmor
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      ZIZMOR_VERSION: '1.31.1'
+      ZIZMOR_SHA256: 'd185f726bdaf92df78273217dfdd24ebcd6b0ef48cf3ce776ff5762b6e138c99'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Tải zizmor (ghim phiên bản, kiểm checksum)
+        run: |
+          set -euo pipefail
+          tarball="zizmor-x86_64-unknown-linux-gnu.tar.gz"
+          curl -sSfL -o "$RUNNER_TEMP/$tarball" \
+            "https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/${tarball}"
+          echo "${ZIZMOR_SHA256}  $RUNNER_TEMP/$tarball" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$tarball" -C "$RUNNER_TEMP" zizmor
+      # --offline: không gọi API GitHub, nên không cần token nào. Đổi lại bỏ qua
+      # các phép kiểm cần mạng (tag action bị đẩy lại…) - SHA ghim đã chặn việc đó.
+      - run: '"$RUNNER_TEMP/zizmor" --offline --format=github .github/workflows'
+
+  trivy-config:
+    name: trivy-config
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      TRIVY_VERSION: '0.76.1'
+      TRIVY_SHA256: 'c7cbe3137fb8a48a17574bede3dd6beb16742d1e9772929940fc90082c39d9c0'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Tải Trivy (ghim phiên bản, kiểm checksum)
+        run: |
+          set -euo pipefail
+          tarball="trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+          curl -sSfL -o "$RUNNER_TEMP/$tarball" \
+            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/${tarball}"
+          echo "${TRIVY_SHA256}  $RUNNER_TEMP/$tarball" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$tarball" -C "$RUNNER_TEMP" trivy
+      # Đã đo 05/11/2026: không có .trivyignore.yaml thì 4 Dockerfile dev đỏ
+      # DS-0002, có thì sạch - tức tệp ngoại lệ ĐƯỢC đọc thật, không phải cổng
+      # xanh vì bỏ qua. docker/backend-service.Dockerfile (image production) sạch
+      # mà không cần ngoại lệ nào.
+      - run: |
+          "$RUNNER_TEMP/trivy" config \
+            --severity HIGH,CRITICAL \
+            --ignorefile .trivyignore.yaml \
+            --skip-dirs node_modules \
+            --exit-code 1 \
+            .

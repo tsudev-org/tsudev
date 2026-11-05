@@ -5,6 +5,15 @@
 #
 # Nhóm để giảm PR rác: phụ thuộc dev gộp một PR/tuần, bản vá+minor của production
 # gộp một PR/tuần. Major của production vẫn đi PR riêng - đó là chỗ cần người đọc.
+# Major của DEV cũng tách khỏi nhóm (`update-types: [minor, patch]`): #131 gộp
+# 28 gói kể cả major nên CI đỏ mà không chỉ ra được gói nào - một nhóm chỉ có
+# ích khi cả nhóm cùng xanh.
+#
+# @prisma/* major bị bỏ qua có chủ đích: 5→7 đổi cách sinh client và cấu hình
+# datasource, cần một phiên riêng có kế hoạch (#133). Gỡ `ignore` khi lên kế
+# hoạch nâng. Bản vá bảo mật của Prisma KHÔNG bị chặn - `ignore` không áp cho
+# security updates.
+#
 # Cảnh báo bảo mật (security updates) KHÔNG bị nhóm này giữ lại: Dependabot mở
 # chúng ngay khi có advisory, độc lập với nhịp tuần.
 version: 2
@@ -17,11 +26,18 @@ updates:
       time: '09:00'
       timezone: Asia/Ho_Chi_Minh
     open-pull-requests-limit: 5
+    labels: [dependencies, javascript]
     commit-message:
       prefix: 'chore(deps)'
+    ignore:
+      - dependency-name: '@prisma/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'prisma'
+        update-types: ['version-update:semver-major']
     groups:
       dev-dependencies:
         dependency-type: development
+        update-types: [minor, patch]
         patterns: ['*']
       prod-minor-patch:
         dependency-type: production
@@ -35,6 +51,7 @@ updates:
       day: monday
       time: '09:00'
       timezone: Asia/Ho_Chi_Minh
+    labels: [dependencies, github_actions]
     commit-message:
       prefix: 'chore(ci)'
     groups:

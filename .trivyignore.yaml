@@ -1,0 +1,29 @@
+# Ngoại lệ của Trivy (job `trivy-config` trong .github/workflows/pr-gates.yml).
+#
+# Quy tắc: mỗi ngoại lệ ghim CẢ mã luật LẪN đường dẫn, kèm lý do. Không bao giờ
+# tắt một luật cho cả repo - `.trivyignore` dạng văn bản trần chỉ nhận mã luật,
+# nên nó sẽ tắt luôn DS-0002 cho docker/backend-service.Dockerfile, image DUY
+# NHẤT chạy production. Vì thế repo dùng dạng YAML này, có `paths`.
+#
+# docker/backend-service.Dockerfile KHÔNG có ngoại lệ nào ở đây và không được có.
+
+misconfigurations:
+  # DS-0002: không có USER khác root.
+  #
+  # Bốn Dockerfile dưới đây KHÔNG được Render dựng (render.yaml chỉ trỏ
+  # docker/backend-service.Dockerfile, và frontend chạy trên Cloudflare Workers).
+  # Chúng chỉ phục vụ stack dev cũ trong docker-compose.yml.
+  #
+  # Chưa sửa vì đổi USER đổi hành vi lúc chạy (quyền ghi .next/cache, quyền ghi
+  # vào thư mục mount ./:/work của e2e-runner) và phải dựng thử thật trước khi
+  # đổi - máy làm việc khi viết ngoại lệ này không có Docker. Hai tệp của
+  # content/storage còn chạy `node src/index.js`, trong khi mã nguồn đã là
+  # src/index.ts biên dịch ra dist/ - tức là đã hỏng sẵn, nên hướng đúng là xoá
+  # chúng chứ không phải vá USER. Gỡ dòng tương ứng ở đây khi xử lý xong.
+  - id: DS-0002
+    paths:
+      - apps/frontend-main/Dockerfile
+      - docker/e2e-runner.Dockerfile
+      - services/content-service/Dockerfile
+      - services/storage-service/Dockerfile
+    statement: Dockerfile chỉ dùng cho docker-compose dev, không được Render dựng; xem chú thích ở trên.

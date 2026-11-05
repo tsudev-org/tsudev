@@ -1,0 +1,46 @@
+name: OpenSSF Scorecard
+
+# Chấm điểm thực hành bảo mật của chuỗi cung ứng (branch protection, ghim SHA,
+# quyền token, review…) và đẩy kết quả SARIF vào tab Security → Code scanning.
+# KHÔNG phải cổng PR: nó chạy trên `main` và theo lịch, để thấy điểm trôi theo
+# thời gian. Không thêm vào branch protection.
+#
+# Chỉ tải SARIF lên bằng codeql-action/upload-sarif - KHÔNG chạy phân tích
+# CodeQL ở đây: repo dùng CodeQL "default setup", thêm workflow CodeQL nâng cao
+# sẽ xung đột với nó.
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '41 3 * * 2' # 10:41 thứ Ba giờ Việt Nam
+  workflow_dispatch:
+  # Cho phép check "Branch-Protection" đọc cấu hình của chính nó.
+  branch_protection_rule:
+
+permissions: {}
+
+jobs:
+  analysis:
+    name: scorecard
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      # Tải SARIF vào code scanning.
+      security-events: write
+      # Ký kết quả khi công bố lên api.securityscorecards.dev (repo Public).
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ossf/scorecard-action@fa7117db83c52d787ae5a89f350999701505d78e # v2.5.0
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+      - uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          sarif_file: results.sarif
+          category: scorecard
