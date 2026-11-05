@@ -1,0 +1,89 @@
+name: Quét bảo mật
+
+# G1 của docs/security-plan.md: trước tệp này CI không có quét bảo mật nào, nên lỗ
+# hổng phụ thuộc production sống nhiều tuần mà không ai biết.
+#
+# Hai job, tên ỔN ĐỊNH vì sẽ được đưa vào branch protection của `main`:
+#   - `gitleaks`   - secret bị commit, quét TOÀN lịch sử mỗi lượt (~10 giây cho
+#                    toàn repo, rẻ hơn việc giữ một mốc "đã quét tới đâu").
+#   - `npm-audit`  - High/Critical trong phụ thuộc PRODUCTION (`--omit=dev`). Phụ
+#                    thuộc dev là G10, xử lý riêng, không chặn ở đây.
+#
+# `schedule` tồn tại vì lỗ hổng mới được CÔNG BỐ cho mã cũ: không ai đẩy commit nào
+# thì `npm audit` cũng không có dịp đỏ lên.
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+  schedule:
+    - cron: '17 2 * * 1' # 09:17 thứ Hai giờ Việt Nam
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Ghim phiên bản + checksum. Không dùng gitleaks-action: binary trực tiếp
+      # không phụ thuộc license, secret hay mã JavaScript của bên thứ ba nào.
+      # Nâng phiên bản: đổi CẢ HAI dòng, lấy checksum từ
+      # gitleaks_<ver>_checksums.txt của bản phát hành tương ứng.
+      GITLEAKS_VERSION: '8.30.1'
+      GITLEAKS_SHA256: '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Tải gitleaks (ghim phiên bản, kiểm checksum)
+        run: |
+          set -euo pipefail
+          tarball="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL -o "$RUNNER_TEMP/$tarball" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${tarball}"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/$tarball" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$tarball" -C "$RUNNER_TEMP" gitleaks
+          "$RUNNER_TEMP/gitleaks" version
+
+      # --redact: log CI là công khai (repo Public) - không in lại chính secret vừa bắt.
+      # --ignore-gitleaks-allow: chú thích `gitleaks:allow` nằm ngay trong diff, tức
+      # là người commit secret tự miễn được cho mình. Ngoại lệ chỉ đi qua
+      # .gitleaks.toml, nơi mỗi dòng được review riêng.
+      - name: Quét toàn lịch sử git
+        run: |
+          "$RUNNER_TEMP/gitleaks" git \
+            --config .gitleaks.toml \
+            --redact \
+            --ignore-gitleaks-allow \
+            --no-banner \
+            --verbose \
+            --exit-code 1 \
+            .
+
+  npm-audit:
+    name: npm-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '20'
+
+      # Không cần `npm ci`: `npm audit` đọc thẳng package-lock.json (đã đo trên bản
+      # checkout sạch không có node_modules). ĐỪNG thêm `npm audit fix --omit=dev` -
+      # nó gỡ devDependencies (kể cả OpenNext), xem CLAUDE.md.
+      - name: npm audit (phụ thuộc production, ngưỡng High)
+        run: npm audit --omit=dev --audit-level=high
