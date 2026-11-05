@@ -1,5 +1,10 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 35 - đọc thêm:** kế hoạch ATTT `docs/security-plan.md` - việc kế tiếp của
+> agent là GIAI ĐOẠN 1 (CI gitleaks + audit, ép 2FA cho ADMIN, giới hạn tải lên +
+> magic bytes) rồi GIAI ĐOẠN 2 (Trung tâm an ninh phát hành `/admin/release-security`).
+> Phụ thuộc production đã 0 lỗ hổng (#124).
+>
 > **Phiên 35 bắt đầu ở đây** (cập nhật cuối phiên 34, 05/11/2026). Phiếu:
 > [`20261105-03`](handover/20261105-03_ket-phien-34.md).
 >
