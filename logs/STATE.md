@@ -8,9 +8,12 @@
 > Worker. Slug ISR chưa cache + backend chết nay trả **503 + Retry-After** kèm
 > trang thân thiện, 404 có trang tĩnh (#114, deploy `4f5920be`).
 >
+> ✅ Giao diện tông CHÀM (#4F46E5 + nhấn cam, nền #FAFAF9) + trang chủ mới +
+> wordmark SVG đã LIVE (#118). `/api/releases` hết 404 ở production (#117).
+>
 > 🔴 **Việc tay của chủ dự án** (phiếu §2): đổi mật khẩu Neon · `TELEGRAM_*` trên
-> Render · xoá rác ở tài khoản Cloudflare sai · sửa dự án `tsudev-trust-seal` ·
-> quyết định logo/màu. Nghiệm thu chờ: tải tệp thật ở production (cần ADMIN),
+> Render · xoá rác ở tài khoản Cloudflare sai · sửa dự án `tsudev-trust-seal` và
+> mô tả `tsudev Platform` · nội dung trang pháp lý còn nhắc Con dấu. Nghiệm thu chờ: tải tệp thật ở production (cần ADMIN),
 > log cron nhịp `23 1,13` UTC.
 
 > **Phiên 34 bắt đầu ở đây** (cập nhật cuối phiên 33, 05/11/2026). Phiếu:
