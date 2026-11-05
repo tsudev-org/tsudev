@@ -10,7 +10,7 @@
     "pretest": "tsc -b ../.."
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1161.0",

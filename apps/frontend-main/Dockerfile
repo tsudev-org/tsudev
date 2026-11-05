@@ -1,4 +1,4 @@
-FROM node:20-bullseye-slim AS builder
+FROM node:22-bookworm-slim AS builder
 WORKDIR /usr/src/app
 # copy root workspace manifests to resolve workspace packages
 COPY package.json package-lock.json ./
@@ -12,7 +12,7 @@ RUN npm ci --no-audit --no-fund
 WORKDIR /usr/src/app/apps/frontend-main
 RUN npm run build
 
-FROM node:20-bullseye-slim AS runner
+FROM node:22-bookworm-slim AS runner
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
 # copy built app and node_modules from builder
