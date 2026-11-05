@@ -3,7 +3,7 @@
  *
  * `requireAdmin` (content-service) và `requireOwner` (auth-service) trả 403
  * `{ error, code: 'MFA_REQUIRED' }` khi tài khoản ADMIN/OWNER chưa có TOTP đã
- * xác nhận hay passkey nào. Hằng gốc sống ở `@tsudev/auth`, nhưng package đó kéo
+ * xác nhận. Hằng gốc sống ở `@tsudev/auth`, nhưng package đó kéo
  * Prisma nên KHÔNG nạp được trên Cloudflare Workers - vì thế khai lại ở đây
  * dưới dạng chuỗi. Đổi giá trị ở một bên mà quên bên kia thì giao diện quay về
  * thông báo "không có quyền" chung chung; `test/mfa.test.ts` đối chiếu hai nơi.

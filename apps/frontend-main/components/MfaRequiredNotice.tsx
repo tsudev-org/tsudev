@@ -14,14 +14,15 @@ export function MfaRequiredNotice({ className = '' }: { className?: string }) {
     <Card role="alert" className={`mx-auto max-w-md p-8 text-center ${className}`}>
       <h1 className="mb-2 text-lg font-semibold text-fg">Cần bật xác thực hai lớp</h1>
       <p className="mb-4 text-fg-secondary">
-        Tài khoản quản trị phải có ứng dụng xác thực (TOTP) hoặc passkey trước khi dùng các trang
-        quản trị. Bật một trong hai ở trang bảo mật tài khoản, rồi quay lại đây.
+        Tài khoản quản trị phải bật ứng dụng xác thực (TOTP) trước khi dùng các trang quản trị.
+        Passkey hiện chưa được tính cho khu quản trị. Bật TOTP ở trang bảo mật tài khoản, rồi quay
+        lại đây.
       </p>
       <a
         href={MFA_SETUP_PATH}
         className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-on-primary hover:bg-primary-hover"
       >
-        Bật 2FA ở trang bảo mật
+        Bật ứng dụng xác thực ở trang bảo mật
       </a>
     </Card>
   );
