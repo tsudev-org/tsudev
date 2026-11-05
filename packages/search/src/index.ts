@@ -41,11 +41,30 @@ export function viWordCount(input: string): number {
  * ảnh và chữ hiển thị của liên kết (SEARCH_AND_FILTER §3.1 bước 1). KHÔNG lập
  * chỉ mục trực tiếp trên chuỗi thô có cú pháp.
  */
+/**
+ * Bỏ rào khối mã ```lang ... ``` nhưng giữ ruột. Tách theo ``` thay cho regex
+ * `/```[\w-]*\n?([\s\S]*?)```/g`: hai phần `[\w-]*` và `[\s\S]*?` chồng lấn
+ * nên regex đó đa thức - "```" + 50.000 dấu "-" mất ~0,8 giây, 500 KB thì vài
+ * chục giây treo cả tiến trình (CodeQL js/polynomial-redos). Đã đối chiếu
+ * 200.000 đầu vào ngẫu nhiên: kết quả trùng khít bản regex. Khối CHƯA đóng
+ * giữ nguyên như regex cũ (nó không khớp).
+ */
+function unfenceCode(s: string): string {
+  const parts = s.split('```');
+  let out = parts[0] ?? '';
+  for (let i = 1; i < parts.length; i++) {
+    const p = parts[i] ?? '';
+    if (i % 2 === 1 && i < parts.length - 1) out += ' ' + p.replace(/^[\w-]*\n?/, '') + ' ';
+    else if (i % 2 === 1) out += '```' + p;
+    else out += p;
+  }
+  return out;
+}
+
 export function stripToPlainText(input: string): string {
   return (
-    input
-      // khối mã ```...``` và mã inline `...` -> giữ nội dung, bỏ dấu nháy
-      .replace(/```[\w-]*\n?([\s\S]*?)```/g, ' $1 ')
+    unfenceCode(input)
+      // mã inline `...` -> giữ nội dung, bỏ dấu nháy
       .replace(/`([^`]+)`/g, '$1')
       // ảnh ![alt](url) -> giữ alt
       .replace(/!\[([^\]]*)\]\([^)]*\)/g, ' $1 ')

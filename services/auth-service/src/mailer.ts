@@ -38,26 +38,51 @@ let warnedMissingKey = false
  * `html`. Địa chỉ liên kết được giữ lại trong ngoặc - bỏ đi thì bản chữ mất đúng
  * thứ mà thư xác minh tồn tại để mang.
  */
+/** Một dòng log: bỏ ký tự điều khiển để giá trị người dùng không giả được dòng log mới. */
+const oneLine = (v: unknown): string =>
+  String(v)
+    // eslint-disable-next-line no-control-regex -- CỐ Ý: chặn ký tự điều khiển (CR/LF, tab…)
+    .replace(/[\u0000-\u001f\u007f]+/g, ' ')
+    .slice(0, 300)
+
+/**
+ * Gỡ thẻ HTML LẶP tới khi ổn định. Một lượt `replace(/<[^>]+>/g, '')` để lại
+ * thẻ ghép từ hai mảnh (`<scr<b>ipt>` ⇒ `<script>`) - CodeQL
+ * js/incomplete-multi-character-sanitization. Đầu ra là thư DẠNG CHỮ nên không
+ * phải XSS, nhưng thư không được mang thẻ sót.
+ */
+function stripTags(s: string): string {
+  let prev: string
+  let cur = s
+  do {
+    prev = cur
+    cur = cur.replace(/<[^<>]*>/g, '')
+  } while (cur !== prev)
+  return cur.replace(/[<>]/g, '')
+}
+
 export function htmlToText(html: string): string {
-  return html
+  const coDong = html
     .replace(/<a\b[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_m, href, label) => {
-      const text = String(label)
-        .replace(/<[^>]+>/g, '')
-        .trim()
+      const text = stripTags(String(label)).trim()
       return text && text !== href ? `${text} (${href})` : String(href)
     })
     .replace(/<\/(p|div|h[1-6]|li|tr)>/gi, '\n\n')
     .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/[ \t]+/g, ' ')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
+  return (
+    stripTags(coDong)
+      // `&amp;` giải mã SAU CÙNG: làm trước thì `&amp;lt;` thành `&lt;` rồi thành
+      // `<` - giải mã hai lần (CodeQL js/double-escaping).
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&amp;/g, '&')
+      .replace(/[ \t]+/g, ' ')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
+  )
 }
 
 const from = () => process.env.MAIL_FROM || 'tsudev <no-reply@tsudev.com>'
@@ -80,7 +105,11 @@ export async function sendMail(
   if (!key) {
     // Không cấu hình = no-op ồn ào ở log, không phải lỗi. Local dev và CI không
     // có khoá, và chúng cũng không nên gửi thư thật cho ai.
-    console.warn(`[auth] RESEND_API_KEY chưa đặt - bỏ qua mail "${subject}" gửi tới ${to}`)
+    console.warn(
+      '[auth] RESEND_API_KEY chưa đặt - bỏ qua mail "%s" gửi tới %s',
+      oneLine(subject),
+      oneLine(to)
+    )
     if (!warnedMissingKey && process.env.NODE_ENV === 'production') {
       // Chỉ ồn ào ở production. Thiếu khoá ở đó nghĩa là MỌI thư giao dịch -
       // xác minh email, đặt lại mật khẩu, cảnh báo đăng nhập - đang biến mất

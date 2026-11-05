@@ -17,6 +17,10 @@ process.env.NODE_ENV = 'test'
 process.env.INTERNAL_IDENTITY_SECRET = 'khoa-test-du-dai-cho-hmac-256-bit!!'
 process.env.VERIFY_CODE_COOLDOWN_MS = '60000'
 process.env.VERIFY_CODE_DAILY_CAP = '3'
+// Tệp này kiểm lớp đếm số lần gõ sai TRÊN TỪNG MÃ, nên gõ dồn hơn 10 lượt/phút
+// cho cùng một tài khoản. Tầng giới hạn tần suất chung (10/phút) có test riêng ở
+// rateLimit.test.ts - nâng ngưỡng ở đây để hai lớp không che nhau.
+process.env.RATE_LIMIT_SENSITIVE_MAX = '10000'
 delete process.env.INTERNAL_API_TOKEN
 
 export {}
