@@ -4,7 +4,7 @@
 
 # Sửa xong file → XÓA dòng khóa của mình.
 
-(TRỐNG - đã nhả toàn bộ khoá của đợt tái cấu trúc 28/10/2026.)
+(TRỐNG - phiên 35 đã nhả toàn bộ khoá, 05/11/2026.)
 
-✅ Phiên 34 xong (05/11/2026), không giữ khoá nào, không còn tiến trình dev chạy.
-Việc kế tiếp: phiếu `logs/handover/20261105-04_giao-viec-phien-35-attt.md`.
+✅ Phiên 35 xong: giai đoạn 1 ATTT đã merge, không giữ khoá nào, không tiến trình nền,
+không worktree. Việc kế tiếp: phiếu `logs/handover/20261105-05_ket-phien-35-giai-doan-1.md`.
