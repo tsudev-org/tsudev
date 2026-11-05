@@ -98,7 +98,7 @@ function Select({ id, label, value, onChange, options, labels }: SelectProps) {
       >
         {options.map((o) => {
           const raw = labels?.[o];
-          const text = typeof raw === 'string' ? raw : raw?.label ?? o;
+          const text = typeof raw === 'string' ? raw : (raw?.label ?? o);
           return (
             <option key={o} value={o}>
               {text}

@@ -156,12 +156,12 @@ export const esc = (s: string): string =>
   s.replace(
     /[&<>"']/g,
     (c) =>
-      ((
-        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' } as Record<
+      (
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }) as Record<
           string,
           string
         >
-      )[c] as string)
+      )[c] as string
   )
 
 export function verifyEmailHtml(displayName: string, link: string): string {

@@ -269,30 +269,40 @@ function driftInCanonical() {
  * (`.standards/` thì ngược lại: cả cây nằm trong .prettierignore vì định dạng lại
  * một byte cũng làm lệch MANIFEST.sha256 của gói đồng bộ.)
  */
-const pretty = (css) =>
-  prettier.format(css, { ...prettier.resolveConfig.sync(UI_CSS), parser: 'css' });
+// Prettier 3 chỉ còn API BẤT ĐỒNG BỘ (`resolveConfig.sync` và `format` trả chuỗi
+// đã bị gỡ) - bản đồng bộ cũ ném "resolveConfig.sync is not a function".
+const pretty = async (css) =>
+  prettier.format(css, { ...(await prettier.resolveConfig(UI_CSS)), parser: 'css' });
 
-out = pretty(out);
-
-const check = process.argv.includes('--check');
-const drift = driftInCanonical();
-if (drift.length) {
-  console.error('.standards/tokens/tokens.css đã trôi lệch khỏi design-tokens.json cùng thư mục:');
-  for (const d of drift) console.error('  - ' + d);
-  process.exit(1);
-}
-
-if (check) {
-  const current = fs.existsSync(UI_CSS) ? fs.readFileSync(UI_CSS, 'utf8') : '';
-  if (current !== out) {
+async function main() {
+  out = await pretty(out);
+  const check = process.argv.includes('--check');
+  const drift = driftInCanonical();
+  if (drift.length) {
     console.error(
-      'packages/ui/src/tokens.css không khớp nguồn token.\n' +
-        'Chạy `npm run tokens:sync` rồi commit lại bản sinh ra.'
+      '.standards/tokens/tokens.css đã trôi lệch khỏi design-tokens.json cùng thư mục:'
     );
+    for (const d of drift) console.error('  - ' + d);
     process.exit(1);
   }
-  console.log('tokens: khớp nguồn (3 chế độ).');
-} else {
-  fs.writeFileSync(UI_CSS, out);
-  console.log(`tokens: đã sinh ${path.relative(ROOT, UI_CSS)} (3 chế độ).`);
+
+  if (check) {
+    const current = fs.existsSync(UI_CSS) ? fs.readFileSync(UI_CSS, 'utf8') : '';
+    if (current !== out) {
+      console.error(
+        'packages/ui/src/tokens.css không khớp nguồn token.\n' +
+          'Chạy `npm run tokens:sync` rồi commit lại bản sinh ra.'
+      );
+      process.exit(1);
+    }
+    console.log('tokens: khớp nguồn (3 chế độ).');
+  } else {
+    fs.writeFileSync(UI_CSS, out);
+    console.log(`tokens: đã sinh ${path.relative(ROOT, UI_CSS)} (3 chế độ).`);
+  }
 }
+
+main().catch((e) => {
+  console.error(e);
+  process.exit(2);
+});

@@ -327,7 +327,7 @@ Một file mô tả toàn bộ hình trạng mạng, cho cả ba môi trường:
       "port": 3001,
       "sub": "forum",
       "public": true,
-      "workspace": "apps/frontend-forum"
+      "workspace": "apps/frontend-forum",
     },
     { "id": "auth", "port": 4100, "sub": "auth", "public": true },
     { "id": "cdn", "port": 9000, "sub": "cdn", "public": true },
@@ -336,8 +336,8 @@ Một file mô tả toàn bộ hình trạng mạng, cho cả ba môi trường:
     { "id": "storage", "port": 4002, "public": false, "envUrl": "STORAGE_SERVICE_URL" },
     { "id": "trust", "port": 4003, "public": false, "envUrl": "TRUST_SERVICE_URL" },
     { "id": "db", "port": 5433, "public": false },
-    { "id": "cache", "port": 6379, "public": false }
-  ]
+    { "id": "cache", "port": 6379, "public": false },
+  ],
 }
 ```
 

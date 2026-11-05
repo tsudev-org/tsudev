@@ -18,5 +18,5 @@ if (!cmd) {
   process.exit(2);
 }
 spawn(cmd, args, { stdio: 'inherit', shell: false }).on('exit', (code, signal) => {
-  process.exit(signal ? 1 : code ?? 1);
+  process.exit(signal ? 1 : (code ?? 1));
 });

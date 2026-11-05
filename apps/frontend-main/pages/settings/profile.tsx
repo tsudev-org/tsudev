@@ -242,8 +242,8 @@ export default function ProfilePage() {
           err === 'too_soon'
             ? `Vừa gửi một mã rồi. Đợi ${data.retryAfterSec ?? 60} giây rồi thử lại.`
             : err === 'daily_cap'
-            ? `Đã hết lượt gửi mã hôm nay (tối đa ${data.cap} lần). Thử lại vào ngày mai, hoặc dùng mã đã gửi nếu còn hiệu lực.`
-            : saveError(httpStatus),
+              ? `Đã hết lượt gửi mã hôm nay (tối đa ${data.cap} lần). Thử lại vào ngày mai, hoặc dùng mã đã gửi nếu còn hiệu lực.`
+              : saveError(httpStatus),
       });
       return;
     }
@@ -278,14 +278,14 @@ export default function ProfilePage() {
           err === 'wrong_code'
             ? `Mã không đúng. Còn ${data.attemptsLeft ?? 0} lần thử.`
             : err === 'too_many_attempts'
-            ? 'Đã nhập sai quá số lần cho phép. Mã này không dùng được nữa - xin một mã mới.'
-            : err === 'expired'
-            ? 'Mã đã hết hạn. Xin một mã mới.'
-            : err === 'no_code'
-            ? 'Không có mã nào đang chờ. Bấm "Gửi mã xác minh" trước.'
-            : err === 'bad_code'
-            ? 'Mã gồm đúng 6 chữ số.'
-            : saveError(httpStatus),
+              ? 'Đã nhập sai quá số lần cho phép. Mã này không dùng được nữa - xin một mã mới.'
+              : err === 'expired'
+                ? 'Mã đã hết hạn. Xin một mã mới.'
+                : err === 'no_code'
+                  ? 'Không có mã nào đang chờ. Bấm "Gửi mã xác minh" trước.'
+                  : err === 'bad_code'
+                    ? 'Mã gồm đúng 6 chữ số.'
+                    : saveError(httpStatus),
       });
       return;
     }

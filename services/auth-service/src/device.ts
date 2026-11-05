@@ -45,26 +45,26 @@ export function deviceKey(ua: string | null | undefined): string | null {
   const browser = /\bEdg[A-Z]?\//.test(s)
     ? 'Edge'
     : /\bOPR\/|\bOpera\b/.test(s)
-    ? 'Opera'
-    : /\bFirefox\/|\bFxiOS\//.test(s)
-    ? 'Firefox'
-    : /\bCriOS\/|\bChrome\//.test(s)
-    ? 'Chrome'
-    : /\bSafari\//.test(s)
-    ? 'Safari'
-    : 'Khác'
+      ? 'Opera'
+      : /\bFirefox\/|\bFxiOS\//.test(s)
+        ? 'Firefox'
+        : /\bCriOS\/|\bChrome\//.test(s)
+          ? 'Chrome'
+          : /\bSafari\//.test(s)
+            ? 'Safari'
+            : 'Khác'
 
   const os = /\bWindows\b/.test(s)
     ? 'Windows'
     : /\bAndroid\b/.test(s)
-    ? 'Android'
-    : /\b(iPhone|iPad|iPod)\b/.test(s)
-    ? 'iOS'
-    : /\bMac OS X\b|\bMacintosh\b/.test(s)
-    ? 'macOS'
-    : /\bLinux\b|\bX11\b/.test(s)
-    ? 'Linux'
-    : 'Khác'
+      ? 'Android'
+      : /\b(iPhone|iPad|iPod)\b/.test(s)
+        ? 'iOS'
+        : /\bMac OS X\b|\bMacintosh\b/.test(s)
+          ? 'macOS'
+          : /\bLinux\b|\bX11\b/.test(s)
+            ? 'Linux'
+            : 'Khác'
 
   // Cả hai đều không đoán ra được thì chuỗi này không mang tin gì - trả null để
   // người gọi lùi về so theo IP thay vì gom mọi UA lạ vào chung một khoá.

@@ -335,8 +335,8 @@ export default function SearchPage({
                   {(t.key === 'all'
                     ? postCount + docCount
                     : t.key === 'post'
-                    ? postCount
-                    : docCount
+                      ? postCount
+                      : docCount
                   ).toLocaleString('vi-VN')}
                 </span>
               )}

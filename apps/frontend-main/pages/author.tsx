@@ -259,8 +259,8 @@ export default function AuthorEditor() {
       publishedAt: form.publishedAt
         ? fromLocalInput(form.publishedAt)
         : editingSlug
-        ? null
-        : undefined,
+          ? null
+          : undefined,
       coverImageUrl: form.coverImageUrl.trim() || null,
       metaDescription: form.metaDescription.trim() || null,
       references: form.references
