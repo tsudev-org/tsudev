@@ -20,7 +20,13 @@ import { createRateLimit, largePageRateLimit } from '@tsudev/ratelimit'
 import type { Doc, Post, Prisma, Project, ProjectRelease, User } from '@prisma/client'
 import { hasAtLeastRole, emailUsable, pageMeta, parsePaging, MAX_PAGE_SIZE } from '@tsudev/types'
 import * as releaseSigning from './releaseSigning'
-import { store as objectStore, safeFileName } from './objectStore'
+import {
+  store as objectStore,
+  MAX_RELEASE_BYTES,
+  RELEASE_FILE_TYPES,
+  loaiTepPhatHanh,
+  tenTepTrongKho,
+} from './objectStore'
 import { randomBytes } from 'crypto'
 import { buildDocSearch, buildPostSearch, buildSnippet, viNormalizeText } from '@tsudev/search'
 
@@ -1141,6 +1147,27 @@ function shaTuClientChoTep(
   return null
 }
 
+/// `storageKey` phải nằm dưới `releases/<slug>/` của ĐÚNG dự án (§3.3, 05/11/2026).
+///
+/// `storageKey` do `upload-url` cấp nhưng đi vòng qua client rồi mới quay lại ở
+/// bước tạo/sửa. Không kiểm thì một bản phát hành của dự án A trỏ được vào tệp
+/// của dự án B (hay bất kỳ object nào trong bucket), và niêm phong sẽ ký tệp đó
+/// dưới tên dự án A. Chặn cả đoạn rỗng, `.` và `..`: khoá S3 không chuẩn hoá
+/// đường dẫn, nhưng một khoá trông như leo thư mục thì không có lý do để nhận.
+function loiKhoaKhongThuocDuAn(slug: string, key: unknown): string | null {
+  if (typeof key !== 'string' || !key) return null
+  const tienTo = `releases/${slug}/`
+  const sai =
+    !slug ||
+    !key.startsWith(tienTo) ||
+    key.length === tienTo.length ||
+    key.includes('\\') ||
+    key.split('/').some((d) => d === '' || d === '.' || d === '..')
+  return sai
+    ? `storageKey phải nằm dưới ${tienTo} (khoá do upload-url của chính dự án này cấp)`
+    : null
+}
+
 /// Danh sách phát hành cho trang quản trị - GỒM CẢ bản nháp và bản đã xoá mềm.
 app.get(
   '/api/admin/projects/:slug/releases',
@@ -1173,6 +1200,8 @@ app.post(
     if (!parsed.ok) return res.status(400).json({ error: parsed.error })
     const loiSha = shaTuClientChoTep(parsed.data)
     if (loiSha) return res.status(400).json({ error: loiSha })
+    const loiKhoa = loiKhoaKhongThuocDuAn(String(req.params.slug), parsed.data.storageKey)
+    if (loiKhoa) return res.status(400).json({ code: 'STORAGE_KEY_SAI_DU_AN', error: loiKhoa })
     const loi = kiemBatBienRelease(parsed.data)
     if (loi) return res.status(400).json({ error: loi })
 
@@ -1211,9 +1240,41 @@ app.patch(
     const ghep: Record<string, unknown> = { ...current, ...parsed.data }
     const loiSha = shaTuClientChoTep(ghep, parsed.data)
     if (loiSha) return res.status(400).json({ error: loiSha })
+
+    const project = await prisma.project.findUnique({
+      where: { id: current.projectId },
+      select: { slug: true },
+    })
+    const slug = project?.slug ?? ''
+    if (parsed.data.storageKey) {
+      const loiKhoa = loiKhoaKhongThuocDuAn(slug, parsed.data.storageKey)
+      if (loiKhoa) return res.status(400).json({ code: 'STORAGE_KEY_SAI_DU_AN', error: loiKhoa })
+    }
+
+    // Đổi NỀN TẢNG của bản có tệp trong R2: loại tệp phải hợp với nền tảng mới,
+    // và checksum + chữ ký cũ phải bỏ. Chữ ký phủ `platform`, nên giữ sha256 rồi
+    // ký lại là chứng thực "bản WINDOWS" cho một tệp chỉ từng được kiểm magic
+    // bytes như một `.apk` (lỗi qa-test tìm ra ở A3, 05/11/2026). Đuôi không
+    // hợp ⇒ 422, không ghi gì; hợp ⇒ xoá, buộc niêm phong lại (seal kiểm magic
+    // bytes theo nền tảng mới).
+    const doiNenTang =
+      parsed.data.platform !== undefined && parsed.data.platform !== current.platform
+    if (doiNenTang && ghep.storageKey) {
+      const nenTang = String(parsed.data.platform)
+      if (!loaiTepPhatHanh(nenTang, String(ghep.storageKey)))
+        return res.status(422).json({
+          code: 'DUOI_TEP_KHONG_CHO_PHEP',
+          error: `tệp hiện tại không thuộc danh sách trắng của ${nenTang} - chỉ nhận: ${
+            (RELEASE_FILE_TYPES[nenTang] ?? []).map((l) => l.duoi).join(' ') || '(không có tệp)'
+          }`,
+        })
+    }
     // Đổi tệp (storageKey mới) thì checksum cũ không còn là của tệp này nữa:
-    // xoá, buộc niêm phong lại.
-    if (parsed.data.storageKey !== undefined && parsed.data.storageKey !== current.storageKey) {
+    // xoá, buộc niêm phong lại. Đổi nền tảng của tệp R2 cũng vậy (xem trên).
+    if (
+      (parsed.data.storageKey !== undefined && parsed.data.storageKey !== current.storageKey) ||
+      (doiNenTang && ghep.storageKey)
+    ) {
       ghep.sha256 = null
       ghep.fileSize = null
       parsed.data.sha256 = null
@@ -1223,15 +1284,11 @@ app.patch(
     const loi = kiemBatBienRelease({ ...ghep, signature: null, signingKid: null })
     if (loi) return res.status(400).json({ error: loi })
 
-    const project = await prisma.project.findUnique({
-      where: { id: current.projectId },
-      select: { slug: true },
-    })
     const r = await prisma.projectRelease.update({
       where: { id: current.id },
       data: {
         ...parsed.data,
-        ...kyLaiNeuCo(project?.slug ?? '', ghep),
+        ...kyLaiNeuCo(slug, ghep),
       } as Prisma.ProjectReleaseUncheckedUpdateInput,
     })
     res.json(r)
@@ -1266,6 +1323,17 @@ app.delete(
 /// thể lớn hơn cả hai. Khoá do MÁY CHỦ đặt (không nhận khoá từ client) và gắn
 /// một đoạn ngẫu nhiên, để hai lần tải cùng tên tệp không ghi đè lên nhau - tệp
 /// cũ có thể đang là đích của một bản đã công bố với checksum đã phát ra ngoài.
+///
+/// Siết tải lên (§3.3 kế hoạch ATTT, đóng G3 - 05/11/2026):
+///   - `platform` + `fileName`: đuôi phải nằm trong danh sách TRẮNG của nền tảng
+///     (`RELEASE_FILE_TYPES`, objectStore.ts).
+///   - `fileSize` (số nguyên dương, BẮT BUỘC) được KÝ vào URL (`Content-Length`):
+///     PUT có kích thước khác bị kho từ chối. Vượt trần nền tảng ⇒ 413.
+///   - `contentType` do máy chủ suy từ đuôi và cũng được ký vào URL. Client gửi
+///     `contentType` ⇒ 400, cùng khuôn với `signature`/`sha256`: trường do máy
+///     chủ quyết thì từ chối thẳng, không lặng lẽ bỏ qua - bỏ qua thì client
+///     tưởng giá trị của nó được dùng.
+/// Lỗi trả `{ error, code }` - `code` ổn định để giao diện rẽ nhánh, `error` để đọc.
 app.post(
   '/api/admin/projects/:slug/releases/upload-url',
   asyncHandler(async (req, res) => {
@@ -1277,18 +1345,60 @@ app.post(
     if (!project) return res.status(404).json({ error: 'Không tìm thấy dự án' })
 
     const b = (req.body ?? {}) as Record<string, unknown>
+    if (b.contentType !== undefined)
+      return res.status(400).json({
+        code: 'CONTENT_TYPE_DO_MAY_CHU',
+        error: 'contentType do máy chủ suy từ đuôi tệp, không nhận từ client',
+      })
     const fileName = typeof b.fileName === 'string' ? b.fileName.trim() : ''
-    if (!fileName) return res.status(400).json({ error: 'thiếu fileName' })
-    const contentType =
-      typeof b.contentType === 'string' && b.contentType.trim()
-        ? b.contentType.trim()
-        : 'application/octet-stream'
+    if (!fileName) return res.status(400).json({ code: 'THIEU_FILE_NAME', error: 'thiếu fileName' })
 
-    const key = `releases/${project.slug}/${randomBytes(6).toString('hex')}/${safeFileName(
-      fileName
+    const platform = typeof b.platform === 'string' ? b.platform.trim() : ''
+    if (!RELEASE_PLATFORMS.has(platform))
+      return res.status(400).json({
+        code: 'PLATFORM_KHONG_HOP_LE',
+        error: platform ? `platform không hợp lệ: ${platform}` : 'thiếu platform',
+      })
+    const dsLoai = RELEASE_FILE_TYPES[platform]
+    if (!dsLoai)
+      return res.status(400).json({
+        code: 'NEN_TANG_KHONG_CO_TEP',
+        error: `nền tảng ${platform} không có tệp tải lên - dùng đường dẫn ngoài (externalUrl)`,
+      })
+
+    // Chỉ nhận số JSON: chuỗi "123abc" mà parseInt cho qua là đúng loại lời khai
+    // mơ hồ mà một con số được ký vào URL không được phép mang.
+    const fileSize = b.fileSize
+    if (typeof fileSize !== 'number' || !Number.isSafeInteger(fileSize) || fileSize <= 0)
+      return res.status(400).json({
+        code: 'FILE_SIZE_KHONG_HOP_LE',
+        error: 'fileSize phải là số nguyên dương (số byte của tệp sẽ tải lên)',
+      })
+
+    const loai = loaiTepPhatHanh(platform, fileName)
+    if (!loai)
+      return res.status(400).json({
+        code: 'DUOI_TEP_KHONG_CHO_PHEP',
+        error: `đuôi tệp không được phép cho ${platform} - chỉ nhận: ${dsLoai
+          .map((l) => l.duoi)
+          .join(' ')}`,
+      })
+
+    const maxBytes = MAX_RELEASE_BYTES[platform] ?? 0 // nền tảng không có trần ⇒ fail closed
+    if (fileSize > maxBytes)
+      return res.status(413).json({
+        code: 'VUOT_TRAN_KICH_THUOC',
+        error: `tệp ${fileSize} byte vượt trần ${maxBytes} byte của ${platform}`,
+      })
+
+    const key = `releases/${project.slug}/${randomBytes(6).toString('hex')}/${tenTepTrongKho(
+      fileName,
+      loai
     )}`
-    const url = await objectStore.presignPut(key, contentType)
-    res.json({ url, key, contentType })
+    const url = await objectStore.presignPut(key, loai.contentType, fileSize)
+    // `contentType` và `fileSize` trả về là thứ ĐÃ KÝ vào URL: PUT phải mang đúng
+    // `Content-Type` này và đúng chừng ấy byte, lệch là kho trả 403.
+    res.json({ url, key, contentType: loai.contentType, fileSize, maxBytes })
   })
 )
 
@@ -1298,6 +1408,12 @@ app.post(
 /// Tách khỏi POST tạo vì đọc lại một tệp vài trăm MB mất thời gian, và một lượt
 /// niêm phong thất bại (tệp chưa lên xong, R2 chập chờn) phải thử lại được mà
 /// không tạo lại bản phát hành. Gọi lại nhiều lần là an toàn - kết quả như nhau.
+///
+/// Trước khi ký, kiểm loại tệp (§3.3, G3): đuôi của `storageKey` phải thuộc danh
+/// sách trắng của nền tảng, dung lượng thật không vượt trần, và byte đầu/cuối -
+/// lấy trong CHÍNH lượt đọc đang băm - phải khớp loại mà đuôi tuyên bố. Lệch ⇒
+/// 422 kèm `code`, không ghi gì, không ký. `storageKey` do client gửi lại ở bước
+/// tạo, nên đuôi được kiểm lại ở đây chứ không tin lớp `upload-url`.
 app.post(
   '/api/admin/releases/:id/seal',
   asyncHandler(async (req, res) => {
@@ -1313,13 +1429,44 @@ app.post(
         .status(409)
         .json({ error: 'Chỉ niêm phong được bản có tệp trong R2 (không phải đường dẫn ngoài)' })
 
-    let doc: { sha256: string; size: number }
+    const loiKhoa = loiKhoaKhongThuocDuAn(current.project.slug, current.storageKey)
+    if (loiKhoa) return res.status(422).json({ code: 'STORAGE_KEY_SAI_DU_AN', error: loiKhoa })
+
+    const loai = loaiTepPhatHanh(current.platform, current.storageKey)
+    if (!loai)
+      return res.status(422).json({
+        code: 'DUOI_TEP_KHONG_CHO_PHEP',
+        error: `đuôi tệp không được phép cho ${current.platform} - chỉ nhận: ${
+          (RELEASE_FILE_TYPES[current.platform] ?? []).map((l) => l.duoi).join(' ') ||
+          '(không có tệp)'
+        }`,
+      })
+
+    let doc: Awaited<ReturnType<typeof objectStore.hashObject>>
     try {
       doc = await objectStore.hashObject(current.storageKey)
     } catch (e) {
       console.error('[content] niêm phong: không đọc được object', current.storageKey, e)
       return res.status(502).json({
         error: 'Không đọc được tệp trong kho - tệp đã tải lên xong chưa? Thử lại sau giây lát.',
+      })
+    }
+
+    const maxBytes = MAX_RELEASE_BYTES[current.platform] ?? 0 // nền tảng không có trần ⇒ fail closed
+    if (doc.size > maxBytes)
+      return res.status(422).json({
+        code: 'VUOT_TRAN_KICH_THUOC',
+        error: `tệp trong kho ${doc.size} byte vượt trần ${maxBytes} byte của ${current.platform}`,
+      })
+    if (!loai.khop(doc.head, doc.tail)) {
+      console.warn(
+        '[content] niêm phong: tệp sai loại',
+        current.storageKey,
+        doc.head.toString('hex')
+      )
+      return res.status(422).json({
+        code: 'SAI_LOAI_TEP',
+        error: `nội dung tệp không phải ${loai.duoi} (mong đợi ${loai.dauHieu}) - từ chối niêm phong`,
       })
     }
 

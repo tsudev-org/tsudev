@@ -54,6 +54,10 @@ jobs:
           tar -xzf "$RUNNER_TEMP/$tarball" -C "$RUNNER_TEMP" gitleaks
           "$RUNNER_TEMP/gitleaks" version
 
+      # --log-opts=HEAD: chỉ quét lịch sử đi tới được từ commit đang kiểm. checkout
+      # với fetch-depth: 0 kéo về MỌI nhánh của repo; không giới hạn thì gitleaks quét
+      # cả nhánh của PR khác, và PR này đỏ vì commit nó không chứa (gặp 05/11/2026:
+      # #129 đỏ vì fixture test của #128).
       # --redact: log CI là công khai (repo Public) - không in lại chính secret vừa bắt.
       # --ignore-gitleaks-allow: chú thích `gitleaks:allow` nằm ngay trong diff, tức
       # là người commit secret tự miễn được cho mình. Ngoại lệ chỉ đi qua
@@ -67,6 +71,7 @@ jobs:
             --no-banner \
             --verbose \
             --exit-code 1 \
+            --log-opts=HEAD \
             .
 
   npm-audit:
