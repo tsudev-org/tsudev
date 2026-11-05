@@ -55,7 +55,13 @@ const usernames = (res: { body: { data: Array<{ username: string }> } }) =>
 beforeAll(async () => {
   await prisma.user.deleteMany({ where: { username: { in: ALL } } })
   await prisma.user.create({
-    data: { username: OWNER, email: `${OWNER}@tsudev.local`, role: 'OWNER' },
+    // Ép 2FA (G6): requireOwner đòi TOTP đã xác nhận hoặc passkey.
+    data: {
+      username: OWNER,
+      email: `${OWNER}@tsudev.local`,
+      role: 'OWNER',
+      totp: { create: { secretEnc: 'test', confirmedAt: new Date() } },
+    },
   })
   // Chỉ mật khẩu, đã đăng nhập từ Việt Nam.
   await prisma.user.create({

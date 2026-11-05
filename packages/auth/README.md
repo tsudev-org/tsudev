@@ -23,3 +23,13 @@ bảo vệ mà không hề được bảo vệ**, và bật cờ lên thì chún
 
 Gói này bỏ hẳn nhánh đọc-claim. `requireRole()` nay đọc `User.role` từ DB, **fail
 closed**, không có cờ nào tắt được nó.
+
+## Ép 2FA cho quản trị (G6)
+
+`requireSecondFactor(user, res)` cho qua khi tài khoản có TOTP **đã xác nhận**
+(`TotpCredential.confirmedAt` khác NULL) hoặc ít nhất một `WebAuthnCredential`.
+Thiếu ⇒ 403 `{ error, code: 'MFA_REQUIRED' }`; lỗi DB ⇒ 503 (fail closed).
+Gọi SAU bước kiểm vai trò - `requireAdmin` (content-service) và `requireOwner`
+(auth-service) dùng nó. **Đừng** gắn nó vào các route `/api/identity/totp/*`
+hay `/api/identity/passkey/register-*`: đó là đường duy nhất để quản trị viên
+chưa có 2FA tự bật nó.

@@ -158,3 +158,54 @@ export function requireRole(role: Role): RequestHandler {
     }
   };
 }
+
+/** Mã máy đọc được của lỗi "tài khoản quản trị chưa bật 2FA". Frontend bắt mã này. */
+export const MFA_REQUIRED = 'MFA_REQUIRED';
+
+/** Thông điệp đi kèm `MFA_REQUIRED` - nói rõ người dùng phải làm gì, ở đâu. */
+export const MFA_REQUIRED_MESSAGE =
+  'Tài khoản quản trị phải bật xác thực hai lớp (ứng dụng TOTP hoặc passkey) ở /settings/security trước khi dùng chức năng này';
+
+/**
+ * Tài khoản có yếu tố thứ hai dùng được không: TOTP ĐÃ XÁC NHẬN hoặc ít nhất
+ * một passkey.
+ *
+ * TOTP chưa xác nhận (`confirmedAt` NULL) KHÔNG tính - đó là bí mật đã sinh mà
+ * người dùng chưa từng chứng minh mình giữ, đúng quy ước của auth-service
+ * (đăng nhập cũng chỉ hỏi mã khi đã xác nhận).
+ *
+ * NÉM khi lỗi DB - người gọi phải coi đó là từ chối (xem `requireSecondFactor`).
+ */
+export async function hasSecondFactor(userId: string): Promise<boolean> {
+  const [totp, passkey] = await Promise.all([
+    prisma.totpCredential.findFirst({
+      where: { userId, confirmedAt: { not: null } },
+      select: { id: true },
+    }),
+    prisma.webAuthnCredential.findFirst({ where: { userId }, select: { id: true } }),
+  ]);
+  return Boolean(totp || passkey);
+}
+
+/**
+ * Ép 2FA cho bề mặt quản trị (G6, docs/security-plan.md). Gọi SAU khi đã kiểm
+ * vai trò, để người không đủ vai trò vẫn nhận đúng 403 cũ.
+ *
+ * Trả `true` nếu cho qua; nếu không, đã ghi phản hồi và trả `false`:
+ *   - chưa có yếu tố thứ hai ⇒ 403 `{ error, code: 'MFA_REQUIRED' }`;
+ *   - lỗi tra DB ⇒ 503. FAIL CLOSED: lỗi không bao giờ thành "cho qua".
+ *
+ * KHÔNG dùng cho các route tự bật TOTP/passkey của chính tài khoản - chặn ở đó
+ * thì ADMIN/OWNER chưa có 2FA không còn đường nào bật nó, tự khoá mình ngoài.
+ */
+export async function requireSecondFactor(user: Pick<User, 'id'>, res: Response): Promise<boolean> {
+  try {
+    if (await hasSecondFactor(user.id)) return true;
+    res.status(403).json({ error: MFA_REQUIRED_MESSAGE, code: MFA_REQUIRED });
+    return false;
+  } catch (e) {
+    console.error('[auth] requireSecondFactor lỗi:', e instanceof Error ? e.message : e);
+    res.status(503).json({ error: 'Không kiểm tra được xác thực hai lớp' });
+    return false;
+  }
+}

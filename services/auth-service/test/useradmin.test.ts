@@ -18,12 +18,16 @@
 export {}
 process.env.NODE_ENV = 'test'
 process.env.INTERNAL_IDENTITY_SECRET = 'khoa-test-du-dai-cho-hmac-256-bit!!'
+// Hai biến dưới chỉ cần cho khối "ép 2FA" (bật TOTP + đăng ký passkey).
+process.env.TOTP_ENCRYPTION_KEY = 'khoa-ma-hoa-totp-du-dai-cho-test-0123456789'
+process.env.NEXT_PUBLIC_MAIN_URL ||= 'http://tsudev.localhost:8080'
 delete process.env.INTERNAL_API_TOKEN
 
 const request = require('supertest')
 const { prisma } = require('@tsudev/db')
 const { signIdentity } = require('@tsudev/identity-token')
 const { app } = require('../src/index')
+const { totpCode } = require('../src/totp')
 
 const OWNER = 'test-ua-owner'
 const ADMIN = 'test-ua-admin'
@@ -62,7 +66,17 @@ beforeEach(async () => {
       ] as const
     ).map(([username, role]) =>
       prisma.user.create({
-        data: { username, email: `${username}@tsudev.local`, displayName: username, role },
+        data: {
+          username,
+          email: `${username}@tsudev.local`,
+          displayName: username,
+          role,
+          // Ép 2FA (G6): requireOwner đòi TOTP đã xác nhận hoặc passkey.
+          // Các ca thiếu 2FA nằm ở khối "ép 2FA" cuối tệp.
+          ...(role === 'OWNER'
+            ? { totp: { create: { secretEnc: 'test', confirmedAt: new Date() } } }
+            : {}),
+        },
       })
     )
   )
@@ -244,5 +258,85 @@ describe('phân quyền, thu hồi, xoá', () => {
     const res = await post('delete', OWNER, { id: memberId })
     expect(res.status).toBe(200)
     expect(await prisma.user.findUnique({ where: { username: MEMBER } })).toBeNull()
+  }, 20000)
+})
+
+// G6 (docs/security-plan.md): OWNER chưa có TOTP ĐÃ XÁC NHẬN hoặc passkey thì
+// mọi route dưới requireOwner trả 403 MFA_REQUIRED - nhưng các route TỰ BẬT
+// 2FA phải vẫn mở, nếu không OWNER tự khoá mình khỏi khu quản trị.
+describe('ép 2FA cho OWNER', () => {
+  const BARE = 'test-ua-owner-no2fa'
+  let bareId = ''
+
+  beforeEach(async () => {
+    const u = await prisma.user.create({
+      data: { username: BARE, email: `${BARE}@tsudev.local`, displayName: BARE, role: 'OWNER' },
+    })
+    bareId = u.id
+  })
+
+  afterEach(async () => {
+    await prisma.webAuthnChallenge.deleteMany({ where: { userId: bareId } })
+  })
+
+  const self = async (path: string, body: Record<string, unknown> = {}) =>
+    request(app)
+      .post(`/api/identity/${path}`)
+      .set(await asUser(BARE))
+      .send(body)
+
+  test('OWNER không 2FA ⇒ 403 MFA_REQUIRED ở MỌI route useradmin + alias', async () => {
+    for (const action of ['list', 'create', 'update', 'role', 'revoke', 'delete', 'security']) {
+      const res = await post(action, BARE, { id: 'x' })
+      expect(res.status).toBe(403)
+      expect(res.body.code).toBe('MFA_REQUIRED')
+      expect(res.body.error).toMatch(/settings\/security/)
+    }
+    for (const action of ['list', 'create', 'delete', 'sync']) {
+      const res = await self(`alias/${action}`, { id: 'x' })
+      expect(res.status).toBe(403)
+      expect(res.body.code).toBe('MFA_REQUIRED')
+    }
+  }, 30000)
+
+  test('TOTP CHƯA xác nhận ⇒ vẫn 403 MFA_REQUIRED', async () => {
+    await prisma.totpCredential.create({ data: { userId: bareId, secretEnc: 'test' } })
+    const res = await post('list', BARE)
+    expect(res.status).toBe(403)
+    expect(res.body.code).toBe('MFA_REQUIRED')
+  }, 20000)
+
+  test('TOTP đã xác nhận ⇒ 200', async () => {
+    await prisma.totpCredential.create({
+      data: { userId: bareId, secretEnc: 'test', confirmedAt: new Date() },
+    })
+    expect((await post('list', BARE)).status).toBe(200)
+  }, 20000)
+
+  test('có passkey (không TOTP) ⇒ 200', async () => {
+    await prisma.webAuthnCredential.create({
+      data: { userId: bareId, credentialId: `test-ua-cred-${Date.now()}`, publicKey: 'x' },
+    })
+    expect((await post('list', BARE)).status).toBe(200)
+  }, 20000)
+
+  test('ADMIN (không phải OWNER) vẫn nhận 403 cũ, không phải MFA_REQUIRED', async () => {
+    const res = await post('list', ADMIN)
+    expect(res.status).toBe(403)
+    expect(res.body.code).toBeUndefined()
+  }, 20000)
+
+  test('route bật 2FA vẫn mở: setup + confirm TOTP rồi useradmin thông', async () => {
+    const setup = await self('totp/setup')
+    expect(setup.status).toBe(200)
+    const confirm = await self('totp/confirm', { code: totpCode(setup.body.secret) })
+    expect(confirm.status).toBe(200)
+    expect((await post('list', BARE)).status).toBe(200)
+  }, 20000)
+
+  test('route đăng ký passkey vẫn mở với OWNER chưa có 2FA', async () => {
+    const res = await self('passkey/register-options')
+    expect(res.status).toBe(200)
+    expect(res.body.challengeId).toBeTruthy()
   }, 20000)
 })
