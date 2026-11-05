@@ -8,23 +8,20 @@ Số liệu trong bảng dưới được đọc từ trang giá chính thức n
 Nhà cung cấp đổi hạn mức mà không báo ai, nên khi con số quan trọng cho một
 quyết định thì kiểm lại nguồn thay vì tin bảng này.
 
-## Bảy dịch vụ đang dùng
+## Năm dịch vụ đang dùng
 
-| Dịch vụ                        | Hạn mức miễn phí                                            | Vượt thì sao                                              | Van trong repo                                  |
-| ------------------------------ | ----------------------------------------------------------- | --------------------------------------------------------- | ----------------------------------------------- |
-| Cloudflare Workers (site+cron) | 100.000 request/ngày · 10ms CPU mỗi lượt                    | request bị từ chối, không tính tiền                       | -                                               |
-| Cloudflare Workers AI          | **10.000 Neuron/ngày**, reset 00:00 UTC                     | request **fail**, không tính tiền (chỉ gói Paid mới tính) | `NEWSROOM_DAILY_NEURON_BUDGET=8000`             |
-| Cloudflare R2                  | 10 GB-tháng · 1tr Class A · 10tr Class B · egress 0đ        | -                                                         | ảnh và tệp tải lên của site                     |
-| Neon (Postgres)                | 0,5 GB · **100 CU-giờ/tháng** · 5 GB egress · không cần thẻ | **treo compute** tới đầu tháng sau, không tính tiền       | nhịp cron theo giờ (xem dưới)                   |
-| Render (backend)               | **750 giờ instance/tháng cho CẢ workspace**                 | **tạm dừng mọi service free** tới đầu tháng sau           | đúng MỘT service trong `render.yaml`            |
-| Resend (thư giao dịch)         | 3.000 thư/tháng · 100 thư/ngày · 1 tên miền                 | -                                                         | chỉ dùng cho xác minh email và đặt lại mật khẩu |
-| Google Gemini (LLM dự phòng)   | bậc Free khi project **chưa bật billing**                   | 429, toà soạn dừng và ghi event                           | chỉ chạy khi Workers AI đã cạn Neuron           |
+| Dịch vụ                        | Hạn mức miễn phí                                            | Vượt thì sao                                        | Van trong repo                                  |
+| ------------------------------ | ----------------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------- |
+| Cloudflare Workers (site+cron) | 100.000 request/ngày · 10ms CPU mỗi lượt                    | request bị từ chối, không tính tiền                 | -                                               |
+| Cloudflare R2                  | 10 GB-tháng · 1tr Class A · 10tr Class B · egress 0đ        | -                                                   | ảnh và tệp tải lên của site                     |
+| Neon (Postgres)                | 0,5 GB · **100 CU-giờ/tháng** · 5 GB egress · không cần thẻ | **treo compute** tới đầu tháng sau, không tính tiền | cổng hạn mức Neon trong Worker cron (§6.7)      |
+| Render (backend)               | **750 giờ instance/tháng cho CẢ workspace**                 | **tạm dừng mọi service free** tới đầu tháng sau     | đúng MỘT service trong `render.yaml`            |
+| Resend (thư giao dịch)         | 3.000 thư/tháng · 100 thư/ngày · 1 tên miền                 | -                                                   | chỉ dùng cho xác minh email và đặt lại mật khẩu |
 
-Thêm một cái nữa không phải dịch vụ chạy nhưng vẫn có hạn mức: **GitHub Actions**
-trên repo private được 2.000 phút/tháng, và hết phút thì job **bị chặn** chứ
-không sinh hoá đơn (miễn là tài khoản không có phương thức thanh toán hợp lệ).
-Triệu chứng vì thế không phải một dòng tiền mà là **"CI không chạy nữa" ngay giữa
-một đợt phát hành** - đúng lúc cần CI nhất.
+**GitHub Actions**: repo Public từ 21/08/2026, nên runner chuẩn không còn trần
+2.000 phút/tháng của repo private. Đổi repo về private là trần đó quay lại - và
+triệu chứng khi cạn không phải hoá đơn mà là **"CI không chạy nữa" ngay giữa một
+đợt phát hành**.
 
 Một lượt chạy đầy đủ tốn ~18 phút tính phí (tổng năm job), nên hạn mức này chỉ
 đủ cho khoảng 110 lượt/tháng. Hai van đã lắp trong `.github/workflows/ci.yml`:
@@ -61,8 +58,8 @@ Cái giá đã chấp nhận: người truy cập đầu tiên sau khung nghỉ 
 giây. Đổi lại, biên đủ rộng để một lần dựng lại service hay một đợt gỡ lỗi không
 làm vỡ hạn mức của cả workspace.
 
-⚠️ **Hai nhịp phải nghỉ CÙNG khung.** Nhịp toà soạn cũng là một request tới
-Render: để nó chạy 24/7 thì mỗi giờ đêm Render lại thức ~15 phút và khung nghỉ
+⚠️ **Mọi nhịp gọi Render phải nghỉ CÙNG khung.** Thời Toà soạn có một nhịp
+thứ hai cũng gọi Render: để nó chạy 24/7 thì mỗi giờ đêm Render lại thức ~15 phút và khung nghỉ
 chỉ tiết kiệm được khoảng một phần tư số giờ ở bảng trên.
 
 ⚠️ **Cron của Cloudflare không có múi giờ - `0-17,23` là giờ UTC.** Khung nghỉ
@@ -138,7 +135,8 @@ còn sống". `GET /health` của `backend-bundle` trả JSON TĨNH, không đ�
 đó là lý do nó được chọn. Đổi sang một đường dưới `/api/` là dựng lại đúng cái
 bẫy vừa gỡ, ở dạng dày hơn 12 lần.
 
-Cổng canh: `services/newsroom-service/test/cronContract.test.ts`, 9 khẳng định.
+Cổng canh: `apps/frontend-main/test/cronContract.test.ts`, 9 khẳng định (bị mất
+cùng `newsroom-service` ở PR #99, khôi phục 05/11/2026).
 Ba cái quan trọng nhất đều đã được chứng minh ĐỎ bằng cách tái tạo lỗi thật:
 
 | khẳng định                                   | tái tạo lỗi gì để chứng minh    |
@@ -149,14 +147,14 @@ Ba cái quan trọng nhất đều đã được chứng minh ĐỎ bằng cách
 
 Cộng với: nhịp GIỮ ẤM chỉ gọi `/health`, và `TICK_CRON` không còn tồn tại.
 
-⚠️ **Báo động hiện CHƯA được cấu hình.** `TELEGRAM_BOT_TOKEN` và
+⚠️ **Báo động hiện CHƯA được cấu hình** (đo 05/11/2026). `TELEGRAM_BOT_TOKEN` và
 `TELEGRAM_CHAT_ID` chưa đặt, nên cổng chỉ `console.error` - đọc được bằng
-`npm run cron:tail`. Bật bằng `npm run cron:secret-telegram`. Đây cũng là lý do
-báo động của `migrationGate` đang đi vào hư không: `notify.js` hỗ trợ Telegram và
-email webhook, nhưng không biến nào được khai trong `render.yaml`.
+`npm run cron:tail`. Bật bằng `npm run cron:secret-telegram`.
 
-⚠️ Khi §8 gỡ hẳn `newsroom-service`, **chuyển test đó sang workspace khác** chứ
-đừng xoá cùng service - nó nay canh hạn mức Neon, không canh toà soạn.
+**Cổng hạn mức Neon** (§6.7, `infrastructure/canh-site-cron/src/hanMuc.ts`) chạy
+cùng nhịp đếm, đọc CU-giờ đã tiêu qua API điều khiển của Neon (không đánh thức
+compute) và báo động khi đã tiêu ≥ 80% hoặc DỰ BÁO cuối kỳ ≥ 100%. Cần
+`npm run cron:secret-neon`; thiếu thì Worker log rõ và bỏ qua.
 
 <details>
 <summary>Lập luận cũ về kiến trúc hai nhịp, giữ lại vì nó giải thích vì sao nhịp giữ ấm phải trỏ `/health`</summary>
@@ -174,7 +172,8 @@ tháng thứ hai - đủ xa lần sửa để không ai nối được nhân qu�
 Bảng hai nhịp ở trên là một kiến trúc đúng, và nó bị vượt qua từ một hướng mà
 chính tài liệu này không canh.
 
-`apps/frontend-main/pages/admin/newsroom.tsx` poll `GET /api/newsroom/state` -
+(Lịch sử - trang này đã gỡ cùng Toà soạn, nhưng bài học vẫn áp cho mọi trang
+quản trị mới.) `apps/frontend-main/pages/admin/newsroom.tsx` poll `GET /api/newsroom/state` -
 một endpoint **CHẠM DATABASE** - và bản đầu của nó là `setInterval(load, 3000)`
 trần, không điều kiện dừng nào. Một tab trang đó bị bỏ quên là:
 
@@ -203,84 +202,32 @@ Vòng poll nay có **ba van**, và cả ba đều cần:
 **Bài học chung**: khi kiểm "cái gì đang đánh thức Neon", đừng chỉ đọc
 `wrangler.jsonc`. Ba nguồn đánh thức, chỉ một nằm trong cron:
 
-| nguồn                                  | ở đâu                                         | canh bằng gì                                                                                      |
-| -------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| cron theo lịch                         | `infrastructure/newsroom-cron/wrangler.jsonc` | `cronContract.test.ts`                                                                            |
-| **vòng poll của trình duyệt**          | `pages/admin/*.tsx` - tìm `setInterval`       | **đọc mã, chưa có cổng tự động**                                                                  |
-| `setInterval` trong tiến trình backend | `services/*/src/*.ts`                         | đọc mã; `trust-service/src/recheck.ts` có một cái, chu kỳ 360 phút - đã kiểm, KHÔNG phải nguồn vỡ |
+| nguồn                                  | ở đâu                                          | canh bằng gì                                                                                   |
+| -------------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| cron theo lịch                         | `infrastructure/canh-site-cron/wrangler.jsonc` | `apps/frontend-main/test/cronContract.test.ts`                                                 |
+| **vòng poll của trình duyệt**          | `pages/admin/*.tsx` - tìm `setInterval`        | **đọc mã, chưa có cổng tự động**                                                               |
+| `setInterval` trong tiến trình backend | `services/*/src/*.ts`                          | đọc mã; `trust-service/src/recheck.ts` từng có một cái (360 phút) - gỡ cùng Con dấu 04/11/2026 |
 
 Và cổng đo được hậu quả, không đo nguyên nhân: **`npm run prod:dem-noi-dung`**.
 Nó gọi production từ bên ngoài, không cần `DATABASE_URL` - nên nó vẫn trả lời
 được đúng lúc database chết, tức đúng lúc cần nhất. Có mã thoát 0/1/2.
 
-Dữ liệu tích luỹ thì dọn bằng **`npm run db:don-toa-soan`** (mặc định `--dry-run`,
-chỉ đếm). Nó cũng in ra cảnh báo quan trọng: **dọn dữ liệu KHÔNG chữa được hạn
-mức compute** - hai hạn mức khác nhau cần hai cách chữa trái ngược, nên phải đọc
-Neon console → Usage để biết dòng nào đỏ trước khi xoá bất cứ thứ gì.
-
-Chuỗi cron của nhịp đập nằm ở **hai chỗ phải trùng nguyên văn**: hằng `TICK_CRON`
-trong `infrastructure/newsroom-cron/src/index.ts` và mảng `triggers.crons` trong
-`wrangler.jsonc` cạnh đó. Lệch một ký tự thì lượt đó rơi xuống nhánh giữ ấm và
-toà soạn đứng yên trong im lặng - Worker vẫn chạy, log vẫn xanh, chỉ là không
-còn bài mới. Nay có `services/newsroom-service/test/cronContract.test.ts` đọc cả
-hai tệp và bắt đúng chuyện đó, kể cả việc hai nhịp lỡ nghỉ hai khung khác nhau.
-
-## Van chi phí của Toà soạn Agent AI
-
-Toà soạn là phần duy nhất của repo gọi ra dịch vụ tính theo lượng dùng, nên nó
-có ba van xếp chồng:
-
-1. **`NEWSROOM_ENABLED`** - công tắc tổng. Khác `true` thì `tick()` trả về ở
-   dòng đầu tiên: không truy vấn database, không gọi LLM. Đây là mặc định trong
-   `render.yaml` và `.env.example`, và nó phải giữ nguyên như thế cho tới khi
-   đường ống được nghiệm thu.
-2. **`NEWSROOM_DAILY_NEURON_BUDGET`** (mặc định 8000) - trần Neuron/ngày, đếm từ
-   bảng `AgentRun` theo mốc 00:00 UTC (đúng mốc reset của Cloudflare, không phải
-   nửa đêm giờ Việt Nam). Chạm trần thì router chuyển sang Gemini; hết cả Gemini
-   thì dừng và ghi event. 8000 trên 10.000 là chừa biên 20% cho vòng sửa lại.
-
-   ⚠️ **Đây là van PHỤ, không phải sổ chính.** Nó cộng con số do ta ước lượng từ
-   bảng quy đổi, chỉ tính các lượt THÀNH CÔNG của một service - còn Cloudflare
-   đếm cả tài khoản, mọi model, kể cả lượt hỏng giữa chừng sau khi mô hình đã
-   sinh xong chữ. Hai sổ lệch nhau là bình thường, và ngày 20/08/2026 chúng lệch
-   đủ để van không bao giờ đóng trong khi Cloudflare đã từ chối mọi request.
-   Sổ CHÍNH là lời của chính nhà cung cấp: khi API trả "cạn hạn mức", router ghi
-   một sự kiện `provider.exhausted` vào `NewsroomEvent` và không gọi lại nhà cung
-   cấp đó cho tới 00:00 UTC. Ghi vào DB chứ không vào biến nhớ - Render restart
-   tiến trình bất cứ lúc nào, mà thứ cần nhớ là một sự kiện của NGÀY.
-
-   Cạn hạn mức làm toà soạn **hoãn**, không phải **hỏng**: sự kiện đang chờ quay
-   về `PENDING` và được hoàn lại lần thử đã tính. Bản nháp chết trước bản vá này
-   hồi sinh bằng nút "Hồi sinh việc đã dừng" ở `/admin/newsroom`.
-
-3. **`NEWSROOM_MAX_REVISIONS`** (mặc định 2) - trần số vòng Writer↔Editor cho
-   một bài. Không có trần này thì hai agent có thể quay vòng cho tới khi cạn
-   hạn mức mà không ai thấy gì bất thường.
-
-Cộng thêm một van không nằm trong biến môi trường: `/api/newsroom/tick` bị gác
-bằng `NEWSROOM_TICK_TOKEN`, và Worker cron cũng gác đường gõ tay của nó bằng
-chính token đó. Để hở là bất kỳ ai cũng ép toà soạn quay vòng tới cạn hạn mức -
-một kiểu DoS nhắm vào hạn mức thay vì vào máy chủ.
+Ba bảng phình nhất (`DraftRevision` · `NewsroomEvent` · `AgentRun`) đã DROP cùng
+Toà soạn (04/11/2026), và lệnh dọn `db:don-toa-soan` gỡ theo. Nhớ: **dọn dữ liệu
+KHÔNG chữa được hạn mức compute** - dung lượng và CU-giờ là hai hạn mức khác
+nhau cần hai cách chữa trái ngược; đọc Neon console → Usage trước khi xoá gì.
 
 ## Danh sách cấm - làm là mất "0đ"
 
-- **Nâng lên Workers Paid.** Trên gói Free, vượt 10.000 Neuron/ngày là request
-  bị từ chối. Trên gói Paid, đúng tình huống đó thành 0,011 USD/1.000 Neuron.
-  Van ngân sách trong mã sẽ vẫn chạy, nhưng nó không còn là lớp bảo vệ cuối.
-- **Đổi model Workers AI sang nhóm premium** (DeepSeek, GLM, Kimi và tương tự).
-  Nhóm đó đòi phương thức thanh toán kể cả khi tài khoản ở gói Free. Bảng
-  `NEURONS` trong `services/newsroom-service/src/llm/workersAi.ts` chỉ liệt kê
-  các model Llama, và model lạ rơi vào `NEURON_FALLBACK` - tức van vẫn đếm,
-  nhưng hoá đơn thì không do van này quyết định.
-- **Bật billing cho project Gemini.** Bật là Google chuyển bậc ngay lập tức và
-  hết bậc Free. Khoá `GEMINI_API_KEY` phải lấy từ project **chưa** bật billing.
 - **Thêm service free thứ hai trên Render** (xem ngân sách số 1).
-- **Đặt cron trong GitHub Actions.** Repo private, mỗi lượt chạy tính tối thiểu
-  1 phút ⇒ ~8.600 phút/tháng trên hạn mức 2.000. Việc giữ ấm đã có Worker cron
-  lo, miễn phí thật.
+- **Đặt cron trong GitHub Actions.** Nếu repo quay về private, mỗi lượt chạy
+  tính tối thiểu 1 phút ⇒ ~8.600 phút/tháng trên hạn mức 2.000. Việc giữ ấm đã
+  có Worker cron lo, miễn phí thật.
 - **Thêm binding Cloudflare cần gói trả tiền** (Queues là ví dụ rõ nhất). Cả hai
-  `wrangler.jsonc` của repo hiện chỉ khai `vars`, `routes`, `triggers` và
-  `observability` - không có binding nào cần Paid.
+  `wrangler.jsonc` của repo hiện chỉ khai `vars`, `routes`, `triggers`,
+  `observability`, và (frontend, từ 05/11/2026) binding R2
+  `NEXT_INC_CACHE_R2_BUCKET` + service binding `WORKER_SELF_REFERENCE` cho ISR -
+  cả hai có trên gói Free. Hàng đợi ISR là `memoryQueue`, CỐ Ý không phải Queues.
 
 ## Tự kiểm mỗi tháng
 
@@ -289,13 +236,13 @@ Năm phút, làm vào đầu tháng:
 ```bash
 # 1. Không có binding tính tiền nào mọc thêm trong hai wrangler.jsonc
 grep -n "queues\|durable_objects\|hyperdrive\|d1_databases" \
-  apps/frontend-main/wrangler.jsonc infrastructure/newsroom-cron/wrangler.jsonc
+  apps/frontend-main/wrangler.jsonc infrastructure/canh-site-cron/wrangler.jsonc
 # → không ra dòng nào
 
-# 2. Công tắc toà soạn vẫn đúng chủ ý (false cho tới khi nghiệm thu xong)
-curl -s https://tsudev-backend.onrender.com/health
+# 2. Site còn nội dung thật (cũng là thứ Worker cron đo hai lần/ngày)
+npm run prod:dem-noi-dung
 
-# 3. Cron còn sống - nếu chết thì Render ngủ và toà soạn đứng yên, cả hai im lặng
+# 3. Cron còn sống - nếu chết thì Render ngủ và không ai đo nội dung, cả hai im lặng
 npm run cron:tail
 ```
 
@@ -305,5 +252,5 @@ nào thay được:
 - **Neon** - đồ thị CU-giờ đã tiêu trong tháng. Đây là con số cần nhìn trước
   tiên; mọi thứ khác còn xa hạn mức hơn nó.
 - **Render** - giờ instance đã tiêu của workspace, và **số service đang tồn tại**.
-- **Cloudflare** - mục Workers AI, xem Neuron/ngày có bám sát trần 8000 không.
-  Nếu có thì hạ `NEWSROOM_DAILY_NEURON_BUDGET` hoặc giảm nhịp, đừng nâng gói.
+- **Cloudflare** - dung lượng R2 (tệp phát hành tích luỹ; trần 10 GB-tháng) và
+  Class A/B ops của bucket `tsudev-next-cache` (ISR).

@@ -1,5 +1,9 @@
 # Kế hoạch: đưa Con dấu tín nhiệm về chế độ mời, và gỡ tín dụng
 
+> 🗄️ **HỒ SƠ ĐÃ ĐÓNG (05/11/2026).** Con dấu tín nhiệm, mã mời và trust-service đã
+> GỠ HẲN (mã 04/11, dữ liệu DROP 05/11/2026 - `refactor-tsudev-2026-q4.md` §7).
+> Tài liệu giữ lại làm lịch sử quyết định; mọi đường dẫn mã bên dưới không còn tồn tại.
+
 > **Trạng thái: 3/3 đợt XONG ở mã nguồn.** Phần C (gỡ tín dụng) phát hành
 > 17/08/2026; Phần B (mã mời) hoàn thành 18/08/2026; Phần A + D (gác bề mặt,
 > SEO, điều hướng) hoàn thành 18/08/2026. **Cả đợt 2 và đợt 3 đều CHƯA lên

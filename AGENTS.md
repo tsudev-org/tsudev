@@ -72,16 +72,16 @@ song](#chạy-song-song) bên dưới.
 
 ## Bảng sở hữu
 
-| Agent           | Sở hữu đường dẫn                                                                                          | Thế mạnh                                     |
-| --------------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| `backend-api`   | `services/{content,storage,auth}-service/`                                                                | route Express, truy vấn Prisma, hợp đồng API |
-| `trust-seal`    | `services/trust-service/`, `apps/frontend-main/pages/{trust,admin/trust}`                                 | ký Ed25519, vòng khoá, quy tắc giám sát      |
-| `frontend-web`  | `apps/frontend-main/` (trừ phần của trust-seal)                                                           | trang Next, route proxy, NextAuth            |
-| `design-system` | `packages/ui/`, `packages/brand/`, `tokens/`                                                              | token, component dùng chung, a11y, Storybook |
-| `data-schema`   | `packages/db/`                                                                                            | schema Prisma, migration, seed               |
-| `infra-deploy`  | `docker/`, `render.yaml`, `.github/`, `.husky/`, `scripts/`, `wrangler.jsonc`, `services/backend-bundle/` | build, phát hành, CI, biến môi trường        |
-| `qa-test`       | `services/*/test/`, `e2e/`, `packages/ui/test/`                                                           | unit + E2E, cổng tương phản, chẩn đoán CI    |
-| `docs-curator`  | `docs/` (trừ file viết HOA), mọi `README.md`, `CHANGELOG.md`                                              | giữ tài liệu đúng và gọn                     |
+| Agent             | Sở hữu đường dẫn                                                                                                                     | Thế mạnh                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
+| `backend-api`     | `services/{content,storage,auth}-service/` (trừ phần của release-signing)                                                            | route Express, truy vấn Prisma, hợp đồng API |
+| `release-signing` | `content-service/src/{releaseSigning,objectStore}.ts` + route `/api/admin/releases*`, `packages/trust-crypto/`, `infrastructure/r2/` | ký Ed25519, vòng khoá, niêm phong sha256, R2 |
+| `frontend-web`    | `apps/frontend-main/`                                                                                                                | trang Next, route proxy, NextAuth            |
+| `design-system`   | `packages/ui/`, `packages/brand/`, `tokens/`                                                                                         | token, component dùng chung, a11y, Storybook |
+| `data-schema`     | `packages/db/`                                                                                                                       | schema Prisma, migration, seed               |
+| `infra-deploy`    | `docker/`, `render.yaml`, `.github/`, `.husky/`, `scripts/`, `wrangler.jsonc`, `services/backend-bundle/`                            | build, phát hành, CI, biến môi trường        |
+| `qa-test`         | `services/*/test/`, `e2e/`, `packages/ui/test/`                                                                                      | unit + E2E, cổng tương phản, chẩn đoán CI    |
+| `docs-curator`    | `docs/` (trừ file viết HOA), mọi `README.md`, `CHANGELOG.md`                                                                         | giữ tài liệu đúng và gọn                     |
 
 > **Hai nhóm file KHÔNG agent nào sở hữu vì không agent nào được sửa**: `AGENTS.md`
 > phần A, và **toàn bộ cây `.standards/`** (gồm `docs/DESIGN_SYSTEM.md`,
@@ -96,8 +96,8 @@ song](#chạy-song-song) bên dưới.
 > dòng của mình, đừng viết lại cả file.
 
 > **`services/backend-bundle/` là vùng giáp ranh nguy hiểm.** Nó không chứa
-> logic nghiệp vụ nào - chỉ mount bốn app Express của `backend-api` và
-> `trust-seal` vào một tiến trình, điều phối theo **bảng tiền tố đường dẫn**.
+> logic nghiệp vụ nào - chỉ mount ba app Express (content, storage, identity)
+> vào một tiến trình, điều phối theo **bảng tiền tố đường dẫn**.
 > Thêm route mới có tiền tố chưa nằm trong bảng đó ⇒ route sống khi chạy service
 > riêng, nhưng **404 ở production** (nơi chạy chế độ gộp). Sửa route thì sửa
 > bảng, và test của bundle sẽ bắt phần lớn - nhưng không bắt được tiền tố hoàn
@@ -119,8 +119,8 @@ của nó không đổ vào phiên của bạn - chỉ báo cáo cuối cùng qu
 20 file mà phiên chính chỉ nhận về vài đoạn kết luận.
 
 Không nêu tên cũng được, Claude tự khớp theo trường `description` của agent. Nêu
-tên rõ khi ở vùng giáp ranh (`trust-seal` và `backend-api` đều là service
-Express, nhưng luật khác hẳn nhau).
+tên rõ khi ở vùng giáp ranh (`release-signing` và `backend-api` cùng sửa
+content-service, nhưng luật khác hẳn nhau).
 
 **Cách 2 - cả terminal đóng một vai.** Mở terminal mới, câu đầu tiên:
 
@@ -180,7 +180,7 @@ cho hầu hết việc, kể cả việc chạm nhiều vùng.
 - Các agent thật sự không chạm file của nhau (đối chiếu bảng sở hữu trước).
 - Mỗi terminal `git add <file cụ thể>`, không `git add -A`.
 - **Chỉ một** terminal chạy `npm run dev:local`. Hai tiến trình cùng giành cổng
-  3000/3001/4000-4003, cái thứ hai chết hoặc chiếm cổng của cái thứ nhất.
+  3000/4000-4004, cái thứ hai chết hoặc chiếm cổng của cái thứ nhất.
 
 Không hợp cho việc đổi nhánh: `git checkout` ở terminal này đổi luôn file dưới
 chân terminal kia.

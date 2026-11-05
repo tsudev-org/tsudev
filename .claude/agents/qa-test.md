@@ -44,5 +44,5 @@ Ba job trên mọi PR: Lint & format · Migrate & test services · Build fronten
 ## Nguyên tắc
 
 Test phải khoá **hợp đồng**, không khoá cách cài đặt. Mẫu tốt nhất trong repo:
-`trust-service/test/recheck.test.js` - mỗi test khoá một luật nghiệp vụ phát biểu
+`content-service/test/projectRelease.test.ts` - mỗi test khoá một luật nghiệp vụ phát biểu
 được bằng một câu.

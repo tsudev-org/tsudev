@@ -59,8 +59,9 @@ Thấy `e2e-dev` trong đó là bản dựng đã nhiễm giá trị dev - dừn
 ## Backend - Render
 
 Blueprint `render.yaml` khai báo **1** web service, `plan: free`,
-`region: singapore`: `tsudev-backend` - bốn service backend gộp thành một tiến
-trình (content, storage, trust, identity).
+`region: singapore`: `tsudev-backend` - ba service backend gộp thành một tiến
+trình (content, storage, identity). trust-service và newsroom-service đã gỡ
+(04/11 và 29/10/2026).
 
 > `tsudev-sso` - nhà cung cấp danh tính riêng của bản thiết kế cũ - đã được gỡ
 > khỏi blueprint. **Gỡ khỏi repo KHÔNG xoá service đang chạy trên Render** - phải
@@ -83,7 +84,7 @@ Trước đây `tsudev-sso` buộc phải được ngủ, và cái giá là cold
 nhập đầu tiên. Đưa xác thực về trong chính codebase dồn toàn bộ 750 giờ về một chỗ và xoá luôn đánh đổi
 đó. Thêm service thứ hai chạy liên tục là vỡ ngân sách và Render dừng hết.
 
-### ⚠️ Phép chẩn đoán `INTERNAL_IDENTITY_SECRET` - endpoint duy nhất không bị che
+### ⚠️ Chẩn đoán `INTERNAL_IDENTITY_SECRET`
 
 Thiếu (hoặc đặt ngắn hơn 32 ký tự) `INTERNAL_IDENTITY_SECRET` ở Render làm **mọi
 đường ghi đã xác thực trên toàn site trả 503**. Lỗi này ẩn rất giỏi, vì ba lý do
@@ -96,24 +97,18 @@ cộng lại:
   request không bao giờ tới được tầng danh tính để lộ 503.
 - Không có gì đỏ ở `/health`.
 
-`trust-service` cố ý đứng ngoài `INTERNAL_API_TOKEN` (endpoint của nó phải công
-khai cho bên thứ ba), nên nó là đường duy nhất đi thẳng tới tầng danh tính:
-
-```bash
-curl -s https://tsudev-backend.onrender.com/api/trust/programs
-```
-
-| Trả về                                           | Nghĩa là                                       |
-| ------------------------------------------------ | ---------------------------------------------- |
-| `503 {"error":"Máy chủ chưa cấu hình xác thực"}` | **thiếu khoá** - sửa ngay                      |
-| `401`                                            | khoá đúng, chỉ thiếu danh tính - **lành mạnh** |
+Từ khi trust-service bị gỡ (04/11/2026) không còn endpoint nào đi thẳng tới
+tầng danh tính mà không qua `INTERNAL_API_TOKEN` (trước đó `/api/trust/programs`
+đóng vai đó). Phép đo nay đi QUA site, với một phiên đã đăng nhập: thao tác ghi
+bất kỳ ở `/author` hay `/admin` trả `503 {"error":"Máy chủ chưa cấu hình xác thực"}`
+⇒ **thiếu khoá**; trả 401/403 ⇒ khoá có, vấn đề nằm ở phiên hoặc vai trò.
 
 Giá trị phải dài **≥ 32 ký tự** và **trùng nguyên văn** secret cùng tên của
 Worker. Kiểm phía Worker bằng `npx wrangler secret list` trong
 `apps/frontend-main` (chỉ in tên, không in giá trị).
 
-Đã xảy ra thật: đo 19/08/2026 backend trả 503, và lỗi có từ trước - nó chỉ lộ ra
-khi đợt gác bề mặt Con dấu đưa `/api/trust/*` ra sau tầng xác thực.
+Đã xảy ra thật: đo 19/08/2026 backend trả 503 ở mọi đường ghi, và lỗi có từ
+trước khi ai phát hiện.
 
 ### Region là bất biến
 
@@ -150,11 +145,12 @@ Nó **không phải API gateway**: không định tuyến lại, không đổi �
 thêm lớp xác thực. Mỗi app con giữ nguyên middleware, cổng chặn và quy tắc auth
 của chính nó.
 
-Điều phối bằng **bảng tiền tố đường dẫn** trong `services/backend-bundle/src/index.js`.
-Vì sao không mount thẳng ba app chồng lên nhau: request `/api/trust/*` sẽ đi vào
-app content trước và dính cổng chặn `INTERNAL_API_TOKEN` của nó - huy hiệu SVG,
-trang xác minh và JWKS (bắt buộc công khai cho bên thứ ba) trả 401, **không có
-gì báo lỗi**. `services/backend-bundle/test/routing.test.js` canh đúng chỗ này.
+Điều phối bằng **bảng tiền tố đường dẫn** trong `services/backend-bundle/src/index.ts`.
+Vì sao không mount thẳng các app chồng lên nhau: request của app này sẽ đi vào
+app kia trước và dính cổng chặn `INTERNAL_API_TOKEN` của nó - thời Con dấu, huy
+hiệu SVG và JWKS (bắt buộc công khai) từng trả 401 đúng theo đường đó, **không
+có gì báo lỗi**. Nay `/.well-known` thuộc content (JWKS phát hành).
+`services/backend-bundle/test/routing.test.ts` canh bảng này.
 
 ⚠️ **Thêm route mới với tiền tố chưa có trong bảng ⇒ route đó 404 ở production**
 dù chạy service riêng vẫn thấy nó sống. Sửa route thì sửa bảng.
@@ -181,6 +177,11 @@ Vì sao đáng dọn dù không tiêu giờ chạy của tài khoản mới:
 - Chúng chạy **mã cũ** trên dữ liệu production.
 
 Tính tới 16/08/2026 chưa có thiệt hại: 0 chứng chỉ, 0 đơn, 0 tổ chức.
+
+> Cập nhật 05/11/2026: Con dấu đã gỡ và 17 bảng của nó đã DROP (migration
+> `20261104120000_go_toa_soan_va_con_dau`). Ba service cũ nếu còn chạy thì đang
+> chạy mã CŨ trên schema MỚI - càng phải xoá. Xoay mật khẩu Neon (05/11/2026,
+> chủ dự án) cắt chúng khỏi DB nếu chúng còn giữ chuỗi kết nối cũ.
 
 Nếu mất quyền vào tài khoản cũ, đường thay thế là **xoay mật khẩu Neon** - đổi
 mật khẩu role rồi cập nhật `DATABASE_URL` của `tsudev-backend`. Có gián đoạn ngắn.
@@ -212,7 +213,9 @@ hậu tố.**
 `render.yaml` khai `NODE_ENV: production` bằng **giá trị literal**, còn 11 biến
 kia là `sync: false` (Render hỏi tay, không lấy từ git). Service `-rqkz` vì thế
 khởi động với `NODE_ENV=production` mà **không có secret nào**, rồi đâm vào
-`services/trust-service/src/signing.ts`:
+`services/trust-service/src/signing.ts` (nay là
+`services/content-service/src/releaseSigning.ts`, biến `RELEASE_SIGNING_KEY` -
+cùng hành vi):
 
 ```ts
 if (process.env.NODE_ENV === 'production') {
@@ -245,9 +248,9 @@ an toàn. Nhưng:
 
 1. Ngày nào đó có người "sửa cho hết lỗi" bằng cách điền secret vào nó ⇒ hai
    service cùng chạy ⇒ vỡ ngân sách ⇒ Render dừng **cả hai**.
-2. Nếu nó được cấp `TRUST_SIGNING_KEY` **khác**, lặp lại đúng sự cố ở mục trên:
-   chứng chỉ ký bằng khoá không có trong vòng khoá của bản kia ⇒
-   `tsudev.com/trust` không xác minh nổi, **không có gì báo lỗi**.
+2. Nếu nó được cấp `RELEASE_SIGNING_KEY` **khác**, bản phát hành nó niêm phong
+   mang chữ ký bằng khoá không có trong JWKS của bản kia ⇒ người tải kiểm chữ
+   ký thất bại, **không có gì báo lỗi**.
 3. Mail thất bại đều đặn làm người vận hành quen bỏ qua - nên lần deploy hỏng
    THẬT cũng sẽ bị bỏ qua.
 
@@ -308,9 +311,8 @@ một giá trị cho ba service **và** cho frontend-main.
 
 `/health` đứng ngoài cổng chặn để health check của Render vẫn chạy.
 
-**`trust-service` cố ý KHÔNG có cổng chặn này** - nhiều endpoint của nó phải
-công khai cho bên thứ ba: huy hiệu SVG, trang xác minh, JWKS. Thêm vào là làm
-hỏng chính chức năng của nó.
+JWKS phát hành (`/.well-known/tsudev-release-jwks.json`) cũng đứng ngoài - nó
+nằm ngoài `/api`, và người tải phải đọc được nó để tự kiểm chữ ký.
 
 ## Biến môi trường
 
@@ -319,27 +321,26 @@ Mẫu: `.env.production.example` ở gốc. Secret đặt trong dashboard Render
 
 Bắt buộc theo service:
 
-| Nơi chạy                   | Biến bắt buộc                                                                                                                                                                                                                                                      |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `tsudev-backend` (Render)  | `DATABASE_URL`, `INTERNAL_IDENTITY_SECRET`, `TOTP_ENCRYPTION_KEY`, `RESEND_API_KEY`, `NEXT_PUBLIC_MAIN_URL`, `INTERNAL_API_TOKEN`, `S3_ENDPOINT`, `S3_PUBLIC_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `TRUST_SIGNING_KEY`, `TRUST_SIGNING_KEY_ID` |
-| Worker - `vars`            | `*_SERVICE_URL` ×4, `NEXTAUTH_URL`, `NEXTAUTH_COOKIE_DOMAIN` - khai trong `wrangler.jsonc`                                                                                                                                                                         |
-| Worker - `wrangler secret` | `NEXTAUTH_SECRET`, `INTERNAL_IDENTITY_SECRET`, `INTERNAL_API_TOKEN`, `GITHUB_*`, `GOOGLE_*` - **không** commit                                                                                                                                                     |
+| Nơi chạy                   | Biến bắt buộc                                                                                                                                                                                                                                                          |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tsudev-backend` (Render)  | `DATABASE_URL`, `INTERNAL_IDENTITY_SECRET`, `TOTP_ENCRYPTION_KEY`, `RESEND_API_KEY`, `NEXT_PUBLIC_MAIN_URL`, `INTERNAL_API_TOKEN`, `S3_ENDPOINT`, `S3_PUBLIC_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `RELEASE_SIGNING_KEY`, `RELEASE_SIGNING_KEY_ID` |
+| Worker - `vars`            | `*_SERVICE_URL` ×3, `NEXTAUTH_URL`, `NEXTAUTH_COOKIE_DOMAIN` - khai trong `wrangler.jsonc`                                                                                                                                                                             |
+| Worker - `wrangler secret` | `NEXTAUTH_SECRET`, `INTERNAL_IDENTITY_SECRET`, `INTERNAL_API_TOKEN`, `GITHUB_*`, `GOOGLE_*` - **không** commit                                                                                                                                                         |
 
-Nhánh Toà soạn Agent AI thêm bốn biến ở `tsudev-backend`: `NEWSROOM_ENABLED`,
-`NEWSROOM_TICK_TOKEN`, `CF_ACCOUNT_ID`, `CF_AI_TOKEN` (và `GEMINI_API_KEY` tuỳ
-chọn). Worker cron `tsudev-newsroom-cron` giữ đúng một secret:
-`NEWSROOM_TICK_TOKEN`.
+Worker cron `tsudev-newsroom-cron` (`infrastructure/canh-site-cron`) giữ secret
+tuỳ chọn: `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` (báo động) và
+`NEON_API_KEY`/`NEON_PROJECT_ID` (cổng hạn mức). Các biến của Toà soạn
+(`NEWSROOM_*`, `CF_AI_TOKEN`, `GEMINI_API_KEY`) đã xoá khỏi Render 05/11/2026.
 
-### ⚠️ Ba cặp biến PHẢI TRÙNG NGUYÊN VĂN giữa hai nơi
+### ⚠️ Hai cặp biến PHẢI TRÙNG NGUYÊN VĂN giữa hai nơi
 
-Đây là bảng đáng nhớ nhất ở tệp này: cả ba cặp đều hỏng **im lặng**, và ba kiểu
+Đây là bảng đáng nhớ nhất ở tệp này: cả hai cặp đều hỏng **im lặng**, và hai kiểu
 hỏng khác nhau nên đừng chẩn đoán bằng cảm giác.
 
 | Cặp                        | Ở đâu                    | Lệch nhau ⇒ triệu chứng                                            | Phép đo                                                            |
 | -------------------------- | ------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
 | `INTERNAL_API_TOKEN`       | Render + Worker `tsudev` | SSR không đọc được nội dung ⇒ **trang TRỐNG mà vẫn trả 200**       | `curl -s https://tsudev.com/blog \| grep -c 'href="/blog/'`        |
 | `INTERNAL_IDENTITY_SECRET` | Render + Worker `tsudev` | **mọi đường ghi đã xác thực trả 401** - "đăng nhập rồi mà vẫn 401" | đăng nhập rồi lưu `/settings/profile`; hoặc §Phép chẩn đoán ở trên |
-| `NEWSROOM_TICK_TOKEN`      | Render + Worker cron     | mỗi nhịp giờ trả 401, **toà soạn đứng yên**, không có gì đỏ lên    | `POST /api/newsroom/tick` kèm token: **202** khớp, **401** lệch    |
 
 Không đọc lại được giá trị secret của Cloudflare Worker (`wrangler secret list`
 chỉ in TÊN). Nên khi nghi lệch, đừng đi tìm cách so hai chuỗi - **đặt lại một giá
@@ -347,22 +348,11 @@ trị mới ở CẢ HAI nơi** là xong, rẻ hơn mọi cách khác.
 
 ### Xoay một secret dùng chung - thứ tự để không có cửa sổ hỏng
 
-Ví dụ với `CF_AI_TOKEN` (chỉ nằm ở Render nên đơn giản nhất):
+Biến chỉ nằm ở MỘT nơi (ví dụ `DATABASE_URL` khi xoay mật khẩu Neon): tạo giá
+trị mới, kiểm nó dùng được TRƯỚC khi đụng production, dán vào Render, nghiệm thu
+(`npm run prod:dem-noi-dung` ĐẠT), **rồi mới** thu hồi giá trị cũ.
 
-1. Tạo token MỚI ở dashboard, **chưa xoá token cũ**.
-2. Kiểm nó gọi được, trước khi đụng vào production:
-   ```bash
-   curl -s -o /dev/null -w '%{http_code}\n' \
-     https://api.cloudflare.com/client/v4/accounts/<CF_ACCOUNT_ID>/ai/run/@cf/meta/llama-3.1-8b-instruct-fp8-fast \
-     -H 'Authorization: Bearer <TOKEN_MỚI>' -H 'content-type: application/json' \
-     -d '{"messages":[{"role":"user","content":"ping"}],"max_tokens":8}'
-   # phải là 200
-   ```
-3. Dán vào Render → service khởi động lại.
-4. Nghiệm thu toà soạn chạy được, **rồi mới** thu hồi token cũ ở dashboard.
-
-Với cặp nằm ở HAI nơi (`INTERNAL_API_TOKEN`, `INTERNAL_IDENTITY_SECRET`,
-`NEWSROOM_TICK_TOKEN`) thì có một cửa sổ hỏng không tránh được, vì hai bên không
+Với cặp nằm ở HAI nơi (`INTERNAL_API_TOKEN`, `INTERNAL_IDENTITY_SECRET`) thì có một cửa sổ hỏng không tránh được, vì hai bên không
 đổi cùng lúc. Chọn thứ tự theo thứ hỏng nhẹ hơn:
 
 - **Worker trước, Render sau**: cửa sổ hỏng nằm ở phía Worker gọi backend.
@@ -377,12 +367,8 @@ thiếu đó là lý do biến đầu chưa bao giờ được đặt ở Render
 ⚠️ Hai cờ bỏ qua xác thực thời dev (`AUTH_DEV_BYPASS` và cờ dành cho E2E) **đã bị gỡ khỏi mã nguồn**; đặt lại không có tác dụng gì.
 Chúng cho phép đăng nhập bằng bất kỳ username nào.
 
-Hai biến "một lần rồi thôi":
-
-- **`TRUST_ISSUER` được ký vào chứng chỉ.** Đổi sau khi đã cấp thì chứng chỉ cũ
-  vẫn mang URL cũ. Đặt đúng domain thật **trước** lần cấp đầu tiên.
-- **`TRUST_SIGNING_KEY` thiếu ở production ⇒ service từ chối khởi động.** Cố ý.
-  Quy trình xoay khoá: [trust-seal.md](trust-seal.md).
+**`RELEASE_SIGNING_KEY` thiếu ở production ⇒ backend từ chối khởi động.** Cố ý.
+Quy trình xoay khoá: [release-signing.md](release-signing.md).
 
 `S3_ENDPOINT` (nội bộ) và `S3_PUBLIC_ENDPOINT` (qua CDN) phải tách riêng, nếu
 không URL presign trả về cho trình duyệt sẽ trỏ vào host nội bộ.
