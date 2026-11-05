@@ -16,7 +16,7 @@ import { SectionHeading } from './components/SectionHeading';
 import { Avatar } from './components/Avatar';
 import { Stat } from './components/Stat';
 import { ThemeToggle } from './components/ThemeToggle';
-import { Icon } from './components/Icon';
+import { Icon, PLATFORM_CHIP_CLASS, platformChipClass, platformInkClass } from './components/Icon';
 import { TableOfContents } from './components/TableOfContents';
 import { RecordFooter } from './components/RecordFooter';
 import { usePageSize, pageAfterResize } from './lib/usePageSize';
@@ -43,6 +43,9 @@ export {
   Stat,
   ThemeToggle,
   Icon,
+  PLATFORM_CHIP_CLASS,
+  platformChipClass,
+  platformInkClass,
   TableOfContents,
   RecordFooter,
   usePageSize,
@@ -57,7 +60,7 @@ export default Layout;
 export type { BadgeTone } from './components/Badge';
 export type { ButtonSize, ButtonVariant } from './components/Button';
 export type { ToastType } from './components/Toast';
-export type { IconName } from './components/Icon';
+export type { IconName, PlatformBrand } from './components/Icon';
 export type { TocItem } from './components/TableOfContents';
 export type { RecordFooterProps } from './components/RecordFooter';
 export type { EmptyStateProps } from './components/EmptyState';

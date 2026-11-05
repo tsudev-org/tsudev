@@ -52,6 +52,7 @@
       "on-status": "#14122B"
     }
   },
+  "$platform_note": "platform-*/on-platform-* = MÀU HÃNG của bốn nền tảng phát hành, CHỈ dùng cho trạng thái rê chuột của ô dấu hiệu nền tảng (PLATFORM_CHIP_CLASS trong packages/ui/src/components/icons.ts). Màu hãng làm NỀN ô, dấu hiệu đổi sang mực on-platform-* - nhờ vậy giữ được đúng mã hex của hãng ở mọi chế độ mà vẫn qua 4.5:1 (contrast.test.ts), điều không thể nếu tô thẳng xanh Android #3DDC84 hay vàng Tux #FCC624 lên nền sáng (~1.6-1.9:1). Apple không có màu hãng: dùng mực đậm nhất của chế độ, đảo ở chế độ Tối. KHÔNG dùng các màu này cho chữ hay vai trò khác.",
   "$color_note": "accent = sắc NHẤN cam của tông thương hiệu chàm (huy hiệu 'Mới', điểm nhấn hero) - bản đậm để đạt 4.5:1 khi làm chữ. icon-* = mã màu theo NHÓM HÀNH ĐỘNG: mắt nhận ra nhóm trước khi đọc nhãn, điều một hàng icon cùng màu xám không làm được. Sáu sắc, không nhiều hơn - quá bảy màu thì chúng thôi là mã và trở thành nhiễu. status-ink/status-tint = cặp cho badge: bảng `color` chỉ định nghĩa màu trạng thái ĐẶC (dùng với on-status), còn badge nền nhạt cần một sắc chữ ĐẬM HƠN mới đạt 4.5:1 - ở chế độ Light màu trạng thái gốc chỉ đạt 4.0-4.3:1 trên chính tint 12% của nó. text-muted và border-control KHÔNG còn ở đây: cả hai đã được nhận vào bảng chuẩn (.standards/ v2.8.0) với ĐÚNG giá trị mà khối này từng ghi đè - xem $accessibility_gap.",
   "light": {
     "accent": "#C2410C",
@@ -70,7 +71,15 @@
     "success-tint": "#E3F0E8",
     "warning-tint": "#F6EAE1",
     "danger-tint": "#FBE5E5",
-    "info-tint": "#E1EDF4"
+    "info-tint": "#E1EDF4",
+    "platform-windows": "#0078D4",
+    "on-platform-windows": "#FFFFFF",
+    "platform-android": "#3DDC84",
+    "on-platform-android": "#14122B",
+    "platform-apple": "#1E1B3A",
+    "on-platform-apple": "#FFFFFF",
+    "platform-linux": "#FCC624",
+    "on-platform-linux": "#1E1B3A"
   },
   "warm": {
     "accent": "#A8410F",
@@ -89,7 +98,15 @@
     "success-tint": "#E1E7D9",
     "warning-tint": "#F0E3D3",
     "danger-tint": "#F5DED6",
-    "info-tint": "#DFE6E2"
+    "info-tint": "#DFE6E2",
+    "platform-windows": "#0078D4",
+    "on-platform-windows": "#FFFFFF",
+    "platform-android": "#3DDC84",
+    "on-platform-android": "#14122B",
+    "platform-apple": "#1E1B3A",
+    "on-platform-apple": "#FFFFFF",
+    "platform-linux": "#FCC624",
+    "on-platform-linux": "#1E1B3A"
   },
   "dark": {
     "accent": "#FB923C",
@@ -108,7 +125,15 @@
     "success-tint": "#183A33",
     "warning-tint": "#3A2E22",
     "danger-tint": "#3A2030",
-    "info-tint": "#17304A"
+    "info-tint": "#17304A",
+    "platform-windows": "#0078D4",
+    "on-platform-windows": "#FFFFFF",
+    "platform-android": "#3DDC84",
+    "on-platform-android": "#14122B",
+    "platform-apple": "#ECEBF7",
+    "on-platform-apple": "#14122B",
+    "platform-linux": "#FCC624",
+    "on-platform-linux": "#1E1B3A"
   },
   "typography": {
     "$note": "Thang chữ của DESIGN_SYSTEM.md §4 dừng ở 30px (H1) - đủ cho giao diện công cụ, nhưng khối hero của một website cần bậc lớn hơn. Ba bậc dưới đây nối tiếp 30px theo lưới 4px và CHỈ dùng cho tiêu đề hero/marketing, không dùng trong luồng thao tác.",

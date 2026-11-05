@@ -118,6 +118,42 @@ Repo này từng vá bằng cách ghi đè `text-muted` và thêm vai trò mới
 sẵn cả hai giá trị và khối ghi đè đã bị gỡ - giao diện không đổi một pixel nào.
 `border-strong` giữ giá trị chuẩn và chỉ dùng cho ranh giới trang trí.
 
+## Icon nền tảng và logo cú (05/11/2026)
+
+**Bốn dấu hiệu nền tảng** (`windows`, `android`, `apple`, `linux` trong
+`packages/ui/src/components/icons.ts`) là **logo chính thức của hãng**, không
+còn vẽ tay. Chúng nhúng thẳng thành path trong bảng icon - không thêm
+dependency, không thêm request mạng, sắc ở mọi DPI.
+
+- Mặc định một màu (`role: 'info'`), ăn theo ba chế độ như mọi icon khác.
+- Rê chuột vào ô chứa (`platformChipClass(name)`), ô ra **màu hãng**
+  (`--platform-*`) và dấu hiệu đổi sang mực `--on-platform-*`. Màu hãng làm NỀN
+  chứ không làm màu dấu hiệu: xanh Android và vàng Tux tô thẳng lên nền sáng chỉ
+  đạt ~1.6-1.9:1. Bốn cặp bị `contrast.test.ts` canh ở 4.5:1.
+- `fill: true` vẽ hình đặc trong viewBox nới `-2 -2 28 28`, để khối đặc rơi đúng
+  vùng an toàn như icon nét.
+- Path có cờ cung viết gọn (`a.4.4 0 00...`) phải tách cờ ra (`0 0 0`) trước khi
+  nhúng - `npm run icons:check` không đọc dạng gọn. Kiểm bằng so pixel, đừng sửa tay.
+
+Nguồn và giấy phép (bản `mono` 24×24 của [thesvg.org](https://thesvg.org),
+`github.com/glincker/thesvg`):
+
+| Dấu hiệu    | Giấy phép       | Ghi chú                                                                                                                                                                                               |
+| ----------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Apple       | CC0-1.0         |                                                                                                                                                                                                       |
+| Linux (Tux) | CC0-1.0         |                                                                                                                                                                                                       |
+| Android     | **CC-BY-3.0**   | Android robot is reproduced or modified from work created and shared by Google and used according to terms described in the Creative Commons 3.0 Attribution License. **Đừng xoá dòng ghi công này.** |
+| Windows     | dùng danh nghĩa | Bốn ô vuông của Windows 11, path viết lại vì danh mục không có bản mono                                                                                                                               |
+
+Mọi dấu hiệu vẫn là nhãn hiệu của chủ sở hữu; dùng chúng để báo "có bản cho nền
+tảng này" là cách dùng danh nghĩa, không phải nhận diện của tsudev.
+
+**Logo cú** (`Logo.tsx`) tải qua `<picture>`: AVIF → WebP → PNG. Bản nhỏ
+`logo-mark-{64,96,128}.{avif,webp}` do `packages/brand/build-assets.js` sinh,
+2-9 kB thay vì `logo-mark.png` 131 kB cho một con cú 32-40px. Chưa có bản SVG:
+bản gốc là JPEG raster, vector hoá tự động phải được đo (dung lượng + độ sạch
+nét) trước khi thay, và đổi bản gốc là việc của `.standards/BRAND_ASSETS.md`.
+
 ## Bản đồ tên: token CSS ↔ class Tailwind
 
 Tailwind không giữ giá trị nào - mọi khoá trỏ về một biến CSS.
