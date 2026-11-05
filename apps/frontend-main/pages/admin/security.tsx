@@ -7,6 +7,8 @@ import type { PageMeta } from '@tsudev/types';
 import { useUrlPaging, useUrlPagingSync } from '../../lib/useUrlPaging';
 
 import { SecurityEventList, type SecurityEvent } from '../../components/SecurityEventList';
+import { MfaRequiredNotice } from '../../components/MfaRequiredNotice';
+import { isMfaRequired } from '../../lib/mfa';
 
 // Console nhật ký bảo mật xuyên tài khoản - CHỈ OWNER (tsudev).
 //
@@ -28,6 +30,8 @@ export default function AdminSecurity() {
   const { status } = useSession();
   const [events, setEvents] = useState<SecurityEvent[]>([]);
   const [denied, setDenied] = useState(false);
+  /// 403 MFA_REQUIRED: là OWNER nhưng chưa bật 2FA - KHÁC "không có quyền".
+  const [mfaRequired, setMfaRequired] = useState(false);
   const [loading, setLoading] = useState(true);
   // URL thắng lựa chọn đã nhớ, lựa chọn đã nhớ thắng mặc định 10 (mục 5).
   const paging = useUrlPaging('admin-security');
@@ -38,11 +42,15 @@ export default function AdminSecurity() {
   const [booted, setBooted] = useState(false);
 
   const load = useCallback(async () => {
-    if (!paging.ready) return;
+    if (!paging.ready || mfaRequired) return;
     setLoading(true);
     const r = await call('useradmin/security', { page, page_size: pageSize });
     setLoading(false);
     setBooted(true);
+    if (isMfaRequired(r.status, r.data)) {
+      setMfaRequired(true);
+      return;
+    }
     if (r.status === 401 || r.status === 403) {
       setDenied(true);
       return;
@@ -52,7 +60,7 @@ export default function AdminSecurity() {
     if (body?.meta) paging.setMeta(body.meta);
     // `paging` cố ý không nằm trong deps: nó là object mới mỗi lần dựng.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, paging.ready]);
+  }, [page, pageSize, paging.ready, mfaRequired]);
 
   useEffect(() => {
     if (status === 'authenticated') load();
@@ -77,6 +85,14 @@ export default function AdminSecurity() {
             Đăng nhập
           </Button>
         </Card>
+      </Layout>
+    );
+
+  if (mfaRequired)
+    return (
+      <Layout>
+        <Seo title="Nhật ký bảo mật" path="/admin/security" noindex />
+        <MfaRequiredNotice />
       </Layout>
     );
 

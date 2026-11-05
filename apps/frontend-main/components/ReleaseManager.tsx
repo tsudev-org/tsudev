@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Badge, Input, Icon } from '@tsudev/ui';
 
 import { formatDateTimeVN } from '../lib/format';
+import { MfaRequiredError, isMfaRequired } from '../lib/mfa';
 import type { ReleaseChannel, ReleasePlatform } from '../lib/types';
 
 /**
@@ -120,9 +121,12 @@ export type ReleaseManagerProps = {
   /// Báo lên trang cha để dùng CHUNG một vùng thông báo. Hai vùng thông báo trên
   /// cùng một trang thì người dùng không biết nhìn vào đâu.
   onMessage: (tone: string, text: string) => void;
+  /// Backend trả 403 MFA_REQUIRED (quản trị viên chưa bật 2FA). Trang cha thay
+  /// mình bằng hướng dẫn bật 2FA; khối này thôi gọi API từ đó.
+  onMfaRequired?: () => void;
 };
 
-export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps) {
+export default function ReleaseManager({ slug, onMessage, onMfaRequired }: ReleaseManagerProps) {
   const [mo, setMo] = useState(false);
   const [dsach, setDsach] = useState<AdminRelease[] | null>(null);
   const [form, setForm] = useState<Form>(TRONG);
@@ -132,11 +136,28 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
   /// Bước đang chạy của luồng tải lên - NÓI RA, vì niêm phong một tệp lớn mất
   /// vài chục giây và một nút "Đang lưu…" câm lặng trông y hệt treo.
   const [buoc, setBuoc] = useState<string | null>(null);
+  /// Đã gặp MFA_REQUIRED thì DỪNG: mọi lời gọi sau cũng bị chặn y hệt, gọi lại
+  /// chỉ tốn thêm lượt truy vấn database.
+  const daChanMfa = useRef(false);
+  // Ref chứ không phải dependency: trang cha truyền arrow mới mỗi lần vẽ, đưa
+  // vào deps của `nap` là nạp lại sau mỗi lần vẽ.
+  const mfaRef = useRef(onMfaRequired);
+  mfaRef.current = onMfaRequired;
+  const baoMfa = useCallback(() => {
+    daChanMfa.current = true;
+    mfaRef.current?.();
+  }, []);
 
   const nap = useCallback(async () => {
+    if (daChanMfa.current) return;
     try {
       const res = await fetch(`/api/content/admin/projects/${slug}/releases`);
       if (!res.ok) {
+        if (isMfaRequired(res.status, await res.json().catch(() => null))) {
+          baoMfa();
+          setDsach([]);
+          return;
+        }
         // ĐỌC mã trạng thái và NÓI RA. Bản đầu của trang toà soạn từng gọi fetch
         // rồi vứt phản hồi đi, nên 401/404/500 trông y hệt thành công - bài học
         // của trang toà soạn (đã gỡ 29/10/2026).
@@ -149,7 +170,7 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
       onMessage('danger', 'Không kết nối được máy chủ nội dung');
       setDsach([]);
     }
-  }, [slug, onMessage]);
+  }, [slug, onMessage, baoMfa]);
 
   // Chỉ nạp khi MỞ, và nạp lại nếu đóng rồi mở lại (dữ liệu có thể đã đổi).
   useEffect(() => {
@@ -173,6 +194,10 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
     // Hiện NGUYÊN VĂN lỗi của backend. Những phép kiểm ở đó rất cụ thể ("tệp chưa
     // niêm phong") và dịch chúng thành "Lưu thất bại" là vứt đi đúng phần thông
     // tin người dùng cần để sửa.
+    if (isMfaRequired(res.status, body)) {
+      baoMfa();
+      throw new MfaRequiredError(body.error);
+    }
     if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
     return body;
   };
@@ -280,6 +305,7 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
       body: JSON.stringify({ published: !r.publishedAt }),
     });
     const body = await res.json().catch(() => ({}));
+    if (isMfaRequired(res.status, body)) return baoMfa();
     if (!res.ok) return onMessage('danger', body.error || `Thất bại (HTTP ${res.status})`);
     onMessage('success', r.publishedAt ? `Đã rút bản ${r.version}` : `Đã công bố bản ${r.version}`);
     await nap();
@@ -296,6 +322,7 @@ export default function ReleaseManager({ slug, onMessage }: ReleaseManagerProps)
       return;
     const res = await fetch(`/api/content/admin/releases/${r.id}`, { method: 'DELETE' });
     const body = await res.json().catch(() => ({}));
+    if (isMfaRequired(res.status, body)) return baoMfa();
     if (!res.ok) return onMessage('danger', body.error || `Thất bại (HTTP ${res.status})`);
     onMessage('success', `Đã xoá mềm bản ${r.version}`);
     await nap();

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Seo from '../../components/Seo';
 import ReleaseManager from '../../components/ReleaseManager';
+import { MfaRequiredNotice } from '../../components/MfaRequiredNotice';
 import { useSession, signIn } from 'next-auth/react';
 import { Layout, Card, Button, Input, Badge, Icon, SectionHeading, RecordFooter } from '@tsudev/ui';
 import {
@@ -16,6 +17,7 @@ import type { Project } from '../../lib/types';
 import type { PageMeta } from '@tsudev/types';
 
 import { useUrlPaging, useUrlPagingSync } from '../../lib/useUrlPaging';
+import { isMfaRequired } from '../../lib/mfa';
 
 /** Thông báo hiện cho người quản trị, kèm tông màu. */
 type AdminMessage = { tone: string; text: string };
@@ -116,16 +118,23 @@ export default function AdminProjects() {
   const [msg, setMsg] = useState<AdminMessage | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  /// Backend trả 403 MFA_REQUIRED: thay cả trang bằng hướng dẫn bật 2FA và
+  /// DỪNG gọi API - mọi lời gọi tiếp theo cũng sẽ bị chặn y hệt.
+  const [mfaRequired, setMfaRequired] = useState(false);
   const paging = useUrlPaging('admin-projects');
   const { page, setPage, pageSize, setPageSize, meta } = paging;
   useUrlPagingSync([paging]);
 
   const load = useCallback(async () => {
-    if (!paging.ready) return;
+    if (!paging.ready || mfaRequired) return;
     setLoading(true);
     const res = await fetch(`/api/content/admin/projects?page=${page}&page_size=${pageSize}`);
     setLoading(false);
     if (!res.ok) {
+      if (isMfaRequired(res.status, await res.json().catch(() => null))) {
+        setMfaRequired(true);
+        return;
+      }
       setMsg({ tone: 'error', text: 'Không tải được danh sách dự án.' });
       return;
     }
@@ -134,7 +143,7 @@ export default function AdminProjects() {
     if (body?.meta) paging.setMeta(body.meta);
     // `paging` cố ý không nằm trong deps: nó là object mới mỗi lần dựng.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, paging.ready]);
+  }, [page, pageSize, paging.ready, mfaRequired]);
 
   useEffect(() => {
     if (session) load();
@@ -193,6 +202,7 @@ export default function AdminProjects() {
     const data = await res.json().catch(() => ({}));
     setBusy(false);
     if (!res.ok) {
+      if (isMfaRequired(res.status, data)) return setMfaRequired(true);
       setMsg({ tone: 'error', text: data.error || 'Lưu không thành công.' });
       return;
     }
@@ -205,6 +215,10 @@ export default function AdminProjects() {
     if (typeof window !== 'undefined' && !window.confirm(`Xoá dự án "${slug}"?`)) return;
     const res = await fetch(`/api/content/admin/projects/${slug}`, { method: 'DELETE' });
     if (!res.ok) {
+      if (isMfaRequired(res.status, await res.json().catch(() => null))) {
+        setMfaRequired(true);
+        return;
+      }
       setMsg({ tone: 'error', text: 'Xoá không thành công.' });
       return;
     }
@@ -231,6 +245,16 @@ export default function AdminProjects() {
           <h1 className="text-2xl font-bold text-fg mb-2">Quản lý dự án</h1>
           <p className="text-fg-muted mb-4">Cần đăng nhập bằng tài khoản quản trị.</p>
           <Button onClick={() => signIn()}>Đăng nhập</Button>
+        </div>
+      </Layout>
+    );
+
+  if (mfaRequired)
+    return (
+      <Layout active="/admin" bare>
+        <Seo title="Quản lý dự án" path="/admin/projects" noindex />
+        <div className="px-4 py-16">
+          <MfaRequiredNotice />
         </div>
       </Layout>
     );
@@ -450,7 +474,11 @@ export default function AdminProjects() {
                 {/* Quản lý bản phát hành, gập lại theo mặc định. Dùng CHUNG vùng
                     thông báo `msg` của trang này - hai vùng thông báo trên cùng
                     một trang thì người dùng không biết nhìn vào đâu. */}
-                <ReleaseManager slug={p.slug} onMessage={(tone, text) => setMsg({ tone, text })} />
+                <ReleaseManager
+                  slug={p.slug}
+                  onMessage={(tone, text) => setMsg({ tone, text })}
+                  onMfaRequired={() => setMfaRequired(true)}
+                />
               </Card>
             );
           })}
