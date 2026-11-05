@@ -13,8 +13,12 @@ type Col = { title: string; links: FooterLink[] };
 
 const COLS: Col[] = [
   {
+    title: 'Sản phẩm',
+    links: [eco('Ứng dụng & công cụ', '/projects'), eco('Hướng dẫn cài đặt', '/docs')],
+  },
+  {
     title: 'Nội dung',
-    links: [eco('Dự án', '/projects'), eco('Blog', '/blog'), eco('Tài liệu', '/docs')],
+    links: [eco('Blog', '/blog'), eco('Tìm kiếm', '/search')],
   },
   {
     title: 'Tài khoản',
@@ -33,14 +37,12 @@ const COLS: Col[] = [
   },
 ];
 
-// Footer không có nền riêng - nó nằm thẳng trên nền trang. Ranh giới với phần
-// nội dung chính chỉ do MỘT đường kẻ đảm nhiệm, dùng --border-strong vì ở chế
-// độ tối đường mảnh --border gần như không thấy, còn ở chế độ sáng nó cho ra
-// một ranh giới rõ mà không cần đổi nền.
+// Footer mang nền --bg-surface: ranh giới với nội dung là CHÊNH NỀN cộng một
+// đường mảnh, nên nó rõ ở cả ba chế độ mà không cần đường kẻ đậm.
 export const SiteFooter = () => {
   return (
-    <footer className="mt-16 border-t border-line-strong">
-      <div className="max-w-6xl mx-auto px-4 pt-8 pb-6 grid gap-x-8 gap-y-7 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+    <footer className="mt-16 border-t border-line bg-surface">
+      <div className="max-w-6xl mx-auto px-4 pt-10 pb-8 grid gap-x-8 gap-y-7 sm:grid-cols-2 md:grid-cols-[1.6fr_repeat(4,1fr)]">
         <div>
           <Logo />
           {/*
@@ -78,9 +80,24 @@ export const SiteFooter = () => {
           </div>
         ))}
       </div>
-      <div className="max-w-6xl mx-auto px-4 pb-6 flex flex-col sm:flex-row justify-between gap-1.5 text-xs text-fg-muted font-mono">
-        <span>© {new Date().getFullYear()} tsudev - Nguyễn Trang Tình Sử</span>
-        <span>Built with Next.js · Node · PostgreSQL</span>
+      {/* Dòng cuối nói điều RIÊNG của tsudev - mọi tệp phát hành đều kiểm được -
+          kèm đường tới khoá công khai để tự kiểm. Bản trước in "Built with
+          Next.js · Node · PostgreSQL": một danh sách công nghệ không giúp người
+          tải app về quyết định điều gì. */}
+      <div className="border-t border-line">
+        <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-fg-muted">
+          <span>© {new Date().getFullYear()} tsudev · Nguyễn Trang Tình Sử</span>
+          <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span>Mọi bản phát hành kèm SHA-256 và chữ ký Ed25519</span>
+            <span aria-hidden="true">·</span>
+            <a
+              href="/api/releases/jwks"
+              className="font-medium text-fg-secondary hover:text-link transition-colors"
+            >
+              Khoá công khai (JWKS)
+            </a>
+          </span>
+        </div>
       </div>
     </footer>
   );

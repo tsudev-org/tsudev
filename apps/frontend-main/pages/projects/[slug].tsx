@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useRecoverBuildPlaceholder } from '../../lib/useRecoverBuildPlaceholder';
 import Seo from '../../components/Seo';
+import PageHeader from '../../components/PageHeader';
 import { Layout, Card, Badge, Button, EmptyState, Icon } from '@tsudev/ui';
 import DownloadModal from '../../components/DownloadModal';
 import { api } from '../../lib/api';
@@ -33,6 +35,7 @@ type ProjectDetailProps = {
 };
 
 export default function ProjectDetail({ project, releases, failed, slug }: ProjectDetailProps) {
+  const retrying = useRecoverBuildPlaceholder(failed);
   const [moTai, setMoTai] = useState(false);
   if (failed)
     return (
@@ -40,7 +43,7 @@ export default function ProjectDetail({ project, releases, failed, slug }: Proje
         <EmptyState
           kind="failed"
           icon="warning"
-          title="Không tải được dự án"
+          title={retrying ? 'Đang cập nhật nội dung…' : 'Không tải được dự án'}
           explain={
             <>
               Dự án này có thể vẫn còn nguyên - lượt gọi tới máy chủ nội dung đã thất bại. Thử tải
@@ -74,57 +77,54 @@ export default function ProjectDetail({ project, releases, failed, slug }: Proje
         path={`/projects/${slug}`}
         description={project.summary || undefined}
       />
-      <div className="max-w-4xl mx-auto px-4 py-10">
-        <nav className="text-sm text-fg-muted mb-4">
-          <a href="/projects" className="hover:text-link">
-            Dự án
-          </a>{' '}
-          <span className="mx-1.5">/</span>{' '}
-          <span className="text-fg-secondary">{project.name}</span>
-        </nav>
-
-        <div className="flex flex-wrap items-center gap-1.5 mb-4">
-          <Badge tone="neutral">{KIND_LABEL[project.kind] || project.kind}</Badge>
-          <Badge tone="outline">{STATUS_LABEL[project.status] || project.status}</Badge>
-          <Badge tone={cr.tone}>{cr.label}</Badge>
-        </div>
-
-        <h1 className="text-3xl md:text-4xl font-extrabold text-fg text-balance leading-tight">
-          {project.name}
-        </h1>
-        <p className="mt-3 text-lg text-fg-muted max-w-2xl">{project.summary}</p>
-
-        <div className="mt-6 flex flex-wrap gap-3">
-          {project.repoUrl && (
-            <Button as="a" href={project.repoUrl} rel="noopener noreferrer" target="_blank">
-              Mã nguồn
-            </Button>
-          )}
-          {project.homepageUrl && (
-            <Button as="a" href={project.homepageUrl} variant="ghost">
-              Trang giới thiệu
-            </Button>
-          )}
-          {/* HAI đường tải, và thứ tự ưu tiên là có chủ đích.
+      <PageHeader
+        crumbs={[{ label: 'Dự án', href: '/projects' }, { label: project.name }]}
+        title={project.name}
+        description={project.summary || undefined}
+        meta={
+          <>
+            <Badge tone="neutral">{KIND_LABEL[project.kind] || project.kind}</Badge>
+            <Badge tone="outline">{STATUS_LABEL[project.status] || project.status}</Badge>
+            <Badge tone={cr.tone}>{cr.label}</Badge>
+            {project.version && (
+              <span className="font-mono text-xs text-fg-muted">v{project.version}</span>
+            )}
+          </>
+        }
+        actions={
+          <>
+            {project.repoUrl && (
+              <Button as="a" href={project.repoUrl} rel="noopener noreferrer" target="_blank">
+                Mã nguồn
+              </Button>
+            )}
+            {project.homepageUrl && (
+              <Button as="a" href={project.homepageUrl} variant="ghost">
+                Trang giới thiệu
+              </Button>
+            )}
+            {/* HAI đường tải, và thứ tự ưu tiên là có chủ đích.
               `releases` (bảng ProjectRelease) mô tả được nhiều nền tảng, nhiều
               phiên bản, kèm checksum - nên nó thắng. `project.downloadUrl` là DI
               SẢN: một chuỗi URL trần, giữ lại cho những dự án chỉ có đúng một
               đường tải và chưa được chuyển sang bảng mới. Hiện CẢ HAI cùng lúc là
               đặt hai nút "Tải về" cạnh nhau dẫn đi hai nơi khác nhau. */}
-          {releases.length > 0 ? (
-            <Button onClick={() => setMoTai(true)}>
-              <Icon name="download" size={16} />
-              Tải về · {releases.length} bản
-            </Button>
-          ) : (
-            project.downloadUrl && (
-              <Button as="a" href={project.downloadUrl} variant="ghost">
-                Tải về
+            {releases.length > 0 ? (
+              <Button onClick={() => setMoTai(true)}>
+                <Icon name="download" size={16} />
+                Tải về · {releases.length} bản
               </Button>
-            )
-          )}
-        </div>
-
+            ) : (
+              project.downloadUrl && (
+                <Button as="a" href={project.downloadUrl} variant="ghost">
+                  Tải về
+                </Button>
+              )
+            )}
+          </>
+        }
+      />
+      <div className="max-w-6xl mx-auto px-4 py-10">
         {releases.length > 0 && (
           <DownloadModal
             open={moTai}
@@ -134,7 +134,7 @@ export default function ProjectDetail({ project, releases, failed, slug }: Proje
           />
         )}
 
-        <div className="mt-10 grid md:grid-cols-[1fr_18rem] gap-8 items-start">
+        <div className="grid md:grid-cols-[minmax(0,1fr)_20rem] gap-10 items-start">
           <div>
             {project.descriptionMd ? (
               <div

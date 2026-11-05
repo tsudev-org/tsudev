@@ -15,6 +15,12 @@ const AREAS = [
     ready: true,
   },
   {
+    href: '/admin/content',
+    title: 'Kiểm duyệt nội dung',
+    desc: 'Ẩn hoặc khôi phục hàng loạt bài viết, tài liệu - lọc riêng nội dung do Toà soạn AI (đã gỡ) sinh ra.',
+    ready: true,
+  },
+  {
     href: '/admin/accounts',
     title: 'Tài khoản & phân quyền',
     desc: 'Tạo tài khoản, phân quyền, thu hồi vai trò và phiên. Chỉ chủ sở hữu (tsudev).',

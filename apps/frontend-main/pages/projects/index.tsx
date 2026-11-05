@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
+import { useRecoverBuildPlaceholder } from '../../lib/useRecoverBuildPlaceholder';
 import Seo from '../../components/Seo';
-import { Layout, Card, Badge, SectionHeading, EmptyState } from '@tsudev/ui';
+import PageHeader from '../../components/PageHeader';
+import { Layout, Card, Badge, EmptyState } from '@tsudev/ui';
 import { api } from '../../lib/api';
 import { KIND_LABEL, STATUS_LABEL, copyrightMeta } from '../../lib/projectLabels';
 import type { Project } from '../../lib/types';
@@ -17,6 +19,7 @@ const FILTERS = [
 type ProjectsIndexProps = { projects: Project[]; failed: boolean };
 
 export default function ProjectsIndex({ projects, failed }: ProjectsIndexProps) {
+  const retrying = useRecoverBuildPlaceholder(failed);
   const [kind, setKind] = useState('all');
   const shown = useMemo(
     () => (kind === 'all' ? projects : projects.filter((p) => p.kind === kind)),
@@ -31,23 +34,18 @@ export default function ProjectsIndex({ projects, failed }: ProjectsIndexProps) 
         path="/projects"
         description="Dự án, công cụ và phần mềm do tsudev phát triển, kèm giấy phép và trạng thái đăng ký bản quyền."
       />
-      <div className="max-w-5xl mx-auto px-4 py-10">
-        <SectionHeading
-          eyebrow="Dự án"
-          title="Dự án, công cụ & phần mềm"
-          action={
-            registered > 0 ? (
-              <Badge tone="success" mono>
-                {registered} đã đăng ký bản quyền
-              </Badge>
-            ) : null
-          }
-        />
-        <p className="-mt-2 mb-6 text-sm text-fg-muted max-w-2xl">
-          Mỗi dự án ghi rõ giấy phép mã nguồn và trạng thái đăng ký quyền tác giả. Mỗi bản phát hành
-          kèm SHA-256 và chữ ký Ed25519 để bạn tự kiểm trước khi cài.
-        </p>
-
+      <PageHeader
+        eyebrow="Dự án"
+        title="Ứng dụng, công cụ & thư viện"
+        description="Mọi thứ tsudev phát triển và phát hành. Mỗi dự án ghi rõ giấy phép; mỗi bản phát hành kèm SHA-256 và chữ ký Ed25519 để bạn tự kiểm trước khi cài."
+        meta={
+          <>
+            <span className="text-sm text-fg-muted">{projects.length} dự án</span>
+            {registered > 0 && <Badge tone="success">{registered} đã đăng ký bản quyền</Badge>}
+          </>
+        }
+      />
+      <div className="max-w-6xl mx-auto px-4 py-10">
         <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Lọc theo loại">
           {FILTERS.map((f) => (
             <button
@@ -55,7 +53,7 @@ export default function ProjectsIndex({ projects, failed }: ProjectsIndexProps) 
               type="button"
               onClick={() => setKind(f.key)}
               aria-pressed={kind === f.key}
-              className={`px-3 py-1.5 rounded-md border text-sm font-medium transition-colors ${
+              className={`px-3.5 py-1.5 rounded-full border text-sm font-medium transition-colors ${
                 kind === f.key
                   ? 'border-transparent bg-subtle text-link'
                   : 'border-line text-fg-muted hover:text-fg'
@@ -75,7 +73,7 @@ export default function ProjectsIndex({ projects, failed }: ProjectsIndexProps) 
               <EmptyState
                 kind="failed"
                 icon="warning"
-                title="Không tải được danh sách dự án"
+                title={retrying ? 'Đang cập nhật nội dung…' : 'Không tải được danh sách dự án'}
                 explain="Máy chủ nội dung không trả lời. Danh sách dự án vẫn còn nguyên; thử tải lại sau ít phút."
               />
             </div>

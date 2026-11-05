@@ -48,7 +48,7 @@ export const Badge = ({
   icon,
 }: BadgeProps) => (
   <span
-    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+    className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium ${
       mono ? 'font-mono' : ''
     } ${TONES[tone] ?? TONES.neutral} ${className}`}
   >
