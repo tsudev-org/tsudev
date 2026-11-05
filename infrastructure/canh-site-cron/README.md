@@ -7,6 +7,7 @@ chạy đúng lúc database chết. Hai việc:
 | ------------------- | ----------------------------------------- | -------- | --------------------------------------------------- |
 | `*/5 0-17,23 * * *` | `GET {BACKEND_URL}/health`                | Không    | Render free ngủ sau ~15 phút không có request       |
 | `23 1,13 * * *`     | đếm nội dung thật của `SITE_URL` (`/dem`) | Không    | "site trả 200 mà trống" - sự cố từng sống HAI THÁNG |
+| `23 1,13 * * *`     | hạn mức compute Neon (API điều khiển)     | Không    | cảnh báo TRƯỚC khi cạn 100 CU-giờ (§6.7)            |
 
 Cả hai nghỉ 01:00-06:00 giờ Việt Nam (`0-17,23` UTC) để giữ giờ instance Render
 dưới 750/tháng. Chi tiết và các hạn mức: [`docs/free-tier.md`](../../docs/free-tier.md).
@@ -29,6 +30,7 @@ Chạy từ **gốc repo**, sau `npx wrangler whoami` (tài khoản chủ zone `
 ```bash
 npm run cron:deploy
 npm run cron:secret-telegram   # báo động khi đo nội dung TRƯỢT - thiếu = chỉ log
+npm run cron:secret-neon       # NEON_API_KEY + NEON_PROJECT_ID - thiếu = bỏ qua cổng hạn mức
 npm run cron:tail              # xem log trực tiếp
 ```
 
@@ -40,6 +42,22 @@ curl -s https://tsudev-newsroom-cron.<subdomain>.workers.dev/dem
 ```
 
 `/tick` nay chỉ trả 410 kèm lời giải thích - Toà soạn đã gỡ.
+
+## Cổng hạn mức Neon (§6.7)
+
+`src/hanMuc.ts` đọc `compute_time_seconds` của dự án qua
+`GET console.neon.tech/api/v2/projects/{id}` (control plane - KHÔNG đánh thức
+compute) và báo động khi **đã tiêu ≥ 80%** hoặc **dự báo cuối kỳ ≥ 100%** theo
+tốc độ từ đầu kỳ. Ngưỡng thứ hai là cái quan trọng: sự cố tháng 10 tiêu ~6
+CU-giờ/ngày, tức tới ngày 10 mới 54% - một ngưỡng 80% đơn thuần chỉ kêu khi còn
+vài ngày.
+
+- `NEON_API_KEY`: Neon Console → Account settings → API keys.
+- `NEON_PROJECT_ID`: Neon Console → Project settings → General (dạng `xxx-yyy-12345678`).
+- Lỗi đọc API cũng báo động: cổng mù mà im lặng là cổng chết.
+
+Render giờ instance và Workers AI Neuron **không** theo dõi được ở đây - lý do ở
+đầu `hanMuc.ts`.
 
 ## Vì sao tách khỏi `apps/frontend-main`
 
