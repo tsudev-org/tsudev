@@ -4,6 +4,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 import NextAuth from 'next-auth';
+import { clientIp } from '../../../lib/clientIp';
 import type { NextAuthOptions } from 'next-auth';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import CredentialsProvider from 'next-auth/providers/credentials';
@@ -50,8 +51,8 @@ import { SESSION_COOKIE_NAME } from '../../../lib/sessionCookie';
  * liệu thật. Đường OAuth từng thiếu đúng chỗ này.
  */
 function callerHeaders(req: NextApiRequest): Record<string, string> {
-  const fwd = req.headers['x-forwarded-for'];
-  const ip = (Array.isArray(fwd) ? fwd[0] : fwd)?.split(',')[0]?.trim() || '';
+  // IP thật từ CF-Connecting-IP - xem lib/clientIp.ts vì sao KHÔNG đọc X-Forwarded-For đầu.
+  const ip = clientIp(req.headers, req.socket?.remoteAddress);
   const cc = req.headers['cf-ipcountry'];
   const country = (Array.isArray(cc) ? cc[0] : cc)?.trim() || '';
   return {
