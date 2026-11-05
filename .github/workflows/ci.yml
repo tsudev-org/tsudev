@@ -209,7 +209,7 @@ jobs:
           TOTP_ENCRYPTION_KEY="$(openssl rand -hex 32)"
           export RELEASE_SIGNING_KEY INTERNAL_IDENTITY_SECRET TOTP_ENCRYPTION_KEY
           run() {
-            docker run --rm --network host \
+            docker run --network host \
               -e NODE_ENV=production -e PORT=4000 -e DATABASE_URL \
               -e RELEASE_SIGNING_KEY -e RELEASE_SIGNING_KEY_ID=ci \
               -e INTERNAL_IDENTITY_SECRET -e TOTP_ENCRYPTION_KEY \
@@ -217,7 +217,9 @@ jobs:
           }
           # migrationGate thoát 1 khi DB thiếu migration - áp trước, bằng chính
           # prisma CLI trong image.
-          run tsudev-backend:ci npm exec --workspace packages/db -- prisma migrate deploy
+          run --rm tsudev-backend:ci npm exec --workspace packages/db -- prisma migrate deploy
+          # KHÔNG `--rm` ở đây: tiến trình chết thì container phải còn lại để
+          # `docker logs` đọc được lý do (bản đầu có --rm và mất sạch log).
           run -d --name backend tsudev-backend:ci node services/backend-bundle/dist/index.js
           for i in $(seq 1 30); do
             code="$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:4000/health || true)"
@@ -227,7 +229,7 @@ jobs:
               docker rm -f backend >/dev/null
               exit 0
             fi
-            if [ -z "$(docker ps -q -f name=backend)" ]; then
+            if [ "$(docker inspect -f '{{.State.Running}}' backend)" != true ]; then
               echo "::error::tiến trình backend đã CHẾT trước khi /health trả 200"
               break
             fi
