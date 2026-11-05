@@ -14,6 +14,12 @@
 # hoạch nâng. Bản vá bảo mật của Prisma KHÔNG bị chặn - `ignore` không áp cho
 # security updates.
 #
+# jose major bị bỏ qua có chủ đích (#135 đóng 05/11/2026): v6 chỉ còn ESM, mà
+# @tsudev/identity-token biên dịch ra CommonJS ⇒ webpack của Next và Jest đều
+# từ chối `require('jose')`. Quan trọng hơn: next-auth@4 tự phụ thuộc jose@^4,
+# nên nâng identity-token chỉ THÊM một bản jose thứ hai chứ không gỡ được v4
+# khỏi cây. Gỡ `ignore` này cùng lúc chuyển next-auth 4 → Auth.js 5.
+#
 # Cảnh báo bảo mật (security updates) KHÔNG bị nhóm này giữ lại: Dependabot mở
 # chúng ngay khi có advisory, độc lập với nhịp tuần.
 version: 2
@@ -33,6 +39,8 @@ updates:
       - dependency-name: '@prisma/*'
         update-types: ['version-update:semver-major']
       - dependency-name: 'prisma'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'jose'
         update-types: ['version-update:semver-major']
     groups:
       dev-dependencies:
