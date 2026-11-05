@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20261105-01
 - **Từ**: phiên 32 - **Đến**: chủ dự án / phiên 33
 - **Thời điểm**: 05/11/2026
-- **Trạng thái**: MỞ - §1 và §4 (1, 2) ĐÃ XONG 05/11; còn §4b (wrangler sai tài khoản) và #101
+- **Trạng thái**: MỞ - §1, §3, §4 (1, 2), §4b ĐÃ XONG 05/11; còn việc §5 (2-4) của agent
 - **Thay phiếu**: [`20261029-01`](20261029-01_bo-con-dau-va-24-24.md) - các việc §4.0, §8.3, C1, C2, B1, B2, B3 của phiếu đó đã XONG
 
 ## 1. ✅ ĐÃ XONG 05/11/2026: tsudev.com treo - thiếu migration trên Neon
@@ -60,6 +60,15 @@ Nếu sau bước này `/health` vẫn treo: mở log Render, đừng đoán ti�
 - Trang chủ đổi định vị: phát hành app + tải về an toàn (SHA-256 + Ed25519).
 
 ## 3. Hai PR CHỜ
+
+✅ 05/11/2026: CẢ HAI ĐÃ XONG. #101 merge sau khi chủ dự án `pg_dump` (bản 18 -
+Neon chạy Postgres 18, `pg_dump` 16 từ chối) ra `~/tsudev-backups/truoc-drop-20261105.dump`
+(3,3 MB, 34 bảng dữ liệu) rồi `db:migrate` từ nhánh #101. Render tự deploy;
+`prod:dem-noi-dung` ĐẠT, 4 trang dự án 200, JWKS 200. Giữ bản dump tới khi chắc
+không cần khôi phục gì từ 17 bảng đã DROP.
+
+Dự án `tsudev-trust-seal` trên production vẫn tồn tại (dữ liệu prod, không phải
+seed) và mô tả tính năng đã gỡ - chủ dự án sửa/ẩn qua `/admin/projects`.
 
 | PR   | trạng thái                             | điều kiện merge                                                                   |
 | ---- | -------------------------------------- | --------------------------------------------------------------------------------- |
