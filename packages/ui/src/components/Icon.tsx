@@ -1,7 +1,14 @@
 import React from 'react';
 
-import { ICONS, ROLE_CLASS } from './icons';
-import type { IconName, IconRole, IconSpec } from './icons';
+import {
+  ICONS,
+  PLATFORM_CHIP_CLASS,
+  PLATFORM_INK_CLASS,
+  ROLE_CLASS,
+  platformChipClass,
+  platformInkClass,
+} from './icons';
+import type { IconName, IconRole, IconSpec, PlatformBrand } from './icons';
 
 /**
  * Icon dùng chung. Bảng đường vẽ và quy tắc màu-theo-chức-năng nằm ở
@@ -22,25 +29,31 @@ export const Icon = ({ name, size = 16, label, className = '' }: IconProps) => {
   const spec = ICONS[name] as IconSpec;
   const c = spec.circle;
   const sc = spec.solidCircle;
+  // Dấu hiệu hãng (hình đặc, vẽ tràn 0..24) được nới viewBox 2 đơn vị mỗi bên
+  // để khối đặc rơi đúng vùng an toàn 2..22 như icon nét - không thì nó trông
+  // to hơn hẳn các icon đứng cạnh.
+  const viewBox = spec.fill ? '-2 -2 28 28' : '0 0 24 24';
+  const ink = spec.brand ? PLATFORM_INK_CLASS[spec.brand] : '';
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 24 24"
+      viewBox={viewBox}
       fill="none"
       // Icon trang trí phải bị ẩn khỏi trình đọc màn hình, nếu không nó đọc
       // thành một "graphic" vô nghĩa xen giữa câu chữ.
       role={label ? 'img' : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}
-      className={`${ROLE_CLASS[spec.role]} shrink-0 ${className}`}
+      className={`${ROLE_CLASS[spec.role]} ${ink} shrink-0 ${className}`}
     >
       {c && <circle cx={c[0]} cy={c[1]} r={c[2]} stroke="currentColor" strokeWidth="1.6" />}
       {sc && <circle cx={sc[0]} cy={sc[1]} r={sc[2]} fill="currentColor" />}
       {/* `d` rỗng là HỢP LỆ: icon chỉ gồm hình tròn đặc (chấm trạng thái) không
           có đường vẽ nào. Render một <path d=""> trống thì Chrome bỏ qua nhưng
           một số trình đọc màn hình đọc nó thành phần tử rỗng, nên bỏ hẳn. */}
-      {spec.d && (
+      {spec.d && spec.fill && <path d={spec.d} fill="currentColor" />}
+      {spec.d && !spec.fill && (
         <path
           d={spec.d}
           stroke="currentColor"
@@ -53,6 +66,6 @@ export const Icon = ({ name, size = 16, label, className = '' }: IconProps) => {
   );
 };
 
-export type { IconName, IconRole };
-export { ICONS };
+export type { IconName, IconRole, PlatformBrand };
+export { ICONS, PLATFORM_CHIP_CLASS, platformChipClass, platformInkClass };
 export default Icon;

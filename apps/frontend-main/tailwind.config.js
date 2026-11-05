@@ -87,6 +87,20 @@ module.exports = {
           info: 'var(--icon-info)',
           trust: 'var(--icon-trust)',
         },
+        // Màu hãng của dấu hiệu nền tảng - CHỈ cho trạng thái rê chuột của ô
+        // dấu hiệu (PLATFORM_CHIP_CLASS ở packages/ui). Xem $platform_note.
+        platform: {
+          windows: 'var(--platform-windows)',
+          android: 'var(--platform-android)',
+          apple: 'var(--platform-apple)',
+          linux: 'var(--platform-linux)',
+        },
+        'on-platform': {
+          windows: 'var(--on-platform-windows)',
+          android: 'var(--on-platform-android)',
+          apple: 'var(--on-platform-apple)',
+          linux: 'var(--on-platform-linux)',
+        },
       },
 
       // Thang chữ §4: 12/13/14/15/16/18(H4)/20(H3)/24(H2)/30(H1), cộng ba bậc

@@ -3,7 +3,18 @@ import { useRecoverBuildPlaceholder } from '../lib/useRecoverBuildPlaceholder';
 import Seo from '../components/Seo';
 import DownloadSection from '../components/DownloadSection';
 import { useScrollReveal } from '../lib/useScrollReveal';
-import { Layout, Button, Card, Badge, SectionHeading, Avatar, EmptyState, Icon } from '@tsudev/ui';
+import {
+  Layout,
+  Button,
+  Card,
+  Badge,
+  SectionHeading,
+  Avatar,
+  EmptyState,
+  Icon,
+  platformChipClass,
+  platformInkClass,
+} from '@tsudev/ui';
 import type { IconName } from '@tsudev/ui';
 import { api } from '../lib/api';
 import { KIND_LABEL, STATUS_LABEL, copyrightMeta } from '../lib/projectLabels';
@@ -162,10 +173,14 @@ export default function Home({
                 ).map(([icon, label]) => (
                   <div
                     key={label}
-                    className="flex flex-col items-center gap-1.5 rounded-lg border border-line bg-base py-3 text-xs text-fg-secondary"
+                    className={`flex flex-col items-center gap-1.5 rounded-lg border border-line bg-base py-3 text-xs text-fg-secondary ${platformChipClass(
+                      icon
+                    )}`}
                   >
                     <Icon name={icon} size={20} />
-                    {label}
+                    {/* Chữ đổi màu cùng dấu hiệu khi ô ra màu hãng - nếu không
+                        chữ xám đứng trên nền xanh/vàng sẽ tụt tương phản. */}
+                    <span className={platformInkClass(icon)}>{label}</span>
                   </div>
                 ))}
               </div>

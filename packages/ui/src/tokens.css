@@ -67,6 +67,14 @@
   --warning-tint: #f6eae1;
   --danger-tint: #fbe5e5;
   --info-tint: #e1edf4;
+  --platform-windows: #0078d4;
+  --on-platform-windows: #ffffff;
+  --platform-android: #3ddc84;
+  --on-platform-android: #14122b;
+  --platform-apple: #1e1b3a;
+  --on-platform-apple: #ffffff;
+  --platform-linux: #fcc624;
+  --on-platform-linux: #1e1b3a;
 }
 
 /* Ấm (sepia) - cho phiên làm việc dài hoặc ánh sáng gắt. Chỉ đến bằng lựa chọn
@@ -117,6 +125,14 @@
   --warning-tint: #f0e3d3;
   --danger-tint: #f5ded6;
   --info-tint: #dfe6e2;
+  --platform-windows: #0078d4;
+  --on-platform-windows: #ffffff;
+  --platform-android: #3ddc84;
+  --on-platform-android: #14122b;
+  --platform-apple: #1e1b3a;
+  --on-platform-apple: #ffffff;
+  --platform-linux: #fcc624;
+  --on-platform-linux: #1e1b3a;
 }
 
 /* Tối - cho phòng tối. Nền là mực chàm sẫm chứ KHÔNG phải đen tuyền: đen tuyệt
@@ -168,6 +184,14 @@
   --warning-tint: #3a2e22;
   --danger-tint: #3a2030;
   --info-tint: #17304a;
+  --platform-windows: #0078d4;
+  --on-platform-windows: #ffffff;
+  --platform-android: #3ddc84;
+  --on-platform-android: #14122b;
+  --platform-apple: #ecebf7;
+  --on-platform-apple: #14122b;
+  --platform-linux: #fcc624;
+  --on-platform-linux: #1e1b3a;
 }
 
 /* ------------------------------------------------------------

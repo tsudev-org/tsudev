@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { Card, Button, Badge, SectionHeading, Icon, EmptyState } from '@tsudev/ui';
+import {
+  Card,
+  Button,
+  Badge,
+  SectionHeading,
+  Icon,
+  EmptyState,
+  platformChipClass,
+} from '@tsudev/ui';
 import type { IconName } from '@tsudev/ui';
 
 import DownloadModal from './DownloadModal';
@@ -99,7 +107,9 @@ export default function DownloadSection({ items, failed }: DownloadSectionProps)
                     <span
                       key={p}
                       title={ICON_NEN_TANG[p].nhan}
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-subtle"
+                      className={`inline-flex h-7 w-7 items-center justify-center rounded-md bg-subtle ${platformChipClass(
+                        ICON_NEN_TANG[p].icon
+                      )}`}
                     >
                       <Icon name={ICON_NEN_TANG[p].icon} size={15} label={ICON_NEN_TANG[p].nhan} />
                     </span>

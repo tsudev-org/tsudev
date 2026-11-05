@@ -260,7 +260,9 @@ function main() {
   // thật sự đạt tới.
   for (const m of khoiIcon) {
     const ten = m[1];
-    const d = (m[2].match(/d:\s*'([^']*)'/) || [])[1] || '';
+    // `\b` bắt buộc: không có nó thì `brand: 'android'` khớp như `d: 'android'`
+    // (đuôi "brand:" cũng là "d:") và cổng tự hỏng với "số không đọc được".
+    const d = (m[2].match(/\bd:\s*'([^']*)'/) || [])[1] || '';
     if (d) {
       const diem = diemCuaDuongVe(d);
       const ngoai = diem.filter(([x, y]) => x < -0.1 || x > 24.1 || y < -0.1 || y > 24.1);

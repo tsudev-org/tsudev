@@ -137,6 +137,12 @@ const PAIRS: Array<[string, string, number, string]> = [
   ['--danger-ink', '--bg-subtle', 4.5, 'chữ lỗi trên khối lồng'],
   ['--info-ink', '--bg-surface', 4.5, 'chữ thông tin trên card'],
   ['--info-ink', '--bg-subtle', 4.5, 'chữ thông tin trên khối lồng'],
+  // Dấu hiệu nền tảng khi rê chuột: ô ra màu hãng, dấu hiệu đổi sang mực
+  // on-platform-*. Dấu hiệu MANG THÔNG TIN (nền tảng nào) nên chịu 4.5:1.
+  ['--on-platform-windows', '--platform-windows', 4.5, 'dấu hiệu Windows trên ô màu hãng'],
+  ['--on-platform-android', '--platform-android', 4.5, 'dấu hiệu Android trên ô màu hãng'],
+  ['--on-platform-apple', '--platform-apple', 4.5, 'dấu hiệu Apple trên ô màu hãng'],
+  ['--on-platform-linux', '--platform-linux', 4.5, 'dấu hiệu Linux trên ô màu hãng'],
   // Icon theo chức năng. 4.5:1 chứ không phải 3:1: các icon này MANG THÔNG TIN
   // (màu là mã cho nhóm hành động), nên chúng chịu ngưỡng của chữ, không phải
   // ngưỡng của đồ hoạ trang trí.

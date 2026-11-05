@@ -417,6 +417,28 @@ async function main() {
         .toBuffer()
     );
 
+    // Bản NHỎ của dấu hiệu cho giao diện. Header/footer vẽ cú ở 32-40px, mà
+    // logo-mark.png (512px) nặng ~131 kB - máy yếu, mạng chậm phải tải gấp ~40
+    // lần thứ nó hiển thị. Logo.tsx chọn bản vừa cỡ qua <picture> + srcset:
+    // AVIF trước, WebP sau, PNG gốc làm đường lui cuối. Ba bậc chiều cao phủ
+    // 32-40px ở mật độ điểm ảnh 1.5x-3x. Đổi bậc thì sửa MARK_SIZES ở Logo.tsx.
+    const markBuf = await sharp(logoTrimmed)
+      .extract({ left: 0, top: 0, width: meta.width, height: splitY })
+      .trim()
+      .png()
+      .toBuffer();
+    for (const h of [64, 96, 128]) {
+      const base = sharp(markBuf).resize({ height: h, kernel: 'lanczos3' });
+      emit(
+        `brand/logo-mark-${h}.avif`,
+        await base.clone().avif({ quality: 60, effort: 9 }).toBuffer()
+      );
+      emit(
+        `brand/logo-mark-${h}.webp`,
+        await base.clone().webp({ quality: 85, effort: 6 }).toBuffer()
+      );
+    }
+
     emit(
       'brand/logo-wordmark.png',
       await sharp(logoTrimmed)
