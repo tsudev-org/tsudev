@@ -1993,6 +1993,147 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
       .status(500)
       .json({ error: process.env.NODE_ENV === 'production' ? 'internal error' : message })
 }
+// ---------------- Kiểm duyệt NỘI DUNG cho ADMIN ----------------
+//
+// Route của tác giả chỉ sửa/xoá được bài CỦA CHÍNH MÌNH (findOwnPost), nên nội
+// dung do Toà soạn AI đã gỡ sinh ra (authoredByAgentId != null - ~50 tài liệu
+// trùng lặp, sai chính tả trên production) không ai gỡ được qua giao diện. Hai
+// route dưới đây là bề mặt duy nhất cho việc đó.
+//
+// Bất biến:
+//  - CHỈ xoá MỀM / khôi phục - xoá cứng bị trigger Postgres chặn, và một thao tác
+//    hàng loạt nhầm phải gỡ lại được bằng chính trang đó;
+//  - MỖI bản ghi đổi trạng thái để lại một dòng TrustAuditLog (bảng nhật ký quản
+//    trị dùng chung) - ai, lúc nào, làm gì với cái gì;
+//  - trần MODERATION_BATCH_MAX slug một lượt: một request lạc không quét sạch kho.
+
+const MODERATION_BATCH_MAX = 200
+type ModerationKind = 'post' | 'doc'
+const moderationKind = (v: unknown): ModerationKind | null =>
+  v === 'post' || v === 'doc' ? v : null
+
+app.get(
+  '/api/admin/content',
+  asyncHandler(async (req, res) => {
+    if (!(await requireAdmin(req, res))) return
+    const kind = moderationKind(req.query.kind)
+    if (!kind) return res.status(400).json({ error: 'kind phải là post hoặc doc' })
+    const paging = parsePaging(req.query)
+    const state = qStr(req.query.state) === 'deleted' ? 'deleted' : 'active'
+    const origin = qStr(req.query.origin)
+    const where = {
+      deletedAt: state === 'deleted' ? { not: null } : null,
+      ...(origin === 'agent'
+        ? { authoredByAgentId: { not: null } }
+        : origin === 'human'
+        ? { authoredByAgentId: null }
+        : {}),
+    }
+    const select = {
+      id: true,
+      slug: true,
+      title: true,
+      createdAt: true,
+      updatedAt: true,
+      deletedAt: true,
+      authoredByAgentId: true,
+      contentMd: true,
+    } as const
+    const [total, rows] =
+      kind === 'post'
+        ? await Promise.all([
+            prisma.post.count({ where }),
+            prisma.post.findMany({
+              where,
+              select,
+              orderBy: { createdAt: 'desc' },
+              skip: paging.skip,
+              take: paging.take,
+            }),
+          ])
+        : await Promise.all([
+            prisma.doc.count({ where }),
+            prisma.doc.findMany({
+              where,
+              select,
+              orderBy: { createdAt: 'desc' },
+              skip: paging.skip,
+              take: paging.take,
+            }),
+          ])
+    res.json({
+      // Không trả cả thân bài: trang kiểm duyệt chỉ cần độ dài để nhận ra bài
+      // rỗng/quá ngắn, và trả thân 50 bài một lượt là trả băng thông vô ích.
+      data: rows.map(({ contentMd, authoredByAgentId, ...r }) => ({
+        ...r,
+        origin: authoredByAgentId ? 'agent' : 'human',
+        contentLength: contentMd.length,
+      })),
+      meta: pageMeta(total, paging),
+    })
+  })
+)
+
+app.post(
+  '/api/admin/content/bulk',
+  asyncHandler(async (req, res) => {
+    const admin = await requireAdmin(req, res)
+    if (!admin) return
+    const kind = moderationKind(req.body?.kind)
+    const action = req.body?.action
+    const slugs: unknown = req.body?.slugs
+    if (!kind) return res.status(400).json({ error: 'kind phải là post hoặc doc' })
+    if (action !== 'hide' && action !== 'restore')
+      return res.status(400).json({ error: 'action phải là hide hoặc restore' })
+    if (
+      !Array.isArray(slugs) ||
+      slugs.length === 0 ||
+      slugs.length > MODERATION_BATCH_MAX ||
+      !slugs.every((x) => typeof x === 'string' && SLUG_RE.test(x))
+    ) {
+      return res
+        .status(400)
+        .json({ error: `slugs phải là mảng 1-${MODERATION_BATCH_MAX} slug hợp lệ` })
+    }
+    const unique = [...new Set(slugs as string[])]
+    // Chỉ chạm bản ghi ĐANG ở trạng thái ngược lại - ẩn lại thứ đã ẩn không đổi
+    // deletedAt gốc (mốc đó là bằng chứng), và nhật ký không ghi thao tác ma.
+    const where = {
+      slug: { in: unique },
+      deletedAt: action === 'hide' ? null : { not: null },
+    }
+    const data = { deletedAt: action === 'hide' ? new Date() : null }
+    const select = { id: true, slug: true, title: true } as const
+    const targets =
+      kind === 'post'
+        ? await prisma.post.findMany({ where, select })
+        : await prisma.doc.findMany({ where, select })
+    if (targets.length > 0) {
+      const ids = targets.map((t) => t.id)
+      await prisma.$transaction([
+        kind === 'post'
+          ? prisma.post.updateMany({ where: { id: { in: ids } }, data })
+          : prisma.doc.updateMany({ where: { id: { in: ids } }, data }),
+        prisma.trustAuditLog.createMany({
+          data: targets.map((t) => ({
+            actorId: admin.id,
+            actorName: admin.displayName || admin.username,
+            action: action === 'hide' ? 'CONTENT_HIDE' : 'CONTENT_RESTORE',
+            targetType: kind === 'post' ? 'Post' : 'Doc',
+            targetId: t.id,
+            targetLabel: `${t.slug} - ${t.title}`.slice(0, 300),
+          })),
+        }),
+      ])
+    }
+    res.json({
+      ok: true,
+      changed: targets.map((t) => t.slug),
+      skipped: unique.filter((x) => !targets.some((t) => t.slug === x)),
+    })
+  })
+)
+
 app.use(errorHandler)
 
 /** Chuẩn bị trước khi phục vụ. Chạy ở CẢ hai chế độ: tiến trình riêng và nhúng

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useRecoverBuildPlaceholder } from '../lib/useRecoverBuildPlaceholder';
 import Seo from '../components/Seo';
 import DownloadSection from '../components/DownloadSection';
 import { useScrollReveal } from '../lib/useScrollReveal';
@@ -77,6 +78,7 @@ export default function Home({
   downloads,
   downloadsFailed,
 }: HomeProps) {
+  const retrying = useRecoverBuildPlaceholder(postsFailed || projectsFailed);
   // Bật scroll-reveal cho các khối mang class `reveal` bên dưới. Hook này tự tắt
   // dưới `prefers-reduced-motion` và KHÔNG ẩn gì khi JavaScript không chạy -
   // xem lý do ở lib/useScrollReveal.ts.
@@ -234,7 +236,7 @@ export default function Home({
                 <EmptyState
                   kind="failed"
                   icon="warning"
-                  title="Không tải được danh sách dự án"
+                  title={retrying ? 'Đang cập nhật nội dung…' : 'Không tải được danh sách dự án'}
                   explain="Máy chủ nội dung không trả lời. Danh sách dự án vẫn còn nguyên."
                   action={{ label: 'Mở trang dự án', href: '/projects' }}
                 />
@@ -295,7 +297,7 @@ export default function Home({
                 <EmptyState
                   kind="failed"
                   icon="warning"
-                  title="Không tải được bài viết"
+                  title={retrying ? 'Đang cập nhật nội dung…' : 'Không tải được bài viết'}
                   explain="Máy chủ nội dung không trả lời. Các bài đã đăng vẫn còn nguyên."
                   action={{ label: 'Mở trang blog', href: '/blog' }}
                 />

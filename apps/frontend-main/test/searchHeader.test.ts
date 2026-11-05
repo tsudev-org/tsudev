@@ -51,7 +51,7 @@ describe('ô tìm kiếm ở header dẫn vào bộ tìm kiếm của /search', 
     // động thì máy điện thoại mất hẳn đường tới tìm kiếm - và đợt này vừa gỡ
     // thanh thẻ khỏi /blog, tức gỡ luôn đường duyệt thay thế.
     const mobileNav = header.slice(header.indexOf('aria-label="Di động"'));
-    expect(mobileNav).toMatch(/href="\/search"/);
+    expect(mobileNav).toMatch(/href="\/search(\?[^"]*)?"/);
   });
 
   test('người dùng submit được bằng bàn phím', () => {
@@ -69,7 +69,7 @@ describe('/blog nhường việc lọc theo thẻ cho /search', () => {
   });
 
   test('vẫn giữ lối vào /search', () => {
-    expect(blog).toMatch(/href="\/search"/);
+    expect(blog).toMatch(/href="\/search(\?[^"]*)?"/);
   });
 
   test('vẫn hiện thẻ của từng bài để nhận diện chủ đề', () => {

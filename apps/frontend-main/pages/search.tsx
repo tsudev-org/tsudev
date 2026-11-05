@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import Seo from '../components/Seo';
+import PageHeader from '../components/PageHeader';
 import { Layout, Card, Badge, Avatar, RecordFooter, usePageSize, EmptyState } from '@tsudev/ui';
 import { DEFAULT_PAGE_SIZE, normalizePage } from '@tsudev/types';
 import { findMatchRanges } from '@tsudev/search';
@@ -265,12 +266,13 @@ export default function SearchPage({
         description="Tìm bài viết và tài liệu trên tsudev."
         noindex
       />
-      <div className="max-w-3xl mx-auto px-4 py-10">
-        <h1 className="text-2xl font-bold text-fg mb-1">Tìm kiếm</h1>
-        <p className="text-sm text-fg-muted mb-5">
-          Bài viết và tài liệu. Gõ không dấu vẫn ra kết quả có dấu. Từ {MIN_QUERY} ký tự trở lên.
-        </p>
-
+      <PageHeader
+        width="narrow"
+        eyebrow="Tìm kiếm"
+        title="Tìm bài viết & tài liệu"
+        description={`Gõ không dấu vẫn ra kết quả có dấu. Từ ${MIN_QUERY} ký tự trở lên.`}
+      />
+      <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="relative">
           <input
             ref={inputRef}

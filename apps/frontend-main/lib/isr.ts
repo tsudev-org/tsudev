@@ -29,8 +29,16 @@
 /** Nhịp dựng lại khi mọi thứ bình thường. Nội dung đổi vài lần một ngày. */
 export const REVALIDATE_SECONDS = 300;
 
-/** Nhịp dựng lại cho trang dựng ra lúc build trong khi backend đang chết. */
-export const REVALIDATE_ON_FAILURE_SECONDS = 30;
+/**
+ * Nhịp dựng lại cho trang dựng ra lúc build mà không đọc được backend.
+ *
+ * Máy build KHÔNG có token production, nên MỌI lần deploy đều đẩy lên R2 một bản
+ * rỗng của 7 trang ISR. Với 30 giây như trước, người mở site ngay sau deploy thấy
+ * "Không tải được..." (chủ dự án chụp đúng cảnh này ở /docs, 05/11/2026). 1 giây
+ * là mức thấp nhất Next nhận: lượt xem đầu tiên kích hoạt dựng lại ngay, và
+ * `useRecoverBuildPlaceholder` ở phía trình duyệt nạp lại bản thật.
+ */
+export const REVALIDATE_ON_FAILURE_SECONDS = 1;
 
 const isBuildPhase = (): boolean => process.env.NEXT_PHASE === 'phase-production-build';
 

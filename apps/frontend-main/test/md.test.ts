@@ -107,3 +107,21 @@ describe('neo tiêu đề và mục lục', () => {
     expect(html).toContain('&quot;');
   });
 });
+
+describe('khối code có nhãn ngôn ngữ', () => {
+  test('dòng đầu ```bash thành nhãn, không in lẫn vào mã', () => {
+    const html = renderMarkdown('```bash\nnpm run dev\n```');
+    expect(html).toContain('<div class="code-lang">bash</div>');
+    expect(html).toContain('<code class="language-bash">npm run dev</code>');
+  });
+
+  test('tên ngôn ngữ ngoài whitelist không thành thuộc tính - vẫn là mã đã thoát', () => {
+    const html = renderMarkdown('```"><img src=x onerror=alert(1)>\nx\n```');
+    expect(html).not.toContain('class="code-lang"');
+    expect(html).not.toMatch(/<img/);
+  });
+
+  test('khối không khai ngôn ngữ giữ dạng cũ', () => {
+    expect(renderMarkdown('```\nplain\n```')).toContain('<pre><code>plain</code></pre>');
+  });
+});

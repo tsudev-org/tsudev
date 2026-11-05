@@ -1,6 +1,7 @@
 import React from 'react';
 import Seo from './Seo';
-import { Layout, Badge, TableOfContents } from '@tsudev/ui';
+import PageHeader from './PageHeader';
+import { Layout, TableOfContents } from '@tsudev/ui';
 
 // Khung chung cho các trang văn bản dài (Điều khoản, Quyền riêng tư, Nội quy).
 // Mỗi mục có `id` để trích dẫn được bằng liên kết neo - văn bản pháp lý hay bị
@@ -36,28 +37,26 @@ export const LegalDoc = ({
   <Layout active={active} bare>
     <Seo title={title} path={active} description={lead} />
 
-    <div className="max-w-6xl mx-auto px-4 py-12">
-      <header className="max-w-3xl">
-        <Badge tone="teal" mono className="mb-4">
-          {eyebrow}
-        </Badge>
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-fg text-balance leading-tight">
-          {title}
-        </h1>
-        <p className="mt-5 text-lg text-fg-secondary leading-relaxed">{lead}</p>
-        <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm font-mono text-fg-muted">
-          <div className="flex gap-2">
-            <dt>Hiệu lực:</dt>
-            <dd className="text-fg-secondary">{effective}</dd>
+    <PageHeader
+      eyebrow={eyebrow}
+      title={title}
+      description={lead}
+      meta={
+        <dl className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-fg-muted">
+          <div className="flex gap-1.5">
+            <dt>Hiệu lực</dt>
+            <dd className="font-medium text-fg-secondary">{effective}</dd>
           </div>
-          <div className="flex gap-2">
-            <dt>Cập nhật:</dt>
-            <dd className="text-fg-secondary">{updated}</dd>
+          <div className="flex gap-1.5">
+            <dt>Cập nhật</dt>
+            <dd className="font-medium text-fg-secondary">{updated}</dd>
           </div>
         </dl>
-      </header>
+      }
+    />
 
-      <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
+    <div className="max-w-6xl mx-auto px-4 pb-12">
+      <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
         <div className="prose-tsu max-w-3xl order-2 lg:order-1">
           {sections.map((s, i) => (
             <section key={s.id} id={s.id} className="scroll-mt-24">

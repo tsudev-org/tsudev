@@ -1,6 +1,8 @@
 import React from 'react';
+import { useRecoverBuildPlaceholder } from '../../lib/useRecoverBuildPlaceholder';
 import Seo from '../../components/Seo';
-import { Layout, Badge, Avatar, TableOfContents, EmptyState } from '@tsudev/ui';
+import { Layout, Badge, Avatar, TableOfContents, EmptyState, Card, Icon } from '@tsudev/ui';
+import PageHeader from '../../components/PageHeader';
 import type { TocItem } from '@tsudev/ui';
 import { api } from '../../lib/api';
 import { extractHeadings, renderMarkdown } from '../../lib/md';
@@ -10,14 +12,26 @@ import { routeParam } from '../../lib/identity';
 import { formatDateVN } from '../../lib/format';
 import { keepStaleOnFailure } from '../../lib/isr';
 
+/** Thời gian đọc ước lượng: ~220 từ/phút, tối thiểu 1 phút; bỏ khối code. */
+function readingMinutes(md: string): number {
+  const words = md
+    .replace(/```[\s\S]*?```/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean).length;
+  return Math.max(1, Math.round(words / 220));
+}
+
+type RelatedPost = { slug: string; title: string; excerpt: string | null };
 type BlogPostProps = {
   post: Post | null;
+  related: RelatedPost[];
   failed: boolean;
   slug: string;
   toc: TocItem[];
 };
 
-export default function BlogPost({ post, failed, slug, toc }: BlogPostProps) {
+export default function BlogPost({ post, related, failed, slug, toc }: BlogPostProps) {
+  const retrying = useRecoverBuildPlaceholder(failed);
   // Hai nhánh, không một nhánh. Mã trạng thái tương ứng đã được đặt ở
   // getServerSideProps - xem khối chú thích ở đó.
   if (failed)
@@ -27,7 +41,7 @@ export default function BlogPost({ post, failed, slug, toc }: BlogPostProps) {
         <EmptyState
           kind="failed"
           icon="warning"
-          title="Không tải được bài viết"
+          title={retrying ? 'Đang cập nhật nội dung…' : 'Không tải được bài viết'}
           explain={
             <>
               Bài viết này có thể vẫn còn nguyên - lượt gọi tới máy chủ nội dung đã thất bại. Thử
@@ -62,37 +76,45 @@ export default function BlogPost({ post, failed, slug, toc }: BlogPostProps) {
         type="article"
         publishedAt={post.publishedAt || post.createdAt}
       />
+      <PageHeader
+        crumbs={[{ label: 'Blog', href: '/blog' }, { label: post.title }]}
+        title={post.title}
+        description={post.excerpt || undefined}
+        meta={
+          <>
+            <span className="inline-flex items-center gap-2 text-sm">
+              <Avatar name={post.author?.displayName || 'tsudev'} size={28} />
+              <span className="font-medium text-fg-secondary">
+                {post.author?.displayName || 'tsudev'}
+              </span>
+            </span>
+            <span className="text-sm text-fg-muted">
+              {formatDateVN(post.publishedAt || post.createdAt)}
+            </span>
+            <span className="inline-flex items-center gap-1 text-sm text-fg-muted">
+              <Icon name="clock" size={15} />
+              {readingMinutes(post.contentMd || '')} phút đọc
+            </span>
+            {(post.tags || []).map((t: string) => (
+              <a
+                key={t}
+                href={`/search?tag=${encodeURIComponent(t)}`}
+                aria-label={`Tìm theo thẻ ${t}`}
+              >
+                <Badge tone="neutral">{t}</Badge>
+              </a>
+            ))}
+          </>
+        }
+      />
       <div className="max-w-6xl mx-auto px-4 py-10">
-        <nav className="text-sm text-fg-muted mb-4">
-          <a href="/blog" className="hover:text-link">
-            Blog
-          </a>{' '}
-          <span className="mx-1.5">/</span> <span className="text-fg-secondary">{post.title}</span>
-        </nav>
         {post.coverImageUrl && (
           <img
             src={post.coverImageUrl}
             alt=""
-            className="w-full rounded-lg mb-6 max-h-96 object-cover border border-line"
+            className="w-full rounded-xl mb-8 max-h-96 object-cover border border-line"
           />
         )}
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          {(post.tags || []).map((t: string) => (
-            <a key={t} href={`/blog?tag=${encodeURIComponent(t)}`} aria-label={`Lọc theo thẻ ${t}`}>
-              <Badge tone="neutral">{t}</Badge>
-            </a>
-          ))}
-        </div>
-        <h1 className="text-3xl md:text-4xl font-extrabold text-fg text-balance leading-tight">
-          {post.title}
-        </h1>
-        <div className="flex items-center gap-2 mt-5 mb-8 text-sm text-fg-muted">
-          <Avatar name={post.author?.displayName || 'tsudev'} size={32} />
-          <span className="text-fg-secondary font-medium">
-            {post.author?.displayName || 'tsudev'}
-          </span>
-          <span>· {formatDateVN(post.publishedAt || post.createdAt)}</span>
-        </div>
         {/* Hai cột từ lg trở lên: thân bài giữ bề rộng đọc được, mục lục bám
             dính bên phải. Dưới lg thì mục lục nằm TRÊN thân bài - trên màn hình
             hẹp nó phải là thứ người đọc gặp trước, không phải thứ họ cuộn qua
@@ -131,6 +153,25 @@ export default function BlogPost({ post, failed, slug, toc }: BlogPostProps) {
             </ol>
           </section>
         )}
+        {related.length > 0 && (
+          <section aria-labelledby="bai-khac" className="mt-14 pt-8 border-t border-line">
+            <h2 id="bai-khac" className="text-xl font-bold text-fg mb-4">
+              Bài viết khác
+            </h2>
+            <div className="grid gap-4 md:grid-cols-3">
+              {related.map((r) => (
+                <Card key={r.slug} as="a" hover href={`/blog/${r.slug}`} className="group p-5">
+                  <h3 className="font-semibold text-fg leading-snug group-hover:text-link transition-colors text-balance">
+                    {r.title}
+                  </h3>
+                  {r.excerpt && (
+                    <p className="mt-2 text-sm text-fg-muted line-clamp-2">{r.excerpt}</p>
+                  )}
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </Layout>
   );
@@ -159,7 +200,9 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }: GetStaticPropsContext) {
-  const r = await api.post(routeParam(params, 'slug'));
+  // Bài liên quan là phần phụ: lượt gọi đó lỗi thì trang vẫn dựng, chỉ thiếu mục
+  // "Bài viết khác". Chỉ lượt gọi BÀI quyết định giữ-bản-cũ.
+  const [r, rRecent] = await Promise.all([api.post(routeParam(params, 'slug')), api.posts(4)]);
   const post = r.data;
   const revalidate = keepStaleOnFailure(r.failed, '/blog/[slug]');
   // 404 cũng được cache (revalidate): bài xoá rồi thì dựng lại sẽ ra 404 thật.
@@ -167,5 +210,12 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
   // Mục lục dựng ở SERVER: dựng ở client thì nó nháy vào sau khi bài đã hiện,
   // và bố cục hai cột nhảy một nhịp ở mỗi lần tải trang.
   const toc = extractHeadings(post?.contentMd || '');
-  return { revalidate, props: { failed: r.failed, post, slug: routeParam(params, 'slug'), toc } };
+  const related: RelatedPost[] = (rRecent.data || [])
+    .filter((p) => p.slug !== post?.slug)
+    .slice(0, 3)
+    .map((p) => ({ slug: p.slug, title: p.title, excerpt: p.excerpt ?? null }));
+  return {
+    revalidate,
+    props: { failed: r.failed, post, related, slug: routeParam(params, 'slug'), toc },
+  };
 }
