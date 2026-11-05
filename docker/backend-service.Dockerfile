@@ -5,7 +5,21 @@
 # 404. Image dùng CHUNG cho cả 4 service - Render blueprint chọn service
 # bằng cách override dockerCommand mỗi service, không dùng build arg (Render
 # không hỗ trợ build-arg riêng theo từng service trong render.yaml).
-FROM node:20-bullseye-slim
+# Node 22 (LTS bảo trì tới 04/2027) trên Debian 12 bookworm.
+#
+# Không phải nâng cho vui - cả hai thứ cũ đều đã HẾT HẠN: Node 20 hết vòng đời
+# 30/04/2026, và `node:*-bullseye-slim` ngừng được dựng lại từ 25/08/2026 (Debian
+# 11 hết LTS), tức image cũ không còn nhận bản vá bảo mật nào của Node lẫn OS.
+# @simplewebauthn/server 14 (passkey) đòi Node >= 22.
+#
+# `openssl`: bookworm-slim không có sẵn thư viện OpenSSL mà engine Prisma cần để
+# tự nhận phiên bản; thiếu nó `prisma generate` chọn sai engine hoặc client chết
+# lúc nạp. Job "Image backend" của ci.yml dựng CHÍNH tệp này rồi khởi động nó
+# với Postgres thật - đổi base image mà job đó đỏ thì đừng merge.
+FROM node:22-bookworm-slim
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 WORKDIR /repo
 
 COPY package.json package-lock.json ./

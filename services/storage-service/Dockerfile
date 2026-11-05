@@ -1,4 +1,4 @@
-FROM node:20-bullseye-slim
+FROM node:22-bookworm-slim
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install --no-audit --no-fund --omit=dev
