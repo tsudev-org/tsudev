@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261106-03
 - **Từ**: phiên 37 (06/11/2026) - **Đến**: phiên 38 + chủ dự án
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG (06/11/2026, phiên 38) - thay bằng [`20261106-04`](20261106-04_ket-phien-38-express5-len-prod-g7.md)
 - **Thay phiếu**: [`20261106-02`](20261106-02_ket-phien-36-bao-mat-va-tai-khoan.md) - việc agent §3.2, §3.4, §3.5 xong; §3.1 (chuyển repo vào Org) còn chờ T19; §3.3 chờ 10/11.
 
 ## ⚡ Khởi động phiên 38 - làm ĐÚNG thứ tự này

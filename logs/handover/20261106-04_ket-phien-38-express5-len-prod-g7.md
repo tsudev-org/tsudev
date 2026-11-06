@@ -7,9 +7,11 @@
 
 ## ⚡ Khởi động phiên 39
 
-1. `git fetch && git status` trên `main`.
-2. Hỏi chủ dự án T24/T25 xong chưa. Xong ⇒ làm nghiệm thu §3.1.
-3. Khoá file vào `logs/LOCKS.md` trước khi sửa.
+1. Đọc `AGENTS.md`, `logs/STATE.md`, phiếu này. `git fetch && git status` trên `main` phải sạch (`ac23a85` hoặc mới hơn).
+2. Mọi việc của chủ dự án trong phiên 38 đã XONG (T22-T25, T28, T29). Không có PR nào đang mở của phiên 38.
+3. Việc đầu tiên: nghiệm thu lượt cron kiểm toàn vẹn (§3.1) - nhịp `23 1,13` UTC đã chạy ít nhất một lần kể từ 20:23 06/11 giờ VN. Không có `[cron] kiểm toàn vẹn:` hoặc có 401/503 ⇒ nghi `INTERNAL_API_TOKEN`/`RELEASE_INTEGRITY_TOKEN` lệch giữa Render và cron Worker (§4).
+4. Sau đó làm theo thứ tự §3.2 → §3.5. Khoá file vào `logs/LOCKS.md` trước khi sửa; mỗi chuỗi việc một nhánh + PR (agent ĐƯỢC tự merge: `.claude/settings.local.json` có `Bash(gh pr merge:*)`, chủ dự án đồng ý 06/11). Deploy production vẫn xin xác nhận trừ khi chủ dự án giao rõ.
+5. Kết phiên: nhả khoá, dừng tiến trình nền/monitor, viết phiếu `2026MMDD-NN` mới, đổi phiếu này sang ĐÓNG.
 
 ## 0. Trạng thái (đo, không suy)
 
