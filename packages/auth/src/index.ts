@@ -1,4 +1,4 @@
-import { createHash, timingSafeEqual } from 'crypto';
+import { createHash, createHmac, timingSafeEqual } from 'crypto';
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import { prisma } from '@tsudev/db';
 import type { User } from '@prisma/client';
@@ -233,4 +233,121 @@ export function internalTokenMatches(req: Request, expected: string): boolean {
   const a = createHash('sha256').update(got).digest();
   const b = createHash('sha256').update(expected).digest();
   return timingSafeEqual(a, b);
+}
+
+// ---------------------------------------------------------------------------
+// XÁC THỰC LẠI (step-up, G7 - docs/security-plan.md §3.3 mục 6)
+//
+// Thao tác nguy hiểm (thu hồi/khôi phục/ký lại bản phát hành) đòi một bằng
+// chứng MỚI rằng người đang ngồi trước phiên vẫn giữ yếu tố thứ hai: phiên bị
+// chiếm (XSS, máy bỏ quên) không đủ để làm chúng.
+//
+// Luồng: auth-service kiểm mã TOTP (`POST /api/identity/step-up`) rồi phát token
+// này; service khác kiểm nó bằng `requireStepUp`. Token buộc vào `sub` VÀ
+// `sessionVersion` - đổi mật khẩu/thu hồi phiên là token cũ chết theo - và sống
+// `STEP_UP_TTL_SECONDS`.
+//
+// Khoá HMAC DẪN XUẤT từ INTERNAL_IDENTITY_SECRET với nhãn riêng: không thêm bí
+// mật nào phải đồng bộ giữa Workers và Render, mà token step-up cũng không bao
+// giờ kiểm được như một khẳng định danh tính (khác khoá, khác định dạng).
+// Chỉ TOTP: passkey chưa được tính cho khu quản trị (xem hasConfirmedTotp).
+// ---------------------------------------------------------------------------
+
+/** Tuổi tối đa của token step-up: 5 phút (kế hoạch §3.3). */
+export const STEP_UP_TTL_SECONDS = 5 * 60;
+/** Mã lỗi máy đọc được khi thiếu/sai/hết hạn step-up. Frontend bắt mã này để mở hộp nhập TOTP. */
+export const STEP_UP_REQUIRED = 'STEP_UP_REQUIRED';
+
+const STEP_UP_TYP = 'tsudev-step-up-v1';
+
+const stepUpKey = (secret: string): Buffer =>
+  createHmac('sha256', secret).update(STEP_UP_TYP).digest();
+
+const b64u = (buf: Buffer | string): string => Buffer.from(buf).toString('base64url');
+
+/** Bí mật dùng cho step-up (INTERNAL_IDENTITY_SECRET đủ dài), hoặc null. */
+export const stepUpSecret = (): string | null => readSecret(process.env);
+
+/** Phát token step-up cho `user`. Gọi CHỈ sau khi đã kiểm mã TOTP đúng. */
+export function issueStepUp(
+  user: Pick<User, 'id' | 'sessionVersion'>,
+  secret: string,
+  now = Date.now()
+): { token: string; expiresAt: string } {
+  const iat = Math.floor(now / 1000);
+  const exp = iat + STEP_UP_TTL_SECONDS;
+  const body = b64u(
+    JSON.stringify({
+      typ: STEP_UP_TYP,
+      sub: user.id,
+      sv: user.sessionVersion,
+      amr: 'totp',
+      iat,
+      exp,
+    })
+  );
+  const mac = b64u(createHmac('sha256', stepUpKey(secret)).update(body).digest());
+  return { token: `${body}.${mac}`, expiresAt: new Date(exp * 1000).toISOString() };
+}
+
+/** Token có hợp lệ cho đúng `user` vào lúc `now` không. Mọi lý do hỏng ⇒ false. */
+export function verifyStepUp(
+  token: unknown,
+  user: Pick<User, 'id' | 'sessionVersion'>,
+  secret: string,
+  now = Date.now()
+): boolean {
+  if (typeof token !== 'string' || token.length > 1024) return false;
+  const dot = token.indexOf('.');
+  if (dot < 1 || dot !== token.lastIndexOf('.')) return false;
+  const body = token.slice(0, dot);
+  const got = Buffer.from(token.slice(dot + 1), 'base64url');
+  const want = createHmac('sha256', stepUpKey(secret)).update(body).digest();
+  if (got.length !== want.length || !timingSafeEqual(got, want)) return false;
+  try {
+    const c = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')) as Record<
+      string,
+      unknown
+    >;
+    const t = Math.floor(now / 1000);
+    return (
+      c.typ === STEP_UP_TYP &&
+      c.sub === user.id &&
+      c.sv === user.sessionVersion &&
+      typeof c.iat === 'number' &&
+      typeof c.exp === 'number' &&
+      c.iat <= t + 5 &&
+      c.exp > t &&
+      c.exp - c.iat <= STEP_UP_TTL_SECONDS
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Cổng step-up cho route nguy hiểm. Đọc token ở `req.body.stepUp` (hoặc header
+ * `x-step-up`). Gọi SAU requireAdmin/requireOwner. Trả true nếu cho qua; nếu
+ * không đã ghi 401 `{ code: 'STEP_UP_REQUIRED' }` (hoặc 503 khi thiếu bí mật -
+ * FAIL CLOSED) và trả false.
+ */
+export function requireStepUp(
+  req: Request,
+  res: Response,
+  user: Pick<User, 'id' | 'sessionVersion'>
+): boolean {
+  const secret = stepUpSecret();
+  if (!secret) {
+    console.error(`[auth] requireStepUp: thiếu ${SECRET_ENV} (>= ${MIN_SECRET_LEN} ký tự)`);
+    res.status(503).json({ error: 'Không kiểm được xác thực lại' });
+    return false;
+  }
+  const body = (req.body ?? {}) as Record<string, unknown>;
+  const token = body.stepUp ?? req.get('x-step-up');
+  if (verifyStepUp(token, user, secret)) return true;
+  res.status(401).json({
+    code: STEP_UP_REQUIRED,
+    error: 'Thao tác này cần xác thực lại: nhập mã TOTP (hiệu lực 5 phút).',
+  });
+  return false;
 }

@@ -46,6 +46,8 @@ const SERVICES = [
       // test/prefixCoverage.test.ts nay đọc route từ router Express để bắt lần sau.
       '/api/releases',
       '/api/admin',
+      // Lượt kiểm toàn vẹn của Worker cron (06/11/2026) - gác bằng token riêng.
+      '/api/internal',
       '/api/author',
       '/.well-known',
       '/debug',

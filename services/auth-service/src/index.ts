@@ -18,8 +18,10 @@ import type { Prisma } from '@prisma/client'
 import {
   createAuthMiddleware,
   internalTokenMatches,
+  issueStepUp,
   lookupUser,
   requireSecondFactor,
+  stepUpSecret,
 } from '@tsudev/auth'
 import { parsePaging, pageMeta, ROLES } from '@tsudev/types'
 import type { Role } from '@tsudev/types'
@@ -140,6 +142,7 @@ const SENSITIVE = [
   '/api/identity/password/change',
   '/api/identity/totp/confirm',
   '/api/identity/totp/disable',
+  '/api/identity/step-up',
   '/api/identity/verify/code/confirm',
   '/api/identity/verify/code/send',
   '/api/identity/verify/resend',
@@ -668,6 +671,8 @@ app.post(
 // ---------------------------------------------------------------------------
 const auth = createAuthMiddleware('auth')
 app.use('/api/identity/totp', auth)
+// Xác thực lại cho thao tác nguy hiểm (G7).
+app.use('/api/identity/step-up', auth)
 // Gửi lại email xác minh, và đổi email - đều đòi đã đăng nhập.
 app.use('/api/identity/verify', auth)
 app.use('/api/identity/email', auth)
@@ -992,6 +997,34 @@ app.post(
     logSecurity(user.id, 'totp_enabled', req)
     // Mã thô hiện đúng một lần.
     return res.json({ ok: true, backupCodes: codes })
+  })
+)
+
+/**
+ * XÁC THỰC LẠI (step-up, G7): đổi một mã TOTP đúng lấy token sống 5 phút cho
+ * thao tác nguy hiểm ở service khác (thu hồi/khôi phục/ký lại bản phát hành).
+ *
+ * Chỉ TOTP ĐÃ XÁC NHẬN - không nhận mã dự phòng (mã đó để cứu tài khoản khi mất
+ * thiết bị, đốt nó cho một thao tác thường ngày là phí) và chưa nhận passkey
+ * (xem hasConfirmedTotp). Thử sai bị giới hạn 10 lượt/phút (SENSITIVE).
+ */
+app.post(
+  '/api/identity/step-up',
+  asyncHandler(async (req, res) => {
+    const user = await lookupUser(req)
+    if (!user) return res.status(401).json({ error: 'unauthenticated' })
+    const secret = stepUpSecret()
+    if (!secret) return res.status(503).json({ error: 'step_up_unavailable' })
+
+    const row = await prisma.totpCredential.findUnique({ where: { userId: user.id } })
+    if (!row?.confirmedAt) return res.status(403).json({ error: 'totp_not_enabled' })
+    const plain = decryptSecret(row.secretEnc)
+    if (!plain || !verifyTotp(plain, str(req.body?.code, 32).trim())) {
+      logSecurity(user.id, 'step_up_failed', req)
+      return res.status(401).json({ error: 'totp_invalid' })
+    }
+    logSecurity(user.id, 'step_up', req)
+    return res.json(issueStepUp(user, secret))
   })
 )
 
