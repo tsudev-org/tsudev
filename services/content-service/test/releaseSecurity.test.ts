@@ -559,3 +559,7 @@ describe('nhật ký chỉ-thêm (G8)', () => {
     expect(sau.body.breaks.map((b: { id: string }) => b.id)).toContain(dong[2].id)
   })
 })
+
+// Module hoá (như auth.test.ts): tệp script toàn cục trùng tên `request`, `prisma`,
+// `app`… với adminModeration.test.ts ⇒ TS2451 khi ts-jest gộp chương trình.
+export {}
