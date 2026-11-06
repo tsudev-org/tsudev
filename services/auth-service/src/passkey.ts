@@ -147,8 +147,11 @@ export async function loginVerify(
   const stored = await takeChallenge(challengeId, 'login')
   if (!stored) return null
 
+  // `response` là JSON người gửi: thiếu hẳn thì đọc `.id` ném TypeError thành 500.
+  // Chuỗi rỗng không khớp credential nào ⇒ null, cùng đường từ chối.
+  const credentialId = typeof response?.id === 'string' ? response.id : ''
   const cred = await prisma.webAuthnCredential.findUnique({
-    where: { credentialId: response.id },
+    where: { credentialId },
   })
   if (!cred) return null
 

@@ -62,7 +62,10 @@ export type Fetched<T> = { data: T; failed: boolean };
 function oneLine(v: unknown): string {
   return (
     String(v)
-      // eslint-disable-next-line no-control-regex -- CỐ Ý: chặn ký tự điều khiển (CR/LF, tab…)
+      // CR/LF XOÁ hẳn (không đổi thành dấu cách) - CodeQL js/log-injection chỉ công
+      // nhận phép thay xuống dòng bằng chuỗi rỗng là đã làm sạch.
+      .replace(/[\r\n]/g, '')
+      // eslint-disable-next-line no-control-regex -- CỐ Ý: chặn ký tự điều khiển còn lại (tab…)
       .replace(/[\u0000-\u001f\u007f]+/g, ' ')
       .slice(0, 300)
   );

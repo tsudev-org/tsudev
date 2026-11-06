@@ -68,7 +68,15 @@ NEXTAUTH_URL=${appUrl}
 
     const dest = path.join(ROOT, dir, '.env.local');
     try {
-      if (fs.existsSync(dest) && fs.readFileSync(dest, 'utf8') === out) return;
+      // Không `existsSync` trước khi đọc (CodeQL js/file-system-race): đọc thẳng,
+      // tệp chưa có thì coi như khác nội dung.
+      let current = null;
+      try {
+        current = fs.readFileSync(dest, 'utf8');
+      } catch (err) {
+        if (err.code !== 'ENOENT') throw err;
+      }
+      if (current === out) return;
       fs.writeFileSync(dest, out, 'utf8');
       console.log(`Wrote ${dir}/.env.local (NEXTAUTH_URL=${appUrl})`);
     } catch (err) {

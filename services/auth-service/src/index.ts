@@ -1071,8 +1071,10 @@ app.post(
     const ip = callerIp(req.headers as Record<string, unknown>, req.ip || '0.0.0.0')
     if (await ipIsThrottled(ip)) return res.status(429).json({ error: 'rate_limited' })
 
-    const challengeId = str(req.body?.challengeId, 60)
-    const userId = challengeId ? await loginVerify(challengeId, req.body?.response) : null
+    // Không rẽ nhánh theo giá trị người gửi trước khi kiểm (CodeQL
+    // js/user-controlled-bypass): mọi lượt đều đi qua loginVerify, id rỗng hay sai
+    // thì nó không tìm thấy thử thách nào và trả null - từ chối.
+    const userId = await loginVerify(str(req.body?.challengeId, 60), req.body?.response)
     if (!userId) {
       await recordAttempt(ip, false)
       return res.status(401).json({ error: 'invalid_credentials' })
