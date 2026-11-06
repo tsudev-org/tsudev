@@ -2370,8 +2370,11 @@ export async function startServer(): Promise<void> {
   await init()
   const port = Number(process.env.PORT || process.env.AUTH_SERVICE_PORT || 4004)
   const host = process.env.BIND_HOST || '0.0.0.0'
-  await new Promise<void>((resolve) => {
-    app.listen(port, host, () => {
+  // Express 5 đưa lỗi listen (EADDRINUSE...) vào callback thay vì phát 'error'
+  // - bỏ qua tham số là tiến trình sống mà không nghe cổng nào.
+  await new Promise<void>((resolve, reject) => {
+    app.listen(port, host, (err?: Error) => {
+      if (err) return reject(err)
       console.log(`[auth] auth-service nghe ${host}:${port}`)
       resolve()
     })

@@ -465,17 +465,19 @@ async function init() {
 
 async function startServer() {
   await init()
-  app.listen(Number(port), bindHost, () => {
+  // Express 5: lỗi listen đến qua callback - ném để tiến trình chết ồn ào.
+  app.listen(Number(port), bindHost, (err?: Error) => {
+    if (err) throw err
     console.log(`storage-service listening on ${port}`)
     try {
       // Enumerate registered routes for quick verification
       const routes: string[] = []
-      if (app && app._router && app._router.stack) {
-        // `_router` là nội bộ của Express, không có trong kiểu công khai. Mô tả
-        // đúng phần hình dạng được đọc tới thay vì `any` - nếu Express đổi cấu
-        // trúc, chỗ hỏng hiện ra ở đây chứ không im lặng trả danh sách rỗng.
-        const stack =
-          (app as unknown as { _router?: { stack: RouterLayer[] } })._router?.stack ?? []
+      // Express 5: router nằm ở `app.router` (bản 4 là `app._router` nội bộ).
+      // Mô tả đúng phần hình dạng được đọc tới thay vì `any` - nếu Express đổi
+      // cấu trúc, chỗ hỏng hiện ra ở đây chứ không im lặng trả danh sách rỗng.
+      const router = (app as unknown as { router?: { stack?: RouterLayer[] } }).router
+      if (router && router.stack) {
+        const stack = router.stack
         stack.forEach((layer: RouterLayer) => {
           if (layer.route && layer.route.path) {
             const methods = Object.keys(layer.route.methods || {})

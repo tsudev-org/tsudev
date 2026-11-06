@@ -81,10 +81,16 @@ const auth = createAuthMiddleware('content')
 
 // Bọc handler async: Promise bị từ chối mà không có .catch sẽ không bao giờ tới
 // được error handler của Express - request treo cho tới khi client bỏ cuộc.
+//
+// `req` mang tham số đường dẫn kiểu `string`: @types/express 5 khai
+// `string | string[]` vì path-to-regexp 8 cho phép wildcard `*name` (trả mảng).
+// Service này KHÔNG có route wildcard nào - mọi tham số là `:name` nên luôn là
+// chuỗi. Thêm route `*name` thì đừng đi qua asyncHandler này.
+type FlatParamsRequest = Request<Record<string, string>>
 const asyncHandler =
-  (fn: (req: Request, res: Response, next: NextFunction) => unknown): RequestHandler =>
+  (fn: (req: FlatParamsRequest, res: Response, next: NextFunction) => unknown): RequestHandler =>
   (req, res, next) =>
-    Promise.resolve(fn(req, res, next)).catch(next)
+    Promise.resolve(fn(req as FlatParamsRequest, res, next)).catch(next)
 
 // Thẻ tác giả gắn vào bài blog. Không còn `reputation`/`rank`: điểm uy tín
 // thành viên là cơ chế của diễn đàn, đã bỏ; uy tín nay là hồ sơ tổ chức gắn
@@ -2318,9 +2324,11 @@ async function init() {}
 
 async function startServer() {
   await init()
-  app.listen(Number(port), bindHost, () =>
+  // Express 5: lỗi listen đến qua callback - ném để tiến trình chết ồn ào.
+  app.listen(Number(port), bindHost, (err?: Error) => {
+    if (err) throw err
     console.log(`content-service listening on ${bindHost}:${port}`)
-  )
+  })
 }
 
 // EMBEDDED=1 do services/backend-bundle đặt trước khi require file này: ở chế
