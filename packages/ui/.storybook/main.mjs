@@ -3,13 +3,22 @@
 // khai kiểu cũ thì `storybook dev` chết ngay khi nạp cấu hình. Chọn Vite vì nó
 // kéo về ít phụ thuộc hơn hẳn webpack5 và Storybook ở đây chỉ là công cụ rà
 // bằng mắt, không nằm trong CI.
-module.exports = {
+//
+// Storybook 10 chỉ nạp cấu hình ESM - bản CommonJS cũ (`module.exports`) bị từ
+// chối ngay khi khởi động, nên tệp này là `.mjs`. `addon-essentials` không còn:
+// controls, actions, viewport, backgrounds đã nằm sẵn trong lõi từ bản 9.
+import path from 'node:path';
+import { mergeConfig } from 'vite';
+
+const dirname = import.meta.dirname;
+
+export default {
   // ⚠️ Extglob phân nhánh bằng `|`, KHÔNG bằng `,`. Mẫu cũ
   // `@(js,jsx,ts,tsx)` khớp ĐÚNG 0 file trong khi 9 story vẫn nằm đó, và
   // Storybook chỉ kêu một dòng WARN rồi mở giao diện rỗng - trông y hệt "chưa
   // ai viết story", chứ không giống một mẫu glob sai.
   stories: ['../src/**/*.stories.@(js|jsx|ts|tsx)'],
-  addons: ['@storybook/addon-essentials'],
+  addons: [],
 
   // Logo trong SiteHeader trỏ tới `/brand/logo-mark.png` - đường tuyệt đối tính
   // từ `public/` của app. Storybook không có `public/` nào, nên thiếu dòng này
@@ -29,12 +38,10 @@ module.exports = {
   // lớp interop nào cả. (`optimizeDeps.include` không cứu được: cache dep của
   // Vite giữ nguyên bản CJS đã dò hỏng.)
   async viteFinal(config) {
-    const path = require('path');
-    const { mergeConfig } = require('vite');
     return mergeConfig(config, {
       resolve: {
         alias: {
-          '@tsudev/types': path.resolve(__dirname, '../../types/src/index.ts'),
+          '@tsudev/types': path.resolve(dirname, '../../types/src/index.ts'),
         },
       },
     });

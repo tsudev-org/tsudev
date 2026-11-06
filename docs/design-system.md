@@ -213,6 +213,12 @@ là **đếm story vẽ ra được**, không phải "lệnh chạy xong": mở
 kiểm `#storybook-root` có nội dung. Lần nghiệm thu 20/08/2026: **36/36 lượt**
 (12 story × 3 chế độ) vẽ ra nội dung, đúng `data-theme`, 0 lỗi console, 0 ảnh 404.
 
+Bản hiện tại: **Storybook 10 + Vite 8** (từ 06/11/2026). Cấu hình là
+`.storybook/main.mjs` - Storybook 10 chỉ nạp cấu hình ESM - và không còn
+`addon-essentials` (controls, actions, viewport, backgrounds nằm sẵn trong lõi).
+Nghiệm thu lần nâng: `storybook build` rồi mở từng khung bằng Chromium -
+**36/36 lượt** ở cả bản 8 lẫn 10, 0 lỗi console, 0 phản hồi ≥400.
+
 ⚠️ Component nào của `@tsudev/ui` kéo theo `next-auth` (`SiteHeader`,
 `SiteFooter`, `useTrustNav`) thì chỉ dựng được nhờ hai mảnh vá trong
 `.storybook/`: shim `window.process` ở `preview-head.html` và decorator
