@@ -89,11 +89,23 @@ describe('renderMarkdown - tính chất', () => {
         // Chỉ xét phần BÊN TRONG thẻ: văn bản đã thoát có thể chứa "onerror="
         // một cách vô hại.
         for (const tag of html.match(/<[a-z][^>]*>/gi) ?? []) {
-          expect(tag).not.toMatch(/\son\w+\s*=/i);
+          // Thuộc tính sự kiện là một TÊN thuộc tính, nên xét thẻ sau khi đã
+          // làm rỗng các giá trị có nháy. Bản đầu quét cả giá trị và đỏ ngẫu
+          // nhiên theo seed: `[x](# <img src=x onerror=alert(1)>` cho ra
+          // `<a href="# &lt;img src=x onerror=alert(1">` - vô hại, vì `"` và
+          // `<` đã thoát nên chữ "onerror=" không thoát được khỏi giá trị href.
+          // Nếu một giá trị mở nháy mà không đóng, phần thừa vẫn nằm lại và bị xét.
+          // Ranh giới gồm cả nháy: trình duyệt đọc `href="#"onclick=x` là HAI
+          // thuộc tính dù thiếu khoảng trắng - bản đầu (`\s` trước `on`) bỏ lọt.
+          const names = tag.replace(/"[^"]*"|'[^']*'/g, '""');
+          expect(names).not.toMatch(/[\s"'/]on\w+\s*=/i);
           expect(tag).not.toMatch(/(href|src)\s*=\s*["']?\s*(javascript|vbscript|data):/i);
         }
       }),
-      RUNS
+      {
+        ...RUNS,
+        examples: [['[x](# <img src=x onerror=alert(1)>'], ['[x](# " onerror=alert(1) ")']],
+      }
     );
   });
 });
