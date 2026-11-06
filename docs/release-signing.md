@@ -32,6 +32,52 @@ Bất biến, mỗi cái có test ở `services/content-service/test/projectRele
 Niêm phong thất bại (tệp chưa lên xong, R2 chập chờn) ⇒ 502 và không ghi gì; bấm
 **Niêm phong** ở danh sách để thử lại - gọi lại nhiều lần là an toàn.
 
+## Siết tải lên (G3, 05/11/2026)
+
+Mã: `services/content-service/src/objectStore.ts` (`RELEASE_FILE_TYPES`,
+`MAX_RELEASE_BYTES`, `hashObject`) và route `upload-url`/`seal` ở `src/index.ts`.
+Lỗi trả `{ error, code }` - `code` ổn định để giao diện rẽ nhánh.
+
+**Lúc xin URL tải lên** (`POST .../releases/upload-url`, body `platform`,
+`fileName`, `fileSize`):
+
+- Đuôi tệp phải nằm trong danh sách TRẮNG của nền tảng (so không phân biệt hoa
+  thường; đuôi dài xét trước để `.tar.gz` không thành `.gz`). Sai ⇒ 400
+  `DUOI_TEP_KHONG_CHO_PHEP`. WEB không có tệp - chỉ đường dẫn ngoài.
+
+  | Nền tảng | Đuôi cho phép                       |
+  | -------- | ----------------------------------- |
+  | WINDOWS  | `.exe` `.msi` `.msix` `.zip`        |
+  | ANDROID  | `.apk` `.aab`                       |
+  | MACOS    | `.dmg` `.pkg` `.zip`                |
+  | LINUX    | `.AppImage` `.deb` `.rpm` `.tar.gz` |
+  | SOURCE   | `.zip` `.tar.gz`                    |
+
+- `fileSize` (số nguyên dương) BẮT BUỘC và được **ký vào URL** (`Content-Length`);
+  PUT có kích thước khác bị kho trả 403. Trần 2 GiB mỗi nền tảng ⇒ 413
+  `VUOT_TRAN_KICH_THUOC`.
+- `contentType` do máy chủ suy từ đuôi, cũng ký vào URL. Client gửi
+  `contentType` ⇒ 400 `CONTENT_TYPE_DO_MAY_CHU` - cùng khuôn với
+  `signature`/`sha256`: trường do máy chủ quyết thì từ chối thẳng, không lặng lẽ
+  bỏ qua.
+- Khoá object do máy chủ đặt, giữ đuôi chính tắc kể cả khi tên dài bị cắt.
+
+**Lúc niêm phong**:
+
+- `hashObject` giữ 16 byte đầu + 512 byte cuối trong CHÍNH lượt đọc đang băm
+  (không đọc lần hai) và so với chữ ký nhị phân của loại tệp (`MZ`, OLE, `PK\x03\x04`,
+  khối `koly` của DMG, `xar!`, ELF, `!<arch>`, RPM, gzip). Lệch ⇒ 422
+  `SAI_LOAI_TEP`, không ghi, không ký.
+- Kiểm lại đuôi `storageKey` và trần trên dung lượng THẬT đọc được.
+- `storageKey` phải nằm dưới `releases/<slug>/` của đúng dự án, không đoạn rỗng,
+  `.`, `..` ⇒ tạo/PATCH 400 `STORAGE_KEY_SAI_DU_AN`, niêm phong 422 (kiểm trước
+  khi đọc kho).
+
+**Đổi `platform` của bản đã có tệp R2**: đuôi không thuộc danh sách trắng của
+nền tảng mới ⇒ 422, không ghi gì; hợp lệ ⇒ xoá sha256/dung lượng/chữ ký, buộc
+niêm phong lại (chữ ký phủ cả nền tảng). Trước khi vá, một "bản WINDOWS" trỏ vào
+tệp `.apk` công bố được với chữ ký hợp lệ.
+
 ## Đường tải về
 
 `/api/releases/<slug>/<id>` (Worker) → content-service tăng `downloadCount` →

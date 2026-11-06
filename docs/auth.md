@@ -130,6 +130,43 @@ thêm một bước nữa chỉ đổi bảo mật lấy phiền phức.
 Passkey **vẫn** phải qua cổng khoá tài khoản - nếu không nó thành đường vòng
 quanh chính cơ chế đó.
 
+### Khu quản trị bắt buộc TOTP (G6)
+
+Mọi route quản trị gọi `requireSecondFactor()` (`@tsudev/auth`) SAU khi kiểm vai
+trò: tài khoản chưa có TOTP **đã xác nhận** (`TotpCredential.confirmedAt`) ⇒ 403
+`{ code: 'MFA_REQUIRED' }`, lỗi DB ⇒ 503 (fail closed). Frontend bắt mã này và chỉ
+người dùng sang `/settings/security`.
+
+**Passkey chưa được tính cho khu quản trị.** Đăng nhập mật khẩu chỉ đòi bước hai
+khi có TOTP đã xác nhận, và phiên không ghi phương thức xác thực (amr) - nên tài
+khoản chỉ có passkey vẫn vào được bằng mật khẩu đơn thuần. Tính passkey ở cổng
+nghĩa là một mật khẩu lộ đủ để vào khu quản trị. Gỡ hạn chế này cùng step-up B3
+(`docs/security-plan.md`). Bất biến cổng dựa vào có test ở
+`services/auth-service/test/ownerMfaGate.test.ts`.
+
+Các route tự bật TOTP/passkey của chính tài khoản KHÔNG gác cổng này - gác thì
+ADMIN/OWNER chưa có 2FA tự khoá mình ngoài.
+
+### Giới hạn tần suất theo tài khoản
+
+Ngoài hai trục chống dò mật khẩu ở bảng trên, mỗi service có bộ đếm trong bộ nhớ
+(`@tsudev/ratelimit`, cửa sổ 60 giây). Khoá là `sub` của khẳng định danh tính khi
+request có danh tính, không thì IP do BFF đặt (lấy từ `CF-Connecting-IP`). Cần vì
+BFF được miễn giới hạn theo IP (mọi người dùng chung IP egress của Worker) - trước
+đây một tài khoản đã đăng nhập gọi được đường ghi không giới hạn.
+
+| Biến                       | Mặc định  | Phạm vi                                                                                     |
+| -------------------------- | --------- | ------------------------------------------------------------------------------------------- |
+| `RATE_LIMIT_IDENTITY_MAX`  | 120       | mọi `/api/identity/*` của auth-service                                                      |
+| `RATE_LIMIT_SENSITIVE_MAX` | 10        | route thắng bằng thử nhiều lần: mã TOTP/email, mật khẩu hiện tại, token đặt lại, đăng ký... |
+| `RATE_LIMIT_ACCOUNT_MAX`   | 600 / 120 | `/api` của content-service / storage-service, chỉ request CÓ danh tính                      |
+
+10 lượt/phút: người thật gõ sai vài lần không chạm tới, máy dò 10^6 mã TOTP cần
+hơn 69 ngày. Danh sách route nhạy cảm là `SENSITIVE` trong
+`services/auth-service/src/index.ts` - thêm route nhận mã/mật khẩu thì thêm vào đó.
+Bộ đếm sống trong một tiến trình: đúng với `backend-bundle` hiện tại, sai nếu sau
+này chạy nhiều bản sao.
+
 ### Thu hồi phiên
 
 `User.sessionVersion` tăng khi đổi/đặt lại mật khẩu. Khẳng định mang số cũ bị từ
