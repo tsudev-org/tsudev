@@ -6,8 +6,10 @@
 > ✅ LÊN PRODUCTION: Express 5 (#157), Trung tâm an ninh phát hành B1-B7 + G7 step-up (#159,
 > migration Neon đã áp), frontend `76def872`, cron `da2cc231`.
 >
-> 🔴 Chủ dự án: `RELEASE_INTEGRITY_TOKEN` (T24), `VIRUSTOTAL_API_KEY` (T25), đổi mật khẩu Neon
-> đã lộ (T28), xoá database `keycloak` cũ (T29).
+> ✅ T24/T25/T28/T29 xong (secret kiểm toàn vẹn + VirusTotal, mật khẩu Neon đã đổi, `keycloak` đã xoá).
+> `INTERNAL_API_TOKEN` đã xoay (Render + Worker `tsudev` + cron) sau sự cố BFF 401 ~6 phút.
+>
+> 🎯 Agent: nghiệm thu lượt cron `23 1,13` UTC, dismiss CodeQL dương tính giả, Dependabot.
 
 > **Phiên 38 BẮT ĐẦU Ở ĐÂY** (cuối phiên 37, 06/11/2026). Phiếu:
 > [`20261106-03`](handover/20261106-03_ket-phien-37-giai-doan-2-attt.md).
