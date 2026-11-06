@@ -65,6 +65,7 @@
 
 import { doNoiDung, thanhDong } from './demNoiDung';
 import { danhGiaNeon, type NeonProject } from './hanMuc';
+import { dienGiai, goiKiemToanVen } from './kiemToanVen';
 
 /** Nhịp ĐO NỘI DUNG. Phải TRÙNG NGUYÊN VĂN một phần tử trong `triggers.crons`. */
 const CRON_DEM_NOI_DUNG = '23 1,13 * * *';
@@ -86,6 +87,13 @@ export interface Env {
   NEON_PROJECT_ID?: string;
   /** Mặc định 100 - hạn mức gói free ghi ở docs/free-tier.md. */
   NEON_CU_HOURS_LIMIT?: string;
+  /**
+   * Lượt kiểm toàn vẹn bản phát hành (G5, kiemToanVen.ts). PHẢI GIỐNG giá trị ở
+   * Render. Thiếu ⇒ bỏ qua và LOG ra. `npm run cron:secret-integrity`.
+   */
+  RELEASE_INTEGRITY_TOKEN?: string;
+  /** Chỉ cần nếu backend bật cổng `/api` bằng INTERNAL_API_TOKEN. */
+  INTERNAL_API_TOKEN?: string;
 }
 
 // `NEWSROOM_TICK_TOKEN` đã bị gỡ khỏi đây 29/10/2026. Nó gác đường `/tick`, và
@@ -240,6 +248,18 @@ async function canhHanMucNeon(env: Env): Promise<void> {
   );
 }
 
+/** Lượt kiểm toàn vẹn - chỉ ở nhịp thưa (route chạm database + R2). */
+async function kiemToanVenPhatHanh(env: Env): Promise<void> {
+  const kq = await goiKiemToanVen(env.BACKEND_URL, {
+    integrity: env.RELEASE_INTEGRITY_TOKEN,
+    internal: env.INTERNAL_API_TOKEN,
+  });
+  const { log, baoDong: noiDung } = dienGiai(kq);
+  if (kq.chay && kq.ok && !noiDung) console.log(log);
+  else console.error(log);
+  if (noiDung) await baoDong(env, 'Toàn vẹn bản phát hành', noiDung);
+}
+
 export default {
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
     // HAI nhịp, và sự khác nhau giữa chúng là CHẠM DATABASE hay không:
@@ -252,7 +272,7 @@ export default {
     // con số tính theo tháng, và nó không chạm database (control plane).
     ctx.waitUntil(
       event.cron === CRON_DEM_NOI_DUNG
-        ? Promise.all([demNoiDung(env), canhHanMucNeon(env)])
+        ? Promise.all([demNoiDung(env), canhHanMucNeon(env), kiemToanVenPhatHanh(env)])
         : keepWarm(env)
     );
   },

@@ -32,7 +32,7 @@ Hai biến dưới đây bật **cả hai** đường đó.
 
 | nơi                                          | ai báo động                                                               | đặt bằng gì                    |
 | -------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------ |
-| **Cloudflare Worker** `tsudev-newsroom-cron` | cổng đếm nội dung (site trống)                                            | `npm run cron:secret-telegram` |
+| **Cloudflare Worker** `tsudev-newsroom-cron` | cổng đếm nội dung (site trống), kiểm toàn vẹn bản phát hành               | `npm run cron:secret-telegram` |
 | **Render** `tsudev-backend`                  | `migrationGate` (DB thiếu migration) và mọi lời gọi `notify.alert()` khác | dashboard Render → Environment |
 
 Cùng tên biến, cùng giá trị, nhưng **hai hệ thống khác nhau** - đặt một chỗ thì
@@ -228,12 +228,16 @@ có sự cố thật. Cách kiểm rẻ nhất là bước 3 ở trên - nó dù
 
 ## Khi nào bạn sẽ nhận được tin, và khi nào KHÔNG
 
-| tình huống                                                  | có tin?                               |
-| ----------------------------------------------------------- | ------------------------------------- |
-| site trả 200 nhưng rỗng nội dung                            | ✅ hai lượt/ngày tới khi khỏi         |
-| database treo / backend chết                                | ✅ (biểu hiện là trang rỗng hoặc 5xx) |
-| `main` có migration chưa áp lên Neon, backend khởi động lại | ✅ từ `migrationGate`                 |
-| site hoàn toàn bình thường                                  | ❌ **cố ý không có tin**              |
+| tình huống                                                  | có tin?                                       |
+| ----------------------------------------------------------- | --------------------------------------------- |
+| site trả 200 nhưng rỗng nội dung                            | ✅ hai lượt/ngày tới khi khỏi                 |
+| database treo / backend chết                                | ✅ (biểu hiện là trang rỗng hoặc 5xx)         |
+| `main` có migration chưa áp lên Neon, backend khởi động lại | ✅ từ `migrationGate`                         |
+| tệp phát hành trong R2 lệch sha256 đã ký / bị xoá           | ✅ nhịp `23 1,13`, nêu tên bản, đã gỡ công bố |
+| VirusTotal có phát hiện cho một bản đã niêm phong           | ✅ cùng nhịp                                  |
+| lượt kiểm toàn vẹn không chạy được (backend 401/503/5xx)    | ✅ cùng nhịp                                  |
+| thiếu `RELEASE_INTEGRITY_TOKEN` ở Worker                    | ❌ chỉ log `[cron] kiểm toàn vẹn: BỎ QUA`     |
+| site hoàn toàn bình thường                                  | ❌ **cố ý không có tin**                      |
 
 Vì sao không báo "vẫn ổn": một tin như thế hai lần mỗi ngày là cách nhanh nhất để
 người ta tắt thông báo, và lúc đó tin ĐỎ cũng không ai đọc.

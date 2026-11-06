@@ -18,8 +18,11 @@ import type { Prisma } from '@prisma/client'
 import {
   createAuthMiddleware,
   internalTokenMatches,
+  issueStepUp,
   lookupUser,
   requireSecondFactor,
+  requireStepUp,
+  stepUpSecret,
 } from '@tsudev/auth'
 import { parsePaging, pageMeta, ROLES } from '@tsudev/types'
 import type { Role } from '@tsudev/types'
@@ -140,6 +143,7 @@ const SENSITIVE = [
   '/api/identity/password/change',
   '/api/identity/totp/confirm',
   '/api/identity/totp/disable',
+  '/api/identity/step-up',
   '/api/identity/verify/code/confirm',
   '/api/identity/verify/code/send',
   '/api/identity/verify/resend',
@@ -668,6 +672,8 @@ app.post(
 // ---------------------------------------------------------------------------
 const auth = createAuthMiddleware('auth')
 app.use('/api/identity/totp', auth)
+// Xác thực lại cho thao tác nguy hiểm (G7).
+app.use('/api/identity/step-up', auth)
 // Gửi lại email xác minh, và đổi email - đều đòi đã đăng nhập.
 app.use('/api/identity/verify', auth)
 app.use('/api/identity/email', auth)
@@ -992,6 +998,34 @@ app.post(
     logSecurity(user.id, 'totp_enabled', req)
     // Mã thô hiện đúng một lần.
     return res.json({ ok: true, backupCodes: codes })
+  })
+)
+
+/**
+ * XÁC THỰC LẠI (step-up, G7): đổi một mã TOTP đúng lấy token sống 5 phút cho
+ * thao tác nguy hiểm ở service khác (thu hồi/khôi phục/ký lại bản phát hành).
+ *
+ * Chỉ TOTP ĐÃ XÁC NHẬN - không nhận mã dự phòng (mã đó để cứu tài khoản khi mất
+ * thiết bị, đốt nó cho một thao tác thường ngày là phí) và chưa nhận passkey
+ * (xem hasConfirmedTotp). Thử sai bị giới hạn 10 lượt/phút (SENSITIVE).
+ */
+app.post(
+  '/api/identity/step-up',
+  asyncHandler(async (req, res) => {
+    const user = await lookupUser(req)
+    if (!user) return res.status(401).json({ error: 'unauthenticated' })
+    const secret = stepUpSecret()
+    if (!secret) return res.status(503).json({ error: 'step_up_unavailable' })
+
+    const row = await prisma.totpCredential.findUnique({ where: { userId: user.id } })
+    if (!row?.confirmedAt) return res.status(403).json({ error: 'totp_not_enabled' })
+    const plain = decryptSecret(row.secretEnc)
+    if (!plain || !verifyTotp(plain, str(req.body?.code, 32).trim())) {
+      logSecurity(user.id, 'step_up_failed', req)
+      return res.status(401).json({ error: 'totp_invalid' })
+    }
+    logSecurity(user.id, 'step_up', req)
+    return res.json(issueStepUp(user, secret))
   })
 )
 
@@ -1979,7 +2013,8 @@ app.post(
   })
 )
 
-/** OWNER: phân quyền / thu hồi vai trò (đặt về MEMBER). KHÔNG cấp được OWNER. */
+/** OWNER: phân quyền / thu hồi vai trò (đặt về MEMBER). KHÔNG cấp được OWNER.
+ *  Đòi step-up (TOTP < 5 phút) - xem `POST /api/identity/step-up`. */
 app.post(
   '/api/identity/useradmin/role',
   asyncHandler(async (req, res) => {
@@ -1997,6 +2032,10 @@ app.post(
     if (!target) return res.status(404).json({ error: 'not_found' })
     if (target.id === actor.id) return res.status(400).json({ error: 'cannot_change_self' })
     if (target.role === 'OWNER') return res.status(403).json({ error: 'cannot_target_owner' })
+    // Step-up (G7): đổi vai trò là đường LEO THANG ĐẶC QUYỀN - cookie phiên bị
+    // đánh cắp không được đủ để cấp ADMIN cho tài khoản khác. Kiểm SAU các lỗi
+    // đầu vào để người dùng không bị đòi mã TOTP cho một yêu cầu vốn đã hỏng.
+    if (!requireStepUp(req, res, actor)) return
 
     const user = await prisma.user.update({ where: { id }, data: { role }, select: USER_SELECT })
     await auditUser(actor, 'user.role', id, target.username, `${target.role} -> ${role}`)
@@ -2048,6 +2087,8 @@ app.post(
     if (!target) return res.status(404).json({ error: 'not_found' })
     if (target.id === actor.id) return res.status(400).json({ error: 'cannot_delete_self' })
     if (target.role === 'OWNER') return res.status(403).json({ error: 'cannot_target_owner' })
+    // Step-up (G7): xoá là thao tác không hoàn tác được.
+    if (!requireStepUp(req, res, actor)) return
 
     try {
       await prisma.user.delete({ where: { id } })

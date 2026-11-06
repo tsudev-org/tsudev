@@ -82,7 +82,24 @@ Kết quả: `npm audit --omit=dev` = **0 lỗ hổng** (trước: 7, gồm 2 cr
 | G11 | Khoá ký chỉ có một bản trong Render env; chưa có bản sao lưu ngoại tuyến được kiểm                                                                    | Mất Render = mất khoá = mọi chữ ký cũ không còn ai xoay được có kế hoạch                |
 | G12 | Bản dump DB (`~/tsudev-backups/`) nằm trên máy dev, không mã hoá                                                                                      | Lộ máy dev = lộ dữ liệu người dùng                                                      |
 
+### 2.4 Trạng thái đóng (cập nhật 06/11/2026)
+
+| #      | Trạng thái                                                                                    | Ở đâu                                                                                     |
+| ------ | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| G1     | ĐÓNG phần lớn: gitleaks, npm audit prod, Dependabot, CodeQL, pr-gates                         | `.github/workflows/`; SAST Semgrep còn ở giai đoạn 3                                      |
+| G2     | ĐÓNG: 13 check bắt buộc + `strict`                                                            | branch protection `main`                                                                  |
+| G3     | ĐÓNG                                                                                          | `docs/release-signing.md` §Siết tải lên                                                   |
+| G4     | ĐÓNG ở mã; **chờ chủ dự án đặt `VIRUSTOTAL_API_KEY`** ở Render                                | thiếu khoá ⇒ `CHUA_QUET`, trang báo rõ "chưa quét mã độc"                                 |
+| G5     | ĐÓNG ở mã; **chờ đặt `RELEASE_INTEGRITY_TOKEN`** ở Render + Worker                            | cron `23 1,13` ⇒ `POST /api/internal/releases/integrity`; thiếu token ⇒ cron log "BỎ QUA" |
+| G6     | ĐÓNG (chỉ TOTP; passkey chưa tính)                                                            | `docs/auth.md` §Khu quản trị bắt buộc TOTP                                                |
+| G7     | ĐÓNG: thu hồi/khôi phục/ký lại bản phát hành; đổi vai trò + xoá tài khoản ở `/admin/accounts` | `requireStepUp` (`@tsudev/auth`), `POST /api/identity/step-up`                            |
+| G8     | ĐÓNG                                                                                          | migration `20261106120000_an_ninh_phat_hanh`: trigger chỉ-thêm + `prevHash`               |
+| G9-G12 | Mở - giai đoạn 3                                                                              | §4                                                                                        |
+
 ## 3. Trung tâm an ninh phát hành - `/admin/release-security`
+
+> **Đã dựng 06/11/2026** (B1-B7). Phần dưới là thiết kế; chỗ hiện trạng khác thiết
+> kế được ghi ở §3.5.
 
 Trang mà chủ dự án yêu cầu: **theo dõi, giám sát, kiểm tra, cập nhật, thu hồi**
 mọi tệp phần mềm trên hệ thống. Thiết kế học từ "Admin SOC Dashboard" của app La
@@ -158,6 +175,25 @@ thu hồi, step-up) → `infra-deploy` (nhịp cron, secret VirusTotal) →
 `frontend-web` (trang) → `qa-test` (test mỗi trạng thái, test tệp sai loại bị từ
 chối, test lệch toàn vẹn tự gỡ công bố).
 
+### 3.5 Hiện trạng khác thiết kế (06/11/2026)
+
+- **Trạng thái thêm hai giá trị**: `CHU_KY_LOI` (chữ ký không kiểm được bằng JWKS
+  hoặc phủ một sha256 khác) và `DUONG_DAN_NGOAI` (WEB/SOURCE không khai sha256).
+  DB chỉ lưu SỰ CỐ (`securityState`: OK | LECH_TOAN_VEN | NGHI_MA_DOC); phần còn
+  lại tính lúc đọc.
+- **VirusTotal chặn khi `malicious >= 1`**, không chặn theo `suspicious`: tệp tự
+  ký không chứng chỉ (đúng loại tsudev phát hành) hay bị gắn cờ heuristic.
+- **Niêm phong lại không còn "an toàn mọi lúc"**: tệp đã có sha256 mà kho ra băm
+  khác ⇒ 409 `LECH_TOAN_VEN`, không ký. Trước đó nút Niêm phong ký luôn tệp bị thay.
+- **Step-up chỉ nhận TOTP** (không mã dự phòng, chưa passkey). Token HMAC, khoá dẫn
+  xuất từ `INTERNAL_IDENTITY_SECRET`, buộc `sub` + `sessionVersion`, sống 5 phút.
+- **`SecurityEvent` giữ hai đường xoá hợp lệ**: tự dọn quá 90 ngày và cascade khi
+  xoá User. Vì thế chuỗi băm của nó theo TỪNG user; `TrustAuditLog` chuỗi toàn bảng.
+- **Giới hạn trung thực của G8**: trigger chặn ứng dụng, không chặn chủ CSDL (DROP
+  TRIGGER). Xoá dòng CUỐI chuỗi không lộ - cần neo băm ra ngoài (giai đoạn 3).
+- **Route cron gác bằng `RELEASE_INTEGRITY_TOKEN` riêng**, không bằng
+  `INTERNAL_API_TOKEN` (BFF cũng giữ token đó). Proxy BFF không mở `/api/internal`.
+
 ## 4. Lộ trình theo giai đoạn
 
 ### Giai đoạn 1 - Chặn cửa (P0, 1-2 phiên)
@@ -201,7 +237,10 @@ báo động; xoá một dòng nhật ký ở DB ⇒ trigger từ chối.
 1. Bật **2FA** (ưu tiên passkey/khoá phần cứng) cho tài khoản GitHub, Cloudflare,
    Render, Neon, và tài khoản `tsudev` trên site.
 2. Đổi mật khẩu Neon (đã lộ trong ảnh chụp phiên 33) rồi cập nhật `DATABASE_URL`.
-3. Tạo khoá API VirusTotal (miễn phí) khi tới giai đoạn 2.
+3. Tạo khoá API VirusTotal (miễn phí) và đặt `VIRUSTOTAL_API_KEY` ở Render
+   (giai đoạn 2 đã dựng xong mã, 06/11/2026). Sinh `RELEASE_INTEGRITY_TOKEN`
+   (`openssl rand -hex 32`), đặt CÙNG giá trị ở Render và Worker
+   (`npm run cron:secret-integrity`).
 4. Đồng ý bật branch protection (đổi cách làm việc: không còn push thẳng `main`).
 
 ## 6. Những gì KHÔNG làm, và vì sao
@@ -225,6 +264,8 @@ báo động; xoá một dòng nhật ký ở DB ⇒ trigger từ chối.
 
 - 05/11/2026 - soạn lần đầu (phiên 34); giai đoạn 0 (vá phụ thuộc, IP thật,
   kiểm duyệt nội dung) đã làm cùng ngày.
+- 06/11/2026 - giai đoạn 2 dựng xong (phiên 37): §2.4 trạng thái đóng, §3.5 hiện
+  trạng khác thiết kế.
 
 ## 9. Nguồn tham khảo đã rà trên máy dev (chỉ đọc)
 

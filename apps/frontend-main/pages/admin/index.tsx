@@ -15,6 +15,12 @@ const AREAS = [
     ready: true,
   },
   {
+    href: '/admin/release-security',
+    title: 'An ninh phát hành',
+    desc: 'Theo dõi toàn vẹn tệp cài đặt, quét mã độc, thu hồi bản phát hành (xác thực lại bằng TOTP), nhật ký chỉ-thêm.',
+    ready: true,
+  },
+  {
     href: '/admin/content',
     title: 'Kiểm duyệt nội dung',
     desc: 'Ẩn hoặc khôi phục hàng loạt bài viết, tài liệu - lọc riêng nội dung do Toà soạn AI (đã gỡ) sinh ra.',

@@ -320,6 +320,13 @@ model SecurityEvent {
   userAgent String?
   note      String?
   createdAt DateTime @default(now())
+  /// SHA-256 (hex) của dòng TRƯỚC của CÙNG tài khoản - chuỗi băm theo từng
+  /// userId (G8, docs/security-plan.md). Do TRIGGER đặt lúc INSERT, ứng dụng
+  /// không ghi. NULL = dòng đầu chuỗi. Chuỗi theo user chứ không toàn bảng vì
+  /// bảng này có hai đường xoá hợp lệ, cả hai cắt trọn ĐẦU chuỗi của một user:
+  /// tự dọn quá 90 ngày, và cascade khi purge tài khoản. Trigger chặn mọi UPDATE
+  /// và mọi DELETE khác (migration 20261106120000_an_ninh_phat_hanh).
+  prevHash  String?
 
   @@index([userId, createdAt])
   @@index([createdAt])
@@ -455,6 +462,11 @@ model TrustAuditLog {
   targetLabel String?
   note        String?
   createdAt   DateTime @default(now())
+  /// SHA-256 (hex) của dòng ngay trước trong toàn bảng - chuỗi băm (G8). Do
+  /// TRIGGER đặt lúc INSERT (kèm `createdAt` = clock_timestamp() dưới khoá
+  /// advisory, để thứ tự chuỗi trùng thứ tự thời gian). NULL = dòng đầu. Xoá một
+  /// dòng ở giữa làm đứt chuỗi; UPDATE/DELETE bị trigger chặn.
+  prevHash    String?
 
   @@index([createdAt])
   @@index([targetType, targetId])
@@ -488,6 +500,18 @@ enum ReleasePlatform {
   LINUX
   WEB
   SOURCE
+}
+
+/// Sự cố an ninh ĐÃ GHI NHẬN của một bản phát hành (G4, G5). Chỉ giữ các trạng
+/// thái là SỰ KIỆN đã xảy ra; các trạng thái suy được (chưa niêm phong, khoá đã
+/// nghỉ, đã thu hồi) do máy chủ tính lúc đọc - lưu chúng là để hai nguồn sự thật
+/// lệch nhau. Khác OK ⇒ không công bố được.
+enum ReleaseSecurityState {
+  OK
+  /// Băm lại tệp trong kho KHÔNG khớp sha256 đã ký ⇒ đã tự gỡ công bố.
+  LECH_TOAN_VEN
+  /// Tra băm trên VirusTotal có phát hiện ⇒ đã tự gỡ công bố.
+  NGHI_MA_DOC
 }
 
 /// Kênh phát hành. Trang công khai mặc định chỉ hiện STABLE.
@@ -642,6 +666,20 @@ model ProjectRelease {
   publishedAt   DateTime?
   deletedAt     DateTime?
 
+  // --- Trung tâm an ninh phát hành (docs/security-plan.md §3) ---
+  /// Sự cố đã ghi nhận. Trạng thái hiển thị đầy đủ tính ở content-service.
+  securityState   ReleaseSecurityState @default(OK)
+  /// Lần gần nhất máy chủ băm lại tệp trong kho và so với sha256 đã ký.
+  lastIntegrityAt DateTime?
+  /// Thu hồi: ẩn khỏi trang công khai, chặn link tải, GIỮ tệp để điều tra.
+  /// Bắt buộc kèm lý do và step-up (TOTP < 5 phút).
+  revokedAt       DateTime?
+  revokeReason    String?
+  /// Kết quả tra băm VirusTotal: { status, malicious, suspicious, checkedAt }.
+  /// `status` = CHUA_QUET (thiếu khoá - KHÔNG giả vờ đã quét) | CHUA_CO_DU_LIEU |
+  /// SACH | PHAT_HIEN | LOI. NULL = chưa từng tra.
+  scanResult      Json?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -651,4 +689,5 @@ model ProjectRelease {
   @@unique([projectId, version, platform, arch])
   @@index([projectId, publishedAt])
   @@index([deletedAt])
+  @@index([securityState])
 }

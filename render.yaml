@@ -82,6 +82,16 @@ services:
         sync: false
       - key: RELEASE_SIGNING_KEY_ID
         sync: false
+      # Trung tâm an ninh phát hành (docs/security-plan.md §3, 06/11/2026).
+      # RELEASE_INTEGRITY_TOKEN gác POST /api/internal/releases/integrity - PHẢI
+      # GIỐNG secret cùng tên ở Worker cron (`npm run cron:secret-integrity`).
+      # Thiếu ⇒ route 503 và cron log "BỎ QUA": G5 không được canh.
+      # VIRUSTOTAL_API_KEY: tra băm lúc niêm phong (gói free 4 lượt/phút). Thiếu
+      # ⇒ scanResult CHUA_QUET - không chặn, không giả vờ đã quét.
+      - key: RELEASE_INTEGRITY_TOKEN
+        sync: false
+      - key: VIRUSTOTAL_API_KEY
+        sync: false
       # Kênh báo động của `packages/observability/notify.js`. KHAI Ở ĐÂY nhưng
       # `sync: false` - blueprint nói rằng hai biến này TỒN TẠI, không giữ giá trị.
       #

@@ -41,6 +41,9 @@ const ALLOWED = new Set([
   'totp/setup',
   'totp/confirm',
   'totp/disable',
+  // Xác thực lại (step-up, G7): đổi mã TOTP lấy token 5 phút cho thao tác nguy
+  // hiểm ở /admin/release-security. Token đi tiếp trong THÂN request tới content.
+  'step-up',
   'passkey/register-options',
   'passkey/register-verify',
   'passkey/list',

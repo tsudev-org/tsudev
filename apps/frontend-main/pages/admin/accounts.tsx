@@ -2,7 +2,16 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/router';
 import Seo from '../../components/Seo';
 import { useSession, signIn } from 'next-auth/react';
-import { Layout, Card, Button, Badge, SectionHeading, RecordFooter } from '@tsudev/ui';
+import {
+  Layout,
+  Card,
+  Button,
+  Badge,
+  SectionHeading,
+  RecordFooter,
+  Modal,
+  Input,
+} from '@tsudev/ui';
 import type { BadgeTone } from '@tsudev/ui';
 import { formatDateTimeVN } from '../../lib/format';
 import { emailGraceRemainingMs } from '@tsudev/types';
@@ -11,7 +20,7 @@ import type { PageMeta } from '@tsudev/types';
 import { useUrlPaging, useUrlPagingSync } from '../../lib/useUrlPaging';
 import { EmailAliases } from '../../components/EmailAliases';
 import { MfaRequiredNotice } from '../../components/MfaRequiredNotice';
-import { isMfaRequired } from '../../lib/mfa';
+import { isMfaRequired, isStepUpRequired, requestStepUp } from '../../lib/mfa';
 import {
   AccountFilters,
   EMPTY_FILTER,
@@ -142,6 +151,20 @@ export default function AdminAccounts() {
    */
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
+  /**
+   * Xác thực lại (step-up, G7). Đổi vai trò và xoá tài khoản đòi mã TOTP < 5
+   * phút. Token giữ trong bộ nhớ trang (KHÔNG localStorage) để vài thao tác liền
+   * nhau không phải gõ mã lại; máy chủ vẫn là nơi quyết định - hết hạn hay bị
+   * thu hồi thì nó trả STEP_UP_REQUIRED và hộp nhập mã mở lại.
+   */
+  const stepUpRef = useRef<{ token: string; expiresAt: number } | null>(null);
+  const [stepUpPrompt, setStepUpPrompt] = useState<{
+    label: string;
+    run: (token: string) => Promise<void>;
+  } | null>(null);
+  const [stepUpCode, setStepUpCode] = useState('');
+  const [stepUpError, setStepUpError] = useState('');
+  const [stepUpBusy, setStepUpBusy] = useState(false);
 
   // Khoá phụ thuộc của `load`. Dùng chuỗi hoá thay vì chính object: `filter` là
   // object mới mỗi lần dựng, nên đặt nó vào deps là tải lại vô hạn.
@@ -303,12 +326,65 @@ export default function AdminAccounts() {
     load();
   }
 
+  /**
+   * Gọi một thao tác đòi step-up. Có token còn hạn thì dùng luôn; máy chủ đòi
+   * xác thực lại (thiếu/hết hạn) thì mở hộp nhập TOTP rồi chạy lại đúng thao tác
+   * đó sau khi có token mới.
+   */
+  async function guarded(
+    action: 'useradmin/role' | 'useradmin/delete',
+    body: Record<string, unknown>,
+    label: string,
+    onOk: () => void
+  ) {
+    const attempt = async (token: string | null) => {
+      const r = await call(action, token ? { ...body, stepUp: token } : body);
+      if (isStepUpRequired(r.status, r.data)) {
+        stepUpRef.current = null;
+        setStepUpCode('');
+        setStepUpError(token ? 'Phiên xác thực lại đã hết hạn - nhập mã TOTP mới.' : '');
+        setStepUpPrompt({ label, run: (t) => attempt(t) });
+        return;
+      }
+      setStepUpPrompt(null);
+      if (!r.ok) return fail(r);
+      onOk();
+    };
+    const cached = stepUpRef.current;
+    await attempt(cached && cached.expiresAt - 15_000 > Date.now() ? cached.token : null);
+  }
+
+  async function submitStepUp(e: React.FormEvent) {
+    e.preventDefault();
+    if (!stepUpPrompt) return;
+    if (!/^\d{6}$/.test(stepUpCode.trim())) return setStepUpError('Nhập mã TOTP 6 chữ số.');
+    setStepUpBusy(true);
+    setStepUpError('');
+    const got = await requestStepUp(stepUpCode.trim());
+    if (!got) {
+      setStepUpBusy(false);
+      return setStepUpError('Mã TOTP không đúng hoặc đã hết hạn.');
+    }
+    const exp = Date.parse(got.expiresAt);
+    stepUpRef.current = {
+      token: got.token,
+      expiresAt: Number.isFinite(exp) ? exp : Date.now() + 4 * 60_000,
+    };
+    await stepUpPrompt.run(got.token);
+    setStepUpBusy(false);
+  }
+
   async function changeRole(u: AccountRow, role: string) {
     if (role === u.role) return;
-    const r = await call('useradmin/role', { id: u.id, role });
-    if (!r.ok) return fail(r);
-    flash('success', `Vai trò của "${u.username}" → ${ROLE_LABEL[role]}.`);
-    load();
+    await guarded(
+      'useradmin/role',
+      { id: u.id, role },
+      `Đổi vai trò của "${u.username}" → ${ROLE_LABEL[role]}`,
+      () => {
+        flash('success', `Vai trò của "${u.username}" → ${ROLE_LABEL[role]}.`);
+        load();
+      }
+    );
   }
 
   async function revoke(u: AccountRow) {
@@ -364,10 +440,10 @@ export default function AdminAccounts() {
 
   async function remove(u: AccountRow) {
     if (!confirm(`Xoá vĩnh viễn tài khoản "${u.username}"? Không thể hoàn tác.`)) return;
-    const r = await call('useradmin/delete', { id: u.id });
-    if (!r.ok) return fail(r);
-    flash('success', `Đã xoá tài khoản "${u.username}".`);
-    load();
+    await guarded('useradmin/delete', { id: u.id }, `Xoá vĩnh viễn "${u.username}"`, () => {
+      flash('success', `Đã xoá tài khoản "${u.username}".`);
+      load();
+    });
   }
 
   if (status === 'loading' || (!booted && loading))
@@ -707,6 +783,42 @@ export default function AdminAccounts() {
           onPage={setPage}
         />
       </Card>
+      <Modal
+        open={stepUpPrompt !== null}
+        onClose={() => setStepUpPrompt(null)}
+        title="Xác thực lại"
+      >
+        {stepUpPrompt && (
+          <form className="space-y-4" onSubmit={submitStepUp}>
+            <p className="text-sm text-fg-secondary">
+              {stepUpPrompt.label}. Thao tác này cần mã TOTP từ ứng dụng xác thực; mã đổi lấy phiên
+              xác thực lại 5 phút.
+            </p>
+            <Input
+              id="ua-stepup-code"
+              label="Mã TOTP"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              value={stepUpCode}
+              onChange={(e) => setStepUpCode(e.target.value)}
+              placeholder="6 chữ số"
+            />
+            {stepUpError && (
+              <p className="text-sm text-danger-ink" role="alert">
+                {stepUpError}
+              </p>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="secondary" onClick={() => setStepUpPrompt(null)}>
+                Huỷ
+              </Button>
+              <Button type="submit" disabled={stepUpBusy}>
+                {stepUpBusy ? 'Đang xử lý…' : 'Xác nhận'}
+              </Button>
+            </div>
+          </form>
+        )}
+      </Modal>
     </Layout>
   );
 }

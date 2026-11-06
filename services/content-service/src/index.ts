@@ -20,11 +20,13 @@ import {
   internalTokenMatches,
   lookupUser,
   requireSecondFactor,
+  requireStepUp,
 } from '@tsudev/auth'
 import { createRateLimit, identityKey, largePageRateLimit, peerIp } from '@tsudev/ratelimit'
 import type { Doc, Post, Prisma, Project, ProjectRelease, User } from '@prisma/client'
 import { hasAtLeastRole, emailUsable, pageMeta, parsePaging, MAX_PAGE_SIZE } from '@tsudev/types'
 import * as releaseSigning from './releaseSigning'
+import * as anNinh from './releaseSecurity'
 import {
   store as objectStore,
   MAX_RELEASE_BYTES,
@@ -32,7 +34,7 @@ import {
   loaiTepPhatHanh,
   tenTepTrongKho,
 } from './objectStore'
-import { randomBytes } from 'crypto'
+import { createHash, randomBytes, timingSafeEqual } from 'crypto'
 import { buildDocSearch, buildPostSearch, buildSnippet, viNormalizeText } from '@tsudev/search'
 
 type Notifier = { alert: (payload: Record<string, unknown>) => Promise<void> }
@@ -651,6 +653,12 @@ async function requireAdmin(req: Request, res: Response): Promise<User | null> {
   return user
 }
 
+/** Người thao tác, dạng mà nhật ký `TrustAuditLog` lưu. */
+const tacNhanCua = (u: Pick<User, 'id' | 'username' | 'displayName'>): anNinh.TacNhan => ({
+  id: u.id,
+  name: u.displayName || u.username,
+})
+
 const projectCard = (p: Project) => ({
   id: p.id,
   slug: p.slug,
@@ -852,10 +860,10 @@ app.get(
     const channel = qStr(req.query.channel)
     const where: Prisma.ProjectReleaseWhereInput = {
       projectId: project.id,
-      deletedAt: null,
-      // `publishedAt: null` nghĩa là bản nháp. Điều kiện `not: null` ở đây là
-      // thứ duy nhất ngăn một bản chưa sẵn sàng lọt ra trang công khai.
-      publishedAt: { not: null },
+      // Bản nháp (`publishedAt: null`), đã thu hồi, hay đang có sự cố an ninh
+      // (lệch toàn vẹn, nghi mã độc) KHÔNG lọt ra trang công khai. Một điều kiện
+      // dùng chung cho mọi đường đọc công khai: releaseSecurity.ts `CONG_KHAI`.
+      ...anNinh.CONG_KHAI,
     }
     if (channel && RELEASE_CHANNELS.has(channel))
       where.channel = channel as Prisma.ProjectReleaseWhereInput['channel']
@@ -893,8 +901,7 @@ app.get(
         deletedAt: null,
         releases: {
           some: {
-            deletedAt: null,
-            publishedAt: { not: null },
+            ...anNinh.CONG_KHAI,
             channel: kenh as Prisma.ProjectReleaseWhereInput['channel'],
           },
         },
@@ -904,8 +911,7 @@ app.get(
       include: {
         releases: {
           where: {
-            deletedAt: null,
-            publishedAt: { not: null },
+            ...anNinh.CONG_KHAI,
             channel: kenh as Prisma.ProjectReleaseWhereInput['channel'],
           },
           orderBy: [{ publishedAt: 'desc' }],
@@ -937,8 +943,9 @@ app.get(
     const release = await prisma.projectRelease.findFirst({
       where: {
         id: req.params.id,
-        deletedAt: null,
-        publishedAt: { not: null },
+        // Thu hồi / lệch toàn vẹn / nghi mã độc ⇒ link tải chết ngay (404), kể cả
+        // link đã được chia sẻ ra ngoài trước đó.
+        ...anNinh.CONG_KHAI,
         project: { slug: req.params.slug, published: true, deletedAt: null },
       },
       select: { id: true, storageKey: true, externalUrl: true, fileName: true },
@@ -1257,12 +1264,34 @@ app.post(
 app.patch(
   '/api/admin/releases/:id',
   asyncHandler(async (req, res) => {
-    if (!(await requireAdmin(req, res))) return
+    const admin = await requireAdmin(req, res)
+    if (!admin) return
     const current = await prisma.projectRelease.findUnique({ where: { id: String(req.params.id) } })
     if (!current) return res.status(404).json({ error: 'Không tìm thấy bản phát hành' })
 
     const parsed = readReleaseBody(req.body, { partial: true })
     if (!parsed.ok) return res.status(400).json({ error: parsed.error })
+
+    // Trung tâm an ninh (B3): bản đang thu hồi hoặc có sự cố (lệch toàn vẹn, nghi
+    // mã độc) KHÔNG công bố được, và KHÔNG đổi tệp được - tệp đó là bằng chứng
+    // điều tra, và phiên bản đã ký là bất biến (muốn sửa thì phát hành bản mới).
+    const coSuCo = Boolean(current.revokedAt) || current.securityState !== 'OK'
+    if (coSuCo && parsed.data.publishedAt)
+      return res.status(409).json({
+        code: 'KHONG_CONG_BO_DUOC',
+        error: current.revokedAt
+          ? 'bản phát hành đã bị thu hồi - khôi phục ở /admin/release-security trước'
+          : `bản phát hành đang có sự cố an ninh (${current.securityState}) - không công bố được`,
+      })
+    if (
+      coSuCo &&
+      parsed.data.storageKey !== undefined &&
+      parsed.data.storageKey !== current.storageKey
+    )
+      return res.status(409).json({
+        code: 'GIU_TEP_DIEU_TRA',
+        error: 'bản đang thu hồi/có sự cố giữ nguyên tệp để điều tra - phát hành phiên bản mới',
+      })
 
     const ghep: Record<string, unknown> = { ...current, ...parsed.data }
     const loiSha = shaTuClientChoTep(ghep, parsed.data)
@@ -1318,6 +1347,13 @@ app.patch(
         ...kyLaiNeuCo(slug, ghep),
       } as Prisma.ProjectReleaseUncheckedUpdateInput,
     })
+    if (Boolean(current.publishedAt) !== Boolean(r.publishedAt))
+      await anNinh.ghiNhatKy(
+        tacNhanCua(admin),
+        r.publishedAt ? 'RELEASE_PUBLISH' : 'RELEASE_UNPUBLISH',
+        r,
+        slug
+      )
     res.json(r)
   })
 )
@@ -1444,7 +1480,8 @@ app.post(
 app.post(
   '/api/admin/releases/:id/seal',
   asyncHandler(async (req, res) => {
-    if (!(await requireAdmin(req, res))) return
+    const admin = await requireAdmin(req, res)
+    if (!admin) return
     const current = await prisma.projectRelease.findUnique({
       where: { id: String(req.params.id) },
       include: { project: { select: { slug: true } } },
@@ -1455,6 +1492,15 @@ app.post(
       return res
         .status(409)
         .json({ error: 'Chỉ niêm phong được bản có tệp trong R2 (không phải đường dẫn ngoài)' })
+    // Niêm phong lại một tệp ĐÃ LỆCH là KÝ tệp bị thay - chính thứ cơ chế này tồn
+    // tại để chặn. Bản thu hồi giữ nguyên trạng thái để điều tra.
+    if (current.revokedAt || current.securityState === 'LECH_TOAN_VEN')
+      return res.status(409).json({
+        code: 'KHONG_NIEM_PHONG_LAI',
+        error: current.revokedAt
+          ? 'bản đã thu hồi không niêm phong lại được'
+          : 'tệp đang lệch toàn vẹn - không ký lại tệp bị thay; phát hành phiên bản mới',
+      })
 
     const loiKhoa = loiKhoaKhongThuocDuAn(current.project.slug, current.storageKey)
     if (loiKhoa) return res.status(422).json({ code: 'STORAGE_KEY_SAI_DU_AN', error: loiKhoa })
@@ -1497,13 +1543,310 @@ app.post(
       })
     }
 
+    // Tệp ĐÃ niêm phong mà băm lại ra số khác ⇒ bị thay trong kho. Khoá object do
+    // máy chủ cấp, ngẫu nhiên cho MỖI lượt tải lên, và đổi tệp hợp lệ đi qua PATCH
+    // storageKey (xoá sha256 cũ) - nên cùng một khoá không bao giờ có tệp mới hợp
+    // lệ. Trước 06/11/2026 nhánh này ký luôn tệp mới: "gọi lại nhiều lần là an
+    // toàn" đúng với kho chập chờn, nhưng biến nút Niêm phong thành nút hợp thức
+    // hoá tệp bị thay.
+    const actor = tacNhanCua(admin)
+    if (current.sha256 && current.sha256 !== doc.sha256) {
+      await anNinh.danhDauLech(
+        current,
+        actor,
+        `niêm phong lại: kho ${doc.sha256} (${doc.size} B) ≠ đã ký ${current.sha256}`
+      )
+      return res.status(409).json({
+        code: 'LECH_TOAN_VEN',
+        error:
+          'tệp trong kho KHÔNG khớp sha256 đã niêm phong - đã đánh dấu lệch toàn vẹn và gỡ công bố',
+      })
+    }
+
     const { project, ...hang } = current
     const ghep: Record<string, unknown> = { ...hang, sha256: doc.sha256, fileSize: doc.size }
     const r = await prisma.projectRelease.update({
       where: { id: current.id },
-      data: { sha256: doc.sha256, fileSize: doc.size, ...kyLaiNeuCo(project.slug, ghep) },
+      data: {
+        sha256: doc.sha256,
+        fileSize: doc.size,
+        lastIntegrityAt: new Date(),
+        ...kyLaiNeuCo(project.slug, ghep),
+      },
     })
-    res.json(r)
+    await anNinh.ghiNhatKy(actor, 'RELEASE_SEAL', r, project.slug, `sha256=${doc.sha256}`)
+    // Quét mã độc (G4): tra BĂM trên VirusTotal. Có phát hiện ⇒ NGHI_MA_DOC, chặn
+    // công bố. Thiếu khoá ⇒ ghi CHUA_QUET, không chặn, không giả vờ đã quét.
+    const scan = await anNinh.traVirusTotal(doc.sha256)
+    await anNinh.apDungKetQuaQuet({ ...r, project }, scan, actor)
+    res.json(await prisma.projectRelease.findUnique({ where: { id: r.id } }))
+  })
+)
+
+// ---------------------------------------------------------------------------
+// TRUNG TÂM AN NINH PHÁT HÀNH (docs/security-plan.md §3, B3)
+//
+// Mọi route dưới /api/admin tự gọi requireAdmin() (vai trò từ DB + ép TOTP).
+// Thu hồi / khôi phục / ký lại còn đòi STEP-UP (TOTP < 5 phút, `requireStepUp`)
+// và lý do bắt buộc. Trạng thái an ninh tính Ở MÁY CHỦ (`trangThaiAnNinh`).
+// ---------------------------------------------------------------------------
+
+const TRANG_THAI_AN_NINH: readonly anNinh.TrangThaiAnNinh[] = [
+  'OK',
+  'CHUA_NIEM_PHONG',
+  'KHOA_DA_NGHI',
+  'LECH_TOAN_VEN',
+  'NGHI_MA_DOC',
+  'DA_THU_HOI',
+  'CHU_KY_LOI',
+  'DUONG_DAN_NGOAI',
+]
+
+/** Lý do thu hồi/khôi phục: bắt buộc, đủ dài để còn nghĩa khi đọc lại sau nửa năm. */
+function docLyDo(body: unknown): string | null {
+  const v = (body ?? {}) as Record<string, unknown>
+  const lyDo = typeof v.reason === 'string' ? v.reason.trim() : ''
+  return lyDo.length >= 10 && lyDo.length <= 500 ? lyDo : null
+}
+
+/// Bảng kê tài sản: mọi bản phát hành chưa xoá + trạng thái an ninh tính ở máy
+/// chủ. Lọc `project` (slug), `platform`, `state`; phân trang `page`/`page_size`.
+/// Lọc theo trạng thái làm TRONG bộ nhớ vì trạng thái là giá trị tính (kiểm chữ
+/// ký), không phải cột - số bản phát hành của một người vận hành là hàng chục.
+app.get(
+  '/api/admin/release-security',
+  asyncHandler(async (req, res) => {
+    if (!(await requireAdmin(req, res))) return
+    const paging = parsePaging(req.query)
+    const slug = qStr(req.query.project)?.trim()
+    const platform = qStr(req.query.platform)?.trim()
+    const state = qStr(req.query.state)?.trim()
+    if (platform && !RELEASE_PLATFORMS.has(platform))
+      return res.status(400).json({ error: `platform không hợp lệ: ${platform}` })
+    if (state && !TRANG_THAI_AN_NINH.includes(state as anNinh.TrangThaiAnNinh))
+      return res.status(400).json({ error: `state không hợp lệ: ${state}` })
+
+    const rows = await prisma.projectRelease.findMany({
+      where: {
+        deletedAt: null,
+        ...(slug ? { project: { slug } } : {}),
+        ...(platform ? { platform: platform as Prisma.ProjectReleaseWhereInput['platform'] } : {}),
+      },
+      include: { project: { select: { slug: true, name: true } } },
+      orderBy: [{ createdAt: 'desc' }],
+    })
+    const now = Date.now()
+    const all = rows.map((r) => {
+      const tt = anNinh.trangThaiAnNinh(r)
+      return {
+        id: r.id,
+        project: r.project,
+        version: r.version,
+        channel: r.channel,
+        platform: r.platform,
+        arch: r.arch || null,
+        fileName: r.fileName,
+        fileSize: r.fileSize,
+        sha256: r.sha256,
+        signingKid: r.signingKid,
+        hasFile: Boolean(r.storageKey),
+        externalUrl: r.externalUrl,
+        createdAt: r.createdAt,
+        publishedAt: r.publishedAt,
+        downloadCount: r.downloadCount,
+        lastIntegrityAt: r.lastIntegrityAt,
+        integrityStale:
+          Boolean(r.storageKey && r.sha256) &&
+          (!r.lastIntegrityAt || now - r.lastIntegrityAt.getTime() > anNinh.TOAN_VEN_QUA_HAN_MS),
+        revokedAt: r.revokedAt,
+        revokeReason: r.revokeReason,
+        scanResult: r.scanResult,
+        state: tt.state,
+        stateDetail: tt.detail,
+      }
+    })
+    const summary = Object.fromEntries(TRANG_THAI_AN_NINH.map((t) => [t, 0])) as Record<
+      anNinh.TrangThaiAnNinh,
+      number
+    >
+    for (const r of all) summary[r.state]++
+    const loc = state ? all.filter((r) => r.state === state) : all
+    res.json({
+      items: loc.slice(paging.skip, paging.skip + paging.take),
+      summary,
+      currentKid: releaseSigning.kid,
+      virusTotalConfigured: Boolean(process.env.VIRUSTOTAL_API_KEY),
+      ...pageMeta(loc.length, paging),
+    })
+  })
+)
+
+/// Kiểm chuỗi băm của nhật ký quản trị (G8). Đứt chuỗi = có dòng bị xoá ở giữa.
+app.get(
+  '/api/admin/release-security/audit-chain',
+  asyncHandler(async (req, res) => {
+    if (!(await requireAdmin(req, res))) return
+    const kq = await anNinh.kiemChuoiNhatKy()
+    res.json({ ok: kq.breaks.length === 0, ...kq })
+  })
+)
+
+/// Lịch sử một bản phát hành (niêm phong, công bố, kiểm toàn vẹn, thu hồi...),
+/// đọc từ nhật ký CHỈ-THÊM.
+app.get(
+  '/api/admin/releases/:id/history',
+  asyncHandler(async (req, res) => {
+    if (!(await requireAdmin(req, res))) return
+    const items = await prisma.trustAuditLog.findMany({
+      where: { targetType: 'ProjectRelease', targetId: String(req.params.id) },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: 200,
+      select: { id: true, actorName: true, action: true, note: true, createdAt: true },
+    })
+    res.json({ items })
+  })
+)
+
+/// Kiểm lại toàn vẹn NGAY (băm lại tệp trong kho, so sha256 đã ký).
+app.post(
+  '/api/admin/releases/:id/integrity',
+  asyncHandler(async (req, res) => {
+    const admin = await requireAdmin(req, res)
+    if (!admin) return
+    const kq = await anNinh.kiemToanVen(String(req.params.id), tacNhanCua(admin))
+    if (kq.ketQua === 'BO_QUA' && kq.lyDo === 'không tìm thấy')
+      return res.status(404).json({ error: 'Không tìm thấy bản phát hành' })
+    if (kq.ketQua === 'LOI') return res.status(502).json({ ...kq, error: kq.lyDo })
+    res.json(kq)
+  })
+)
+
+/// THU HỒI: ẩn khỏi trang công khai, chặn link tải, GIỮ tệp để điều tra.
+/// ADMIN + step-up + lý do. Không xoá, không đổi publishedAt (khôi phục trả lại
+/// đúng trạng thái công bố trước đó).
+app.post(
+  '/api/admin/releases/:id/revoke',
+  asyncHandler(async (req, res) => {
+    const admin = await requireAdmin(req, res)
+    if (!admin) return
+    if (!requireStepUp(req, res, admin)) return
+    const lyDo = docLyDo(req.body)
+    if (!lyDo)
+      return res.status(400).json({ code: 'THIEU_LY_DO', error: 'lý do bắt buộc, 10-500 ký tự' })
+    const r = await prisma.projectRelease.findUnique({
+      where: { id: String(req.params.id) },
+      include: { project: { select: { slug: true } } },
+    })
+    if (!r || r.deletedAt) return res.status(404).json({ error: 'Không tìm thấy bản phát hành' })
+    if (r.revokedAt) return res.status(409).json({ code: 'DA_THU_HOI', error: 'đã thu hồi rồi' })
+    const sau = await prisma.projectRelease.update({
+      where: { id: r.id },
+      data: { revokedAt: new Date(), revokeReason: lyDo },
+    })
+    await anNinh.ghiNhatKy(tacNhanCua(admin), 'RELEASE_REVOKE', r, r.project.slug, lyDo)
+    res.json(sau)
+  })
+)
+
+/// KHÔI PHỤC bản đã thu hồi. Cùng mức bảo vệ với thu hồi. Bản còn sự cố an ninh
+/// (lệch toàn vẹn, nghi mã độc) vẫn bị bộ lọc công khai chặn sau khi khôi phục.
+app.post(
+  '/api/admin/releases/:id/restore',
+  asyncHandler(async (req, res) => {
+    const admin = await requireAdmin(req, res)
+    if (!admin) return
+    if (!requireStepUp(req, res, admin)) return
+    const lyDo = docLyDo(req.body)
+    if (!lyDo)
+      return res.status(400).json({ code: 'THIEU_LY_DO', error: 'lý do bắt buộc, 10-500 ký tự' })
+    const r = await prisma.projectRelease.findUnique({
+      where: { id: String(req.params.id) },
+      include: { project: { select: { slug: true } } },
+    })
+    if (!r || r.deletedAt) return res.status(404).json({ error: 'Không tìm thấy bản phát hành' })
+    if (!r.revokedAt)
+      return res.status(409).json({ code: 'CHUA_THU_HOI', error: 'bản này chưa bị thu hồi' })
+    const sau = await prisma.projectRelease.update({
+      where: { id: r.id },
+      data: { revokedAt: null, revokeReason: null },
+    })
+    await anNinh.ghiNhatKy(
+      tacNhanCua(admin),
+      'RELEASE_RESTORE',
+      r,
+      r.project.slug,
+      `${lyDo} (lý do thu hồi trước: ${r.revokeReason ?? '-'})`
+    )
+    res.json(sau)
+  })
+)
+
+/// KÝ LẠI bằng khoá hiện hành (sau xoay khoá). OWNER + step-up. Chỉ ký lại
+/// sha256 ĐÃ có - không đọc lại tệp; bản có sự cố hoặc chữ ký hỏng thì không.
+app.post(
+  '/api/admin/releases/:id/resign',
+  asyncHandler(async (req, res) => {
+    const admin = await requireAdmin(req, res)
+    if (!admin) return
+    if (admin.role !== 'OWNER')
+      return res.status(403).json({ error: 'Chỉ OWNER được ký lại bản phát hành' })
+    if (!requireStepUp(req, res, admin)) return
+    const r = await prisma.projectRelease.findUnique({
+      where: { id: String(req.params.id) },
+      include: { project: { select: { slug: true } } },
+    })
+    if (!r || r.deletedAt) return res.status(404).json({ error: 'Không tìm thấy bản phát hành' })
+    const tt = anNinh.trangThaiAnNinh(r)
+    if (tt.state !== 'KHOA_DA_NGHI' && tt.state !== 'OK')
+      return res.status(409).json({
+        code: 'KHONG_KY_LAI_DUOC',
+        error: `trạng thái ${tt.state} - chỉ ký lại bản OK hoặc ký bằng khoá đã nghỉ`,
+      })
+    const { project, ...hang } = r
+    const sau = await prisma.projectRelease.update({
+      where: { id: r.id },
+      data: kyLaiNeuCo(project.slug, hang as Record<string, unknown>),
+    })
+    await anNinh.ghiNhatKy(
+      tacNhanCua(admin),
+      'RELEASE_RESIGN',
+      r,
+      project.slug,
+      `${r.signingKid ?? '-'} → ${sau.signingKid}`
+    )
+    res.json(sau)
+  })
+)
+
+/// LƯỢT KIỂM THEO LỊCH - chỉ Worker cron `canh-site-cron` gọi (B4).
+///
+/// Gác bằng bí mật RIÊNG `RELEASE_INTEGRITY_TOKEN` (header
+/// `x-release-integrity-token`), KHÔNG bằng INTERNAL_API_TOKEN: BFF cũng giữ
+/// token đó và gắn nó vào mọi request nó chuyển tiếp. Thiếu bí mật ⇒ 503 (fail
+/// closed - không có chế độ "để trống là mở"). Nằm ngoài /api/admin vì không có
+/// người dùng nào đứng sau.
+const INTEGRITY_TOKEN = process.env.RELEASE_INTEGRITY_TOKEN || ''
+const khopTokenKiem = (got: unknown): boolean => {
+  if (!INTEGRITY_TOKEN || typeof got !== 'string' || !got) return false
+  const a = createHash('sha256').update(got).digest()
+  const b = createHash('sha256').update(INTEGRITY_TOKEN).digest()
+  return timingSafeEqual(a, b)
+}
+app.post(
+  '/api/internal/releases/integrity',
+  asyncHandler(async (req, res) => {
+    if (!INTEGRITY_TOKEN)
+      return res.status(503).json({ error: 'RELEASE_INTEGRITY_TOKEN chưa cấu hình' })
+    if (!khopTokenKiem(req.get('x-release-integrity-token')))
+      return res.status(401).json({ error: 'sai hoặc thiếu x-release-integrity-token' })
+    const b = (req.body ?? {}) as Record<string, unknown>
+    const nganSach = Math.min(Math.max(Number(b.budgetMs) || 120_000, 1_000), 600_000)
+    const bc = await anNinh.luotKiemTheoLich(nganSach)
+    console.log(
+      `[release-security] lượt kiểm: ${bc.checked} tệp, khớp ${bc.khop}, lệch ${bc.lech.length}, ` +
+        `lỗi ${bc.loi.length}, còn ${bc.conLai}, tra lại VirusTotal ${bc.quetLai}`
+    )
+    res.json(bc)
   })
 )
 

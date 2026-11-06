@@ -3,7 +3,14 @@ export {};
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { MFA_REQUIRED, MFA_SETUP_PATH, MfaRequiredError, isMfaRequired } from '../lib/mfa';
+import {
+  MFA_REQUIRED,
+  MFA_SETUP_PATH,
+  MfaRequiredError,
+  STEP_UP_REQUIRED,
+  isMfaRequired,
+  isStepUpRequired,
+} from '../lib/mfa';
 
 /**
  * Backend trả 403 `{ error, code: 'MFA_REQUIRED' }` khi ADMIN/OWNER chưa bật 2FA.
@@ -41,7 +48,30 @@ describe('isMfaRequired', () => {
   });
 });
 
+describe('isStepUpRequired', () => {
+  test('401 + code STEP_UP_REQUIRED ⇒ true', () => {
+    expect(isStepUpRequired(401, { error: 'x', code: 'STEP_UP_REQUIRED' })).toBe(true);
+  });
+  test('401 thường (chưa đăng nhập) ⇒ false', () => {
+    expect(isStepUpRequired(401, { error: 'unauthenticated' })).toBe(false);
+    expect(isStepUpRequired(403, { code: 'STEP_UP_REQUIRED' })).toBe(false);
+    expect(isStepUpRequired(401, null)).toBe(false);
+  });
+});
+
 describe('hợp đồng với backend', () => {
+  test('STEP_UP_REQUIRED khớp hằng của @tsudev/auth', () => {
+    const src = readFileSync(join(__dirname, '../../../packages/auth/src/index.ts'), 'utf8');
+    expect(src).toMatch(new RegExp(`export const STEP_UP_REQUIRED = '${STEP_UP_REQUIRED}'`));
+  });
+
+  test('trang tài khoản xử lý step-up cho đổi vai trò và xoá (G7)', () => {
+    const src = readFileSync(join(__dirname, '../pages/admin/accounts.tsx'), 'utf8');
+    expect(src).toContain('isStepUpRequired(');
+    expect(src).toMatch(/guarded\(\s*'useradmin\/role'/);
+    expect(src).toMatch(/guarded\(\s*'useradmin\/delete'/);
+  });
+
   test('hằng cục bộ khớp hằng của @tsudev/auth (quét nguồn - app không được import package đó)', () => {
     const src = readFileSync(join(__dirname, '../../../packages/auth/src/index.ts'), 'utf8');
     expect(src).toMatch(new RegExp(`export const MFA_REQUIRED = '${MFA_REQUIRED}'`));

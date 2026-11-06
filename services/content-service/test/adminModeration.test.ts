@@ -23,6 +23,7 @@ const asUser = async (sub: string) => ({
 const clean = () =>
   prisma.$transaction([
     prisma.$executeRawUnsafe(`SET LOCAL tsudev.allow_hard_delete = 'on'`),
+    prisma.$executeRawUnsafe(`SET LOCAL tsudev.allow_audit_purge = 'on'`),
     prisma.$executeRawUnsafe(`DELETE FROM "Doc" WHERE slug LIKE '${PREFIX}%'`),
     prisma.$executeRawUnsafe(`DELETE FROM "Post" WHERE slug LIKE '${PREFIX}%'`),
     prisma.$executeRawUnsafe(`DELETE FROM "TrustAuditLog" WHERE "targetLabel" LIKE '${PREFIX}%'`),
