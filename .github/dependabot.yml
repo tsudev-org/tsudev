@@ -42,6 +42,20 @@ updates:
         update-types: ['version-update:semver-major']
       - dependency-name: 'jose'
         update-types: ['version-update:semver-major']
+      # Storybook + Vite major bị bỏ qua có chủ đích (#169, #170 đóng 06/11/2026).
+      # Dependabot nâng TỪNG gói: #169 đưa `storybook` lên 10 trong khi
+      # `@storybook/react-vite` ở lại 8 (peer `storybook ^8.6.18`), #170 đưa vite
+      # lên 8 trong khi builder của Storybook 8 chỉ nhận vite <=6. Cả hai CI XANH
+      # vì Storybook không nằm trong CI. Lên 10 là một cuộc di trú: addon-essentials
+      # không có bản sau 8 (đã gộp vào lõi), cấu hình `.storybook/main.js` phải
+      # thành ESM. Gỡ ba dòng này khi lên kế hoạch nâng, và nghiệm thu bằng cách
+      # ĐẾM story vẽ ra được (docs/design-system.md §Storybook).
+      - dependency-name: 'storybook'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@storybook/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'vite'
+        update-types: ['version-update:semver-major']
     groups:
       dev-dependencies:
         dependency-type: development
@@ -80,6 +94,13 @@ updates:
     labels: [dependencies, docker]
     commit-message:
       prefix: 'chore(docker)'
+    # CHỈ nhận digest/minor của dòng đang chạy - #164 (đóng 06/11/2026) đổi
+    # `22-bookworm-slim` thành `25-bookworm-slim`: Node 25 là bản lẻ, không LTS,
+    # hết hỗ trợ sau vài tháng, và production (Render) chạy Node 22. Lên LTS kế
+    # tiếp là việc có kế hoạch: `engines` + `node-version` của CI cùng lúc với ảnh nền.
+    ignore:
+      - dependency-name: 'node'
+        update-types: ['version-update:semver-major']
     groups:
       docker-images:
         patterns: ['*']
