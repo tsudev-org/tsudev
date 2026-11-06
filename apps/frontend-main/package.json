@@ -14,7 +14,7 @@
     "test": "NODE_ENV=test jest --runInBand"
   },
   "dependencies": {
-    "@simplewebauthn/browser": "13.2.2",
+    "@simplewebauthn/browser": "14.0.0",
     "@tsudev/identity-token": "*",
     "@tsudev/search": "*",
     "@tsudev/types": "*",
