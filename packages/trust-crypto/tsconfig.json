@@ -5,8 +5,8 @@
     // không có chúng. Đây thuần tuý là khai báo KIỂU: gói này chạy trên Node và
     // không đụng tới bất kỳ API DOM nào.
     "lib": ["ES2022", "DOM"],
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "rootDir": "js",
     "outDir": "dist",
     "types": ["node"]
