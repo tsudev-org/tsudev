@@ -195,14 +195,21 @@ export default function DownloadModal({ open, onClose, project, releases }: Down
 
   const [dangChon, setDangChon] = useState<ReleasePlatform | null>(null);
 
-  // Chọn mặc định khi MỞ, không phải lúc dựng component: phép đoán đọc
-  // `navigator` nên nó chỉ chạy ở client, và chạy nó trong lần render đầu sẽ
-  // làm server và client cho ra hai kết quả khác nhau (hydration mismatch).
-  useEffect(() => {
-    if (!open) return;
-    const doan = nenTangCuaThietBi();
-    setDangChon(doan && coSan.includes(doan) ? doan : (coSan[0] ?? null));
-  }, [open, coSan]);
+  // Chọn mặc định khi MỞ (hoặc khi danh sách nền tảng đổi lúc đang mở), không
+  // phải lúc dựng component: phép đoán đọc `navigator`, và modal chỉ mở bằng một
+  // cú bấm - tức là luôn ở client, sau hydrat. Làm ngay trong render (so với lần
+  // trước) thay vì trong effect: effect vẽ một khung chưa chọn gì rồi vẽ lại.
+  const [daXet, setDaXet] = useState<{ open: boolean; coSan: ReleasePlatform[] }>({
+    open: false,
+    coSan,
+  });
+  if (daXet.open !== open || (open && daXet.coSan !== coSan)) {
+    setDaXet({ open, coSan });
+    if (open) {
+      const doan = nenTangCuaThietBi();
+      setDangChon(doan && coSan.includes(doan) ? doan : (coSan[0] ?? null));
+    }
+  }
 
   const dsHienTai = dangChon ? theoNenTang.get(dangChon) || [] : [];
 

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Badge, Input, Icon } from '@tsudev/ui';
 
 import { formatDateTimeVN } from '../lib/format';
+import { useLoader } from '../lib/useLoader';
 import { MfaRequiredError, isMfaRequired } from '../lib/mfa';
 import {
   acceptCho,
@@ -150,40 +151,45 @@ export default function ReleaseManager({ slug, onMessage, onMfaRequired }: Relea
   // Ref chứ không phải dependency: trang cha truyền arrow mới mỗi lần vẽ, đưa
   // vào deps của `nap` là nạp lại sau mỗi lần vẽ.
   const mfaRef = useRef(onMfaRequired);
-  mfaRef.current = onMfaRequired;
+  useEffect(() => {
+    mfaRef.current = onMfaRequired;
+  });
   const baoMfa = useCallback(() => {
     daChanMfa.current = true;
     mfaRef.current?.();
   }, []);
 
-  const nap = useCallback(async () => {
-    if (daChanMfa.current) return;
-    try {
-      const res = await fetch(`/api/content/admin/projects/${slug}/releases`);
-      if (!res.ok) {
-        if (isMfaRequired(res.status, await res.json().catch(() => null))) {
-          baoMfa();
+  const nap = useCallback(
+    async (signal?: AbortSignal) => {
+      if (daChanMfa.current) return;
+      try {
+        const res = await fetch(`/api/content/admin/projects/${slug}/releases`, { signal });
+        if (!res.ok) {
+          if (isMfaRequired(res.status, await res.json().catch(() => null))) {
+            baoMfa();
+            setDsach([]);
+            return;
+          }
+          // ĐỌC mã trạng thái và NÓI RA. Bản đầu của trang toà soạn từng gọi fetch
+          // rồi vứt phản hồi đi, nên 401/404/500 trông y hệt thành công - bài học
+          // của trang toà soạn (đã gỡ 29/10/2026).
+          onMessage('danger', `Không đọc được danh sách bản phát hành (HTTP ${res.status})`);
           setDsach([]);
           return;
         }
-        // ĐỌC mã trạng thái và NÓI RA. Bản đầu của trang toà soạn từng gọi fetch
-        // rồi vứt phản hồi đi, nên 401/404/500 trông y hệt thành công - bài học
-        // của trang toà soạn (đã gỡ 29/10/2026).
-        onMessage('danger', `Không đọc được danh sách bản phát hành (HTTP ${res.status})`);
+        setDsach(await res.json());
+      } catch {
+        // Đóng khung (hoặc mở lại) giữa chừng huỷ lượt nạp - không phải lỗi mạng.
+        if (signal?.aborted) return;
+        onMessage('danger', 'Không kết nối được máy chủ nội dung');
         setDsach([]);
-        return;
       }
-      setDsach(await res.json());
-    } catch {
-      onMessage('danger', 'Không kết nối được máy chủ nội dung');
-      setDsach([]);
-    }
-  }, [slug, onMessage, baoMfa]);
+    },
+    [slug, onMessage, baoMfa]
+  );
 
   // Chỉ nạp khi MỞ, và nạp lại nếu đóng rồi mở lại (dữ liệu có thể đã đổi).
-  useEffect(() => {
-    if (mo) void nap();
-  }, [mo, nap]);
+  useLoader(nap, mo);
 
   const set =
     (k: keyof Form) =>

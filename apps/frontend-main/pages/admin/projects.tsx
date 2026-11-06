@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Seo from '../../components/Seo';
 import ReleaseManager from '../../components/ReleaseManager';
 import { MfaRequiredNotice } from '../../components/MfaRequiredNotice';
@@ -18,6 +18,7 @@ import type { PageMeta } from '@tsudev/types';
 
 import { useUrlPaging, useUrlPagingSync } from '../../lib/useUrlPaging';
 import { isMfaRequired } from '../../lib/mfa';
+import { useLoader } from '../../lib/useLoader';
 
 /** Thông báo hiện cho người quản trị, kèm tông màu. */
 type AdminMessage = { tone: string; text: string };
@@ -125,29 +126,32 @@ export default function AdminProjects() {
   const { page, setPage, pageSize, setPageSize, meta } = paging;
   useUrlPagingSync([paging]);
 
-  const load = useCallback(async () => {
-    if (!paging.ready || mfaRequired) return;
-    setLoading(true);
-    const res = await fetch(`/api/content/admin/projects?page=${page}&page_size=${pageSize}`);
-    setLoading(false);
-    if (!res.ok) {
-      if (isMfaRequired(res.status, await res.json().catch(() => null))) {
-        setMfaRequired(true);
+  const load = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!paging.ready || mfaRequired) return;
+      setLoading(true);
+      const res = await fetch(`/api/content/admin/projects?page=${page}&page_size=${pageSize}`, {
+        signal,
+      });
+      setLoading(false);
+      if (!res.ok) {
+        if (isMfaRequired(res.status, await res.json().catch(() => null))) {
+          setMfaRequired(true);
+          return;
+        }
+        setMsg({ tone: 'error', text: 'Không tải được danh sách dự án.' });
         return;
       }
-      setMsg({ tone: 'error', text: 'Không tải được danh sách dự án.' });
-      return;
-    }
-    const body = (await res.json()) as { data?: Project[]; meta?: PageMeta };
-    if (Array.isArray(body?.data)) setProjects(body.data);
-    if (body?.meta) paging.setMeta(body.meta);
+      const body = (await res.json()) as { data?: Project[]; meta?: PageMeta };
+      if (Array.isArray(body?.data)) setProjects(body.data);
+      if (body?.meta) paging.setMeta(body.meta);
+    },
     // `paging` cố ý không nằm trong deps: nó là object mới mỗi lần dựng.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, paging.ready, mfaRequired]);
+    [page, pageSize, paging.ready, mfaRequired]
+  );
 
-  useEffect(() => {
-    if (session) load();
-  }, [session, load]);
+  useLoader(load, !!session);
 
   const set =
     (k: keyof ProjectForm) =>

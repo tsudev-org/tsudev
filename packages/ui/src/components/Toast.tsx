@@ -42,8 +42,12 @@ type ToastProps = {
 };
 
 export const Toast = ({ message, type = 'info', onClose, duration }: ToastProps) => {
+  // Cập nhật ref trong effect, không trong render (React có thể bỏ hoặc chạy
+  // lại một lượt render). Effect này khai trước hẹn giờ nên chạy trước nó.
   const closeRef = useRef(onClose);
-  closeRef.current = onClose;
+  useEffect(() => {
+    closeRef.current = onClose;
+  });
 
   const ms = duration ?? DURATION[type] ?? 4000;
   useEffect(() => {
