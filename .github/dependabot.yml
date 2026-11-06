@@ -65,6 +65,10 @@ updates:
       # - @types/node phải BÁM RUNTIME (Node 22), không bám bản mới nhất: #175 đưa
       #   lên 26, nên kiểu của API chưa có ở Node 22 vẫn biên dịch được mà chạy thì vỡ.
       #   Nâng tay khi đổi runtime.
+      # - tailwindcss 4 tách plugin PostCSS sang `@tailwindcss/postcss` và chuyển
+      #   cấu hình sang CSS (`@theme`): #181 đỏ build + E2E. Bảng ánh xạ token ↔
+      #   class (`docs/design-system.md`) phải dựng lại, nghiệm thu bằng mắt ở
+      #   CẢ BA chế độ giao diện.
       - dependency-name: 'typescript'
         update-types: ['version-update:semver-major']
       - dependency-name: 'eslint'
@@ -72,6 +76,8 @@ updates:
       - dependency-name: 'eslint-plugin-react-hooks'
         update-types: ['version-update:semver-major']
       - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'tailwindcss'
         update-types: ['version-update:semver-major']
     groups:
       dev-dependencies:
