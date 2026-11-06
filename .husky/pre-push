@@ -1,6 +1,7 @@
 #!/bin/sh
-# Chặn push thẳng lên main - GitHub Free không hỗ trợ branch protection cho
-# repo private (cần Pro/Team) nên đây là lớp chắn phía client thay thế.
+# Chặn push thẳng lên main ở phía client. Từ 05/11/2026 `main` có branch
+# protection phía server (check bắt buộc + strict); hook này chặn sớm hơn, trước
+# khi lượt push rời máy.
 # Vượt qua khi thật sự cần: ALLOW_MAIN_FORCE=1 git push
 
 # Hợp đồng cổng/tên miền chạy TRƯỚC cờ vượt: ALLOW_MAIN_FORCE là ngoại lệ cho

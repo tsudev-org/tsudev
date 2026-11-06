@@ -1,10 +1,10 @@
 require('source-map-support').install()
-require('dotenv').config()
+require('dotenv').config({ quiet: true })
 // npm workspace đặt cwd ở thư mục service, nơi không có .env - nạp thêm .env ở
 // gốc repo. Thiếu bước này thì `npm --workspace ... test` chạy không có
 // DATABASE_URL và mọi route chạm DB đều trả 500.
 if (!process.env.DATABASE_URL) {
-  require('dotenv').config({ path: require('path').join(__dirname, '../../../.env') })
+  require('dotenv').config({ quiet: true, path: require('path').join(__dirname, '../../../.env') })
 }
 // Initialize optional Sentry instrumentation for server-side
 try {

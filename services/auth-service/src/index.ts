@@ -1,9 +1,9 @@
 require('source-map-support').install()
-require('dotenv').config()
+require('dotenv').config({ quiet: true })
 // npm workspace đặt cwd ở thư mục service, nơi không có .env - nạp thêm .env ở
 // gốc repo. Giống ba service kia.
 if (!process.env.DATABASE_URL) {
-  require('dotenv').config({ path: require('path').join(__dirname, '../../../.env') })
+  require('dotenv').config({ quiet: true, path: require('path').join(__dirname, '../../../.env') })
 }
 try {
   require('../../../packages/observability/initSentry').initServer({ service: 'auth-service' })
