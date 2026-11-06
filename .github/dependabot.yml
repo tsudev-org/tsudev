@@ -59,7 +59,8 @@ updates:
       # Công cụ dựng/lint - major bị bỏ qua có chủ đích (#174-#177 đóng 06/11/2026).
       # Mỗi cái là một cuộc di trú, không phải một PR tự động:
       # - typescript 7 là bản viết lại (tsgo): #176 đỏ 5 check (build, test, image).
-      # - eslint 10 bỏ hẳn `.eslintrc.cjs`: #177 đỏ 5 check; cần flat config trước.
+      # - eslint 10: #177 đỏ 5 check. Flat config xong (ESLint 9, `eslint.config.mjs`);
+      #   còn chờ eslint-plugin-react và jsx-a11y nhận peer eslint 10.
       # - eslint-plugin-react-hooks 7 thêm luật React Compiler: #174 đỏ lint.
       # - @types/node phải BÁM RUNTIME (Node 22), không bám bản mới nhất: #175 đưa
       #   lên 26, nên kiểu của API chưa có ở Node 22 vẫn biên dịch được mà chạy thì vỡ.
