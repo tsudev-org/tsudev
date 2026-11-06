@@ -7,6 +7,10 @@
     "jsx": "preserve",
     "allowJs": true,
     "isolatedModules": true,
+    // Khai rõ: từ TypeScript 6, `types` mặc định là [] (không tự nạp mọi
+    // `@types/*` nữa) - thiếu dòng này thì dưới TS 7 mọi `describe`/`expect`/
+    // `process` của test và lib đều thành "Cannot find name".
+    "types": ["jest", "node"],
     // App này KHÔNG nằm trong `tsc -b` của repo: Next tự biên dịch, nên vai trò
     // duy nhất của TypeScript ở đây là kiểm kiểu. Ba cờ dưới tắt phần phát sinh
     // mã mà tsconfig.base bật cho các project composite.

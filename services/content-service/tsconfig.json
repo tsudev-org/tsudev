@@ -3,8 +3,8 @@
   "compilerOptions": {
     // CommonJS có chủ đích. Chuyển sang ESM sẽ đổi ngữ nghĩa require() và kéo
     // theo bảng tiền tố của backend-bundle - rủi ro không mua lại được gì.
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "rootDir": "src",
     "outDir": "dist",
     "types": ["node", "jest"]
