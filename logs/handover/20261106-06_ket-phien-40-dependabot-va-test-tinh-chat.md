@@ -56,11 +56,30 @@ Phiên 39 bị tắt GIỮA bước đóng phiên: phiếu 05 + STATE đã viế
 2. Deploy frontend lần tới (chủ dự án chọn để sau, 06/11) mang `lib/api.ts`/`lib/md.ts` của #163 lên Worker - qua `scripts/deploy-frontend.js`, nghiệm thu `/api/auth/providers`.
 3. Chuyển repo vào Org sau T19.
 4. (Khi có kế hoạch) Storybook 10 + vite 8: gỡ ba dòng `ignore` trong `dependabot.yml` cùng lúc.
+5. `@types/node` đang `^20` ở `packages/auth`, `packages/ratelimit` trong khi runtime là Node 22 - nâng TAY lên `^22` (lock bằng `npx -y npm@11.21.0`). Dependabot nay không tự làm việc này (§5).
+6. (Khi có kế hoạch) Di trú công cụ, mỗi cái một nhánh: eslint flat config rồi mới eslint 10; react-hooks 7 (sửa mã theo luật React Compiler); TypeScript 7. Gỡ dòng `ignore` tương ứng cùng lúc.
 
 ## 4. Bẫy gặp
+
+- **Đóng/merge PR Dependabot giải phóng chỗ ⇒ đợt PR mới mở NGAY** (không chờ lịch thứ Hai). Đóng loạt PR thì chặn bằng `ignore` trong cùng lượt, kẻo mỗi lần dọn lại sinh đợt mới.
+- **`git merge origin/main` mà chưa `git fetch`** ghép bản `main` cũ ⇒ PR vẫn "not up to date" dưới strict. Dùng `gh pr update-branch` cho chắc.
 
 - **`main` strict: mỗi PR phải cập nhật theo `main` rồi chạy lại CI** (~5 phút/lượt), nên N PR = N lượt nối tiếp. `gh pr update-branch <số>` ghép được cả `package-lock.json` của các PR Dependabot nối nhau mà không xung đột; CI (`npm ci`) là nơi bắt lock hỏng nếu có.
 - **Test theo tính chất có thể đỏ ở PR không liên quan** - seed đổi mỗi lượt. Gặp thì đọc `Counterexample` + `seed` trong log, tái hiện bằng `renderMarkdown(<phản ví dụ>)`, và quyết định lỗi nằm ở mã hay ở bất biến của test TRƯỚC khi chạy lại CI cho "xanh".
 - Ghi khoá cho một nhánh sửa nhỏ: ghi vào `LOCKS.md` trên nhánh hồ sơ, không trên nhánh sửa - hai nhánh cùng sửa LOCKS thì PR sau xung đột.
+
+## 5. Phụ lục - đợt Dependabot thứ hai (chủ dự án duyệt theo đề xuất)
+
+Merge #171 giải phóng chỗ trong `open-pull-requests-limit: 5`, Dependabot mở ngay 5 PR major:
+
+| PR   | nâng                              | CI         | kết cục                                                           |
+| ---- | --------------------------------- | ---------- | ----------------------------------------------------------------- |
+| #178 | `@simplewebauthn/browser` 13 → 14 | xanh       | MERGED - khớp server 14.0.3; thay đổi phá vỡ duy nhất là Node ≥22 |
+| #175 | `@types/node` 20 → 26             | xanh       | ĐÓNG - kiểu phải bám runtime Node 22                              |
+| #174 | `eslint-plugin-react-hooks` 4 → 7 | đỏ lint    | ĐÓNG - luật React Compiler mới                                    |
+| #176 | typescript 5.9 → 7                | đỏ 5 check | ĐÓNG - bản viết lại, di trú có kế hoạch                           |
+| #177 | eslint 8 → 10                     | đỏ 5 check | ĐÓNG - repo còn `.eslintrc.cjs`                                   |
+
+`dependabot.yml` thêm `ignore` major cho bốn gói bị đóng (nhánh `chore/dependabot-chan-major-2`). Nhánh remote đã merge (`docs/ket-phien-39`, `chore/dependabot-chan-major`, `fix/md-property-test-duong-tinh-gia`) chưa xoá - lệnh xoá bị auto mode chặn, để chủ dự án.
 
 Hiện trạng máy lúc đóng phiên 40: không worktree, không tiến trình nền; Postgres user-space :5433 vẫn chạy.

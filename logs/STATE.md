@@ -7,6 +7,9 @@
 > #169/#170 (Storybook 10, vite 8 phá peer) + chặn major trong `dependabot.yml` (#171).
 > #172: test tính chất XSS từ #163 đỏ ngẫu nhiên theo seed - sửa bất biến, đầu ra vốn vô hại.
 >
+> Đợt 2: merge #178 (simplewebauthn/browser 14), đóng #174-#177 (TS 7, eslint 10, react-hooks 7,
+> @types/node 26) + chặn major. Nâng `@types/node` lên ^22 là việc tay.
+>
 > 🎯 Từ 10/11: override minimatch ⇒ đóng hai cảnh báo cuối (Dependabot #40, Scorecard #76).
 
 > **Phiên 40 BẮT ĐẦU Ở ĐÂY** (cuối phiên 39, 06/11/2026). Phiếu:
