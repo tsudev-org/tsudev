@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261106-06
 - **Từ**: phiên 40 (06/11/2026) - **Đến**: phiên 41 + chủ dự án
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG (phiên 41, 06/11/2026) - thay bằng [`20261106-07`](20261106-07_ket-phien-41-dependabot-eslint9-storybook10.md)
 - **Thay phiếu**: [`20261106-05`](20261106-05_ket-phien-39-don-canh-bao-github.md) - việc của phiếu 05 §3 chưa tới hạn (10/11), chép sang §3 dưới đây.
 
 ## ⚡ Khởi động phiên 41
