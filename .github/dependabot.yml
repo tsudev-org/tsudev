@@ -42,14 +42,13 @@ updates:
         update-types: ['version-update:semver-major']
       - dependency-name: 'jose'
         update-types: ['version-update:semver-major']
-      # Storybook + Vite major bị bỏ qua có chủ đích (#169, #170 đóng 06/11/2026).
-      # Dependabot nâng TỪNG gói: #169 đưa `storybook` lên 10 trong khi
-      # `@storybook/react-vite` ở lại 8 (peer `storybook ^8.6.18`), #170 đưa vite
-      # lên 8 trong khi builder của Storybook 8 chỉ nhận vite <=6. Cả hai CI XANH
-      # vì Storybook không nằm trong CI. Lên 10 là một cuộc di trú: addon-essentials
-      # không có bản sau 8 (đã gộp vào lõi), cấu hình `.storybook/main.js` phải
-      # thành ESM. Gỡ ba dòng này khi lên kế hoạch nâng, và nghiệm thu bằng cách
-      # ĐẾM story vẽ ra được (docs/design-system.md §Storybook).
+      # Storybook + Vite major bị bỏ qua có chủ đích. Dependabot nâng TỪNG gói:
+      # #169 đưa `storybook` lên 10 trong khi `@storybook/react-vite` ở lại 8,
+      # #170 đưa vite lên 8 trong khi builder của Storybook 8 chỉ nhận vite <=6 -
+      # cả hai CI XANH vì Storybook không nằm trong CI. Đã lên Storybook 10 + vite 8
+      # bằng tay (phiên 41, 06/11/2026). Mỗi major sau cũng là một cuộc di trú: nâng
+      # cả họ cùng lúc và nghiệm thu bằng cách ĐẾM story vẽ ra được
+      # (docs/design-system.md §Storybook).
       - dependency-name: 'storybook'
         update-types: ['version-update:semver-major']
       - dependency-name: '@storybook/*'
