@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261106-05
 - **Từ**: phiên 39 (06/11/2026) - **Đến**: phiên 40 + chủ dự án
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG (06/11/2026, phiên 40) - thay bằng [`20261106-06`](20261106-06_ket-phien-40-dependabot-va-test-tinh-chat.md)
 - **Thay phiếu**: [`20261106-04`](20261106-04_ket-phien-38-express5-len-prod-g7.md)
 
 ## ⚡ Khởi động phiên 40

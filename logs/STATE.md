@@ -1,5 +1,14 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 41 BẮT ĐẦU Ở ĐÂY** (cuối phiên 40, 06/11/2026). Phiếu:
+> [`20261106-06`](handover/20261106-06_ket-phien-40-dependabot-va-test-tinh-chat.md).
+>
+> ✅ 7 PR Dependabot dọn xong: merge #165-#168 (jest 30, supertest 7), đóng #164 (Node 25),
+> #169/#170 (Storybook 10, vite 8 phá peer) + chặn major trong `dependabot.yml` (#171).
+> #172: test tính chất XSS từ #163 đỏ ngẫu nhiên theo seed - sửa bất biến, đầu ra vốn vô hại.
+>
+> 🎯 Từ 10/11: override minimatch ⇒ đóng hai cảnh báo cuối (Dependabot #40, Scorecard #76).
+
 > **Phiên 40 BẮT ĐẦU Ở ĐÂY** (cuối phiên 39, 06/11/2026). Phiếu:
 > [`20261106-05`](handover/20261106-05_ket-phien-39-don-canh-bao-github.md).
 >
