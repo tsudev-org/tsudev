@@ -16,7 +16,7 @@ const ROOT_ENV = path.join(ROOT, '.env');
 function loadRootEnv() {
   if (!fs.existsSync(ROOT_ENV)) return;
   try {
-    require('dotenv').config({ path: ROOT_ENV });
+    require('dotenv').config({ quiet: true, path: ROOT_ENV });
     console.log('Loaded .env via dotenv');
     return;
   } catch (e) {
