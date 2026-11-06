@@ -1,5 +1,13 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 39 BẮT ĐẦU Ở ĐÂY** (cuối phiên 38, 06/11/2026). Phiếu:
+> [`20261106-04`](handover/20261106-04_ket-phien-38-express5-len-prod-g7.md).
+>
+> ✅ Express 5 (#157) đã merge + Render deploy `f6b5639` khoẻ. G7 (step-up khi đổi vai trò/xoá
+> tài khoản) xong, nằm trên #159.
+>
+> 🔴 Chủ dự án: merge #158 (T26); `db:migrate` Neon TRƯỚC merge #159 (T23); T24, T25.
+
 > **Phiên 38 BẮT ĐẦU Ở ĐÂY** (cuối phiên 37, 06/11/2026). Phiếu:
 > [`20261106-03`](handover/20261106-03_ket-phien-37-giai-doan-2-attt.md).
 >
