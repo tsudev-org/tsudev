@@ -12,7 +12,7 @@
     "@tsudev/db": "*",
     "auth-service": "*",
     "content-service": "*",
-    "express": "^4.22.3",
+    "express": "^5.2.1",
     "storage-service": "*"
   },
   "devDependencies": {

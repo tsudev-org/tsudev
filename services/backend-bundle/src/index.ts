@@ -128,11 +128,15 @@ async function startServer() {
     const mod = s.mod as { init?: () => Promise<void> }
     if (typeof mod.init === 'function') await mod.init()
   }
-  root.listen(port, bindHost, () =>
+  // Express 5 đưa lỗi listen (EADDRINUSE...) vào callback thay vì phát 'error'.
+  // Bỏ qua tham số là tiến trình sống mà không nghe cổng nào: Render thấy health
+  // check hỏng chứ không thấy lỗi. Ném để tiến trình chết ồn ào như Express 4.
+  root.listen(port, bindHost, (err?: Error) => {
+    if (err) throw err
     console.log(
       `backend-bundle listening on ${bindHost}:${port} - ${SERVICES.map((s) => s.name).join(', ')}`
     )
-  )
+  })
 }
 
 if (process.env.NODE_ENV !== 'test') {
