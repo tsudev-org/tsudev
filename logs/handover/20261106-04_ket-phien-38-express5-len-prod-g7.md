@@ -33,17 +33,17 @@ Nghiệm thu production (curl, 06/11 sau deploy): backend `/health` 200; JWKS ph
 
 ## 2. 🔴 Việc của chủ dự án
 
-| #   | việc                                                                                                                                                                                                                         |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| T24 | `openssl rand -hex 32` ⇒ `npm --prefix infrastructure/canh-site-cron run secret-integrity` (hỏi `RELEASE_INTEGRITY_TOKEN` rồi `INTERNAL_API_TOKEN` = giá trị ở Render) + đặt `RELEASE_INTEGRITY_TOKEN` cùng giá trị ở Render |
-| T25 | `VIRUSTOTAL_API_KEY` ở Render (thiếu ⇒ bản mới niêm phong mang `CHUA_QUET`)                                                                                                                                                  |
-| T28 | **Đổi mật khẩu `neondb_owner`** nếu chưa làm: URL kèm mật khẩu đã lộ trong ảnh chụp gửi vào phiên 38 và trong `~/.bash_history`. Đổi xong cập nhật `DATABASE_URL` ở Render                                                   |
-| T29 | Xoá database `keycloak` trên Neon (92 bảng Keycloak cũ, có thông tin đăng nhập cũ; không gì dùng). `pg_dump` trước nếu muốn giữ; xoá tệp `backup/neon-20261106-truoc-an-ninh.dump` (là dump Keycloak, tên dễ nhầm)           |
-| -   | T18-T21, T19 còn từ phiếu 02                                                                                                                                                                                                 |
+| #       | việc                                                                                                                                                                          |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ~~T24~~ | XONG 06/11: `RELEASE_INTEGRITY_TOKEN` (giá trị riêng) ở Render + cron Worker; `INTERNAL_API_TOKEN` đã XOAY sang giá trị mới ở Render + Worker `tsudev` + cron Worker (xem §4) |
+| ~~T25~~ | XONG 06/11: `VIRUSTOTAL_API_KEY` ở Render (gói free: 4 lượt/phút, điều khoản cấm dùng thương mại - chủ dự án tự cân nhắc)                                                     |
+| ~~T28~~ | XONG 06/11: reset mật khẩu `neondb_owner`, `DATABASE_URL` ở Render cập nhật, backend khởi động lại khoẻ                                                                       |
+| ~~T29~~ | XONG 06/11 (theo chủ dự án): xoá database `keycloak`. Tệp `backup/neon-20261106-truoc-an-ninh.dump` là dump Keycloak - xoá hoặc đổi tên                                       |
+| -       | T18-T21, T19 còn từ phiếu 02                                                                                                                                                  |
 
 ## 3. Việc kế tiếp của agent
 
-1. Sau T24: `npm run cron:tail` chờ nhịp `23 1,13` UTC có dòng `[cron] kiểm toàn vẹn:`; nghiệm thu local (phiếu 03 §3.2): sửa 1 byte tệp MinIO ⇒ `LECH_TOAN_VEN`, link tải 404. Ở prod: đổi vai trò một tài khoản test ở `/admin/accounts` phải hỏi TOTP.
+1. Nhịp `23 1,13` UTC (20:23 / 08:23 giờ VN): `npm run cron:tail` phải có dòng `[cron] kiểm toàn vẹn:` không kèm lỗi 401/503. Nghiệm thu local (phiếu 03 §3.2): sửa 1 byte tệp MinIO ⇒ `LECH_TOAN_VEN`, link tải 404. Ở prod: đổi vai trò một tài khoản test ở `/admin/accounts` phải hỏi TOTP.
 2. CodeQL mở 4 cảnh báo mới `js/missing-rate-limiting` (#92-#95: `step-up`, revoke/restore/resign) - cùng loại 24 cảnh báo cũ trên `main`, dương tính giả (`app.use('/api', accountLimit)` + tầng SENSITIVE). Nên dismiss hàng loạt kèm lý do, hoặc đổi sang `express-rate-limit` mà CodeQL nhận ra.
 3. GitHub báo 2 lỗ hổng Dependabot trên `main` (1 moderate, 1 low).
 4. Override minimatch sau 10/11 (phiếu 02 §3.3). Chuyển repo vào Org sau T19.
@@ -56,5 +56,7 @@ Nghiệm thu production (curl, 06/11 sau deploy): backend `/health` 200; JWKS ph
 - **Dán URL có `&` vào `export X=...` không nháy** ⇒ shell chạy nền phần trước `&`, biến không được đặt, `db:migrate` rơi về `.env` local. Dùng `read -rsp` và chuỗi `&&` để migrate không chạy khi `pg_dump` hỏng.
 - Bộ phân loại auto mode chặn `gh pr merge` không ổn định cho tới khi có quy tắc `Bash(gh pr merge:*)` trong `.claude/settings.local.json` (đã thêm, chủ dự án đồng ý).
 - Ngay sau deploy frontend, trang ISR trả bản rỗng ~14 kB; 1 phút sau đủ nội dung. Đừng kết luận sớm.
+
+- **SỰ CỐ 17:54-18:00 06/11 (giờ VN): `INTERNAL_API_TOKEN` lệch giữa Render và Worker `tsudev` ⇒ BFF 401 toàn bộ** (tìm kiếm, đăng nhập, quản trị, dựng lại ISR; trang đã cache vẫn hiện). Nguyên nhân: hướng dẫn T24 ghi "INTERNAL_API_TOKEN = giá trị ở Render" bị làm theo chiều ngược - đổi Render sang giá trị openssl mới. Secret Worker không đọc lại được nên không khôi phục giá trị cũ; sửa bằng cách XOAY: đặt giá trị mới ở Worker `tsudev` (`wrangler secret put` có hiệu lực ngay, không cần deploy) và cấp `RELEASE_INTEGRITY_TOKEN` một giá trị riêng. `INTERNAL_API_TOKEN` sống ở BA nơi: Render, Worker `tsudev`, cron Worker - đổi một nơi phải đổi cả ba. Viết hướng dẫn secret thì ghi rõ "chép TỪ đâu SANG đâu" và "KHÔNG sửa ở X".
 
 Hiện trạng máy lúc đóng phiên 38: không tiến trình nền, không worktree; Postgres user-space :5433 vẫn chạy.
