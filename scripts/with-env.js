@@ -9,7 +9,7 @@
 //
 // dotenv KHÔNG ghi đè biến đã có, nên ở CI (DATABASE_URL đến từ env của job,
 // không có tệp .env) đây là no-op.
-require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+require('dotenv').config({ quiet: true, path: require('path').join(__dirname, '..', '.env') });
 
 const { spawn } = require('child_process');
 const [cmd, ...args] = process.argv.slice(2);

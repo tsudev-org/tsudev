@@ -8,9 +8,12 @@
 // ⚠️ Dữ liệu seed KHÔNG được lập chỉ mục lúc seed (seed.js không phụ thuộc
 // @tsudev/search - nó chạy TRƯỚC `build:services` trong `dev:full`). Bài và tài
 // liệu seed chỉ tìm thấy SAU khi chạy script này.
-require('dotenv').config()
+require('dotenv').config({ quiet: true })
 if (!process.env.DATABASE_URL) {
-  require('dotenv').config({ path: require('path').join(__dirname, '../../../../.env') })
+  require('dotenv').config({
+    quiet: true,
+    path: require('path').join(__dirname, '../../../../.env'),
+  })
 }
 import { prisma } from '@tsudev/db'
 import { buildDocSearch, buildPostSearch } from '@tsudev/search'

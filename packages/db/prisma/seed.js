@@ -1,7 +1,7 @@
 'use strict'
 // Seed dữ liệu khởi tạo cho môi trường dev: user, blog, docs, chương trình dấu.
 const path = require('path')
-require('dotenv').config({ path: path.join(__dirname, '../../../.env') })
+require('dotenv').config({ quiet: true, path: path.join(__dirname, '../../../.env') })
 const { prisma } = require('../src/index')
 
 async function main() {
