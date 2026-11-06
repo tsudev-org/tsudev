@@ -1,5 +1,14 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 40 BẮT ĐẦU Ở ĐÂY** (cuối phiên 39, 06/11/2026). Phiếu:
+> [`20261106-05`](handover/20261106-05_ket-phien-39-don-canh-bao-github.md).
+>
+> ✅ Tab Security dọn sạch (#163, `2e04819`, Render đã deploy): CodeQL 44 → 0, Scorecard 13 → 1,
+> Dependabot 2 → 1. Sửa thật 15 cảnh báo trong mã; 28 rate-limit dương tính giả dismiss kèm
+> `routeOrder.test.ts` canh thứ tự limiter. Docker ghim digest, SECURITY.md, fast-check.
+>
+> 🎯 Từ 10/11: override minimatch ⇒ đóng hai cảnh báo cuối (Dependabot #40, Scorecard #76).
+
 > **Phiên 39 BẮT ĐẦU Ở ĐÂY** (cuối phiên 38, 06/11/2026). Phiếu:
 > [`20261106-04`](handover/20261106-04_ket-phien-38-express5-len-prod-g7.md).
 >

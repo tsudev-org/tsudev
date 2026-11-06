@@ -4,7 +4,7 @@
 
 # Sửa xong file → XÓA dòng khóa của mình.
 
-(TRỐNG - phiên 38 đã nhả toàn bộ khoá, 06/11/2026.)
+.github/dependabot.yml | phiên 40 / chặn major Node, Storybook, Vite | 19:30 06/11/2026
 
-✅ Phiên 38 xong (06/11/2026): không giữ khoá nào, không tiến trình nền, không worktree.
-Việc kế tiếp: phiếu `logs/handover/20261106-04_ket-phien-38-express5-len-prod-g7.md`.
+✅ Phiên 39 xong (06/11/2026): đã nhả khoá (phiên 40 nhả hộ - phiên 39 bị tắt giữa bước đóng),
+không tiến trình nền, không worktree. Việc kế tiếp: phiếu `logs/handover/20261106-05_ket-phien-39-don-canh-bao-github.md`.
