@@ -30,6 +30,7 @@ import {
   type AccountFilter,
   type Facets,
 } from '../../components/AccountFilters';
+import { useLoader } from '../../lib/useLoader';
 
 // Trang quản lý tài khoản & phân quyền - CHỈ tài khoản OWNER (tsudev) dùng được.
 //
@@ -127,6 +128,20 @@ async function call(action: string, body: Record<string, unknown>) {
   return { ok: r.ok, status: r.status, data } as const;
 }
 
+/**
+ * Token step-up còn dùng được (chừa 15 giây cho độ trễ mạng), hay phải hỏi lại.
+ * Đặt ngoài component: đọc đồng hồ là thao tác không thuần, chỉ được nằm trong
+ * handler, không nằm trong thân component.
+ */
+function stillValidToken(c: { token: string; expiresAt: number } | null): string | null {
+  return c && c.expiresAt - 15_000 > Date.now() ? c.token : null;
+}
+
+/** Hạn của token do máy chủ trả; đọc hỏng thì giả định 4 phút (máy chủ cấp 5). */
+function expiryOrDefault(parsed: number): number {
+  return Number.isFinite(parsed) ? parsed : Date.now() + 4 * 60_000;
+}
+
 export default function AdminAccounts() {
   const { status } = useSession();
   const [rows, setRows] = useState<AccountRow[]>([]);
@@ -179,15 +194,15 @@ export default function AdminAccounts() {
   );
 
   const router = useRouter();
-  const filterAdopted = useRef(false);
+  const [filterAdopted, setFilterAdopted] = useState(false);
 
   // Đọc bộ lọc TỪ URL, cùng bẫy với phân trang: `router.query` rỗng ở lần dựng
   // đầu trên trang tối ưu tĩnh, nên phải chờ `isReady` rồi mới nhận - và effect
   // ghi ngược bên dưới chỉ chạy SAU khi đã nhận, nếu không nó xoá bộ lọc trong
-  // liên kết mà người ta vừa mở.
-  useEffect(() => {
-    if (!router.isReady || filterAdopted.current) return;
-    filterAdopted.current = true;
+  // liên kết mà người ta vừa mở. Nhận ngay trong render (không trong effect) nên
+  // effect ghi ngược thấy luôn bộ lọc đã nhận, không thấy bộ lọc rỗng trước đó.
+  if (router.isReady && !filterAdopted) {
+    setFilterAdopted(true);
     const one = (k: string) =>
       typeof router.query[k] === 'string' ? (router.query[k] as string) : '';
     const many = (k: string) => {
@@ -208,13 +223,12 @@ export default function AdminAccounts() {
       status: many('status'),
     };
     if (!isFilterEmpty(fromUrl)) setFilter(fromUrl);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady]);
+  }
 
   // Ghi bộ lọc lên URL. Tham số rỗng bị XOÁ khỏi URL thay vì để `?q=`: URL là
   // thứ người ta gửi cho nhau, và một chuỗi đầy tham số rỗng thì không đọc được.
   useEffect(() => {
-    if (!router.isReady || !filterAdopted.current) return;
+    if (!router.isReady || !filterAdopted) return;
     const next: Record<string, string> = {};
     for (const [k, v] of Object.entries(filter)) {
       const encoded = Array.isArray(v) ? v.join(',') : String(v ?? '');
@@ -227,7 +241,7 @@ export default function AdminAccounts() {
     if (JSON.stringify(merged) === JSON.stringify(router.query)) return;
     router.replace({ pathname: router.pathname, query: merged }, undefined, { shallow: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterKey, router.isReady]);
+  }, [filterKey, router.isReady, filterAdopted]);
 
   /**
    * Đổi bộ lọc là ĐỔI TẬP KẾT QUẢ ⇒ về trang 1 và bỏ chọn hết.
@@ -271,49 +285,50 @@ export default function AdminAccounts() {
   const fail = (r: { status: number; data: { error?: string; detail?: string } }) =>
     isMfaRequired(r.status, r.data) ? setMfaRequired(true) : flashErr(r.data);
 
-  const load = useCallback(async () => {
-    if (!paging.ready || mfaRequired) return;
-    setLoading(true);
-    // Đổi mốc PHẢI tải lại từ máy chủ (DATA_TABLE.md mục 4). Tải sẵn 200 dòng
-    // rồi cắt ở máy khách thì mốc 10 không tiết kiệm được gì.
-    const r = await call('useradmin/list', {
-      page,
-      page_size: pageSize,
-      // Ngày từ <input type="date"> là 'YYYY-MM-DD' = nửa đêm UTC. `createdTo`
-      // phải là CUỐI ngày, không thì chọn "đến 25/08" loại hết tài khoản tạo
-      // trong chính ngày 25 - và bảng trông như thiếu người.
-      ...filter,
-      createdTo: endOfDay(filter.createdTo),
-      lastLoginTo: endOfDay(filter.lastLoginTo),
-    });
-    setLoading(false);
-    setBooted(true);
-    if (isMfaRequired(r.status, r.data)) {
-      setMfaRequired(true);
-      return;
-    }
-    if (r.status === 401 || r.status === 403) {
-      setDenied(true);
-      return;
-    }
-    const body = r.data as {
-      data?: AccountRow[];
-      meta?: PageMeta;
-      facets?: Facets;
-      total_unfiltered?: number;
-    };
-    if (Array.isArray(body?.data)) setRows(body.data);
-    if (body?.meta) paging.setMeta(body.meta);
-    if (body?.facets) setFacets(body.facets);
-    if (typeof body?.total_unfiltered === 'number') setTotalUnfiltered(body.total_unfiltered);
+  const load = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!paging.ready || mfaRequired) return;
+      setLoading(true);
+      // Đổi mốc PHẢI tải lại từ máy chủ (DATA_TABLE.md mục 4). Tải sẵn 200 dòng
+      // rồi cắt ở máy khách thì mốc 10 không tiết kiệm được gì.
+      const r = await call('useradmin/list', {
+        page,
+        page_size: pageSize,
+        // Ngày từ <input type="date"> là 'YYYY-MM-DD' = nửa đêm UTC. `createdTo`
+        // phải là CUỐI ngày, không thì chọn "đến 25/08" loại hết tài khoản tạo
+        // trong chính ngày 25 - và bảng trông như thiếu người.
+        ...filter,
+        createdTo: endOfDay(filter.createdTo),
+        lastLoginTo: endOfDay(filter.lastLoginTo),
+      });
+      if (signal?.aborted) return;
+      setLoading(false);
+      setBooted(true);
+      if (isMfaRequired(r.status, r.data)) {
+        setMfaRequired(true);
+        return;
+      }
+      if (r.status === 401 || r.status === 403) {
+        setDenied(true);
+        return;
+      }
+      const body = r.data as {
+        data?: AccountRow[];
+        meta?: PageMeta;
+        facets?: Facets;
+        total_unfiltered?: number;
+      };
+      if (Array.isArray(body?.data)) setRows(body.data);
+      if (body?.meta) paging.setMeta(body.meta);
+      if (body?.facets) setFacets(body.facets);
+      if (typeof body?.total_unfiltered === 'number') setTotalUnfiltered(body.total_unfiltered);
+    },
     // `paging` cố ý không nằm trong deps: nó là object mới mỗi lần dựng.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, paging.ready, filterKey, mfaRequired]);
+    [page, pageSize, paging.ready, filterKey, mfaRequired]
+  );
 
-  useEffect(() => {
-    if (status === 'authenticated') load();
-    if (status === 'unauthenticated') setLoading(false);
-  }, [status, load]);
+  useLoader(load, status === 'authenticated');
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
@@ -351,7 +366,7 @@ export default function AdminAccounts() {
       onOk();
     };
     const cached = stepUpRef.current;
-    await attempt(cached && cached.expiresAt - 15_000 > Date.now() ? cached.token : null);
+    await attempt(stillValidToken(cached));
   }
 
   async function submitStepUp(e: React.FormEvent) {
@@ -368,7 +383,7 @@ export default function AdminAccounts() {
     const exp = Date.parse(got.expiresAt);
     stepUpRef.current = {
       token: got.token,
-      expiresAt: Number.isFinite(exp) ? exp : Date.now() + 4 * 60_000,
+      expiresAt: expiryOrDefault(exp),
     };
     await stepUpPrompt.run(got.token);
     setStepUpBusy(false);
@@ -446,7 +461,7 @@ export default function AdminAccounts() {
     });
   }
 
-  if (status === 'loading' || (!booted && loading))
+  if (status === 'loading' || (status === 'authenticated' && !booted && loading))
     return (
       <Layout>
         <Seo title="Quản lý tài khoản" path="/admin/accounts" noindex />

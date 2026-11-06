@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Badge, Button, Card } from '@tsudev/ui';
 
 import { isMfaRequired } from '../lib/mfa';
+import { useLoader } from '../lib/useLoader';
 
 /**
  * Quản lý bí danh thư nội bộ `*@tsudev.com` (Cloudflare Email Routing).
@@ -74,17 +75,22 @@ export function EmailAliases({
 
   // Ref chứ không phải dependency: trang cha truyền một arrow mới mỗi lần vẽ,
   // đưa nó vào deps của `load` là nạp lại danh sách sau MỖI lần vẽ.
+  // Cập nhật trong effect: ghi ref trong lúc render là phụ thuộc vào việc
+  // render chạy đúng một lần (React có thể bỏ hoặc chạy lại một lượt render).
   const mfaRef = useRef(onMfaRequired);
-  mfaRef.current = onMfaRequired;
+  useEffect(() => {
+    mfaRef.current = onMfaRequired;
+  });
 
   const fail = (r: { status: number; data: { error?: string; detail?: string } }) =>
     isMfaRequired(r.status, r.data)
       ? onMfaRequired?.()
       : onMessage('danger', ERR[r.data?.error || ''] || r.data?.detail || 'Có lỗi xảy ra.');
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
     const r = await call('alias/list', { page_size: 200 });
+    if (signal?.aborted) return;
     setLoading(false);
     if (!r.ok) {
       if (isMfaRequired(r.status, r.data)) mfaRef.current?.();
@@ -100,9 +106,7 @@ export function EmailAliases({
     setConfigProblem(b.configProblem ?? null);
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useLoader(load);
 
   async function create(e: React.FormEvent) {
     e.preventDefault();

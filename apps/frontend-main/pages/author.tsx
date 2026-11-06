@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Seo from '../components/Seo';
 import { useSession, signIn } from 'next-auth/react';
 import { Layout, Card, Button, Input, Badge, Icon, SectionHeading, RecordFooter } from '@tsudev/ui';
@@ -10,6 +10,7 @@ import type { PageMeta } from '@tsudev/types';
 import { useRouter } from 'next/router';
 import AuthorDocs from '../components/AuthorDocs';
 import { useUrlPaging, useUrlPagingSync } from '../lib/useUrlPaging';
+import { useLoader } from '../lib/useLoader';
 
 type Tab = 'posts' | 'docs';
 const TABS: { id: Tab; label: string; icon: 'edit' | 'book' }[] = [
@@ -120,33 +121,36 @@ export default function AuthorEditor() {
     router.replace({ pathname: router.pathname, query }, undefined, { shallow: true });
   };
 
-  const load = useCallback(async () => {
-    if (!paging.ready) return;
-    setLoading(true);
-    const res = await fetch(`/api/content/author/posts?page=${page}&page_size=${pageSize}`);
-    setLoading(false);
-    if (res.status === 403) {
-      // Backend là nơi quyết định quyền (đọc User.role từ DB). `session.role` có
-      // thể cũ vì token next-auth chỉ ghi vai trò ở lần đăng nhập đầu, nên ta bám
-      // theo PHẢN HỒI của backend chứ không theo phiên.
-      setDenied(true);
-      return;
-    }
-    if (!res.ok) {
-      setMsg({ tone: 'error', text: 'Không tải được danh sách bài.' });
-      return;
-    }
-    setDenied(false);
-    const body = (await res.json()) as { data?: AuthorPost[]; meta?: PageMeta };
-    if (Array.isArray(body?.data)) setPosts(body.data);
-    if (body?.meta) paging.setMeta(body.meta);
+  const load = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!paging.ready) return;
+      setLoading(true);
+      const res = await fetch(`/api/content/author/posts?page=${page}&page_size=${pageSize}`, {
+        signal,
+      });
+      setLoading(false);
+      if (res.status === 403) {
+        // Backend là nơi quyết định quyền (đọc User.role từ DB). `session.role` có
+        // thể cũ vì token next-auth chỉ ghi vai trò ở lần đăng nhập đầu, nên ta bám
+        // theo PHẢN HỒI của backend chứ không theo phiên.
+        setDenied(true);
+        return;
+      }
+      if (!res.ok) {
+        setMsg({ tone: 'error', text: 'Không tải được danh sách bài.' });
+        return;
+      }
+      setDenied(false);
+      const body = (await res.json()) as { data?: AuthorPost[]; meta?: PageMeta };
+      if (Array.isArray(body?.data)) setPosts(body.data);
+      if (body?.meta) paging.setMeta(body.meta);
+    },
     // `paging` cố ý không nằm trong deps: nó là object mới mỗi lần dựng.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, paging.ready]);
+    [page, pageSize, paging.ready]
+  );
 
-  useEffect(() => {
-    if (session) load();
-  }, [session, load]);
+  useLoader(load, !!session);
 
   const set =
     (k: keyof PostForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

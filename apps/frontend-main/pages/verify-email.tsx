@@ -16,16 +16,15 @@ type State = 'checking' | 'ok' | 'failed';
 
 export default function VerifyEmailPage() {
   const router = useRouter();
-  const [state, setState] = useState<State>('checking');
+  const [fetched, setState] = useState<State>('checking');
   const fired = useRef(false);
 
+  // Thiếu token là thất bại suy ra được ngay từ URL - không cần state riêng.
+  const token = typeof router.query.token === 'string' ? router.query.token : '';
+  const state: State = router.isReady && !token ? 'failed' : fetched;
+
   useEffect(() => {
-    if (!router.isReady || fired.current) return;
-    const token = typeof router.query.token === 'string' ? router.query.token : '';
-    if (!token) {
-      setState('failed');
-      return;
-    }
+    if (!router.isReady || fired.current || !token) return;
     fired.current = true;
     (async () => {
       try {
@@ -39,7 +38,7 @@ export default function VerifyEmailPage() {
         setState('failed');
       }
     })();
-  }, [router.isReady, router.query.token]);
+  }, [router.isReady, token]);
 
   if (state === 'checking') {
     return (

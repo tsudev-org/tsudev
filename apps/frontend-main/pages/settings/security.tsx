@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { startRegistration } from '@simplewebauthn/browser';
 import { Button, Input, Layout, RecordFooter } from '@tsudev/ui';
@@ -10,6 +10,7 @@ import Seo from '../../components/Seo';
 import { Notice } from '../../components/AuthShell';
 import { formatDateVN } from '../../lib/format';
 import { SecurityEventList, type SecurityEvent } from '../../components/SecurityEventList';
+import { useLoader } from '../../lib/useLoader';
 
 /**
  * Bảo mật tài khoản: bật 2FA và quản lý passkey.
@@ -64,30 +65,31 @@ export default function SecurityPage() {
   const [dangerPw, setDangerPw] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const refreshKeys = useCallback(async () => {
+  const refreshKeys = useCallback(async (signal?: AbortSignal) => {
     const { ok, data } = await post('passkey/list');
+    if (signal?.aborted) return;
     if (ok && Array.isArray(data)) setKeys(data as unknown as Passkey[]);
   }, []);
 
-  const refreshEvents = useCallback(async () => {
-    if (!paging.ready) return;
-    setEventsLoading(true);
-    const { ok, data } = await post('security/events', { page, page_size: pageSize });
-    setEventsLoading(false);
-    if (!ok) return;
-    const body = data as unknown as { data?: SecurityEvent[]; meta?: PageMeta };
-    if (Array.isArray(body?.data)) setEvents(body.data);
-    if (body?.meta) paging.setMeta(body.meta);
+  const refreshEvents = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!paging.ready) return;
+      setEventsLoading(true);
+      const { ok, data } = await post('security/events', { page, page_size: pageSize });
+      if (signal?.aborted) return;
+      setEventsLoading(false);
+      if (!ok) return;
+      const body = data as unknown as { data?: SecurityEvent[]; meta?: PageMeta };
+      if (Array.isArray(body?.data)) setEvents(body.data);
+      if (body?.meta) paging.setMeta(body.meta);
+    },
     // `paging` cố ý không nằm trong deps: nó là object mới mỗi lần dựng.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, paging.ready]);
+    [page, pageSize, paging.ready]
+  );
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      refreshKeys();
-      refreshEvents();
-    }
-  }, [status, refreshKeys, refreshEvents]);
+  useLoader(refreshKeys, status === 'authenticated');
+  useLoader(refreshEvents, status === 'authenticated');
 
   // `noindex` phải có ở CẢ hai nhánh chưa-đăng-nhập. Trình thu thập của công cụ
   // tìm kiếm KHÔNG BAO GIỜ có phiên, nên trạng thái duy nhất nó nhìn thấy chính

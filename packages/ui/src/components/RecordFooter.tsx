@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { PAGE_SIZES, type PageMeta, type PageSize } from '@tsudev/types';
 import { pageAfterResize } from '../lib/usePageSize';
 
@@ -61,25 +61,25 @@ export const RecordFooter = ({
 }: RecordFooterProps) => {
   const selectRef = useRef<HTMLSelectElement>(null);
   const [announce, setAnnounce] = useState('');
-  const firstLoad = useRef(true);
 
   const from = meta.total === 0 ? 0 : (meta.page - 1) * meta.page_size + 1;
   const to = Math.min(meta.total, meta.page * meta.page_size);
 
   // Thông báo cho trình đọc màn hình SAU KHI dữ liệu đã về (mục 7). Bỏ qua lần
-  // dựng đầu: lúc đó chưa có gì "vừa đổi" để mà báo.
-  useEffect(() => {
-    if (firstLoad.current) {
-      firstLoad.current = false;
-      return;
+  // dựng đầu: lúc đó chưa có gì "vừa đổi" để mà báo - mốc so sánh khởi tạo bằng
+  // chính trạng thái đầu. Tính trong render (so với lần trước) thay vì effect.
+  const seen = `${meta.page}|${meta.page_size}|${meta.total}|${loading ? 1 : 0}`;
+  const [lastSeen, setLastSeen] = useState(seen);
+  if (seen !== lastSeen) {
+    setLastSeen(seen);
+    if (!loading) {
+      setAnnounce(
+        meta.total === 0
+          ? 'Không có mục nào'
+          : `Đang hiển thị ${num(from)} đến ${num(to)} trong ${num(meta.total)} mục`
+      );
     }
-    if (loading) return;
-    setAnnounce(
-      meta.total === 0
-        ? 'Không có mục nào'
-        : `Đang hiển thị ${num(from)} đến ${num(to)} trong ${num(meta.total)} mục`
-    );
-  }, [meta.page, meta.page_size, meta.total, loading, from, to]);
+  }
 
   const changeSize = (raw: string) => {
     const next = Number(raw) as PageSize;

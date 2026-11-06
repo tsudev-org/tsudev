@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Seo from '../../components/Seo';
 import { useSession, signIn } from 'next-auth/react';
 import { Layout, Card, Button, SectionHeading, Badge, Modal, Input, Stat } from '@tsudev/ui';
@@ -9,6 +9,7 @@ import { useUrlPaging, useUrlPagingSync } from '../../lib/useUrlPaging';
 import { MfaRequiredNotice } from '../../components/MfaRequiredNotice';
 import { isMfaRequired } from '../../lib/mfa';
 import { formatDateTimeVN, NO_DATE } from '../../lib/format';
+import { useLoader } from '../../lib/useLoader';
 
 // Trung tâm an ninh phát hành (docs/security-plan.md §3, B5).
 //
@@ -151,40 +152,41 @@ export default function ReleaseSecurity() {
   const { page, setPage, pageSize, meta } = paging;
   useUrlPagingSync([paging]);
 
-  const load = useCallback(async () => {
-    if (!paging.ready || mfaRequired) return;
-    setLoading(true);
-    const qs = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
-    if (stateFilter) qs.set('state', stateFilter);
-    if (platformFilter) qs.set('platform', platformFilter);
-    const r = await api('GET', `release-security?${qs}`);
-    setLoading(false);
-    setBooted(true);
-    if (isMfaRequired(r.status, r.data)) return setMfaRequired(true);
-    if (r.status === 401 || r.status === 403) return setDenied(true);
-    const body = r.data as {
-      items?: Row[];
-      summary?: Partial<Record<State, number>>;
-      virusTotalConfigured?: boolean;
-    } & Partial<PageMeta>;
-    setRows(Array.isArray(body.items) ? body.items : []);
-    setSummary(body.summary ?? {});
-    setVtConfigured(body.virusTotalConfigured !== false);
-    if (typeof body.total === 'number')
-      paging.setMeta({
-        total: body.total,
-        page: body.page ?? page,
-        page_size: body.page_size ?? pageSize,
-        total_pages: body.total_pages ?? 1,
-      } as PageMeta);
+  const load = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!paging.ready || mfaRequired) return;
+      setLoading(true);
+      const qs = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
+      if (stateFilter) qs.set('state', stateFilter);
+      if (platformFilter) qs.set('platform', platformFilter);
+      const r = await api('GET', `release-security?${qs}`);
+      if (signal?.aborted) return;
+      setLoading(false);
+      setBooted(true);
+      if (isMfaRequired(r.status, r.data)) return setMfaRequired(true);
+      if (r.status === 401 || r.status === 403) return setDenied(true);
+      const body = r.data as {
+        items?: Row[];
+        summary?: Partial<Record<State, number>>;
+        virusTotalConfigured?: boolean;
+      } & Partial<PageMeta>;
+      setRows(Array.isArray(body.items) ? body.items : []);
+      setSummary(body.summary ?? {});
+      setVtConfigured(body.virusTotalConfigured !== false);
+      if (typeof body.total === 'number')
+        paging.setMeta({
+          total: body.total,
+          page: body.page ?? page,
+          page_size: body.page_size ?? pageSize,
+          total_pages: body.total_pages ?? 1,
+        } as PageMeta);
+    },
     // `paging` cố ý không nằm trong deps: object mới mỗi lần dựng.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, paging.ready, mfaRequired, stateFilter, platformFilter]);
+    [page, pageSize, paging.ready, mfaRequired, stateFilter, platformFilter]
+  );
 
-  useEffect(() => {
-    if (status === 'authenticated') load();
-    if (status === 'unauthenticated') setLoading(false);
-  }, [status, load]);
+  useLoader(load, status === 'authenticated');
 
   const checkIntegrity = async (row: Row) => {
     setBusy(row.id);
@@ -263,7 +265,7 @@ export default function ReleaseSecurity() {
     </Layout>
   );
 
-  if (status === 'loading' || (!booted && loading))
+  if (status === 'loading' || (status === 'authenticated' && !booted && loading))
     return shell(<Card className="p-8 text-center text-fg-muted">Đang tải…</Card>);
   if (status === 'unauthenticated')
     return shell(
@@ -373,7 +375,7 @@ export default function ReleaseSecurity() {
             ))}
           </select>
         </label>
-        <Button variant="secondary" size="sm" onClick={load}>
+        <Button variant="secondary" size="sm" onClick={() => load()}>
           Làm mới
         </Button>
       </div>

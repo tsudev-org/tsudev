@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 
 /**
  * Nút chọn giao diện - BỐN lựa chọn: Sáng · Ấm · Tối · Theo hệ thống.
@@ -74,6 +74,32 @@ const readChoice = (): ThemeChoice => {
   return 'light';
 };
 
+// Kho lựa chọn cho `useSyncExternalStore`: đọc localStorage làm ảnh chụp (máy
+// chủ trả `null` - chưa biết), và nghe sự kiện `storage` nên đổi chế độ ở một
+// tab thì nút ở tab kia theo luôn. `inSession` giữ lựa chọn khi localStorage
+// ném lỗi (iframe sandbox, chặn cookie) - chế độ vẫn đổi cho phiên này.
+const choiceListeners = new Set<() => void>();
+let inSession: ThemeChoice | null = null;
+const subscribeChoice = (cb: () => void) => {
+  const onStorage = (e: StorageEvent) => {
+    if (e.key !== STORAGE_KEY) return;
+    inSession = null;
+    cb();
+  };
+  choiceListeners.add(cb);
+  window.addEventListener('storage', onStorage);
+  return () => {
+    choiceListeners.delete(cb);
+    window.removeEventListener('storage', onStorage);
+  };
+};
+const getChoice = (): ThemeChoice => inSession ?? readChoice();
+const getServerChoice = (): ThemeChoice | null => null;
+const setChoiceInSession = (next: ThemeChoice) => {
+  inSession = next;
+  choiceListeners.forEach((cb) => cb());
+};
+
 // Icon 16px nét mảnh stroke 1.5, đúng đặc tả item dropdown ở DESIGN_SYSTEM.md §5.
 const ICONS: Record<ThemeChoice, React.ReactNode> = {
   light: (
@@ -115,15 +141,12 @@ const Glyph = ({ choice }: { choice: ThemeChoice }) => (
 );
 
 export const ThemeToggle = () => {
-  const [choice, setChoice] = useState<ThemeChoice>('light');
-  const [mounted, setMounted] = useState(false);
+  // `null` = đang dựng ở máy chủ / lượt hydrat - xem ghi chú `mounted` ở đầu tệp.
+  const stored = useSyncExternalStore(subscribeChoice, getChoice, getServerChoice);
+  const mounted = stored !== null;
+  const choice: ThemeChoice = stored ?? 'light';
   const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setMounted(true);
-    setChoice(readChoice());
-  }, []);
 
   // Chọn "Theo hệ thống" thì phải đổi NGAY khi máy đổi, không chờ tải lại trang -
   // nếu không thì lựa chọn đó chỉ đúng tại thời điểm bấm, và người dùng sẽ kết
@@ -154,7 +177,7 @@ export const ThemeToggle = () => {
   }, [open]);
 
   const pick = useCallback((next: ThemeChoice) => {
-    setChoice(next);
+    setChoiceInSession(next);
     applyTheme(resolveTheme(next));
     setOpen(false);
     try {

@@ -17,7 +17,15 @@ const MAX_TRIES = 3;
 
 export function useRecoverBuildPlaceholder(failed: boolean): boolean {
   const router = useRouter();
-  const [trying, setTrying] = useState(false);
+  // `trying` SUY RA từ `failed`, không bật trong effect: máy chủ và trình duyệt
+  // cùng vẽ "đang cập nhật" ngay từ đầu (bản cũ vẽ "không tải được" một nhịp rồi
+  // mới đổi). `settled` = lượt thử đã xong hoặc đã hết lượt.
+  const [settled, setSettled] = useState(false);
+  const [prevFailed, setPrevFailed] = useState(failed);
+  if (prevFailed !== failed) {
+    setPrevFailed(failed);
+    setSettled(false);
+  }
 
   useEffect(() => {
     if (!failed) return;
@@ -28,8 +36,12 @@ export function useRecoverBuildPlaceholder(failed: boolean): boolean {
     } catch {
       /* sessionStorage có thể bị chặn - vẫn thử một lần */
     }
-    if (tries >= MAX_TRIES) return;
-    setTrying(true);
+    if (tries >= MAX_TRIES) {
+      // Hết lượt: báo "không tải được" thật. Qua hẹn giờ 0ms - setState trong
+      // callback, không đồng bộ trong thân effect.
+      const t0 = setTimeout(() => setSettled(true), 0);
+      return () => clearTimeout(t0);
+    }
     const t = setTimeout(
       () => {
         try {
@@ -37,7 +49,7 @@ export function useRecoverBuildPlaceholder(failed: boolean): boolean {
         } catch {
           /* như trên */
         }
-        router.replace(router.asPath, undefined, { scroll: false }).finally(() => setTrying(false));
+        router.replace(router.asPath, undefined, { scroll: false }).finally(() => setSettled(true));
       },
       DELAY_MS * (tries + 1)
     );
@@ -46,5 +58,5 @@ export function useRecoverBuildPlaceholder(failed: boolean): boolean {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [failed]);
 
-  return trying;
+  return failed && !settled;
 }

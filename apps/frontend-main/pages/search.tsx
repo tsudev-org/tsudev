@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/router';
 import Seo from '../components/Seo';
 import PageHeader from '../components/PageHeader';
@@ -93,6 +93,13 @@ type SearchProps = {
   allTags: string[];
 };
 
+// `useSyncExternalStore` với ảnh chụp khác nhau ở máy chủ và trình duyệt: React
+// dựng bản máy chủ khi hydrat rồi tự chuyển sang bản trình duyệt - đúng "đã gắn
+// vào DOM chưa", không cần effect + setState.
+const noSubscribe = () => () => {};
+const isClient = () => true;
+const isServer = () => false;
+
 export default function SearchPage({
   initialQ,
   initialType,
@@ -123,8 +130,7 @@ export default function SearchPage({
    * và React báo lệch hydrat. Các bảng khác không gặp vì chúng dựng phía máy
    * khách hoàn toàn.
    */
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(noSubscribe, isClient, isServer);
   const [error, setError] = useState(false);
   const [active, setActive] = useState(-1);
 

@@ -55,7 +55,7 @@ export default [
   react.configs.flat.recommended,
   {
     plugins: { 'react-hooks': reactHooks },
-    rules: reactHooks.configs.recommended.rules,
+    rules: reactHooks.configs.flat['recommended-latest'].rules,
   },
   jsxA11y.flatConfigs.recommended,
   ...tsPlugin.configs['flat/recommended'],

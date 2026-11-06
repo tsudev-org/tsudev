@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Card, Button, Input, Badge, Icon, RecordFooter } from '@tsudev/ui';
 import { viWordCount } from '@tsudev/search';
 import { formatDateTimeVN } from '../lib/format';
 import { renderMarkdown } from '../lib/md';
 import type { PageMeta } from '@tsudev/types';
 import type { UrlPaging } from '../lib/useUrlPaging';
+import { useLoader } from '../lib/useLoader';
 
 /**
  * Thẻ "Tài liệu" của trang /author - soạn Doc cho /docs.
@@ -56,30 +57,33 @@ export default function AuthorDocs({
   const [loading, setLoading] = useState(true);
   const { page, setPage, pageSize, setPageSize, meta } = paging;
 
-  const load = useCallback(async () => {
-    if (!paging.ready) return;
-    setLoading(true);
-    const res = await fetch(`/api/content/author/docs?page=${page}&page_size=${pageSize}`);
-    setLoading(false);
-    if (res.status === 403) {
-      onDenied();
-      return;
-    }
-    if (!res.ok) {
-      setMsg({ tone: 'error', text: 'Không tải được danh sách tài liệu.' });
-      return;
-    }
-    const body = (await res.json()) as { data?: AuthorDoc[]; meta?: PageMeta };
-    if (Array.isArray(body?.data)) setDocs(body.data);
-    if (body?.meta) paging.setMeta(body.meta);
+  const load = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!paging.ready) return;
+      setLoading(true);
+      const res = await fetch(`/api/content/author/docs?page=${page}&page_size=${pageSize}`, {
+        signal,
+      });
+      setLoading(false);
+      if (res.status === 403) {
+        onDenied();
+        return;
+      }
+      if (!res.ok) {
+        setMsg({ tone: 'error', text: 'Không tải được danh sách tài liệu.' });
+        return;
+      }
+      const body = (await res.json()) as { data?: AuthorDoc[]; meta?: PageMeta };
+      if (Array.isArray(body?.data)) setDocs(body.data);
+      if (body?.meta) paging.setMeta(body.meta);
+    },
     // `paging` cố ý không nằm trong deps: nó là object mới mỗi lần dựng.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, paging.ready]);
+    [page, pageSize, paging.ready]
+  );
 
-  useEffect(() => {
-    load();
-    // `load` đổi theo trang/mốc; `onDenied` là hàm của cha, không phải dữ liệu.
-  }, [load]);
+  // `load` đổi theo trang/mốc; `onDenied` là hàm của cha, không phải dữ liệu.
+  useLoader(load);
 
   const set =
     (k: keyof DocForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>

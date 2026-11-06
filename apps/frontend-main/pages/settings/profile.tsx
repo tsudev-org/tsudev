@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Button, Input, Layout } from '@tsudev/ui';
 import { emailGraceRemainingMs } from '@tsudev/types';
 
 import Seo from '../../components/Seo';
 import { Notice } from '../../components/AuthShell';
+import { useLoader } from '../../lib/useLoader';
 
 /**
  * Hồ sơ của chính mình.
@@ -130,18 +131,16 @@ export default function ProfilePage() {
   const [emailPassword, setEmailPassword] = useState('');
   const [changingEmail, setChangingEmail] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (signal?: AbortSignal) => {
     const { ok, data } = await post('profile/get');
-    if (!ok) return;
+    if (!ok || signal?.aborted) return;
     const p = data as unknown as Profile;
     setProfile(p);
     setDisplayName(p.displayName ?? '');
     setBio(p.bio ?? '');
   }, []);
 
-  useEffect(() => {
-    if (status === 'authenticated') load();
-  }, [status, load]);
+  useLoader(load, status === 'authenticated');
 
   // `noindex` phải có ở CẢ hai nhánh chưa-đăng-nhập. Trình thu thập KHÔNG BAO
   // GIỜ có phiên, nên hai nhánh này là trạng thái duy nhất nó nhìn thấy - đặt

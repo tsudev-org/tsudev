@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Seo from '../../components/Seo';
 import { useSession, signIn } from 'next-auth/react';
 import { Layout, Card, Button, SectionHeading, RecordFooter } from '@tsudev/ui';
@@ -9,6 +9,7 @@ import { useUrlPaging, useUrlPagingSync } from '../../lib/useUrlPaging';
 import { SecurityEventList, type SecurityEvent } from '../../components/SecurityEventList';
 import { MfaRequiredNotice } from '../../components/MfaRequiredNotice';
 import { isMfaRequired } from '../../lib/mfa';
+import { useLoader } from '../../lib/useLoader';
 
 // Console nhật ký bảo mật xuyên tài khoản - CHỈ OWNER (tsudev).
 //
@@ -41,33 +42,34 @@ export default function AdminSecurity() {
   // lần lật trang thì bảng phải đứng yên và bộ chọn chỉ mờ đi (mục 4).
   const [booted, setBooted] = useState(false);
 
-  const load = useCallback(async () => {
-    if (!paging.ready || mfaRequired) return;
-    setLoading(true);
-    const r = await call('useradmin/security', { page, page_size: pageSize });
-    setLoading(false);
-    setBooted(true);
-    if (isMfaRequired(r.status, r.data)) {
-      setMfaRequired(true);
-      return;
-    }
-    if (r.status === 401 || r.status === 403) {
-      setDenied(true);
-      return;
-    }
-    const body = r.data as { data?: SecurityEvent[]; meta?: PageMeta };
-    if (Array.isArray(body?.data)) setEvents(body.data);
-    if (body?.meta) paging.setMeta(body.meta);
+  const load = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!paging.ready || mfaRequired) return;
+      setLoading(true);
+      const r = await call('useradmin/security', { page, page_size: pageSize });
+      if (signal?.aborted) return;
+      setLoading(false);
+      setBooted(true);
+      if (isMfaRequired(r.status, r.data)) {
+        setMfaRequired(true);
+        return;
+      }
+      if (r.status === 401 || r.status === 403) {
+        setDenied(true);
+        return;
+      }
+      const body = r.data as { data?: SecurityEvent[]; meta?: PageMeta };
+      if (Array.isArray(body?.data)) setEvents(body.data);
+      if (body?.meta) paging.setMeta(body.meta);
+    },
     // `paging` cố ý không nằm trong deps: nó là object mới mỗi lần dựng.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, paging.ready, mfaRequired]);
+    [page, pageSize, paging.ready, mfaRequired]
+  );
 
-  useEffect(() => {
-    if (status === 'authenticated') load();
-    if (status === 'unauthenticated') setLoading(false);
-  }, [status, load]);
+  useLoader(load, status === 'authenticated');
 
-  if (status === 'loading' || (!booted && loading))
+  if (status === 'loading' || (status === 'authenticated' && !booted && loading))
     return (
       <Layout>
         <Seo title="Nhật ký bảo mật" path="/admin/security" noindex />
@@ -116,7 +118,7 @@ export default function AdminSecurity() {
           Sự kiện bảo mật của mọi tài khoản: đăng nhập, đổi mật khẩu/email, 2FA, passkey, đổi vai
           trò, thu hồi phiên.
         </p>
-        <Button variant="secondary" size="sm" onClick={load}>
+        <Button variant="secondary" size="sm" onClick={() => load()}>
           Làm mới
         </Button>
       </div>

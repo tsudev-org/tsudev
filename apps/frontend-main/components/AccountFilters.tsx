@@ -148,8 +148,14 @@ export function AccountFilters({
   // Bộ lọc bị xoá từ ngoài (nút "Xoá lọc", hoặc mở một liên kết chia sẻ) thì hai
   // ô này phải theo. Không có nhánh này thì ô vẫn còn chữ trong khi kết quả đã
   // là của bộ lọc rỗng - người dùng đọc ô nhập, không đọc URL.
-  useEffect(() => setQ(value.q), [value.q]);
-  useEffect(() => setIp(value.ip), [value.ip]);
+  // Làm trong render (so với giá trị lần trước), không trong effect: effect vẽ
+  // một khung với chữ cũ rồi mới vẽ lại.
+  const [prev, setPrev] = useState({ q: value.q, ip: value.ip });
+  if (prev.q !== value.q || prev.ip !== value.ip) {
+    setPrev({ q: value.q, ip: value.ip });
+    if (prev.q !== value.q) setQ(value.q);
+    if (prev.ip !== value.ip) setIp(value.ip);
+  }
 
   useEffect(() => {
     if (first.current) {

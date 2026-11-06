@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Seo from '../../components/Seo';
 import { useSession, signIn } from 'next-auth/react';
 import { Layout, Card, Button, Badge, SectionHeading, RecordFooter, Modal } from '@tsudev/ui';
@@ -7,6 +7,7 @@ import { useUrlPaging, useUrlPagingSync } from '../../lib/useUrlPaging';
 import { formatDateTimeVN } from '../../lib/format';
 import { isMfaRequired } from '../../lib/mfa';
 import { MfaRequiredNotice } from '../../components/MfaRequiredNotice';
+import { useLoader } from '../../lib/useLoader';
 
 /**
  * Kiểm duyệt nội dung (bài viết, tài liệu) cho ADMIN.
@@ -90,37 +91,38 @@ export default function AdminContent() {
   const { page, setPage, pageSize, setPageSize, meta } = paging;
   useUrlPagingSync([paging]);
 
-  const load = useCallback(async () => {
-    if (!paging.ready || mfaRequired) return;
-    setLoading(true);
-    const q = new URLSearchParams({
-      kind,
-      state,
-      page: String(page),
-      page_size: String(pageSize),
-    });
-    if (origin !== 'all') q.set('origin', origin);
-    const res = await fetch(`/api/content/admin/content?${q}`);
-    setLoading(false);
-    if (!res.ok) {
-      if (isMfaRequired(res.status, await res.json().catch(() => null))) {
-        setMfaRequired(true);
+  const load = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!paging.ready || mfaRequired) return;
+      setLoading(true);
+      const q = new URLSearchParams({
+        kind,
+        state,
+        page: String(page),
+        page_size: String(pageSize),
+      });
+      if (origin !== 'all') q.set('origin', origin);
+      const res = await fetch(`/api/content/admin/content?${q}`, { signal });
+      setLoading(false);
+      if (!res.ok) {
+        if (isMfaRequired(res.status, await res.json().catch(() => null))) {
+          setMfaRequired(true);
+          return;
+        }
+        setMsg({ tone: 'danger', text: 'Không tải được danh sách. Bạn có quyền quản trị không?' });
         return;
       }
-      setMsg({ tone: 'danger', text: 'Không tải được danh sách. Bạn có quyền quản trị không?' });
-      return;
-    }
-    const body = (await res.json()) as { data?: Row[]; meta?: PageMeta };
-    setRows(Array.isArray(body.data) ? body.data : []);
-    if (body.meta) paging.setMeta(body.meta);
-    setSelected(new Set());
+      const body = (await res.json()) as { data?: Row[]; meta?: PageMeta };
+      setRows(Array.isArray(body.data) ? body.data : []);
+      if (body.meta) paging.setMeta(body.meta);
+      setSelected(new Set());
+    },
     // `paging` cố ý không nằm trong deps: nó là object mới mỗi lần dựng.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kind, state, origin, page, pageSize, paging.ready, mfaRequired]);
+    [kind, state, origin, page, pageSize, paging.ready, mfaRequired]
+  );
 
-  useEffect(() => {
-    if (session) load();
-  }, [session, load]);
+  useLoader(load, !!session);
 
   // Đổi bộ lọc ⇒ về trang 1 (trang 4 của một tập khác là trang rỗng).
   const resetTo =
