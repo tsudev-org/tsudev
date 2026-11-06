@@ -44,6 +44,7 @@
     "db:reset": "node scripts/with-env.js npm --workspace packages/db exec -- prisma migrate reset --force",
     "dev:full": "npm run db:up && npm run minio:up && npm run db:generate && npm run db:migrate && npm run db:seed && npm run build:services && npm run db:seed:dev && npm run dev:local",
     "typecheck": "npm run build:ts && npm --workspace apps/frontend-main run typecheck && npm run cron:typecheck",
+    "typecheck:ts7": "node scripts/typecheck-ts7.js",
     "build:ts": "tsc -b",
     "build:services": "tsc -b tsconfig.services.json",
     "db:seed:dev": "node scripts/with-env.js node services/auth-service/scripts/seed-dev-users.js",
