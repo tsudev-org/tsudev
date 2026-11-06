@@ -1,5 +1,14 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 37 BẮT ĐẦU Ở ĐÂY** (cuối phiên 36, 06/11/2026). Phiếu:
+> [`20261106-02`](handover/20261106-02_ket-phien-36-bao-mat-va-tai-khoan.md).
+>
+> ✅ Production đã deploy bản mới (icon/logo, chặn duyệt ngược BFF). Backend Node 22, giới hạn
+> tần suất theo tài khoản, audit prod 0 / dev 0 high-critical. 13 check bắt buộc + strict.
+>
+> 🔴 Chủ dự án: xoá 2 repo (T18), tạo Organization (T19), THU HỒI PAT lộ ở xanuicam/ubnd (T20).
+> Agent: chuyển repo vào Org, Express 5 (#154), override minimatch sau 10/11.
+
 > **Phiên 37 BẮT ĐẦU Ở ĐÂY** (cuối phiên 36, 05/11/2026). Phiếu:
 > [`20261105-06`](handover/20261105-06_ket-phien-36-icon-a4.md).
 >
