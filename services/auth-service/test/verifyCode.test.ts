@@ -58,7 +58,12 @@ let idB: string
 const clearThrottles = async (userId: string) => {
   // Dọn CẢ hai lớp chặn: token mang cooldown, SecurityEvent mang trần ngày.
   await prisma.authToken.deleteMany({ where: { userId, purpose: 'EMAIL_VERIFY_CODE' } })
-  await prisma.securityEvent.deleteMany({ where: { userId, type: 'verify_code_sent' } })
+  // SecurityEvent là nhật ký CHỈ-THÊM (trigger, G8): dọn test phải mở khoá
+  // bằng SET LOCAL trong cùng giao dịch.
+  await prisma.$transaction([
+    prisma.$executeRawUnsafe(`SET LOCAL tsudev.allow_audit_purge = 'on'`),
+    prisma.securityEvent.deleteMany({ where: { userId, type: 'verify_code_sent' } }),
+  ])
 }
 
 beforeAll(async () => {

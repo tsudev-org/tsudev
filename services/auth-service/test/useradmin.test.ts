@@ -51,7 +51,11 @@ const roleOf = async (username: string) =>
   (await prisma.user.findUnique({ where: { username } }))?.role
 
 const clean = async () => {
-  await prisma.trustAuditLog.deleteMany({ where: { targetType: 'User' } })
+  // TrustAuditLog là nhật ký CHỈ-THÊM (trigger, G8): dọn test phải mở khoá.
+  await prisma.$transaction([
+    prisma.$executeRawUnsafe(`SET LOCAL tsudev.allow_audit_purge = 'on'`),
+    prisma.trustAuditLog.deleteMany({ where: { targetType: 'User' } }),
+  ])
   await prisma.user.deleteMany({ where: { username: { startsWith: 'test-ua-' } } })
 }
 
