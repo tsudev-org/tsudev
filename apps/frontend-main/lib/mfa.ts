@@ -36,3 +36,33 @@ export class MfaRequiredError extends Error {
     this.name = 'MfaRequiredError';
   }
 }
+
+/**
+ * Mã lỗi "thao tác này cần xác thực lại" (step-up, G7). Backend trả 401
+ * `{ error, code: 'STEP_UP_REQUIRED' }` khi thiếu/sai/hết hạn token step-up -
+ * giao diện bắt mã này để mở hộp nhập TOTP. Hằng gốc ở `@tsudev/auth`;
+ * `test/mfa.test.ts` đối chiếu hai nơi.
+ */
+export const STEP_UP_REQUIRED = 'STEP_UP_REQUIRED';
+
+export function isStepUpRequired(status: number, body: unknown): boolean {
+  return (
+    status === 401 &&
+    typeof body === 'object' &&
+    body !== null &&
+    (body as { code?: unknown }).code === STEP_UP_REQUIRED
+  );
+}
+
+/** Đổi mã TOTP lấy token step-up (5 phút). Trả null khi mã sai/hết hạn. */
+export async function requestStepUp(
+  code: string
+): Promise<{ token: string; expiresAt: string } | null> {
+  const r = await fetch('/api/account/step-up', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code }),
+  });
+  const data = (await r.json().catch(() => ({}))) as { token?: string; expiresAt?: string };
+  return r.ok && data.token ? { token: data.token, expiresAt: data.expiresAt || '' } : null;
+}

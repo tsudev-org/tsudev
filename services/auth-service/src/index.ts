@@ -21,6 +21,7 @@ import {
   issueStepUp,
   lookupUser,
   requireSecondFactor,
+  requireStepUp,
   stepUpSecret,
 } from '@tsudev/auth'
 import { parsePaging, pageMeta, ROLES } from '@tsudev/types'
@@ -2012,7 +2013,8 @@ app.post(
   })
 )
 
-/** OWNER: phân quyền / thu hồi vai trò (đặt về MEMBER). KHÔNG cấp được OWNER. */
+/** OWNER: phân quyền / thu hồi vai trò (đặt về MEMBER). KHÔNG cấp được OWNER.
+ *  Đòi step-up (TOTP < 5 phút) - xem `POST /api/identity/step-up`. */
 app.post(
   '/api/identity/useradmin/role',
   asyncHandler(async (req, res) => {
@@ -2030,6 +2032,10 @@ app.post(
     if (!target) return res.status(404).json({ error: 'not_found' })
     if (target.id === actor.id) return res.status(400).json({ error: 'cannot_change_self' })
     if (target.role === 'OWNER') return res.status(403).json({ error: 'cannot_target_owner' })
+    // Step-up (G7): đổi vai trò là đường LEO THANG ĐẶC QUYỀN - cookie phiên bị
+    // đánh cắp không được đủ để cấp ADMIN cho tài khoản khác. Kiểm SAU các lỗi
+    // đầu vào để người dùng không bị đòi mã TOTP cho một yêu cầu vốn đã hỏng.
+    if (!requireStepUp(req, res, actor)) return
 
     const user = await prisma.user.update({ where: { id }, data: { role }, select: USER_SELECT })
     await auditUser(actor, 'user.role', id, target.username, `${target.role} -> ${role}`)
@@ -2081,6 +2087,8 @@ app.post(
     if (!target) return res.status(404).json({ error: 'not_found' })
     if (target.id === actor.id) return res.status(400).json({ error: 'cannot_delete_self' })
     if (target.role === 'OWNER') return res.status(403).json({ error: 'cannot_target_owner' })
+    // Step-up (G7): xoá là thao tác không hoàn tác được.
+    if (!requireStepUp(req, res, actor)) return
 
     try {
       await prisma.user.delete({ where: { id } })

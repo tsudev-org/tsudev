@@ -84,17 +84,17 @@ Kết quả: `npm audit --omit=dev` = **0 lỗ hổng** (trước: 7, gồm 2 cr
 
 ### 2.4 Trạng thái đóng (cập nhật 06/11/2026)
 
-| #      | Trạng thái                                                                                        | Ở đâu                                                                                     |
-| ------ | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| G1     | ĐÓNG phần lớn: gitleaks, npm audit prod, Dependabot, CodeQL, pr-gates                             | `.github/workflows/`; SAST Semgrep còn ở giai đoạn 3                                      |
-| G2     | ĐÓNG: 13 check bắt buộc + `strict`                                                                | branch protection `main`                                                                  |
-| G3     | ĐÓNG                                                                                              | `docs/release-signing.md` §Siết tải lên                                                   |
-| G4     | ĐÓNG ở mã; **chờ chủ dự án đặt `VIRUSTOTAL_API_KEY`** ở Render                                    | thiếu khoá ⇒ `CHUA_QUET`, trang báo rõ "chưa quét mã độc"                                 |
-| G5     | ĐÓNG ở mã; **chờ đặt `RELEASE_INTEGRITY_TOKEN`** ở Render + Worker                                | cron `23 1,13` ⇒ `POST /api/internal/releases/integrity`; thiếu token ⇒ cron log "BỎ QUA" |
-| G6     | ĐÓNG (chỉ TOTP; passkey chưa tính)                                                                | `docs/auth.md` §Khu quản trị bắt buộc TOTP                                                |
-| G7     | ĐÓNG cho thu hồi/khôi phục/ký lại bản phát hành; đổi vai trò ở `/admin/accounts` CHƯA đòi step-up | `requireStepUp` (`@tsudev/auth`), `POST /api/identity/step-up`                            |
-| G8     | ĐÓNG                                                                                              | migration `20261106120000_an_ninh_phat_hanh`: trigger chỉ-thêm + `prevHash`               |
-| G9-G12 | Mở - giai đoạn 3                                                                                  | §4                                                                                        |
+| #      | Trạng thái                                                                                    | Ở đâu                                                                                     |
+| ------ | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| G1     | ĐÓNG phần lớn: gitleaks, npm audit prod, Dependabot, CodeQL, pr-gates                         | `.github/workflows/`; SAST Semgrep còn ở giai đoạn 3                                      |
+| G2     | ĐÓNG: 13 check bắt buộc + `strict`                                                            | branch protection `main`                                                                  |
+| G3     | ĐÓNG                                                                                          | `docs/release-signing.md` §Siết tải lên                                                   |
+| G4     | ĐÓNG ở mã; **chờ chủ dự án đặt `VIRUSTOTAL_API_KEY`** ở Render                                | thiếu khoá ⇒ `CHUA_QUET`, trang báo rõ "chưa quét mã độc"                                 |
+| G5     | ĐÓNG ở mã; **chờ đặt `RELEASE_INTEGRITY_TOKEN`** ở Render + Worker                            | cron `23 1,13` ⇒ `POST /api/internal/releases/integrity`; thiếu token ⇒ cron log "BỎ QUA" |
+| G6     | ĐÓNG (chỉ TOTP; passkey chưa tính)                                                            | `docs/auth.md` §Khu quản trị bắt buộc TOTP                                                |
+| G7     | ĐÓNG: thu hồi/khôi phục/ký lại bản phát hành; đổi vai trò + xoá tài khoản ở `/admin/accounts` | `requireStepUp` (`@tsudev/auth`), `POST /api/identity/step-up`                            |
+| G8     | ĐÓNG                                                                                          | migration `20261106120000_an_ninh_phat_hanh`: trigger chỉ-thêm + `prevHash`               |
+| G9-G12 | Mở - giai đoạn 3                                                                              | §4                                                                                        |
 
 ## 3. Trung tâm an ninh phát hành - `/admin/release-security`
 

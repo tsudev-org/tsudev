@@ -28,6 +28,7 @@ const { prisma } = require('@tsudev/db')
 const { signIdentity } = require('@tsudev/identity-token')
 const { app } = require('../src/index')
 const { totpCode } = require('../src/totp')
+const { issueStepUp } = require('@tsudev/auth')
 
 const OWNER = 'test-ua-owner'
 const ADMIN = 'test-ua-admin'
@@ -45,6 +46,12 @@ const post = async (action: string, sub: string | null, body: Record<string, unk
   const req = request(app).post(`/api/identity/useradmin/${action}`)
   if (sub) req.set(await asUser(sub))
   return req.send(body)
+}
+
+/** Token step-up (G7) hợp lệ cho `username` - như thể vừa nhập đúng mã TOTP. */
+const stepUpFor = async (username: string) => {
+  const u = (await prisma.user.findUnique({ where: { username } }))!
+  return issueStepUp(u, process.env.INTERNAL_IDENTITY_SECRET as string).token as string
 }
 
 const roleOf = async (username: string) =>
@@ -214,7 +221,7 @@ describe('liệt kê & tạo', () => {
 describe('phân quyền, thu hồi, xoá', () => {
   test('OWNER đổi vai trò MEMBER lên ADMIN', async () => {
     const id = (await prisma.user.findUnique({ where: { username: MEMBER } }))!.id
-    const res = await post('role', OWNER, { id, role: 'ADMIN' })
+    const res = await post('role', OWNER, { id, role: 'ADMIN', stepUp: await stepUpFor(OWNER) })
     expect(res.status).toBe(200)
     expect(await roleOf(MEMBER)).toBe('ADMIN')
   }, 20000)
@@ -259,9 +266,57 @@ describe('phân quyền, thu hồi, xoá', () => {
     expect((await post('delete', OWNER, { id: owner2.id })).body.error).toBe('cannot_target_owner')
     expect(await roleOf('test-ua-owner2')).toBe('OWNER')
 
-    const res = await post('delete', OWNER, { id: memberId })
+    const res = await post('delete', OWNER, { id: memberId, stepUp: await stepUpFor(OWNER) })
     expect(res.status).toBe(200)
     expect(await prisma.user.findUnique({ where: { username: MEMBER } })).toBeNull()
+  }, 20000)
+})
+
+// G7 (docs/security-plan.md): đổi vai trò và xoá tài khoản đòi XÁC THỰC LẠI.
+// Thiếu token, token của người khác, hay token phát trước khi thu hồi phiên đều
+// phải dừng ở 401 STEP_UP_REQUIRED và KHÔNG đổi gì trong DB.
+describe('step-up cho đổi vai trò và xoá', () => {
+  const memberId = async () => (await prisma.user.findUnique({ where: { username: MEMBER } }))!.id
+
+  test('thiếu token ⇒ 401 STEP_UP_REQUIRED, vai trò giữ nguyên', async () => {
+    const res = await post('role', OWNER, { id: await memberId(), role: 'ADMIN' })
+    expect(res.status).toBe(401)
+    expect(res.body.code).toBe('STEP_UP_REQUIRED')
+    expect(await roleOf(MEMBER)).toBe('MEMBER')
+  }, 20000)
+
+  test('thiếu token ⇒ không xoá được', async () => {
+    const res = await post('delete', OWNER, { id: await memberId() })
+    expect(res.status).toBe(401)
+    expect(res.body.code).toBe('STEP_UP_REQUIRED')
+    expect(await roleOf(MEMBER)).toBe('MEMBER')
+  }, 20000)
+
+  test('token của NGƯỜI KHÁC không dùng được', async () => {
+    const res = await post('role', OWNER, {
+      id: await memberId(),
+      role: 'ADMIN',
+      stepUp: await stepUpFor(ADMIN),
+    })
+    expect(res.status).toBe(401)
+    expect(await roleOf(MEMBER)).toBe('MEMBER')
+  }, 20000)
+
+  test('token phát TRƯỚC khi thu hồi phiên (sessionVersion tăng) hết hiệu lực', async () => {
+    const token = await stepUpFor(OWNER)
+    await prisma.user.update({
+      where: { username: OWNER },
+      data: { sessionVersion: { increment: 1 } },
+    })
+    const res = await post('role', OWNER, { id: await memberId(), role: 'ADMIN', stepUp: token })
+    expect(res.status).toBe(401)
+    expect(await roleOf(MEMBER)).toBe('MEMBER')
+  }, 20000)
+
+  test('lỗi đầu vào vẫn trả trước, không đòi mã TOTP cho yêu cầu đã hỏng', async () => {
+    const res = await post('role', OWNER, { id: await memberId(), role: 'OWNER' })
+    expect(res.status).toBe(400)
+    expect(res.body.error).toBe('invalid_role')
   }, 20000)
 })
 

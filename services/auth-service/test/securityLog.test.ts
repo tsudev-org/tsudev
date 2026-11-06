@@ -21,6 +21,7 @@ const { prisma } = require('@tsudev/db')
 const { signIdentity } = require('@tsudev/identity-token')
 const { app } = require('../src/index')
 const { hashPassword } = require('../src/password')
+const { issueStepUp } = require('@tsudev/auth')
 
 const stamp = Date.now()
 const U1 = `test-sl-u1-${stamp}`
@@ -166,7 +167,10 @@ describe('phạm vi đọc', () => {
 
 describe('hành động admin ghi vào timeline target', () => {
   test('OWNER đổi vai trò U2 ⇒ U2 có role_changed byAdmin', async () => {
-    const res = await authPost('useradmin/role', OWN, { id: u2Id, role: 'AUTHOR' })
+    // Đổi vai trò đòi step-up (G7): token như thể OWNER vừa nhập đúng TOTP.
+    const owner = (await prisma.user.findUnique({ where: { username: OWN } }))!
+    const stepUp = issueStepUp(owner, process.env.INTERNAL_IDENTITY_SECRET as string).token
+    const res = await authPost('useradmin/role', OWN, { id: u2Id, role: 'AUTHOR', stepUp })
     expect(res.status).toBe(200)
     const ev = await waitFor(
       () =>
