@@ -200,7 +200,7 @@ export const ThemeToggle = () => {
         aria-expanded={open}
         aria-label={`Giao diện: ${current.label}. Đổi giao diện`}
         title={`Giao diện: ${current.label}`}
-        className="inline-flex h-control w-control items-center justify-center rounded-md text-fg-muted transition-colors duration-fast ease-standard hover:bg-hovered hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        className="inline-flex h-control w-control items-center justify-center rounded-md text-fg-muted transition-colors duration-fast ease-standard hover:bg-hovered hover:text-fg focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
       >
         <Glyph choice={choice} />
       </button>
@@ -220,7 +220,7 @@ export const ThemeToggle = () => {
                 role="menuitemradio"
                 aria-checked={active}
                 onClick={() => pick(c.value)}
-                className={`flex w-full items-center gap-2 rounded-sm px-3 py-2 text-left text-sm transition-colors duration-fast ease-standard focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus ${
+                className={`flex w-full items-center gap-2 rounded-sm px-3 py-2 text-left text-sm transition-colors duration-fast ease-standard focus-visible:outline-solid focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus ${
                   active ? 'bg-subtle text-fg' : 'text-fg-secondary hover:bg-hovered hover:text-fg'
                 }`}
               >

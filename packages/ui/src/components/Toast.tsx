@@ -81,7 +81,7 @@ export const Toast = ({ message, type = 'info', onClose, duration }: ToastProps)
         {onClose && (
           <button
             type="button"
-            className="-mr-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-fg-muted transition-colors duration-fast ease-standard hover:bg-hovered hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            className="-mr-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-fg-muted transition-colors duration-fast ease-standard hover:bg-hovered hover:text-fg focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
             onClick={onClose}
             aria-label="Đóng thông báo"
           >

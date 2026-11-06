@@ -152,7 +152,7 @@ export default function AuthorDocs({
   };
 
   const fieldClass =
-    'rounded-md border border-line bg-base px-3 py-2.5 text-sm text-fg outline-none focus:border-primary';
+    'rounded-md border border-line bg-base px-3 py-2.5 text-sm text-fg outline-hidden focus:border-primary';
 
   return (
     <>

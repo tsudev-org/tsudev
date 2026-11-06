@@ -62,7 +62,7 @@ export default function PageHeader({
                 {eyebrow}
               </div>
             )}
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-fg text-balance leading-tight">
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-fg text-balance leading-tight md:leading-(--text-4xl--line-height)">
               {title}
             </h1>
             {description && (

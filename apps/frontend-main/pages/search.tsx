@@ -291,7 +291,7 @@ export default function SearchPage({
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={onKeyDown}
             placeholder="Ví dụ: tuong tac, kien truc, seo…"
-            className="w-full rounded-md border border-line-control bg-base px-4 py-3 text-fg outline-none focus:border-primary"
+            className="w-full rounded-md border border-line-control bg-base px-4 py-3 text-fg outline-hidden focus:border-primary"
           />
         </div>
 

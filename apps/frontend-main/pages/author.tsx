@@ -457,7 +457,7 @@ export default function AuthorEditor() {
                     type="datetime-local"
                     value={form.publishedAt}
                     onChange={set('publishedAt')}
-                    className="rounded-md border border-line bg-base px-3 py-2.5 text-sm text-fg outline-none focus:border-primary"
+                    className="rounded-md border border-line bg-base px-3 py-2.5 text-sm text-fg outline-hidden focus:border-primary"
                   />
                   <p className="text-xs text-fg-muted mt-1">
                     Đặt tương lai để hẹn lịch (bài ẩn tới giờ). Bỏ trống khi tạo = đăng ngay.
@@ -505,7 +505,7 @@ export default function AuthorEditor() {
                     value={form.metaDescription}
                     onChange={set('metaDescription')}
                     placeholder="Bỏ trống để dùng phần tóm tắt"
-                    className="rounded-md border border-line bg-base px-3 py-2.5 text-sm text-fg outline-none focus:border-primary"
+                    className="rounded-md border border-line bg-base px-3 py-2.5 text-sm text-fg outline-hidden focus:border-primary"
                   />
                 </div>
 
@@ -538,7 +538,7 @@ export default function AuthorEditor() {
                     value={form.contentMd}
                     onChange={set('contentMd')}
                     required
-                    className="rounded-md border border-line bg-base px-3 py-2.5 text-sm text-fg font-mono outline-none focus:border-primary"
+                    className="rounded-md border border-line bg-base px-3 py-2.5 text-sm text-fg font-mono outline-hidden focus:border-primary"
                   />
                 </div>
 
@@ -563,14 +563,14 @@ export default function AuthorEditor() {
                         value={r.label}
                         onChange={(e) => setRef(i, 'label', e.target.value)}
                         placeholder="Nhãn (vd: Tài liệu Next.js)"
-                        className="flex-1 min-w-[10rem] rounded-md border border-line bg-base px-3 py-2 text-sm text-fg outline-none focus:border-primary"
+                        className="flex-1 min-w-40 rounded-md border border-line bg-base px-3 py-2 text-sm text-fg outline-hidden focus:border-primary"
                       />
                       <input
                         aria-label={`Đường dẫn nguồn ${i + 1}`}
                         value={r.url}
                         onChange={(e) => setRef(i, 'url', e.target.value)}
                         placeholder="https://…"
-                        className="flex-[2] min-w-[12rem] rounded-md border border-line bg-base px-3 py-2 text-sm text-fg font-mono outline-none focus:border-primary"
+                        className="flex-2 min-w-48 rounded-md border border-line bg-base px-3 py-2 text-sm text-fg font-mono outline-hidden focus:border-primary"
                       />
                       <Button type="button" size="sm" variant="ghost" onClick={() => removeRef(i)}>
                         <Icon name="trash" />

@@ -99,7 +99,7 @@ interface AccountRow {
 const endOfDay = (d: string): string => (d ? `${d}T23:59:59.999Z` : '');
 
 const inputCls =
-  'w-full rounded-md border border-line bg-base px-3 py-2 text-sm text-fg placeholder:text-fg-muted focus:border-primary outline-none';
+  'w-full rounded-md border border-line bg-base px-3 py-2 text-sm text-fg placeholder:text-fg-muted focus:border-primary outline-hidden';
 const labelCls = 'block text-sm font-medium text-fg-secondary mb-1.5';
 
 const ERR: Record<string, string> = {

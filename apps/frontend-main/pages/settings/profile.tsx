@@ -462,7 +462,7 @@ export default function ProfilePage() {
                   onChange={(e) => setBio(e.target.value)}
                   rows={4}
                   maxLength={MAX_BIO}
-                  className="rounded-md border border-line bg-base px-3 py-2.5 text-sm text-fg outline-none transition-colors placeholder:text-fg-muted focus:border-primary"
+                  className="rounded-md border border-line bg-base px-3 py-2.5 text-sm text-fg outline-hidden transition-colors placeholder:text-fg-muted focus:border-primary"
                 />
                 <p className="mt-1 text-sm text-fg-muted">
                   {bio.length}/{MAX_BIO} ký tự

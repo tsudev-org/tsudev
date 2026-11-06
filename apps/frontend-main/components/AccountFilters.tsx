@@ -82,7 +82,7 @@ const flagOf = (cc: string): string =>
 
 const inputCls =
   'w-full rounded-md border border-line-control bg-base px-3 py-2 text-sm text-fg ' +
-  'placeholder:text-fg-muted focus:border-primary outline-none';
+  'placeholder:text-fg-muted focus:border-primary outline-hidden';
 const labelCls = 'block text-xs font-medium text-fg-muted mb-1';
 
 function Chip({

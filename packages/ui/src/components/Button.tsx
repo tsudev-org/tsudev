@@ -58,7 +58,7 @@ export const Button = ({
   const cls = [
     'inline-flex items-center justify-center gap-2 rounded-lg font-semibold cursor-pointer',
     'transition-colors duration-fast ease-standard',
-    'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
+    'focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
     // Disabled thắng mọi biến thể: `:disabled` chặn cả hover lẫn đổ bóng.
     'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:shadow-none',
     SIZES[size] ?? SIZES.md,

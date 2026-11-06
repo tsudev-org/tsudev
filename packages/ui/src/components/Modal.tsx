@@ -68,7 +68,7 @@ export const Modal = ({ open, onClose, title, children }: ModalProps) => {
         // radius-lg + shadow-lg: hộp thoại là bề mặt nổi cao nhất (§5). Rộng
         // 400-480px cho hộp nhỏ, 640-800px cho hộp lớn - `max-w-lg` (512px) là
         // bậc mặc định ở giữa, nơi gọi truyền `className` để đổi.
-        className="relative z-modal w-full max-w-lg rounded-lg border border-line bg-surface shadow-lg outline-none"
+        className="relative z-modal w-full max-w-lg rounded-lg border border-line bg-surface shadow-lg outline-hidden"
       >
         {title && (
           <div className="border-b border-line px-sp6 py-sp4">
@@ -85,7 +85,7 @@ export const Modal = ({ open, onClose, title, children }: ModalProps) => {
         <div className="flex justify-end gap-sp2 border-t border-line px-sp6 py-sp4">
           <button
             type="button"
-            className="inline-flex h-control items-center rounded-md px-sp4 text-sm font-semibold text-fg-secondary transition-colors duration-fast ease-standard hover:bg-hovered hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            className="inline-flex h-control items-center rounded-md px-sp4 text-sm font-semibold text-fg-secondary transition-colors duration-fast ease-standard hover:bg-hovered hover:text-fg focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
             onClick={onClose}
           >
             Đóng

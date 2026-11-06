@@ -123,7 +123,7 @@ export default function Home({
               <span className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
               Ứng dụng tự phát triển · tải miễn phí
             </span>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-fg text-balance leading-[1.08]">
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-fg text-balance leading-[1.08] md:leading-(--text-6xl--line-height)">
               Phần mềm nhỏ, gọn,
               <br />
               <span className="tsu-text-gradient">làm ra để dùng thật</span>.
