@@ -52,15 +52,21 @@ Phiên 39 bị tắt GIỮA bước đóng phiên: phiếu 05 + STATE đã viế
 
 ## 3. Việc kế tiếp của agent
 
-1. **Từ 10/11/2026**: override `"minimatch@>=7 <11.0.1": "^11.0.1"` trong `package.json` gốc, thao tác lock bằng `npx -y npm@11.21.0` (KHÔNG npm 10.9 cục bộ - xoá `libc` của argon2). Kiểm `glob@10` (storybook, @node-minify) còn chạy: `npm --workspace packages/ui run storybook` rồi ĐẾM story, và `npm --workspace apps/frontend-main run build`. Merge xong ⇒ Dependabot #40 tự đóng; dismiss Scorecard #76 kèm lý do "phần còn lại là deepmerge, không có bản vá" nếu nó vẫn mở.
-2. Deploy frontend lần tới (chủ dự án chọn để sau, 06/11) mang `lib/api.ts`/`lib/md.ts` của #163 lên Worker - qua `scripts/deploy-frontend.js`, nghiệm thu `/api/auth/providers`.
-3. Chuyển repo vào Org sau T19.
-4. (Khi có kế hoạch) Storybook 10 + vite 8: gỡ ba dòng `ignore` trong `dependabot.yml` cùng lúc.
-5. `@types/node` đang `^20` ở `packages/auth`, `packages/ratelimit` trong khi runtime là Node 22 - nâng TAY lên `^22` (lock bằng `npx -y npm@11.21.0`). Dependabot nay không tự làm việc này (§5).
-6. (Khi có kế hoạch) Di trú công cụ, mỗi cái một nhánh: eslint flat config rồi mới eslint 10; react-hooks 7 (sửa mã theo luật React Compiler); TypeScript 7. Gỡ dòng `ignore` tương ứng cùng lúc.
+Mỗi việc ghi agent chịu trách nhiệm (`.claude/agents/`, bảng sở hữu ở `AGENTS.md`). Việc có hai agent thì đi theo thứ tự ghi.
+
+| #   | việc                                                                                                                                                                                                                                                                                                                                                                             | agent                                                          | khi nào               |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | --------------------- |
+| 1   | Override `"minimatch@>=7 <11.0.1": "^11.0.1"` trong `package.json` gốc, lock bằng `npx -y npm@11.21.0` (KHÔNG npm 10.9 cục bộ - xoá `libc` của argon2). Kiểm `glob@10` còn chạy: `npm --workspace apps/frontend-main run build`, và Storybook (ĐẾM story). Merge ⇒ Dependabot #40 tự đóng; Scorecard #76 còn mở thì dismiss, lý do "phần còn lại là deepmerge, không có bản vá". | `infra-deploy` → `design-system` (đếm story)                   | **từ 10/11/2026**     |
+| 2   | Nâng TAY `@types/node` `^20` → `^22` ở `packages/auth`, `packages/ratelimit` (runtime là Node 22; Dependabot nay bỏ qua major). Lock bằng `npx -y npm@11.21.0`, chạy `npm run typecheck`.                                                                                                                                                                                        | `infra-deploy`                                                 | bất kỳ lúc nào        |
+| 3   | Deploy frontend mang `lib/api.ts`/`lib/md.ts` của #163 lên Worker - qua `scripts/deploy-frontend.js`, nghiệm thu `/api/auth/providers` + trang ISR. **Xin xác nhận chủ dự án** (06/11 chọn để sau).                                                                                                                                                                              | `infra-deploy`                                                 | lần deploy kế tiếp    |
+| 4   | Dọn nhánh remote cũ (§6). **Xin xác nhận chủ dự án** trước khi xoá.                                                                                                                                                                                                                                                                                                              | phiên chính                                                    | bất kỳ lúc nào        |
+| 5   | Chuyển repo vào Org.                                                                                                                                                                                                                                                                                                                                                             | `infra-deploy`                                                 | sau T19 của chủ dự án |
+| 6   | Storybook 10 + vite 8: `.storybook/main.js` thành ESM, bỏ `addon-essentials`, gỡ ba dòng `ignore` (storybook, `@storybook/*`, vite) cùng lúc. Nghiệm thu bằng ĐẾM story.                                                                                                                                                                                                         | `design-system`                                                | khi có kế hoạch       |
+| 7   | Di trú công cụ, mỗi cái một nhánh: eslint flat config rồi eslint 10; react-hooks 7 (sửa mã theo luật React Compiler); TypeScript 7. Gỡ dòng `ignore` tương ứng cùng lúc.                                                                                                                                                                                                         | `infra-deploy` → `frontend-web` (sửa mã theo luật react-hooks) | khi có kế hoạch       |
 
 ## 4. Bẫy gặp
 
+- **Ref remote trên máy là ảnh chụp cũ.** `git branch -r` cho thấy nhánh đã bị GitHub xoá (repo bật `delete_branch_on_merge`) cho tới khi `git fetch --prune`. Đo trạng thái remote bằng `gh api`/`gh pr view`, hoặc prune trước.
 - **Đóng/merge PR Dependabot giải phóng chỗ ⇒ đợt PR mới mở NGAY** (không chờ lịch thứ Hai). Đóng loạt PR thì chặn bằng `ignore` trong cùng lượt, kẻo mỗi lần dọn lại sinh đợt mới.
 - **`git merge origin/main` mà chưa `git fetch`** ghép bản `main` cũ ⇒ PR vẫn "not up to date" dưới strict. Dùng `gh pr update-branch` cho chắc.
 
@@ -80,6 +86,24 @@ Merge #171 giải phóng chỗ trong `open-pull-requests-limit: 5`, Dependabot m
 | #176 | typescript 5.9 → 7                | đỏ 5 check | ĐÓNG - bản viết lại, di trú có kế hoạch                           |
 | #177 | eslint 8 → 10                     | đỏ 5 check | ĐÓNG - repo còn `.eslintrc.cjs`                                   |
 
-`dependabot.yml` thêm `ignore` major cho bốn gói bị đóng (nhánh `chore/dependabot-chan-major-2`). Nhánh remote đã merge (`docs/ket-phien-39`, `chore/dependabot-chan-major`, `fix/md-property-test-duong-tinh-gia`) chưa xoá - lệnh xoá bị auto mode chặn, để chủ dự án.
+`dependabot.yml` thêm `ignore` major cho bốn gói bị đóng (nhánh `chore/dependabot-chan-major-2`). Nhánh của các PR phiên 40 đã TỰ XOÁ lúc merge - repo bật `delete_branch_on_merge`. Phiên 40 từng báo nhầm là chúng còn, vì đọc ref remote cũ trên máy mà chưa `git fetch --prune`.
+
+## 6. Nhánh remote cũ (đo 06/11/2026 sau `git fetch --prune`)
+
+Không thuộc phiên 40; liệt kê để dọn có chủ đích. "lệch" = số commit có trên nhánh mà không có trên `main`. PR đã MERGED mà vẫn lệch thường là commit đẩy thêm sau merge, nên đọc commit đó trước khi xoá.
+
+| nhánh                             | PR          | lệch |
+| --------------------------------- | ----------- | ---- |
+| `ci/quet-bao-mat`                 | #127 MERGED | 0    |
+| `feat/siet-tai-len-ban-phat-hanh` | #129 MERGED | 0    |
+| `docs/ket-phien-20`               | #62 MERGED  | 1    |
+| `feat/author-owner-accounts`      | #40 MERGED  | 1    |
+| `fix/phase-a-ssrf-ratelimit`      | #60 MERGED  | 1    |
+| `feat/qu-std-table-2`             | #77 MERGED  | 2    |
+| `feat/docs-search`                | #81 MERGED  | 4    |
+| `docs/ban-giao-phien-37b`         | #150 CLOSED | 2    |
+| `chore/node-22-bookworm`          | #143 CLOSED | 4    |
+
+Thêm các nhánh `dependabot/*` của PR đã đóng (typescript-7.0.2, eslint-10.14.0, types/node-26.6.6, dotenv, husky, tailwindcss) - Dependabot tự dọn nhánh của PR nó đóng, còn PR do người đóng thì không. Hai nhánh lệch 0 xoá được ngay; các nhánh còn lại xem `git log origin/main..origin/<nhánh>` trước.
 
 Hiện trạng máy lúc đóng phiên 40: không worktree, không tiến trình nền; Postgres user-space :5433 vẫn chạy.
