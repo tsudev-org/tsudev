@@ -503,8 +503,16 @@ describe('route cron nội bộ', () => {
 
   test('đúng token ⇒ băm lại, báo cáo bản lệch', async () => {
     const id = await banDaCongBo()
-    store.hashObject = async (key: string) =>
-      key.includes(`/k${soPhienBan}/`) ? { ...(await hashGoc()), sha256: SHA_BI_THAY } : hashGoc()
+    // Lượt kiểm theo lịch quét MỌI bản trong DB. DB local là DB dev dùng chung:
+    // khoá ngoài dự án test PHẢI ra lỗi tạm (LOI - không đổi trạng thái), nếu
+    // không kho giả sẽ đánh dấu LỆCH và gỡ công bố dữ liệu dev thật (đã xảy ra
+    // một lần lúc viết test này, 06/11/2026).
+    store.hashObject = async (key: string) => {
+      if (!key.startsWith(`releases/${SLUG}/`)) throw new Error('ngoài phạm vi test')
+      return key.includes(`/k${soPhienBan}/`)
+        ? { ...(await hashGoc()), sha256: SHA_BI_THAY }
+        : hashGoc()
+    }
     const res = await request(app)
       .post(duong)
       .set('x-release-integrity-token', process.env.RELEASE_INTEGRITY_TOKEN)

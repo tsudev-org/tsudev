@@ -78,6 +78,29 @@ nền tảng mới ⇒ 422, không ghi gì; hợp lệ ⇒ xoá sha256/dung lư�
 niêm phong lại (chữ ký phủ cả nền tảng). Trước khi vá, một "bản WINDOWS" trỏ vào
 tệp `.apk` công bố được với chữ ký hợp lệ.
 
+## Trung tâm an ninh (`/admin/release-security`, 06/11/2026)
+
+Trạng thái an ninh của mỗi bản do máy chủ tính (`src/releaseSecurity.ts`). Điều
+kiện CÔNG KHAI duy nhất (`CONG_KHAI`): chưa xoá, đã công bố, **chưa thu hồi**,
+`securityState = OK` - áp cho danh sách công khai lẫn link tải.
+
+- **Kiểm toàn vẹn**: băm lại tệp trong kho, so sha256 + dung lượng đã ký. Lệch hoặc
+  tệp biến mất ⇒ `LECH_TOAN_VEN`, gỡ công bố, nhật ký. Kho chập chờn ⇒ không đổi
+  trạng thái. Tệp khớp lại ⇒ gỡ cờ nhưng KHÔNG tự công bố lại. Chạy tay (nút
+  "Kiểm lại") hoặc theo lịch (Worker cron `23 1,13`, gọi
+  `POST /api/internal/releases/integrity` với header `x-release-integrity-token`).
+- **Niêm phong lại** một tệp đã có sha256 mà kho ra băm khác ⇒ 409
+  `LECH_TOAN_VEN`, không ký. Bản đang lệch/thu hồi ⇒ 409 `KHONG_NIEM_PHONG_LAI`.
+- **Quét mã độc**: lúc niêm phong tra BĂM trên VirusTotal (`VIRUSTOTAL_API_KEY`).
+  `malicious >= 1` ⇒ `NGHI_MA_DOC`, gỡ công bố. Thiếu khoá ⇒ `CHUA_QUET`. Cron tra
+  lại tối đa 4 băm/lượt cho kết quả "chưa có dữ liệu"/lỗi quá 24 giờ.
+- **Thu hồi / khôi phục** (ADMIN) và **ký lại bằng khoá hiện hành** (OWNER) đòi
+  step-up: mã TOTP đổi lấy token 5 phút ở `POST /api/identity/step-up`, gửi kèm
+  trong thân (`stepUp`). Thu hồi/khôi phục bắt buộc lý do 10-500 ký tự. Bản thu
+  hồi hay có sự cố không công bố được và không đổi `storageKey` được (409).
+- **Nhật ký**: mọi thao tác (niêm phong, công bố, lệch, thu hồi, ký lại) vào
+  `TrustAuditLog` - chỉ-thêm, chuỗi băm `prevHash`; `GET .../audit-chain` chỉ chỗ đứt.
+
 ## Đường tải về
 
 `/api/releases/<slug>/<id>` (Worker) → content-service tăng `downloadCount` →
