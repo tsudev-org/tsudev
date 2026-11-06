@@ -1,5 +1,18 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 43 BẮT ĐẦU Ở ĐÂY** (cuối phiên 42, 07/11/2026). Phiếu:
+> [`20261107-01`](handover/20261107-01_ket-phien-42-react-hooks7-eslint10-ts7-tailwind4.md).
+>
+> ✅ react-hooks 7 (#192, 26 vi phạm sửa thật, `useLoader`), ESLint 10 (#193), tsconfig sẵn sàng
+> TS 7 + cổng `typecheck:ts7` (#194), Tailwind 4 (#195, 36 ảnh × 3 chế độ giống v3 từng điểm ảnh).
+> Frontend `4656fc12`, backend Render `3d48981` - nghiệm thu production.
+>
+> ⚠️ TS 7 chưa thay được 5.9 (không có API JS cho Next/ts-jest/typescript-eslint) - chỉ kiểm song song.
+>
+> 🔴 Chủ dự án: xoá 13 nhánh remote cũ (phiếu 20261107-01 §5, từng bước).
+>
+> 🎯 Từ 10/11: override minimatch.
+
 > **Phiên 42 BẮT ĐẦU Ở ĐÂY** (cuối phiên 41, 06/11/2026). Phiếu:
 > [`20261106-07`](handover/20261106-07_ket-phien-41-dependabot-eslint9-storybook10.md).
 >

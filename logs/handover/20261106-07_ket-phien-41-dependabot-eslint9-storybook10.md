@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261106-07
 - **Từ**: phiên 41 (06/11/2026) - **Đến**: phiên 42 + chủ dự án
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG (phiên 42, 07/11/2026) - thay bằng [`20261107-01`](20261107-01_ket-phien-42-react-hooks7-eslint10-ts7-tailwind4.md)
 - **Thay phiếu**: [`20261106-06`](20261106-06_ket-phien-40-dependabot-va-test-tinh-chat.md) - §3.2, §3.3, §3.6 và bước 1 của §3.7 xong; việc còn lại chép sang §3 dưới đây.
 
 ## ⚡ Khởi động phiên 42

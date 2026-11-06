@@ -114,10 +114,14 @@ nguồn là hiện trạng; TSD là đích đến.
 
 ## Quy ước code
 
-- **TypeScript ở khắp nơi.** Services là `.ts` biên dịch ra `dist/` với
-  `module: commonjs` (KHÔNG phải ESM - giữ nguyên ngữ nghĩa `require()` và bảng
-  tiền tố của backend-bundle). App là `.ts`/`.tsx`. `npm run typecheck` chạy cả
-  hai. Đổi `.ts` mới nhớ thêm vào `references` của `tsconfig.json` gốc, thiếu là
+- **TypeScript ở khắp nơi.** Services là `.ts` biên dịch ra `dist/` CommonJS
+  (KHÔNG phải ESM - giữ nguyên ngữ nghĩa `require()` và bảng tiền tố của
+  backend-bundle). tsconfig khai `module`/`moduleResolution: node16` - vẫn ra
+  CommonJS vì không package nào có `"type": "module"`; ĐỪNG quay về `"node"`
+  (node10): TypeScript 7 đã gỡ nó và cổng `npm run typecheck:ts7` (CI) sẽ đỏ.
+  `typescript` vẫn là 5.9 cho build/test/lint - TS 7 không có API JS mà Next,
+  ts-jest, typescript-eslint cần; ĐỪNG cài TS 7 vào package.json (alias chiếm
+  `.bin/tsc`). App là `.ts`/`.tsx`. `npm run typecheck` chạy cả hai. Đổi `.ts` mới nhớ thêm vào `references` của `tsconfig.json` gốc, thiếu là
   workspace đó **không được kiểm kiểu và không có gì báo lỗi**.
 - **Service**: **không dấu chấm phẩy** (`.prettierrc.json` ghi đè `semi:false`
   cho `services/**/*.js`, `services/**/*.ts`, `packages/db/**`). App/package
@@ -169,11 +173,8 @@ nguồn là hiện trạng; TSD là đích đến.
   `docs/design-system.md`.
 - **`apps/*/.env.local` được sinh tự động** - sửa tay vô ích, lần chạy dev sau
   ghi đè. Sửa `.env` gốc.
-- **React 18 nay nằm ở `devDependencies` của `packages/ui`, KHÔNG còn ở root**
-  (dọn 20/08/2026 - món nợ đăng ký trong `next.config.js` đã đóng). App thật chạy
-  React 19; bản 18 chỉ phục vụ Storybook. **Storybook vẫn không nằm trong CI**,
-  nên API chỉ-có-ở-React-19 dùng trong component vẫn làm nó hỏng mà không gì đỏ
-  lên - cách kiểm: `npm --workspace packages/ui run storybook` rồi ĐẾM story vẽ
+- **Storybook 10 + Vite 8 trong `packages/ui`** (React 19 như app). **Storybook
+  vẫn không nằm trong CI**, nên cấu hình hỏng không làm gì đỏ lên - cách kiểm: `npm --workspace packages/ui run storybook` rồi ĐẾM story vẽ
   ra được, đừng đọc "lệnh chạy xong" thành "chạy được" (`docs/design-system.md`
   §Storybook ghi bốn tầng hỏng im lặng đã gặp).
 - **Gạch ngang: CHỈ dùng `-` (hyphen, U+002D)** ở mọi nơi - code, comment, chuỗi
@@ -272,11 +273,10 @@ nguồn là hiện trạng; TSD là đích đến.
   `trigger === 'update'` ở callback `jwt`, đọc lại vai trò TỪ DB. Client gọi
   `update()` của `useSession`. **Đừng lấy vai trò từ tham số truyền vào
   `update()`** - đó là dữ liệu người dùng.
-- **`main` không có branch protection** - chưa ai bật. Repo nay Public nên
-  GitHub Free đã CHO phép branch protection (trước đây private thì không), nhưng
-  đó là năng lực chưa dùng, không phải rào chắn đang chạy. Lớp chắn duy nhất vẫn
-  là `.husky/pre-push`, chỉ có sau khi `npm install`. Vượt có chủ đích:
-  `ALLOW_MAIN_FORCE=1 git push`.
+- **`main` CÓ branch protection** (từ 05/11/2026): 13 check bắt buộc + `strict`
+  - mỗi PR phải cập nhật theo `main` rồi chạy lại CI trước khi merge
+  (`gh pr update-branch <số>`). `.husky/pre-push` chặn sớm hơn ở máy (và chạy
+  `topology:check` trên CẢ tệp chưa theo dõi - tệp nháp có cổng cứng chặn push).
 - **`backend-bundle` điều phối theo BẢNG TIỀN TỐ đường dẫn**, không mount chồng
   ba app. Mount thẳng thì request của app này đi vào app kia trước và dính cổng
   chặn `INTERNAL_API_TOKEN` của nó ⇒ route công khai (thời Con dấu: huy hiệu,
@@ -339,6 +339,15 @@ nguồn là hiện trạng; TSD là đích đến.
   `cronContract.test.ts` (canh lịch cron giữ Neon ngủ) sống trong newsroom-service
   và bị xoá theo ở #99 dù chú thích dặn chuyển đi; CI xanh vì cổng bị xoá thì không
   đỏ. Khôi phục 05/11/2026 ở `apps/frontend-main/test/`.
+- **Hook dữ liệu ở frontend: `lib/useLoader.ts`**, không `useEffect(() => { load() })`
+  - eslint-plugin-react-hooks 7 cấm mẫu đó (`set-state-in-effect`). Hàm nạp nhận
+  `AbortSignal`, kiểm `signal?.aborted` sau mỗi `await`. Đồng bộ state theo prop
+  thì chỉnh trong render (so với lần trước), không trong effect.
+- **Tailwind 4: dòng `@layer theme, base, components, utilities;` ở đầu
+  `styles/globals.css` là chốt** - bỏ hoặc đặt sau `@import tokens.css` thì mọi
+  `rounded-*`/`shadow-*` mất giá trị (biến `@theme` cùng tên token tự tham chiếu),
+  không lỗi nào báo. Cấu hình token ↔ class nay ở khối `@theme`, không còn
+  `tailwind.config.js`.
 - `.prettierignore` cố ý bỏ qua `documents-tsudev.md` và `CLAUDE.md` - prettier
   đánh số lại danh sách và escape ký tự trong hai file này. Đừng gỡ ra.
 
