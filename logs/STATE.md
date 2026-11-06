@@ -11,6 +11,8 @@
 > @types/node 26) + chặn major. Nâng `@types/node` lên ^22 là việc tay.
 >
 > 🎯 Từ 10/11: override minimatch ⇒ đóng hai cảnh báo cuối (Dependabot #40, Scorecard #76).
+>
+> 📋 Phiếu 06 §3 gán agent cho từng việc (`infra-deploy`, `design-system`, `frontend-web`); §6 liệt kê nhánh remote cũ chờ dọn.
 
 > **Phiên 40 BẮT ĐẦU Ở ĐÂY** (cuối phiên 39, 06/11/2026). Phiếu:
 > [`20261106-05`](handover/20261106-05_ket-phien-39-don-canh-bao-github.md).
