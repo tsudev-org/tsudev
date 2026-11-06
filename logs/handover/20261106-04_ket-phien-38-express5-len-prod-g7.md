@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261106-04
 - **Từ**: phiên 38 (06/11/2026) - **Đến**: phiên 39 + chủ dự án
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG (06/11/2026, phiên 39) - thay bằng [`20261106-05`](20261106-05_ket-phien-39-don-canh-bao-github.md)
 - **Thay phiếu**: [`20261106-03`](20261106-03_ket-phien-37-giai-doan-2-attt.md) - T22, T23 xong; việc agent §3.1 + §3.4 (G7) xong.
 
 ## ⚡ Khởi động phiên 39
