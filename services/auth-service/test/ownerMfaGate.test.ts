@@ -40,7 +40,7 @@ type Layer = { route?: { path: string | string[]; methods: Record<string, boolea
 
 /** [METHOD, path] của mọi route nằm dưới một trong các tiền tố. */
 const routesUnder = (...prefixes: string[]): [string, string][] =>
-  ((app._router?.stack ?? []) as Layer[])
+  ((app.router?.stack ?? []) as Layer[])
     .filter((l) => l.route)
     .flatMap((l) => {
       const paths = Array.isArray(l.route!.path) ? l.route!.path : [l.route!.path]

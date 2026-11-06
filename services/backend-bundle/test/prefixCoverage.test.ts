@@ -11,8 +11,8 @@ const { SERVICES } = require('../src/index')
 
 type Layer = { route?: { path: string | string[] } }
 
-const routesOf = (app: { _router?: { stack: Layer[] } }): string[] =>
-  (app._router?.stack ?? [])
+const routesOf = (app: { router?: { stack: Layer[] } }): string[] =>
+  (app.router?.stack ?? [])
     .filter((l) => l.route)
     .flatMap((l) => (Array.isArray(l.route!.path) ? l.route!.path : [l.route!.path]))
     .filter((p): p is string => typeof p === 'string')
