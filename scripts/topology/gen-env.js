@@ -29,9 +29,10 @@ const TARGETS = [
 
 function syncFile(file, vars, { check }) {
   const abs = path.join(ROOT, file);
-  if (!fs.existsSync(abs)) return { file, skipped: true, changes: [] };
-
-  const original = fs.readFileSync(abs, 'utf8');
+  // Đọc thẳng rồi bắt ENOENT, không `existsSync` trước: kiểm-rồi-dùng trên cùng
+  // một đường dẫn là khe chạy đua (CodeQL js/file-system-race).
+  const original = readIfExists(abs);
+  if (original === null) return { file, skipped: true, changes: [] };
   const changes = [];
   const remaining = new Map(Object.entries(vars));
 
@@ -76,6 +77,16 @@ function syncFile(file, vars, { check }) {
 }
 
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** Nội dung tệp, hoặc `null` khi tệp không tồn tại. Lỗi khác vẫn ném. */
+function readIfExists(abs) {
+  try {
+    return fs.readFileSync(abs, 'utf8');
+  } catch (err) {
+    if (err && err.code === 'ENOENT') return null;
+    throw err;
+  }
+}
 
 /**
  * `wrangler.jsonc` KHÔNG được sinh tự động - nó là cấu hình phát hành, có bình

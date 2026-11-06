@@ -55,7 +55,10 @@ function safeObjectKey(raw: unknown, opts: { allowIssued?: boolean } = {}): stri
 /** Một dòng log: bỏ CR/LF/ký tự điều khiển để giá trị do người gọi đặt không giả được dòng log mới. */
 const oneLine = (v: unknown): string =>
   String(v)
-    // eslint-disable-next-line no-control-regex -- CỐ Ý: chặn ký tự điều khiển (CR/LF, tab…)
+    // CR/LF XOÁ hẳn (không đổi thành dấu cách) - CodeQL js/log-injection chỉ công
+    // nhận phép thay xuống dòng bằng chuỗi rỗng là đã làm sạch.
+    .replace(/[\r\n]/g, '')
+    // eslint-disable-next-line no-control-regex -- CỐ Ý: chặn ký tự điều khiển còn lại (tab…)
     .replace(/[\u0000-\u001f\u007f]+/g, ' ')
     .slice(0, 300)
 
@@ -380,9 +383,13 @@ app.post(
     // express.raw cho ra Buffer - nhưng `req.body` là kiểu any và một middleware
     // khác (hoặc Content-Type lạ) có thể để lại object/mảng. Kiểm KIỂU trước khi
     // đọc `.length`, không thì `size` ghi vào DB là thứ người gọi tự chọn.
-    if (!Buffer.isBuffer(req.body) || req.body.length === 0) {
+    if (!Buffer.isBuffer(req.body) || req.body.byteLength === 0) {
       return res.status(400).json({ error: 'Empty body' })
     }
+    // Từ đây chỉ dùng `body` đã kiểm là Buffer; kích thước lấy bằng `byteLength`
+    // (thuộc tính của Buffer, mảng/chuỗi không có) - CodeQL
+    // js/type-confusion-through-parameter-tampering.
+    const body: Buffer = req.body
     let storageWarning = null
     if (!isTest) {
       try {
@@ -390,7 +397,7 @@ app.post(
           new PutObjectCommand({
             Bucket: S3_BUCKET,
             Key: fileName,
-            Body: req.body,
+            Body: body,
             ContentType: contentType,
           })
         )
@@ -401,7 +408,7 @@ app.post(
         console.warn('[storage] S3 put failed, cataloging metadata only:', errMsg(e))
       }
     }
-    const size = req.body.length
+    const size = body.byteLength
     await prisma.fileObject
       .upsert({
         where: { key: fileName },

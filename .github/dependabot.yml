@@ -65,3 +65,21 @@ updates:
     groups:
       github-actions:
         patterns: ['*']
+
+  # Ảnh nền Docker ghim theo DIGEST (Scorecard PinnedDependencies, 06/11/2026).
+  # Ghim mà không có mục này thì ảnh nền đứng yên mãi ở bản vá OS của ngày ghim -
+  # an toàn chuỗi cung ứng đổi lấy lỗ hổng cũ. Dependabot mở PR đổi digest khi
+  # tag (`22-bookworm-slim`, `focal`) được dựng lại.
+  - package-ecosystem: docker
+    directories: [/docker, /apps/frontend-main]
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Ho_Chi_Minh
+    labels: [dependencies, docker]
+    commit-message:
+      prefix: 'chore(docker)'
+    groups:
+      docker-images:
+        patterns: ['*']

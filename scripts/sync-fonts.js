@@ -261,10 +261,24 @@ async function main() {
   let moi = 0;
   for (const k of canLay) {
     const dich = path.join(FONT_DIR, k.tep);
-    if (fs.existsSync(dich) && fs.statSync(dich).size > 1000) continue;
-    const res = await fetch(k.url, { headers: { 'user-agent': UA } });
-    if (!res.ok) throw new Error(`tải ${k.tep} trả ${res.status}`);
-    fs.writeFileSync(dich, Buffer.from(await res.arrayBuffer()));
+    // Mở MỘT lần rồi làm mọi việc qua fd: `existsSync` + `statSync` rồi mới
+    // `writeFileSync` theo đường dẫn là khe chạy đua (CodeQL js/file-system-race).
+    const fd = fs.openSync(dich, 'a+');
+    try {
+      if (fs.fstatSync(fd).size > 1000) continue;
+      const res = await fetch(k.url, { headers: { 'user-agent': UA } });
+      if (!res.ok) throw new Error(`tải ${k.tep} trả ${res.status}`);
+      const buf = Buffer.from(await res.arrayBuffer());
+      // Chỉ ghi khi đúng là woff2 (chữ ký `wOF2`): một trang lỗi HTML hay phản hồi
+      // bị chèn từ mạng sẽ không lọt vào `public/fonts/` rồi được commit.
+      if (buf.length < 4 || buf.toString('latin1', 0, 4) !== 'wOF2') {
+        throw new Error(`${k.tep}: phản hồi không phải woff2 (thiếu chữ ký wOF2)`);
+      }
+      fs.ftruncateSync(fd, 0);
+      fs.writeSync(fd, buf, 0, buf.length, 0);
+    } finally {
+      fs.closeSync(fd);
+    }
     moi += 1;
   }
 

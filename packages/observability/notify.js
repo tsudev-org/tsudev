@@ -41,7 +41,15 @@ async function _sendTelegram(text) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
   if (!token || !chatId) {
-    console.log('[alert] TELEGRAM not configured - would send:\n' + text);
+    // Một dòng: `text` mang message/context/stack do nơi gọi đặt, in nguyên khối
+    // nhiều dòng thì giả được dòng log khác (CodeQL js/log-injection).
+    console.log(
+      '[alert] TELEGRAM not configured - would send: %s',
+      text
+        .split('\n')
+        .join(' | ')
+        .replace(/[\r\n]/g, '')
+    );
     return { skipped: 'telegram' };
   }
   const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
