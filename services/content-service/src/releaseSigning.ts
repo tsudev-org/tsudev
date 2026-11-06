@@ -81,7 +81,9 @@ function assertEd25519Private(pem: string, label: string): Uint8Array {
   try {
     return publicKeyFromPrivatePem(pem)
   } catch (e) {
-    throw new Error(`${label} phải là khoá Ed25519 - ${e instanceof Error ? e.message : e}`)
+    throw new Error(`${label} phải là khoá Ed25519 - ${e instanceof Error ? e.message : e}`, {
+      cause: e,
+    })
   }
 }
 

@@ -37,7 +37,7 @@ if (process.env.NODE_ENV === 'production') {
 // khoản OWNER thật. Từ chối mọi host không phải loopback, không có cờ vượt.
 const LOCAL_DB_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]'])
 {
-  let host = ''
+  let host
   try {
     host = new URL(process.env.DATABASE_URL || '').hostname
   } catch {

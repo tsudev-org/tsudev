@@ -7,6 +7,7 @@
 //
 // Bản chuyển đổi giữ NGUYÊN tập luật của bản cũ - nghiệm thu: lint toàn repo ra
 // 0 lỗi ở cả hai bản trên cùng tập tệp.
+import { fixupPluginRules } from '@eslint/compat';
 import js from '@eslint/js';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
@@ -14,6 +15,14 @@ import jsxA11y from 'eslint-plugin-jsx-a11y';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
+
+// `eslint-plugin-react` 7.37 và `jsx-a11y` 6.10 viết cho ESLint ≤9: chúng gọi
+// các API ngữ cảnh mà ESLint 10 đã gỡ (`context.getFilename()`...) và SẬP ngay
+// khi nạp luật. `fixupPluginRules` của @eslint/compat (shim chính thức của nhóm
+// ESLint) dựng lại các API đó. Peer `eslint` của hai gói được nới bằng
+// `overrides` trong package.json. Gỡ cả hai khi plugin ra bản nhận ESLint 10.
+const reactCompat = fixupPluginRules(react);
+const jsxA11yCompat = fixupPluginRules(jsxA11y);
 
 export default [
   {
@@ -52,12 +61,12 @@ export default [
     settings: { react: { version: 'detect' } },
   },
   js.configs.recommended,
-  react.configs.flat.recommended,
+  { ...react.configs.flat.recommended, plugins: { react: reactCompat } },
   {
     plugins: { 'react-hooks': reactHooks },
     rules: reactHooks.configs.flat['recommended-latest'].rules,
   },
-  jsxA11y.flatConfigs.recommended,
+  { ...jsxA11y.flatConfigs.recommended, plugins: { 'jsx-a11y': jsxA11yCompat } },
   ...tsPlugin.configs['flat/recommended'],
   {
     files: ['**/*.{ts,tsx}'],
