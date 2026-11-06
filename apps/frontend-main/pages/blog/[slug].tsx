@@ -144,7 +144,7 @@ export default function BlogPost({ post, related, failed, slug, toc }: BlogPostP
                     href={r.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-link hover:underline break-words"
+                    className="text-link hover:underline wrap-break-word"
                   >
                     {r.label || r.url}
                   </a>

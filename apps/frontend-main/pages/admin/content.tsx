@@ -265,7 +265,7 @@ export default function AdminContent() {
                 checked={allOnPage}
                 onChange={toggleAll}
                 disabled={rows.length === 0}
-                className="h-4 w-4 accent-[var(--primary)]"
+                className="h-4 w-4 accent-(--primary)"
               />
               Chọn cả trang
             </label>
@@ -310,7 +310,7 @@ export default function AdminContent() {
                         aria-label={`Chọn ${r.title}`}
                         checked={selected.has(r.slug)}
                         onChange={() => toggle(r.slug)}
-                        className="h-4 w-4 accent-[var(--primary)]"
+                        className="h-4 w-4 accent-(--primary)"
                       />
                     </td>
                     <td className="px-2 py-2.5">
@@ -322,7 +322,7 @@ export default function AdminContent() {
                       >
                         {r.title}
                       </a>
-                      <div className="font-mono text-xs text-fg-muted truncate max-w-[28rem]">
+                      <div className="font-mono text-xs text-fg-muted truncate max-w-md">
                         {r.slug}
                       </div>
                     </td>

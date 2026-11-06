@@ -1,7 +1,16 @@
 /* Token trước Tailwind: mọi class bên dưới đều phân giải thành var(--…) khai ở
    đây. packages/ui/src/tokens.css là ARTIFACT sinh từ .standards/tokens/design-tokens.json
    (`npm run tokens:sync`) - đừng sửa nó, sửa file JSON. */
-@import '../../../packages/ui/src/tokens.css';
+/* THỨ TỰ LỚP khai TRƯỚC mọi @import - đừng bỏ. Lớp nào xuất hiện trước là lớp
+   YẾU hơn, mà tokens.css bên dưới nhập vào `base` trước khi Tailwind kịp khai thứ
+   tự của nó - nên thiếu dòng này thì `base` thành lớp yếu nhất, xếp dưới `theme`.
+   Khối @theme có `--radius-lg: var(--radius-lg)` (lớp theme, cùng tên với token):
+   khi `theme` thắng, biến tự tham chiếu chính nó ⇒ không hợp lệ ⇒ mọi `rounded-*`,
+   `shadow-*`, `font-mono` mất giá trị token. Đã đo khi lên Tailwind 4 (07/11/2026):
+   nút bo 8px thành 0px, không lỗi nào báo. */
+@layer theme, base, components, utilities;
+
+@import '../../../packages/ui/src/tokens.css' layer(base);
 /* Font TỰ HOST. Đừng thay bằng @import từ fonts.googleapis.com - đã thử và nó
    IM LẶNG KHÔNG NẠP GÌ trong nhiều tháng.
 
@@ -10,7 +19,7 @@
      style-src 'self' 'unsafe-inline'
      font-src  'self' data:
 
-   `'unsafe-inline'` chỉ cho phép <style> nội tuyến và thuộc tính style= - nó
+   `'unsafe-inline'` chỉ cho phép \3c style> nội tuyến và thuộc tính style= - nó
    KHÔNG cho phép stylesheet từ host ngoài. Và `font-src` không có
    fonts.gstatic.com. Nên bản @import cũ bị chặn hai lần, không báo lỗi, và mọi
    người xem tsudev.com bằng font dự phòng của máy họ: Windows ra Segoe UI,
@@ -23,18 +32,242 @@
    styles/fonts.css là ARTIFACT sinh bởi `npm run fonts:sync`. Weight 300 cố ý
    KHÔNG được nạp: DESIGN_SYSTEM.md §4 cấm dùng nó vì nét mảnh làm dấu tiếng Việt
    khó đọc. Nạp mà cấm dùng thì chỉ tổ mời người ta dùng. */
-@import './fonts.css';
+@import './fonts.css' layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-html,
-body,
-#__next {
-  height: 100%;
+@source '../pages/**/*.{js,ts,jsx,tsx}';
+@source '../../../packages/ui/src/**/*.{js,ts,jsx,tsx}';
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: var(--sp-4);
 }
-/* color-scheme do tokens.css khai theo từng chế độ. */
+
+/* Ánh xạ token → class (Tailwind 4; trước 07/11/2026 nằm ở tailwind.config.js).
+   Tailwind KHÔNG giữ giá trị nào: mọi khoá dưới đây trỏ về một biến CSS của
+   packages/ui/src/tokens.css, file SINH RA từ .standards/tokens/design-tokens.json
+   (`npm run tokens:sync`). Ba chế độ Sáng/Ấm/Tối đổi theo `data-theme` mà không
+   class nào phải biết là có ba chế độ.
+
+   - Chữ nằm trong nhóm `fg` (text-fg, text-fg-muted) chứ không phẳng thành
+     `text-primary`: token có CẢ --text-primary (chữ thân bài) lẫn --primary (xanh
+     thương hiệu); phẳng ra thì `text-primary` mang hai nghĩa.
+   - Nền: base < surface < subtle theo độ sáng; ở Sáng và Ấm chiều này ĐẢO so với
+     Tối (card sáng hơn nền trang).
+   - Viền `line-control` là ranh giới vùng tương tác, phải đạt 3:1 (WCAG 1.4.11);
+     `line-strong` là trang trí và không đạt ngưỡng đó.
+   - `-ink`/`-tint` của trạng thái là cặp cho badge nền nhạt: màu ĐẶC chỉ đủ tương
+     phản khi làm NỀN (chữ `on-status`).
+   - `platform-*`/`on-platform-*` CHỈ cho trạng thái rê chuột của ô dấu hiệu nền
+     tảng (PLATFORM_CHIP_CLASS ở packages/ui).
+   - Thang chữ §4: 12/13/14/15/16/18/20/24/30 + ba bậc display; chữ càng lớn thì
+     tỉ lệ dòng càng NHỎ. Không bậc nào dưới 12px.
+     ⚠️ Tailwind 4 khác 3: `leading-*` viết rõ LUÔN thắng line-height đi kèm
+     `text-*`, kể cả `md:text-*`. Bản 3 để biến thể responsive ghi đè nó - nên
+     tiêu đề `text-4xl md:text-6xl leading-[1.08]` cần thêm
+     `md:leading-(--text-6xl--line-height)` để giữ đúng dòng của thang ở desktop.
+   - Bo góc: none cho khung layout, sm cho badge/checkbox, md cho button/input,
+     lg cho card/modal/bảng; `full` chỉ cho avatar và chấm trạng thái.
+   - Các biến cùng tên với token (--radius-sm, --shadow-sm, --font-mono) là CỐ Ý:
+     chúng tự tham chiếu và chỉ an toàn nhờ dòng `@layer theme, base, …` ở đầu tệp
+     - đọc chú thích ở đó trước khi đổi thứ tự import. */
+@theme {
+  --color-base: var(--bg-base);
+  --color-surface: var(--bg-surface);
+  --color-subtle: var(--bg-subtle);
+  --color-hovered: var(--bg-hover);
+
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-line-control: var(--border-control);
+
+  --color-fg: var(--text-primary);
+  --color-fg-secondary: var(--text-secondary);
+  --color-fg-muted: var(--text-muted);
+
+  --color-link: var(--text-link);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+
+  --color-on-primary: var(--on-primary);
+  --color-focus: var(--focus-ring);
+
+  --color-success: var(--success);
+  --color-success-ink: var(--success-ink);
+  --color-success-tint: var(--success-tint);
+
+  --color-warning: var(--warning);
+  --color-warning-ink: var(--warning-ink);
+  --color-warning-tint: var(--warning-tint);
+
+  --color-danger: var(--danger);
+  --color-danger-ink: var(--danger-ink);
+  --color-danger-tint: var(--danger-tint);
+
+  --color-info: var(--info);
+  --color-info-ink: var(--info-ink);
+  --color-info-tint: var(--info-tint);
+
+  --color-on-status: var(--on-status);
+  --color-accent: var(--accent);
+  --color-glow: var(--glow);
+
+  --color-icon-nav: var(--icon-nav);
+  --color-icon-create: var(--icon-create);
+  --color-icon-edit: var(--icon-edit);
+  --color-icon-danger: var(--icon-danger);
+  --color-icon-info: var(--icon-info);
+  --color-icon-trust: var(--icon-trust);
+
+  --color-platform-windows: var(--platform-windows);
+  --color-platform-android: var(--platform-android);
+  --color-platform-apple: var(--platform-apple);
+  --color-platform-linux: var(--platform-linux);
+
+  --color-on-platform-windows: var(--on-platform-windows);
+  --color-on-platform-android: var(--on-platform-android);
+  --color-on-platform-apple: var(--on-platform-apple);
+  --color-on-platform-linux: var(--on-platform-linux);
+
+  --text-xs: var(--fs-xs);
+  --text-xs--line-height: 1.5;
+  --text-sm: var(--fs-body-desktop);
+  --text-sm--line-height: 1.5;
+  --text-base: var(--fs-body-web);
+  --text-base--line-height: var(--lh-body);
+  --text-lg: var(--fs-h4);
+  --text-lg--line-height: var(--lh-long);
+  --text-xl: var(--fs-h3);
+  --text-xl--line-height: var(--lh-heading);
+  --text-2xl: var(--fs-h2);
+  --text-2xl--line-height: var(--lh-heading);
+  --text-3xl: var(--fs-h1);
+  --text-3xl--line-height: var(--lh-heading);
+  --text-4xl: var(--fs-display-sm);
+  --text-4xl--line-height: 1.15;
+  --text-5xl: var(--fs-display-md);
+  --text-5xl--line-height: 1.1;
+  --text-6xl: var(--fs-display-lg);
+  --text-6xl--line-height: 1.05;
+  --text-h4: var(--fs-h4);
+  --text-h4--line-height: var(--lh-heading);
+  --text-h3: var(--fs-h3);
+  --text-h3--line-height: var(--lh-heading);
+  --text-h2: var(--fs-h2);
+  --text-h2--line-height: var(--lh-heading);
+  --text-h1: var(--fs-h1);
+  --text-h1--line-height: var(--lh-heading);
+
+  --font-weight-normal: var(--fw-regular);
+  --font-weight-medium: var(--fw-medium);
+  --font-weight-semibold: var(--fw-semibold);
+  --font-weight-bold: var(--fw-bold);
+
+  --tracking-heading: var(--ls-heading);
+  --tracking-caps: var(--ls-caps-label);
+
+  --font-sans: var(--font-family);
+  --font-mono: var(--font-mono);
+
+  --radius-none: var(--radius-none);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+
+  --spacing-sp1: var(--sp-1);
+  --spacing-sp2: var(--sp-2);
+  --spacing-sp3: var(--sp-3);
+  --spacing-sp4: var(--sp-4);
+  --spacing-sp5: var(--sp-5);
+  --spacing-sp6: var(--sp-6);
+  --spacing-sp8: var(--sp-8);
+  --spacing-sp10: var(--sp-10);
+  --spacing-sp12: var(--sp-12);
+  --spacing-control: var(--control-h);
+  --spacing-row: var(--row-h);
+  --spacing-item: var(--list-item-h);
+
+  --container-measure: var(--measure);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  --z-index-dropdown: var(--z-dropdown);
+  --z-index-sticky: var(--z-sticky);
+  --z-index-modal-overlay: var(--z-modal-overlay);
+  --z-index-modal: var(--z-modal);
+  --z-index-toast: var(--z-toast);
+  --z-index-tooltip: var(--z-tooltip);
+
+  --transition-duration-fast: var(--motion-fast);
+  --transition-duration-base: var(--motion-base);
+  --transition-duration-slow: var(--motion-slow);
+
+  --ease-standard: var(--motion-easing);
+
+  --animate-fade-up: fade-up 0.6s var(--motion-easing) both;
+  --animate-pulse-glow: pulse-glow 3s ease-in-out infinite;
+
+  @keyframes fade-up {
+    0% {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes pulse-glow {
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility measure {
+  /* Khối văn bản dài tối đa 72ch (§3) - quá đó thì mắt đảo dòng bị mỏi. */
+  max-width: var(--measure);
+}
+
+@layer utilities {
+  html,
+  body,
+  #__next {
+    height: 100%;
+  }
+  /* color-scheme do tokens.css khai theo từng chế độ. */
+}
 
 @layer base {
   body {
@@ -77,16 +310,6 @@ body,
   [aria-disabled='true'] {
     opacity: 0.5;
     cursor: not-allowed;
-  }
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  /* Khối văn bản dài tối đa 72ch (§3) - quá đó thì mắt đảo dòng bị mỏi. */
-  .measure {
-    max-width: var(--measure);
   }
 }
 

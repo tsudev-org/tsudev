@@ -67,7 +67,7 @@ export const Input = ({
         placeholder={placeholder}
         aria-invalid={error ? true : undefined}
         aria-describedby={(error || hint) && msgId ? msgId : undefined}
-        className={`h-control rounded-md border bg-surface px-3 text-sm text-fg placeholder:text-fg-muted transition-colors duration-fast ease-standard focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`h-control rounded-md border bg-surface px-3 text-sm text-fg placeholder:text-fg-muted transition-colors duration-fast ease-standard focus:outline-hidden focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-not-allowed disabled:opacity-50 ${
           error ? 'border-danger' : 'border-line-control focus:border-primary'
         }`}
         {...props}

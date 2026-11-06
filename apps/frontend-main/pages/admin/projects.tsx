@@ -95,7 +95,7 @@ function Select({ id, label, value, onChange, options, labels }: SelectProps) {
         id={id}
         value={value}
         onChange={onChange}
-        className="rounded-md border border-line bg-base px-3 py-2.5 text-sm text-fg outline-none focus:border-primary"
+        className="rounded-md border border-line bg-base px-3 py-2.5 text-sm text-fg outline-hidden focus:border-primary"
       >
         {options.map((o) => {
           const raw = labels?.[o];
@@ -318,7 +318,7 @@ export default function AdminProjects() {
                 rows={6}
                 value={form.descriptionMd}
                 onChange={set('descriptionMd')}
-                className="rounded-md border border-line bg-base px-3 py-2.5 text-sm text-fg font-mono outline-none focus:border-primary"
+                className="rounded-md border border-line bg-base px-3 py-2.5 text-sm text-fg font-mono outline-hidden focus:border-primary"
               />
             </div>
 

@@ -52,7 +52,7 @@ export const AuthShell = ({ title, description, children, footer }: AuthShellPro
             ))}
           </ul>
         </div>
-        <div className="mx-auto w-full max-w-[26rem]">
+        <div className="mx-auto w-full max-w-104">
           <div className="rounded-2xl border border-line bg-surface p-6 shadow-lg sm:p-8">
             <h1 className="text-2xl font-bold text-fg">{title}</h1>
             {description && <p className="mt-1.5 text-sm text-fg-muted">{description}</p>}

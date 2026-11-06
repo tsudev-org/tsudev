@@ -41,7 +41,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
 
   return (
     <header
-      className="sticky top-0 z-40 border-b border-line backdrop-blur"
+      className="sticky top-0 z-40 border-b border-line backdrop-blur-sm"
       style={{ backgroundColor: 'color-mix(in srgb, var(--bg-surface) 88%, transparent)' }}
     >
       <a href="#main-content" className="skip-link">
@@ -106,7 +106,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
               name="q"
               aria-label="Tìm kiếm bài viết và tài liệu"
               placeholder="Tìm kiếm…"
-              className="bg-transparent outline-none text-sm text-fg w-40 placeholder:text-fg-muted"
+              className="bg-transparent outline-hidden text-sm text-fg w-40 placeholder:text-fg-muted"
             />
             {/* Enter trong ô đã gửi biểu mẫu; nút này để bàn phím và trình đọc
                 màn hình có một đích submit gọi được tên. */}
@@ -127,7 +127,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
               */}
               <a
                 href="/settings/profile"
-                className="hidden lg:inline text-sm text-fg-secondary max-w-[10rem] truncate rounded-md px-2 py-1 hover:bg-subtle hover:text-fg transition-colors"
+                className="hidden lg:inline text-sm text-fg-secondary max-w-40 truncate rounded-md px-2 py-1 hover:bg-subtle hover:text-fg transition-colors"
               >
                 {session.user?.name || session.user?.email}
               </a>

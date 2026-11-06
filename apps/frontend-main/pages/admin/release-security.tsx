@@ -387,7 +387,7 @@ export default function ReleaseSecurity() {
           </p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[56rem] text-left text-sm">
+            <table className="w-full min-w-4xl text-left text-sm">
               <thead className="bg-subtle text-xs uppercase text-fg-muted">
                 <tr>
                   <th className="px-3 py-2">Bản phát hành</th>
@@ -456,7 +456,7 @@ export default function ReleaseSecurity() {
                         {STATE_LABEL[r.state]?.label ?? r.state}
                       </Badge>
                       {(r.stateDetail || r.revokeReason) && (
-                        <div className="mt-1 max-w-[14rem] text-xs text-fg-muted">
+                        <div className="mt-1 max-w-56 text-xs text-fg-muted">
                           {r.revokeReason ?? r.stateDetail}
                         </div>
                       )}

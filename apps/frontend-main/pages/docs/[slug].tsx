@@ -117,7 +117,7 @@ export default function DocPage({ doc, siblings, failed, slug, toc }: DocPagePro
               </ul>
             </aside>
           )}
-          <article className="order-2 lg:order-1 xl:order-none min-w-0">
+          <article className="order-2 lg:order-1 xl:order-0 min-w-0">
             <div
               className="prose-tsu"
               dangerouslySetInnerHTML={{ __html: renderMarkdown(doc.contentMd || '') }}
@@ -147,7 +147,7 @@ export default function DocPage({ doc, siblings, failed, slug, toc }: DocPagePro
               </nav>
             )}
           </article>
-          <aside className="order-1 lg:order-2 xl:order-none lg:sticky lg:top-20">
+          <aside className="order-1 lg:order-2 xl:order-0 lg:sticky lg:top-20">
             {toc.length > 0 && <TableOfContents items={toc} />}
           </aside>
         </div>

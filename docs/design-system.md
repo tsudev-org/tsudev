@@ -18,10 +18,8 @@ tokens/extensions.tsudev-web.json       ← phần riêng của web (sửa ở �
 packages/ui/src/tokens.css         ← BẢN SINH RA, đừng sửa tay
    │  @import
    ▼
-apps/frontend-main/styles/globals.css
-   │  var(--…)
-   ▼
-apps/frontend-main/tailwind.config.js   ← mọi khoá trỏ về một biến CSS
+apps/frontend-main/styles/globals.css   ← khối @theme (Tailwind 4): mọi
+   │                                       khoá trỏ về một biến CSS
    │
    ▼
 class trong .tsx  (bg-surface, text-fg-muted, border-line-control…)
