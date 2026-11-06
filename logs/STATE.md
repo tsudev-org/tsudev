@@ -1,5 +1,18 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 42 BẮT ĐẦU Ở ĐÂY** (cuối phiên 41, 06/11/2026). Phiếu:
+> [`20261106-07`](handover/20261106-07_ket-phien-41-dependabot-eslint9-storybook10.md).
+>
+> ✅ Dependabot #180-#188: merge husky 9, dotenv 18 (+`quiet: true`), globals 17; đóng tailwind 4
+> (#181) và `@eslint/js` 10 (#187) + chặn major. `@types/node` ^22 (#185).
+>
+> ✅ ESLint 8 → 9 flat config (#186), Storybook 10 + vite 8 (#189, đếm 36/36 khung).
+> Frontend deploy `283ee102`, backend Render `28e6ea7` - nghiệm thu đủ nội dung.
+>
+> 🔴 Chủ dự án: xoá 13 nhánh remote cũ (lệnh ở phiếu 07 §2 - agent bị chặn xoá ref).
+>
+> 🎯 Từ 10/11: override minimatch. Bị chặn bởi peer: ESLint 10, TypeScript 7.
+
 > **Phiên 41 BẮT ĐẦU Ở ĐÂY** (cuối phiên 40, 06/11/2026). Phiếu:
 > [`20261106-06`](handover/20261106-06_ket-phien-40-dependabot-va-test-tinh-chat.md).
 >
