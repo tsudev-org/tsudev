@@ -5,6 +5,15 @@
 - **Trạng thái**: MỞ
 - **Thay phiếu**: [`20261106-02`](20261106-02_ket-phien-36-bao-mat-va-tai-khoan.md) - việc agent §3.2, §3.4, §3.5 xong; §3.1 (chuyển repo vào Org) còn chờ T19; §3.3 chờ 10/11.
 
+## ⚡ Khởi động phiên 38 - làm ĐÚNG thứ tự này
+
+1. ⚠️ **Phiếu này và `logs/STATE.md` mới CHỈ có trên nhánh cục bộ `docs/siet-tai-len-va-totp`** (working tree được để sẵn ở nhánh đó). `main` vẫn trỏ phiếu 02 - đừng `git checkout main` rồi tưởng không có việc gì.
+2. `git status` phải sạch; `git branch` phải thấy 3 nhánh ở §0. Thiếu nhánh nào thì DỪNG, báo chủ dự án.
+3. Hỏi chủ dự án T22 (cho push). Có phép thì push cả 3, mở 3 PR, gắn nhãn PR an ninh "CHỜ T23 - đừng merge trước khi migrate Neon". Đóng #154 sau khi PR Express 5 merge.
+4. Khoá file vào `logs/LOCKS.md` trước khi sửa. Kết phiên: nhả khoá, dừng tiến trình nền, viết phiếu mới.
+
+Hiện trạng máy lúc đóng phiên 37 (đã đo): không cổng 3000/4001/4002/4004/8090 nào nghe, không nodemon/next/dev-proxy, không monitor, không worktree. Postgres user-space :5433 VẪN CHẠY (phiên 37 bật bằng `npm run db:up`) - để nguyên, phiên sau cần nó.
+
 ## 0. Trạng thái (đo, không suy)
 
 - **Ba nhánh CỤC BỘ, CHƯA push, CHƯA PR** (agent chờ chủ dự án cho phép push):

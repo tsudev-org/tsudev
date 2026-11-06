@@ -6,6 +6,8 @@
 > ✅ Dựng xong (cục bộ, CHƯA push): Express 5 (thay #154), docs §3.5, Giai đoạn 2 ATTT B1-B7
 > (`/admin/release-security`, kiểm toàn vẹn, VirusTotal, step-up, nhật ký chỉ-thêm).
 >
+> ⚠️ Phiếu + STATE này CHỈ có trên nhánh cục bộ `docs/siet-tai-len-va-totp` cho tới khi push.
+>
 > 🔴 Chủ dự án: cho push (T22); `db:migrate` Neon TRƯỚC merge nhánh an ninh (T23); đặt
 > `RELEASE_INTEGRITY_TOKEN` (T24), `VIRUSTOTAL_API_KEY` (T25).
 
