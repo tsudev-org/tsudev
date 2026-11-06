@@ -1,5 +1,24 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 39 BẮT ĐẦU Ở ĐÂY** (cuối phiên 38, 06/11/2026). Phiếu:
+> [`20261106-04`](handover/20261106-04_ket-phien-38-express5-len-prod-g7.md).
+>
+> ✅ Express 5 (#157) đã merge + Render deploy `f6b5639` khoẻ. G7 (step-up khi đổi vai trò/xoá
+> tài khoản) xong, nằm trên #159.
+>
+> 🔴 Chủ dự án: merge #158 (T26); `db:migrate` Neon TRƯỚC merge #159 (T23); T24, T25.
+
+> **Phiên 38 BẮT ĐẦU Ở ĐÂY** (cuối phiên 37, 06/11/2026). Phiếu:
+> [`20261106-03`](handover/20261106-03_ket-phien-37-giai-doan-2-attt.md).
+>
+> ✅ Dựng xong (cục bộ, CHƯA push): Express 5 (thay #154), docs §3.5, Giai đoạn 2 ATTT B1-B7
+> (`/admin/release-security`, kiểm toàn vẹn, VirusTotal, step-up, nhật ký chỉ-thêm).
+>
+> ⚠️ Phiếu + STATE này CHỈ có trên nhánh cục bộ `docs/siet-tai-len-va-totp` cho tới khi push.
+>
+> 🔴 Chủ dự án: cho push (T22); `db:migrate` Neon TRƯỚC merge nhánh an ninh (T23); đặt
+> `RELEASE_INTEGRITY_TOKEN` (T24), `VIRUSTOTAL_API_KEY` (T25).
+
 > **Phiên 37 BẮT ĐẦU Ở ĐÂY** (cuối phiên 36, 06/11/2026). Phiếu:
 > [`20261106-02`](handover/20261106-02_ket-phien-36-bao-mat-va-tai-khoan.md).
 >
