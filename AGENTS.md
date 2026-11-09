@@ -43,6 +43,14 @@ xuất tại repo `tsudev-standards` theo `.standards/docs/SYNC.md` mục 1.
 - **Mức phân loại dữ liệu cao nhất**: D2
 - **Người liên hệ khi có sự cố**: chủ project tsudev
 
+### B.1a. ⛔ Tên repo GitHub cũ là bất khả xâm phạm
+
+Repo nằm ở **`github.com/tsudev-org/tsudev`** (chuyển từ `tsudev-tsudev` ngày 09/11/2026). Không agent nào
+được tạo, fork hay đổi tên repo thành một tên repo cũ dưới tài khoản `tsudev-tsudev` - GitHub bỏ chuyển hướng
+ngay khi tên bị chiếm lại, và mọi URL cũ (updater bản đã cài, winget, `git remote`) gãy không báo lỗi. Repo mới
+cho hệ tsudev tạo trong `tsudev-org`. Repo đang có phiên khác làm việc: viết phiếu yêu cầu vào `logs/handover/`
+của repo đó, không tự sửa hộ.
+
 ### B.2. Nợ chuẩn đang mở
 
 Xem hàng đợi trong `logs/STATE.md`.

@@ -38,7 +38,7 @@
 - **T22 XONG**: chủ dự án cài app `render` cho `tsudev-org` (all repos), đổi Source của `tsudev-backend` sang
   `tsudev-org/tsudev` (Render gọi mục này là **Source**, không phải "Repository") rồi Deploy. Bẫy: sau khi cài app,
   Render chuyển tới trang **"Create a new Blueprint Instance"** - KHÔNG bấm Connect ở đó (dựng bộ service thứ hai).
-  Deploy bấm tay KHÔNG sinh bản ghi deployment trên GitHub - nghiệm thu bằng lần merge kế tiếp (PR ghi kết quả này).
+  Deploy bấm tay KHÔNG sinh bản ghi deployment trên GitHub. Nghiệm thu bằng merge #206: Render TỰ deploy `7cb4fd4` = success, `/health` + JWKS 200; #206 đủ 19 check (có GitGuardian).
 - **T23 XONG**: app `gitguardian` cài cho org (all repos), nối vào workspace cũ `tsudev-tsudev`; 5 nguồn `tsudev-org/*`
   ở trạng thái Monitored.
 
@@ -55,7 +55,13 @@
 dưới tài khoản `tsudev-tsudev`** - GitHub bỏ chuyển hướng ngay khi tên cũ bị chiếm lại, và updater trong các bản app đã
 cài sẽ gãy im lặng.
 
-Ngoài phạm vi kế hoạch §3.1 (chưa chuyển, chủ dự án quyết): `tsudev-tsudev/tsudev-files` (private),
-`tsudev-tsudev/tsudev-trafficmonitor`.
+`tsudev-files` và `tsudev-trafficmonitor`: chủ dự án đồng ý chuyển (09/11). Cả hai đang có phiên Claude khác làm
+việc (`tsudev-files-8a`, `tsudev-trafficmonitor-8d`) nên KHÔNG chuyển hộ - đã viết phiếu yêu cầu
+`tsudev-files/logs/handover/20261109-03_yeu-cau-chuyen-repo-vao-tsudev-org.md` và
+`tsudev-trafficmonitor/logs/handover/20261109-01_yeu-cau-chuyen-repo-vao-tsudev-org.md`, nhắn trực tiếp hai phiên.
+Bẫy riêng: updater trafficmonitor chỉ tin URL tải có tiền tố owner `tsudev-tsudev` (`IsTrustedDownloadUrl`).
+
+Quy tắc "không tạo lại tên repo cũ" đã ghi vào `~/.claude/CLAUDE.md` (mọi phiên trên máy), `CLAUDE.md` và
+`AGENTS.md` §B.1a của repo này. Chưa có ở bộ quy ước chung `tsudev-standards` (cần ra bản mới - việc của phiên sau).
 
 Hiện trạng máy: không khoá, không worktree; một lịch CronCreate (08:17 11/11, minimatch) chỉ sống trong phiên 44.

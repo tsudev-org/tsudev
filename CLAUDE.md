@@ -237,6 +237,13 @@ nguồn là hiện trạng; TSD là đích đến.
   nạp được native module, nên Argon2id KHÔNG THỂ chạy ở tầng biên. Đừng "tối ưu"
   bằng cách đưa việc kiểm mật khẩu lên đó.
 
+- **⛔ KHÔNG BAO GIỜ tạo lại repo trùng tên cũ dưới tài khoản `tsudev-tsudev`** (`tsudev`,
+  `tsudev-cwico`, `tsudev-swico`/`swico`, `tsudev-contact`, `tsudev-standards`, `tsudev-files`,
+  `tsudev-trafficmonitor`) - kể cả fork hay đổi tên. Repo đã chuyển sang `tsudev-org` (09/11/2026);
+  GitHub bỏ chuyển hướng ngay khi tên cũ bị chiếm lại ⇒ updater của bản app đã cài, winget, `git remote`,
+  raw/codeload của bộ quy ước gãy IM LẶNG. Repo mới tạo trong `tsudev-org`. Chuyển thêm repo: việc chuyển
+  TẮT secret scanning + push protection + CodeQL default setup - bật lại (phiếu `20261109-03`). Quy tắc
+  này cũng nằm ở `~/.claude/CLAUDE.md` cho mọi phiên trên máy.
 - **Docker build context phải là gốc repo** - service phụ thuộc package nội bộ
   không có trên npm registry.
 - **`S3_ENDPOINT` và `S3_PUBLIC_ENDPOINT` khác nhau Ở DEV, TRÙNG NHAU ở
