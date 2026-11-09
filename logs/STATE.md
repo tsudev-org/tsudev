@@ -1,5 +1,10 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 44 (đang chạy, 09/11/2026)**: merge #202 (chú thích `eslint.config.mjs` theo ESLint 10).
+> Đã đặt lịch CronCreate một lần **08:17 11/11** làm trọn §2 phiếu
+> [`20261109-02`](handover/20261109-02_phien-43-xoa-nhanh-va-sua-moc-minimatch.md) (chỉ sống khi phiên 44 còn mở).
+> Phiên 44 bị đóng trước giờ đó ⇒ phiên sau làm tay theo đúng §2 phiếu đó.
+
 > **Phiên 44 BẮT ĐẦU Ở ĐÂY** (phiên 43 tiếp, 09/11/2026). Phiếu:
 > [`20261109-02`](handover/20261109-02_phien-43-xoa-nhanh-va-sua-moc-minimatch.md).
 >
