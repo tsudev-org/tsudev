@@ -1,9 +1,9 @@
 // Cấu hình ESLint dạng phẳng (flat config) - thay `.eslintrc.cjs` + `.eslintignore`
 // từ phiên 41 (06/11/2026). ESLint 8 hết hỗ trợ; ESLint 10 bỏ hẳn định dạng cũ.
 //
-// Đích hiện tại là ESLint 9, CHƯA PHẢI 10: `eslint-plugin-react` 7.37 và
-// `eslint-plugin-jsx-a11y` 6.10 khai peer tới `^9` là hết. Lên 10 khi hai gói đó
-// nhận 10 - gỡ dòng `ignore` của `eslint` trong `.github/dependabot.yml` cùng lúc.
+// Chạy ESLint 10 từ phiên 42 (#193, 07/11/2026). `eslint-plugin-react` 7.37 và
+// `eslint-plugin-jsx-a11y` 6.10 vẫn chỉ khai peer tới `^9` (đo lại 09/11/2026),
+// nên hai gói đó đi qua `fixupPluginRules` bên dưới.
 //
 // Bản chuyển đổi giữ NGUYÊN tập luật của bản cũ - nghiệm thu: lint toàn repo ra
 // 0 lỗi ở cả hai bản trên cùng tập tệp.
