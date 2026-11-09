@@ -1,5 +1,13 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 46 BẮT ĐẦU Ở ĐÂY** (cuối phiên 45, 09/11/2026). Phiếu:
+> [`20261109-05`](handover/20261109-05_phien-45-minimatch-11-vo-glob-10.md) (thay 20261109-04 và §2 phiếu 20261109-02).
+>
+> 🪤 minimatch 11 phá API: glob 10 (dùng bởi `@node-minify` của OpenNext và `test-exclude` của jest) trả `[]`
+> không báo lỗi. Override phải KÈM `"glob@>=10 <13": "13.0.6"`.
+>
+> 🎯 Từ 08:08 11/11: override minimatch `11.0.2` + glob `13.0.6`, ghim chính xác, so build/coverage trước-sau.
+
 > **Phiên 45 BẮT ĐẦU Ở ĐÂY** (cuối phiên 44, 09/11/2026). Phiếu:
 > [`20261109-04`](handover/20261109-04_phien-44-quy-uoc-v3.2.0-va-dong-bo.md) + §2 phiếu 20261109-02 (minimatch).
 >
