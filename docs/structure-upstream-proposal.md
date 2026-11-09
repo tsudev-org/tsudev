@@ -5,7 +5,7 @@
 > ứng dụng đơn** và **§2 Hình trạng B - monorepo nhiều workspace**, đúng đề nghị
 > dưới đây, kèm bảng phân biệt `services/` ở gốc repo (tiến trình độc lập) với
 > `src/services/` bên trong một app.
-> Issue nguồn: [tsudev-standards#2](https://github.com/tsudev-tsudev/tsudev-standards/issues/2).
+> Issue nguồn: [tsudev-standards#2](https://github.com/tsudev-org/tsudev-standards/issues/2).
 >
 > Hệ quả: tsudev-web **hết lệch** quy ước cấu trúc - repo khai theo Hình trạng B.
 > Mục "Điểm lệch cần biết" của [`architecture.md`](architecture.md) đã rút xuống

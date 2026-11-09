@@ -6,7 +6,7 @@
 > mục B · `border-strong` **giữ nguyên** mã màu cũ, thu về vai trò trang trí.
 > Đối chiếu: `.standards/tokens/design-tokens.json`,
 > `.standards/tokens/tokens.css`, `.standards/docs/DESIGN_SYSTEM.md` §1.
-> Issue nguồn: [tsudev-standards#1](https://github.com/tsudev-tsudev/tsudev-standards/issues/1).
+> Issue nguồn: [tsudev-standards#1](https://github.com/tsudev-org/tsudev-standards/issues/1).
 >
 > File giữ lại làm **hồ sơ đo**, không phải việc còn dở. Số đo bốn tầng nền × ba
 > chế độ vẫn dùng được để kiểm chứng lại giá trị hiện hành.

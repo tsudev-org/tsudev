@@ -4,7 +4,7 @@ Website cá nhân để **phát hành file cài đặt của các app tự phát
 do máy chủ tính + chữ ký Ed25519), kèm dự án & bản quyền, blog, tài liệu, xác
 thực. Monorepo npm workspaces. Toà soạn Agent AI (gỡ 29/10/2026) và Con dấu tín
 nhiệm (gỡ 04/11/2026, dữ liệu DROP 05/11/2026) KHÔNG còn tồn tại - đừng dựng lại.
-Repo: Public (từ 21/08/2026), `github.com/tsudev-tsudev/tsudev`.
+Repo: Public (từ 21/08/2026), `github.com/tsudev-org/tsudev`.
 
 > File này là NGỮ CẢNH TĨNH được nạp + cache ở đầu MỌI phiên. Đọc kỹ một lần,
 > tuân thủ suốt phiên. **Đừng sửa file này giữa phiên** - sửa là bust cache toàn
