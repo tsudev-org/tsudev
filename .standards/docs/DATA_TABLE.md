@@ -324,7 +324,7 @@ Quy ước này áp cho cả desktop. Điểm khác biệt duy nhất được p
 
 Repo `tsudev` giữ bản cài đặt tham chiếu dùng chung:
 
-| Thứ | Đường dẫn (repo `tsudev-tsudev/tsudev`) |
+| Thứ | Đường dẫn (repo `tsudev-org/tsudev`) |
 | --- | --- |
 | Component | `packages/ui/src/components/DataTable/` |
 | Bộ chọn | `packages/ui/src/components/DataTable/PageSizeSelect.tsx` |

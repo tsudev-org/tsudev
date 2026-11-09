@@ -34,7 +34,7 @@
 # gọi ra ngoài.
 set -euo pipefail
 
-REPO="tsudev-tsudev/tsudev-standards"
+REPO="tsudev-org/tsudev-standards"
 REF="main"
 REF_EXPLICIT=0
 DEST=".standards"

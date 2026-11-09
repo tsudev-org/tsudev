@@ -10,7 +10,7 @@
 
 Hệ sinh thái đã có sẵn một dây chuyền hoàn chỉnh, đặt tại repo website:
 
-| Thứ | Đường dẫn (repo `tsudev-tsudev/tsudev`) |
+| Thứ | Đường dẫn (repo `tsudev-org/tsudev`) |
 | --- | --- |
 | **Bản gốc** | `packages/brand/source/logo.jpeg` - `2048x2048`, nền trắng |
 | Bộ favicon gốc | `packages/brand/source/favicons/` (bản xuất của RealFaviconGenerator) |

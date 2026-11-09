@@ -156,7 +156,7 @@ phần B.
 ## 4. Bộ quy ước và token trung tâm
 
 Bộ `docs/` chuẩn, `tokens/` và `templates/` đặt tại repo trung tâm
-**`tsudev-tsudev/tsudev-standards`** (Public). Repo con lấy về bằng
+**`tsudev-org/tsudev-standards`** (Public). Repo con lấy về bằng
 `scripts/sync-standards.sh` - xem [`SYNC.md`](SYNC.md).
 
 Đổi một mã màu ở trung tâm, chạy đồng bộ, toàn hệ sinh thái cập nhật. `MUST NOT`
