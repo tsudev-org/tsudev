@@ -33,6 +33,15 @@
 | T23 | Cài GitGuardian cho `tsudev-org` (check "GitGuardian Security Checks" biến mất sau chuyển; không phải check bắt buộc)                                                                                                                                                                                                                                    |
 | T24 | (tuỳ chọn) Org Settings → Authentication security: bắt 2FA cho thành viên                                                                                                                                                                                                                                                                                |
 
+### Kết quả (09/11, cùng phiên)
+
+- **T22 XONG**: chủ dự án cài app `render` cho `tsudev-org` (all repos), đổi Source của `tsudev-backend` sang
+  `tsudev-org/tsudev` (Render gọi mục này là **Source**, không phải "Repository") rồi Deploy. Bẫy: sau khi cài app,
+  Render chuyển tới trang **"Create a new Blueprint Instance"** - KHÔNG bấm Connect ở đó (dựng bộ service thứ hai).
+  Deploy bấm tay KHÔNG sinh bản ghi deployment trên GitHub - nghiệm thu bằng lần merge kế tiếp (PR ghi kết quả này).
+- **T23 XONG**: app `gitguardian` cài cho org (all repos), nối vào workspace cũ `tsudev-tsudev`; 5 nguồn `tsudev-org/*`
+  ở trạng thái Monitored.
+
 ## 3. Việc của agent còn lại
 
 | việc                                                                                   | ghi chú                                                                               |
