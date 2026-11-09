@@ -120,7 +120,7 @@ async function main() {
       status: 'BETA',
       version: '0.1.0',
       license: 'MIT',
-      repoUrl: 'https://github.com/tsudev-tsudev/tsudev',
+      repoUrl: 'https://github.com/tsudev-org/tsudev',
       copyrightStatus: 'PENDING',
       copyrightOwner: 'Nguyễn Trang Tình Sử',
       featured: true,
@@ -198,7 +198,7 @@ async function main() {
       slug: 'tsudev-ui',
       version: '0.1.0',
       platform: 'SOURCE',
-      externalUrl: 'https://github.com/tsudev-tsudev/tsudev',
+      externalUrl: 'https://github.com/tsudev-org/tsudev',
       releaseNotesMd: '- Bộ token ba chế độ Sáng/Ấm/Tối\n- 78 icon theo vai trò màu\n',
     },
     {
@@ -228,7 +228,7 @@ async function main() {
       slug: 'tsudev-trust-crypto',
       version: '0.1.0',
       platform: 'SOURCE',
-      externalUrl: 'https://github.com/tsudev-tsudev/tsudev/tree/main/packages/trust-crypto',
+      externalUrl: 'https://github.com/tsudev-org/tsudev/tree/main/packages/trust-crypto',
       releaseNotesMd: '- Ed25519 bằng Rust → WASM\n- Tương thích từng byte với node:crypto\n',
     },
   ]

@@ -5,7 +5,7 @@
 **Đừng mở Issue công khai cho lỗ hổng bảo mật.** Hãy báo riêng qua tính năng
 _Private vulnerability reporting_ của GitHub:
 
-<https://github.com/tsudev-tsudev/tsudev/security/advisories/new>
+<https://github.com/tsudev-org/tsudev/security/advisories/new>
 
 Nên gửi kèm:
 

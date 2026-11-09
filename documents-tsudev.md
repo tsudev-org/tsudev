@@ -24,7 +24,7 @@
 
 **Chủ sở hữu dự án:** Nguyễn Trang Tình Sử
 
-**Repo:** https://github.com/tsudev-tsudev/tsudev (private)
+**Repo:** https://github.com/tsudev-org/tsudev (private)
 
 **Tài liệu tham chiếu thiết kế nội bộ:** `documents-tsudev.html`
 
@@ -90,9 +90,9 @@ _(Tech stack đề xuất đảm bảo sự tương thích tối đa với quy t
 - **Infrastructure & DevOps:**
   - **Containerization:** Toàn bộ service phải được đóng gói bằng **Docker** (có sẵn `docker-compose.yml` và Dockerfile ở thư mục gốc repo).
   - **CI/CD:** Tích hợp **GitHub Actions** cho quy trình tự động kiểm tra code (Linting), quét bảo mật (Secret scanning), build image và deploy.
-    - **HTTPS** https://github.com/tsudev-tsudev/tsudev.git
-    - **SSH** git@github.com:tsudev-tsudev/tsudev.git
-    - **GitHub CLI** gh repo clone tsudev-tsudev/tsudev
+    - **HTTPS** https://github.com/tsudev-org/tsudev.git
+    - **SSH** git@github.com:tsudev-org/tsudev.git
+    - **GitHub CLI** gh repo clone tsudev-org/tsudev
   - **Security:** Quản lý truy cập nội bộ (Admin dashboard, Database port) thông qua Cloudflare Zero Trust (Tunnels).
 
 ## ---

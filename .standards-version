@@ -1,6 +1,6 @@
 # Sinh tự động bởi scripts/sync-standards.sh - KHÔNG sửa tay.
-repo=tsudev-tsudev/tsudev-standards
+repo=tsudev-org/tsudev-standards
 ref=v3.1.1
 version=3.1.1
 commit=6cd851f689b92ada2d85dcf0547c8581974ebdf5
-synced_at=17:33 25/08/2026
+synced_at=15:40 09/11/2026

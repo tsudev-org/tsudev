@@ -2,7 +2,7 @@
 
 # tsudev
 
-[![CI](https://github.com/tsudev-tsudev/tsudev/actions/workflows/ci.yml/badge.svg)](https://github.com/tsudev-tsudev/tsudev/actions/workflows/ci.yml)
+[![CI](https://github.com/tsudev-org/tsudev/actions/workflows/ci.yml/badge.svg)](https://github.com/tsudev-org/tsudev/actions/workflows/ci.yml)
 
 Website cá nhân của tsudev để **phát hành file cài đặt của các app tự phát
 triển**: mỗi bản có SHA-256 do máy chủ tính và chữ ký Ed25519 người tải tự kiểm
