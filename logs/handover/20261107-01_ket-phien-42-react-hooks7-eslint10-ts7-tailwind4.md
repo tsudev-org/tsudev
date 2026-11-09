@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261107-01
 - **Từ**: phiên 42 (07/11/2026) - **Đến**: phiên 43 + chủ dự án
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG (09/11/2026, thay bằng [`20261109-01`](20261109-01_ket-phien-43-dependabot-197-199.md) - §3 chuyển nguyên sang đó)
 - **Thay phiếu**: [`20261106-07`](20261106-07_ket-phien-41-dependabot-eslint9-storybook10.md) - §3.2, §3.3, §3.4 xong; §3.5 xong phần làm được (xem §1).
 
 ## ⚡ Khởi động phiên 43

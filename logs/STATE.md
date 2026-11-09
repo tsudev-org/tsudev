@@ -1,5 +1,13 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 44 BẮT ĐẦU Ở ĐÂY** (cuối phiên 43, 09/11/2026). Phiếu:
+> [`20261109-01`](handover/20261109-01_ket-phien-43-dependabot-197-199.md).
+>
+> ✅ Dependabot #197-#199 merged, Render `295ddc4` nghiệm thu (`/health`, JWKS 200). `fonts:check` CI có thể
+> đỏ chập chờn do Google Fonts - chạy lại job trước.
+>
+> 🎯 Từ 10/11: override minimatch (phiếu 07-01 §3.1). ESLint 10 plugin, TS 7: vẫn bị peer chặn (đo 09/11).
+
 > **Phiên 43 BẮT ĐẦU Ở ĐÂY** (cuối phiên 42, 07/11/2026). Phiếu:
 > [`20261107-01`](handover/20261107-01_ket-phien-42-react-hooks7-eslint10-ts7-tailwind4.md).
 >
