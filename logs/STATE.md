@@ -1,5 +1,14 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 45 BẮT ĐẦU Ở ĐÂY** (cuối phiên 44, 09/11/2026). Phiếu:
+> [`20261109-03`](handover/20261109-03_phien-44-chuyen-repo-vao-tsudev-org.md) + §2 phiếu 20261109-02 (minimatch).
+>
+> ✅ 5 repo đã chuyển sang `tsudev-org` (#204). Secret scanning + CodeQL bị tắt khi chuyển - đã bật lại.
+>
+> 🔴 Chủ dự án: cài GitHub App Render cho `tsudev-org` (T22) - trước đó Render KHÔNG tự deploy.
+>
+> 🎯 Minimatch: sớm nhất 08:08 11/11, ghim chính xác (phiếu 20261109-02 §2).
+
 > **Phiên 44 (đang chạy, 09/11/2026)**: merge #202 (chú thích `eslint.config.mjs` theo ESLint 10).
 > Đã đặt lịch CronCreate một lần **08:17 11/11** làm trọn §2 phiếu
 > [`20261109-02`](handover/20261109-02_phien-43-xoa-nhanh-va-sua-moc-minimatch.md) (chỉ sống khi phiên 44 còn mở).
