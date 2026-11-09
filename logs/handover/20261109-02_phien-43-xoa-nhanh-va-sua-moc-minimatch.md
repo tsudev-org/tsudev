@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261109-02
 - **Từ**: phiên 43 (09/11/2026) - **Đến**: phiên 44 + chủ dự án
-- **Trạng thái**: MỞ
+- **Trạng thái**: MỞ - chỉ còn §2 (minimatch); việc khác chuyển sang [`20261109-03`](20261109-03_phien-44-chuyen-repo-vao-tsudev-org.md)
 - **Thay phiếu**: [`20261109-01`](20261109-01_ket-phien-43-dependabot-197-199.md) - §2 xong; mọi việc còn lại chuyển sang đây.
 
 ## ⚡ Khởi động phiên 44
