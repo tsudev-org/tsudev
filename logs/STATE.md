@@ -5,7 +5,7 @@
 >
 > ✅ 5 repo đã chuyển sang `tsudev-org` (#204). Secret scanning + CodeQL bị tắt khi chuyển - đã bật lại.
 >
-> 🔴 Chủ dự án: cài GitHub App Render cho `tsudev-org` (T22) - trước đó Render KHÔNG tự deploy.
+> ✅ T22 (Render nối `tsudev-org/tsudev`) + T23 (GitGuardian cho org) xong 09/11.
 >
 > 🎯 Minimatch: sớm nhất 08:08 11/11, ghim chính xác (phiếu 20261109-02 §2).
 
