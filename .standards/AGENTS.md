@@ -1,7 +1,7 @@
-# AGENTS.md - Bộ quy ước dùng chung tsudev (v3.1.1)
+# AGENTS.md - Bộ quy ước dùng chung tsudev (v3.2.0)
 
 > **ĐÂY LÀ NGUỒN CHÂN LÝ.** Bộ quy ước được biên tập tại repo
-> `tsudev-tsudev/tsudev-standards`. Repo con mang một BẢN SAO CHỈ-ĐỌC tại
+> `tsudev-org/tsudev-standards`. Repo con mang một BẢN SAO CHỈ-ĐỌC tại
 > `.standards/` và đồng bộ xuống từ đây. Sửa quy ước thì sửa ở đây rồi mới đồng
 > bộ xuống, **KHÔNG sửa ngược**. Cơ chế: [`docs/SYNC.md`](docs/SYNC.md).
 >
@@ -107,6 +107,13 @@ Chi tiết: [`docs/AGENT_PROTOCOL.md`](docs/AGENT_PROTOCOL.md).
 - Không tắt kiểm tra HTTPS/SSL, không hạ cấp thuật toán mã hóa, không mở cổng
   hay quyền rộng hơn mức task cần.
 - Không nới lỏng bảo mật để cho mã chạy được. Gặp bế tắc thì báo cáo, không tự quyết.
+- **Tên repo GitHub cũ là bất khả xâm phạm.** Repo hệ tsudev nằm trong Organization
+  `tsudev-org` (chuyển từ tài khoản `tsudev-tsudev` ngày 09/11/2026). `MUST NOT` tạo,
+  fork hay đổi tên một repo thành tên repo cũ dưới `tsudev-tsudev` - GitHub bỏ chuyển
+  hướng ngay khi tên cũ bị chiếm lại, và mọi URL cũ (updater của bản app đã cài,
+  winget, `git remote`, URL đồng bộ bộ quy ước) gãy không báo lỗi. Repo mới tạo trong
+  `tsudev-org`. Chuyển repo vào org tắt secret scanning, push protection và CodeQL
+  default setup - `MUST` bật lại ngay và đối chiếu trước/sau.
 
 ## 5. Chi phí 0 đồng
 

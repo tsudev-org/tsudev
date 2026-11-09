@@ -4,7 +4,7 @@
     "name": "tsudev-design-tokens",
     "version": "2.0.0",
     "updated": "24/08/2026",
-    "source": "https://github.com/tsudev-tsudev/tsudev-standards",
+    "source": "https://github.com/tsudev-org/tsudev-standards",
     "note": "Nguồn chân lý duy nhất cho giao diện toàn hệ sinh thái tsudev. tokens/tokens.css là bản SINH RA từ file này (node scripts/build-tokens.mjs), không sửa tay. Khối extensions.* riêng của từng repo con KHÔNG nằm ở đây."
   },
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/tsudev-tsudev/tsudev-standards/main/tokens/design-tokens.schema.json",
+  "$id": "https://raw.githubusercontent.com/tsudev-org/tsudev-standards/main/tokens/design-tokens.schema.json",
   "title": "tsudev design tokens",
   "description": "Lược đồ cho tokens/design-tokens.json - nguồn chân lý duy nhất của giao diện hệ sinh thái tsudev. IDE dùng file này để tự gợi ý và bắt lỗi khi sửa token.",
   "type": "object",

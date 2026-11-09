@@ -48,7 +48,7 @@ Có ba lý do, cả ba đều là lý do vận hành thật:
 ```bash
 # 1. Lấy script đồng bộ (một lần duy nhất)
 mkdir -p scripts
-curl -fsSL https://raw.githubusercontent.com/tsudev-tsudev/tsudev-standards/main/scripts/sync-standards.sh \
+curl -fsSL https://raw.githubusercontent.com/tsudev-org/tsudev-standards/main/scripts/sync-standards.sh \
   -o scripts/sync-standards.sh
 chmod +x scripts/sync-standards.sh
 
@@ -118,7 +118,7 @@ lên bản mới nhưng `ls .standards/scripts/` ra rỗng. Nhìn số bản kh�
 được. Làm một lần rồi thôi:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/tsudev-tsudev/tsudev-standards/v3.1.1/scripts/sync-standards.sh \
+curl -fsSL https://raw.githubusercontent.com/tsudev-org/tsudev-standards/v3.1.1/scripts/sync-standards.sh \
   -o scripts/sync-standards.sh
 chmod +x scripts/sync-standards.sh
 ```
