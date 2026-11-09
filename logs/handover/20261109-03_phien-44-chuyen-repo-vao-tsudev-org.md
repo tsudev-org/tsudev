@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261109-03
 - **Từ**: phiên 44 (09/11/2026) - **Đến**: chủ dự án + phiên 45
-- **Trạng thái**: MỞ
+- **Trạng thái**: HOÀN THÀNH - việc còn lại chuyển sang [`20261109-04`](20261109-04_phien-44-quy-uoc-v3.2.0-va-dong-bo.md)
 - **Liên quan**: [`20261109-02`](20261109-02_phien-43-xoa-nhanh-va-sua-moc-minimatch.md) vẫn MỞ cho §2 (minimatch, sớm nhất 08:08 11/11).
 
 ## ⚡ Khởi động phiên 45

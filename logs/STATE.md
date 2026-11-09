@@ -1,6 +1,13 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
 > **Phiên 45 BẮT ĐẦU Ở ĐÂY** (cuối phiên 44, 09/11/2026). Phiếu:
+> [`20261109-04`](handover/20261109-04_phien-44-quy-uoc-v3.2.0-va-dong-bo.md) + §2 phiếu 20261109-02 (minimatch).
+>
+> ✅ Bộ quy ước v3.2.0 (tsudev-org + quy tắc tên repo cũ), đồng bộ xong 4 repo con. trafficmonitor đã vào org.
+>
+> 🎯 Minimatch: sớm nhất 08:08 11/11, ghim chính xác.
+
+> **Phiên 45 (bản trước)** (09/11/2026). Phiếu:
 > [`20261109-03`](handover/20261109-03_phien-44-chuyen-repo-vao-tsudev-org.md) + §2 phiếu 20261109-02 (minimatch).
 >
 > ✅ 5 repo đã chuyển sang `tsudev-org` (#204). Secret scanning + CodeQL bị tắt khi chuyển - đã bật lại.
