@@ -1,6 +1,13 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
-> **Phiên 44 BẮT ĐẦU Ở ĐÂY** (cuối phiên 43, 09/11/2026). Phiếu:
+> **Phiên 44 BẮT ĐẦU Ở ĐÂY** (phiên 43 tiếp, 09/11/2026). Phiếu:
+> [`20261109-02`](handover/20261109-02_phien-43-xoa-nhanh-va-sua-moc-minimatch.md).
+>
+> ✅ 13 nhánh remote cũ đã xoá (đầu nhánh ghim ở `refs/archive/*` local).
+>
+> 🎯 Minimatch: SỚM NHẤT 08:08 11/11, GHIM CHÍNH XÁC bản đủ 14 ngày - KHÔNG `^11.0.1` (giải ra 11.0.5).
+
+> **Phiên 44 (bản trước) BẮT ĐẦU Ở ĐÂY** (cuối phiên 43, 09/11/2026). Phiếu:
 > [`20261109-01`](handover/20261109-01_ket-phien-43-dependabot-197-199.md).
 >
 > ✅ Dependabot #197-#199 merged, Render `295ddc4` nghiệm thu (`/health`, JWKS 200). `fonts:check` CI có thể
