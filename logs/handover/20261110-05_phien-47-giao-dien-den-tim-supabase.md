@@ -4,7 +4,7 @@
 - **Phiên**: 47 (tsudev-9b) - PR #213 (merge `342bdf9`), frontend deploy Workers version
   `88759036-520b-4358-afe5-aad579cdb719`
 - **Thời điểm**: 10/11/2026
-- **Trạng thái**: MỞ (mã + deploy xong; còn §4 dọn nội dung và phiếu các repo khác)
+- **Trạng thái**: MỞ (mã + deploy xong; phiếu các repo đã xử lý - §7; còn deploy các site con và việc minimatch)
 
 ## 1. Yêu cầu của chủ dự án (10/11/2026)
 
@@ -119,3 +119,20 @@ này THAY phần "nút ở header" của phiếu `20261110-02/03` phiên 46. T�
 3. Khi `tsudev-standards` phát hành bản gỡ Ấm: đồng bộ `.standards/` và kiểm `themeTokens.test.ts` (đang chỉ
    đòi `light` + `dark` có mặt).
 4. Việc cũ còn nguyên từ phiếu `20261110-03`: hạn minimatch (từ 08:08 11/11), chốt kiểu URL phiếu `20261109-06`.
+
+## 7. Kết quả các repo hệ sinh thái (phiên projects-0c, 11/11/2026)
+
+| Repo                    | PR (đã merge)                | Ghi chú                                                                                     |
+| ----------------------- | ---------------------------- | ------------------------------------------------------------------------------------------- |
+| `tsudev-contact`        | #19, #20                     | web + app PySide6 (mặc định Tối, `tokens/extensions.tsudev-contact.json`); QU-STD-AUTH xong |
+| `tsudev-lotus`          | #12, #13                     | web + app Flutter (mặc định Tối, seed tím)                                                  |
+| `tsudev-trafficmonitor` | #53, #54                     | web (app dùng skin, không có tuỳ chọn màu)                                                  |
+| `tsudev-swico`          | #13, #14                     | web; CSP báo cáo mẫu bỏ `'unsafe-inline'`, dùng băm                                         |
+| `tsudev-cwico`          | #65, #66                     | web (dời #58 xuống chân trang) + app Tauri (Sáng/Tối/Hệ thống)                              |
+| `tsudev-standards`      | #49, nhãn `v3.4.0`           | bỏ Ấm (deprecated, gỡ ở v4.0.0), ECOSYSTEM_IDENTITY 4.1-4.2, TS-15                          |
+| `app-la-ban`            | tsudev-tsudev/app-la-ban#108 | chủ dự án xác nhận áp cả app: Q68, token tím, landing + admin + app                         |
+| `tsudev`                | #217                         | `.standards/` lên v3.4.0 (việc 3 ở §6), CI 19/19 gồm `themeTokens.test.ts`                  |
+
+Nút phụ dùng viền `border-control` (đạt 3:1) thay `border-strong` của mẫu tsudev-files - nên sửa lại ở files.
+CHƯA deploy (bộ phân loại chặn agent `npm run deploy`): contact, lotus, trafficmonitor, swico, cwico, compass
+(landing + admin) - lệnh chạy tay ở báo cáo phiên. Việc 4 (minimatch) vẫn chờ tới 08:08 11/11.
