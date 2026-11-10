@@ -3,8 +3,8 @@
 > **Phiên 48 BẮT ĐẦU Ở ĐÂY** (cuối phiên 47, 10/11/2026). Phiếu:
 > [`20261110-05`](handover/20261110-05_phien-47-giao-dien-den-tim-supabase.md) (đọc kèm 20261110-03).
 >
-> 🎨 Nhánh `feat/giao-dien-tim-den-supabase` (CHƯA push): đen tuyền + tím kiểu Supabase, chỉ Sáng / Tối / Hệ
-> thống (bỏ Ấm), bộ chọn ở chân trang, băm CSP mới. CHƯA kiểm bằng mắt (Playwright không tới được loopback).
+> ✅ Giao diện đen tuyền + tím kiểu Supabase, chỉ Sáng / Tối / Hệ thống: PR #213, deploy `88759036`, nghiệm thu
+> production + ảnh chụp 2 chế độ × 2 khổ. tsudev-files cũng ĐÓNG phiếu 20261110-05.
 >
 > 🧹 `scripts/don-noi-dung-lac-de.js` (xoá mềm dự án/tài liệu/blog lạc đề) - CHƯA áp production, chờ chủ dự án.
 >
