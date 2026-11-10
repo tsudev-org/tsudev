@@ -4,7 +4,7 @@
 
 # Sửa xong file → XÓA dòng khóa của mình.
 
-(TRỐNG - phiên 44 không giữ khoá nào, 09/11/2026.)
+(TRỐNG - phiên 47 đã nhả mọi khoá, 10/11/2026.)
 
-✅ Phiên 43 xong (09/11/2026): không giữ khoá nào, không tiến trình nền, không worktree.
-Việc kế tiếp: phiếu `logs/handover/20261109-02_phien-43-xoa-nhanh-va-sua-moc-minimatch.md`.
+✅ Phiên 47 xong (10/11/2026): không giữ khoá nào, không tiến trình nền (dev server, backend giả, Postgres dev
+đã dừng), không worktree. Việc kế tiếp: phiếu `logs/handover/20261110-05_phien-47-giao-dien-den-tim-supabase.md`.

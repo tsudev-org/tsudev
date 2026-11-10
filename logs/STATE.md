@@ -1,5 +1,22 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 48 BẮT ĐẦU Ở ĐÂY** (cuối phiên 47, 10/11/2026). Phiếu:
+> [`20261110-05`](handover/20261110-05_phien-47-giao-dien-den-tim-supabase.md) (đọc kèm 20261110-03).
+>
+> 🎨 Nhánh `feat/giao-dien-tim-den-supabase` (CHƯA push): đen tuyền + tím kiểu Supabase, chỉ Sáng / Tối / Hệ
+> thống (bỏ Ấm), bộ chọn ở chân trang, băm CSP mới. CHƯA kiểm bằng mắt (Playwright không tới được loopback).
+>
+> 🧹 `scripts/don-noi-dung-lac-de.js` (xoá mềm dự án/tài liệu/blog lạc đề) - CHƯA áp production, chờ chủ dự án.
+>
+> 📨 Phiếu `20261110-05` đã đặt ở 8 repo hệ sinh thái (thay phần nút-ở-header của phiếu 20261110-02/03).
+
+> **Phiên 47 BẮT ĐẦU Ở ĐÂY** (cuối phiên 46, 10/11/2026). Phiếu:
+> [`20261110-03`](handover/20261110-03_phien-46-ket-thuc-ban-giao.md) (đọc kèm 20261110-01).
+>
+> ✅ Không khoá, không tiến trình nền. Nhật ký phiên 46 CHƯA commit - việc 1 của phiên 47 (PR, xin xác nhận push).
+>
+> 🎯 Phiếu 20261109-06 chờ chủ dự án chốt kiểu URL; cwico chờ deploy; minimatch từ 08:08 11/11.
+
 > **Phiên 46 (10/11/2026)**: giao diện đen + xanh (Tối mặc định) + danh bạ `/apps` kiểu winstall - #211 merge,
 > frontend deploy `9e94665b`, nghiệm thu production. Phiếu nút Sáng/Tối gửi 6 repo hệ sinh thái. Phiếu
 > [`20261110-01`](handover/20261110-01_phien-46-giao-dien-den-xanh-he-sinh-thai.md).

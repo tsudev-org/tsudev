@@ -51,3 +51,6 @@ Tệp phiếu CHƯA commit ở repo đích (repo đó tự commit khi nhận). M
 | `app-la-ban`            | `docs/phieu/20261110-02_*` + `./agents.sh inbox agent-laban` (`HGLB-1110-125225`) | `'self' 'strict-dynamic'`                | chưa có phiên mở                                                  |
 
 `tsudev-contact` chưa có website - không có phiếu.
+
+Cập nhật cuối phiên: `tsudev-files` ĐÓNG (PR #25, deploy `5c375f4d`, nghiệm thu production); `tsudev-cwico` mã xong
+(PR #58), chờ deploy. Tiếp theo: phiếu [`20261110-03`](20261110-03_phien-46-ket-thuc-ban-giao.md).
