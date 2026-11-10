@@ -1,9 +1,10 @@
 # PHIẾU BÀN GIAO - Giao diện đen tuyền + tím kiểu Supabase, chỉ Sáng / Tối / Hệ thống, dọn nội dung lạc đề
 
 - **Mã phiếu**: 20261110-05 (cùng số với phiếu yêu cầu đã đặt ở các repo hệ sinh thái)
-- **Phiên**: 47 (tsudev-9b) - nhánh `feat/giao-dien-tim-den-supabase` (CHƯA push, chờ chủ dự án xác nhận)
+- **Phiên**: 47 (tsudev-9b) - PR #213 (merge `342bdf9`), frontend deploy Workers version
+  `88759036-520b-4358-afe5-aad579cdb719`
 - **Thời điểm**: 10/11/2026
-- **Trạng thái**: MỞ
+- **Trạng thái**: MỞ (mã + deploy xong; còn §4 dọn nội dung và phiếu các repo khác)
 
 ## 1. Yêu cầu của chủ dự án (10/11/2026)
 
@@ -73,23 +74,35 @@ Nội dung chung: bảng mã màu hai chế độ, hợp đồng bộ chọn gia
 script trước-khi-vẽ đặt sau meta theme-color, CSP băm), danh sách kiểm bố cục kiểu Supabase, nghiệm thu. Phiếu
 này THAY phần "nút ở header" của phiếu `20261110-02/03` phiên 46. Tệp CHƯA commit ở repo đích.
 
-| Repo                                   | Vị trí phiếu     | Đã báo                                                              |
-| -------------------------------------- | ---------------- | ------------------------------------------------------------------- |
-| `tsudev-trafficmonitor`                | `logs/handover/` | chưa có phiên mở                                                    |
-| `tsudev-cwico`                         | `logs/handover/` | chưa có phiên mở (PR #58 chờ deploy - gộp trước deploy)             |
-| `tsudev-swico`                         | `logs/handover/` | chưa có phiên mở                                                    |
-| `tsudev-files`                         | `logs/handover/` | PR tsudev-org/tsudev-files#29 (CI chạy) - mã xong, chờ gộp + deploy |
-| `tsudev-lotus`                         | `logs/handover/` | chưa có phiên mở                                                    |
-| `tsudev-contact`                       | `logs/handover/` | chưa có phiên mở                                                    |
-| `app-la-ban`                           | `docs/phieu/`    | inbox `agent-laban` mã `HGLB-1110-205345`                           |
-| `tsudev-standards` (bộ quy ước v3.4.0) | `logs/handover/` | chưa có phiên mở - đề xuất gỡ chế độ Ấm khỏi bảng chuẩn             |
+| Repo                                   | Vị trí phiếu     | Đã báo                                                                          |
+| -------------------------------------- | ---------------- | ------------------------------------------------------------------------------- |
+| `tsudev-trafficmonitor`                | `logs/handover/` | chưa có phiên mở                                                                |
+| `tsudev-cwico`                         | `logs/handover/` | chưa có phiên mở (PR #58 chờ deploy - gộp trước deploy)                         |
+| `tsudev-swico`                         | `logs/handover/` | chưa có phiên mở                                                                |
+| `tsudev-files`                         | `logs/handover/` | ✅ ĐÓNG - PR #29 + #30, Worker `b57f2ec3`, nghiệm thu production (axe AA 0 lỗi) |
+| `tsudev-lotus`                         | `logs/handover/` | chưa có phiên mở                                                                |
+| `tsudev-contact`                       | `logs/handover/` | chưa có phiên mở                                                                |
+| `app-la-ban`                           | `docs/phieu/`    | inbox `agent-laban` mã `HGLB-1110-205345`                                       |
+| `tsudev-standards` (bộ quy ước v3.4.0) | `logs/handover/` | chưa có phiên mở - đề xuất gỡ chế độ Ấm khỏi bảng chuẩn                         |
+
+## 5b. Nghiệm thu production (10/11/2026, sau deploy `88759036`)
+
+- CI PR #213: 19/19. Chủ dự án tự merge + tự chạy deploy (bộ phân loại an toàn chặn agent `gh pr merge` và
+  `npm run deploy` - hai lệnh này người dùng chạy bằng `!`). Tài khoản Cloudflare `9541f44e...` đã kiểm.
+- CSP mang băm mới `sha256-6OxaX4ZX...`; `/api/auth/providers` = `credentials,passkey,github,google`;
+  `data-theme="dark"`, meta theme-color `#0a0a0a`, `© tsudev` + radiogroup có mặt.
+- Playwright trên https://tsudev.com (Chromium ra Internet được, chỉ loopback bị chặn): `/`, `/apps`, `/docs`,
+  `/login` × Tối/Sáng × 1440/390px - không tràn ngang, console 0 lỗi (không lỗi CSP). Xem ảnh bằng mắt: nền
+  liền mạch, biểu tượng app rõ, icon trong nút tím ăn màu chữ, footer đúng. Chụp toàn trang KHÔNG cuộn thì các
+  khối `.reveal` còn ẩn (trông như khoảng trống lớn) - cuộn hết trang trước khi chụp thì 0 khối ẩn.
+- Nội dung lạc đề (§4) VẪN còn trên production - chờ chủ dự án chạy script.
+- tsudev-files khuyên KHÔNG tắt JavaScript Detections của zone (ghi ở STATE.md repo đó). tsudev.com không bị lỗi
+  challenge-platform nhờ nonce.
 
 ## 6. Việc cho phiên sau (theo thứ tự)
 
-1. Kiểm bằng mắt (§3), xin xác nhận rồi push nhánh + mở PR; CI 13 check; người dùng tự merge.
-2. Deploy frontend qua `scripts/deploy-frontend.js`; nghiệm thu: CSP mang băm `sha256-6OxaX4ZX...`,
-   `/api/auth/providers` chỉ provider thật, `data-theme="dark"`, console 0 lỗi CSP, chọn Sáng → tải lại vẫn Sáng.
-3. Chủ dự án áp §4 lên production (hoặc giao lại kèm DATABASE_URL trong shell).
-4. Khi `tsudev-standards` phát hành bản gỡ Ấm: đồng bộ `.standards/` và kiểm `themeTokens.test.ts` (đang chỉ
+1. ✅ XONG: PR #213, deploy, nghiệm thu (§5b).
+2. Chủ dự án áp §4 lên production (hoặc giao lại kèm DATABASE_URL trong shell).
+3. Khi `tsudev-standards` phát hành bản gỡ Ấm: đồng bộ `.standards/` và kiểm `themeTokens.test.ts` (đang chỉ
    đòi `light` + `dark` có mặt).
-5. Việc cũ còn nguyên từ phiếu `20261110-03`: hạn minimatch (từ 08:08 11/11), chốt kiểu URL phiếu `20261109-06`.
+4. Việc cũ còn nguyên từ phiếu `20261110-03`: hạn minimatch (từ 08:08 11/11), chốt kiểu URL phiếu `20261109-06`.
