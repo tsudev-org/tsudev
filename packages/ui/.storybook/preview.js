@@ -16,12 +16,11 @@ export const globalTypes = {
   theme: {
     name: 'Giao diện',
     description: 'Chế độ hiển thị',
-    defaultValue: 'light',
+    defaultValue: 'dark',
     toolbar: {
       icon: 'paintbrush',
       items: [
         { value: 'light', title: 'Sáng' },
-        { value: 'warm', title: 'Ấm' },
         { value: 'dark', title: 'Tối' },
       ],
       dynamicTitle: true,
@@ -32,7 +31,7 @@ export const globalTypes = {
 // Đặt lên <html> chứ không lên khung của story: token khai ở `:root`, nên gắn
 // vào thẻ nào thấp hơn thì khối `:root[data-theme=…]` không khớp và không có gì đổi.
 const withTheme = (Story, context) => {
-  document.documentElement.setAttribute('data-theme', context.globals.theme || 'light');
+  document.documentElement.setAttribute('data-theme', context.globals.theme || 'dark');
   return React.createElement(Story);
 };
 

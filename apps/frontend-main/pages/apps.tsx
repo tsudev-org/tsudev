@@ -100,9 +100,9 @@ export default function AppsPage() {
         <form
           role="search"
           onSubmit={(e) => e.preventDefault()}
-          className="tsu-glass sticky top-20 z-10 rounded-xl border border-line p-3 md:p-4"
+          className="tsu-glass sticky top-20 z-10 rounded-lg border border-line p-3 md:p-4"
         >
-          <label className="flex h-11 items-center gap-2 rounded-md border border-line-control bg-base px-3 text-fg-muted focus-within:border-primary">
+          <label className="flex h-10 items-center gap-2 rounded-md border border-line-strong bg-surface px-3 text-fg-muted focus-within:border-primary">
             <Icon name="search" size={18} />
             <input
               type="search"
@@ -179,10 +179,10 @@ export default function AppsPage() {
           </div>
         )}
 
-        <section className="mt-14 rounded-2xl border border-line tsu-cta-bg p-6 md:p-8">
+        <section className="mt-14 rounded-lg border border-line bg-surface p-6 md:p-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-xl font-bold text-fg">Cần bản có chữ ký Ed25519?</h2>
+              <h2 className="text-xl font-semibold text-fg">Cần bản có chữ ký Ed25519?</h2>
               <p className="mt-1.5 max-w-2xl text-sm text-fg-secondary">
                 Bản phát hành đăng trực tiếp trên tsudev.com được máy chủ tính SHA-256 và ký Ed25519
                 - bạn tự đối chiếu được trước khi cài.
@@ -190,7 +190,7 @@ export default function AppsPage() {
             </div>
             <a
               href="/projects"
-              className="inline-flex h-10 shrink-0 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-on-primary hover:bg-primary-hover"
+              className="inline-flex h-9 shrink-0 items-center gap-2 rounded-md border border-primary-hover bg-primary px-4 text-sm font-medium text-on-primary hover:bg-primary-hover"
             >
               <Icon name="signature" size={16} />
               Xem bản phát hành

@@ -153,23 +153,17 @@ nguồn là hiện trạng; TSD là đích đến.
   không tồn tại trong artifact ⇒ thân bài Markdown của blog và tài liệu chạy sai
   chiều cao dòng suốt nhiều tháng mà không gì đỏ lên. Cần token dùng chung khác đi
   thì mở đề xuất ở repo `tsudev-standards` theo `.standards/docs/SYNC.md`.
-- **Giao diện có BA chế độ: Tối (mặc định từ 10/11/2026) · Sáng · Ấm**, chọn bằng
-  `data-theme` trên `<html>`. `:root` trần mang bảng Tối (nền gần-đen `#05070B`,
-  primary xanh dương, accent xanh lá - KHÔNG `#000`, DESIGN_SYSTEM §1 cấm), nên
-  khách vãng lai luôn thấy Tối. Đổi script chống nháy ở `_document.tsx` ⇒ cập nhật
-  `THEME_SCRIPT_HASH` trong `proxy.ts` (`test/csp.test.ts` bắt). Danh bạ app hệ
-  sinh thái (website riêng, winget): `packages/ui/src/lib/ecosystem.ts` → `/apps`.
-  Bảng màu KHÔNG treo vào `prefers-color-scheme` - hai người mở cùng một đường
-  link phải thấy cùng một trang. Ai muốn bám theo máy thì chọn "Theo hệ thống"
-  trong nút đổi giao diện; lựa chọn đó được giải thành `data-theme` cụ thể bởi
-  script đồng bộ trong `pages/_document.tsx`, TRƯỚC khi trang được vẽ. Việc hỏi
-  cài đặt hệ điều hành chỉ được phép nằm trong JavaScript, có test canh.
-  Thứ bậc bề mặt bằng độ sáng nền (`--bg-base` < `--bg-surface` < `--bg-subtle`);
-  card có thêm viền hairline vì ở chế độ Sáng và Ấm hai tầng đó chênh nhau quá ít
-  để mắt dựng ra cạnh. Đừng cắm cứng mã hex: `--on-primary`/`--on-status` đảo
-  theo chế độ, mã hex thì không. Mọi cặp màu ở CẢ BA chế độ bị
-  `packages/ui/test/contrast.test.ts` canh ở ngưỡng WCAG AA - đổi mã màu làm tụt
-  tương phản là CI đỏ.
+- **Giao diện: đen tuyền + tím, bố cục kiểu supabase.com; CHỈ Sáng · Tối · Hệ thống** (chủ dự án chốt
+  10/11/2026 cho TOÀN hệ sinh thái - chế độ Ấm đã BỎ, đừng dựng lại; `warm` cũ trong localStorage đọc thành
+  `light`). `data-theme` trên `<html>` chỉ là `dark` (mặc định, `:root` trần, nền `#0A0A0A` - KHÔNG `#000`) hoặc
+  `light`. Bộ chọn 3 nút nằm ở CHÂN TRANG cạnh `© tsudev` (`ThemeToggle.tsx`), không ở header. Đổi script chống
+  nháy ở `_document.tsx` ⇒ cập nhật `THEME_SCRIPT_HASH` trong `proxy.ts` (`test/csp.test.ts` bắt). Bảng màu
+  KHÔNG treo vào `prefers-color-scheme`; "Hệ thống" được giải trong JavaScript trước khi vẽ, có test canh.
+  Chữ trên nút tím ở chế độ Tối là MỰC ĐEN (không mã tím nào đạt AA cho cả hai vai) - đừng đổi thành trắng.
+  Một nền liền mạch: không dải nền khác màu giữa các khối. Icon trong nút nền đặc ăn màu chữ của nút
+  (`.tsu-icon` ở `globals.css`). Danh bạ app hệ sinh thái (website riêng, winget, `icon`):
+  `packages/ui/src/lib/ecosystem.ts` → `/apps`. Đừng cắm cứng mã hex: `--on-primary`/`--on-status` đảo theo
+  chế độ. Mọi cặp màu ở CẢ HAI chế độ bị `packages/ui/test/contrast.test.ts` canh ở ngưỡng WCAG AA.
 - **Ngày giờ hiển thị đi qua `apps/frontend-main/lib/format.ts`**
   (`DD/MM/YYYY`, `HH:mm DD/MM/YYYY`). Đừng gọi thẳng
   `toLocaleDateString('vi-VN')` - nó bỏ số 0 đầu nên 05/08/2026 in ra `5/8/2026`.

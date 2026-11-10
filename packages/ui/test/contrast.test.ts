@@ -4,7 +4,7 @@ import { join } from 'path';
 /**
  * Cổng tương phản cho hệ token màu.
  *
- * BA chế độ (Sáng / Ấm / Tối) nghĩa là mỗi cặp màu tồn tại ba lần, và một cặp đủ
+ * HAI chế độ (Sáng / Tối) nghĩa là mỗi cặp màu tồn tại hai lần, và một cặp đủ
  * tương phản ở chế độ Tối hoàn toàn có thể không đủ ở chế độ Sáng. Kiểm bằng mắt
  * thì bắt được cái chói, không bắt được cái vừa-đủ-trượt: WCAG AA đòi 4.5:1 cho
  * chữ thường và 3:1 cho chữ lớn hoặc thành phần giao diện, còn
@@ -80,7 +80,7 @@ export function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-/** Cặp [chữ, nền, ngưỡng, mô tả] phải đúng ở CẢ BA chế độ. */
+/** Cặp [chữ, nền, ngưỡng, mô tả] phải đúng ở CẢ HAI chế độ. */
 const PAIRS: Array<[string, string, number, string]> = [
   // Chữ chính trên nền: §1 đòi ≥10:1, cao hơn hẳn ngưỡng AA. Đây là cặp chiếm
   // gần hết diện tích màn hình, nên nó chịu ngưỡng nghiêm nhất.
@@ -177,7 +177,7 @@ const PAIRS: Array<[string, string, number, string]> = [
   ['--border-control', '--bg-surface', 3, 'viền vùng tương tác trên card'],
   ['--border-control', '--bg-subtle', 3, 'viền vùng tương tác trên khối lồng'],
   ['--primary', '--bg-base', 3, 'viền/nền nút trên nền trang'],
-  ['--primary', '--bg-base', 4.5, 'chữ chuyển sắc ở tiêu đề hero (đầu chàm)'],
+  ['--primary', '--bg-base', 4.5, 'chữ chuyển sắc ở tiêu đề hero (đầu tím)'],
   ['--primary', '--bg-surface', 3, 'viền/nền nút trên card'],
   // Vòng focus phải nhìn thấy được trên MỌI bề mặt nó có thể xuất hiện - kể cả
   // hàng đang hover, nơi nền đã sẫm đi một bậc.
@@ -193,7 +193,6 @@ describe.each([
   // thấy cái thứ hai, và hai cái phải là một.
   ['Tối (mặc định)', ':root'],
   ['Sáng', ":root[data-theme='light']"],
-  ['Ấm', ":root[data-theme='warm']"],
   ['Tối', ":root[data-theme='dark']"],
 ])('tương phản - chế độ %s', (_label, selector) => {
   const t = tokensIn(selector);
@@ -269,12 +268,8 @@ describe.each([
 // Ba chế độ phải là ba bảng THẬT SỰ khác nhau. Sinh nhầm (ví dụ script đồng bộ
 // đọc trượt khoá) sẽ cho ra hai khối giống hệt, và mọi test tương phản ở trên
 // vẫn xanh vì chúng chỉ kiểm từng chế độ một.
-test('ba chế độ có nền trang khác nhau', () => {
+test('hai chế độ có nền trang khác nhau', () => {
   const base = (s: string) => tokensIn(s)['--bg-base'];
-  const [light, warm, dark] = [
-    ":root[data-theme='light']",
-    ":root[data-theme='warm']",
-    ":root[data-theme='dark']",
-  ].map(base);
-  expect(new Set([light, warm, dark]).size).toBe(3);
+  const [light, dark] = [":root[data-theme='light']", ":root[data-theme='dark']"].map(base);
+  expect(new Set([light, dark]).size).toBe(2);
 });

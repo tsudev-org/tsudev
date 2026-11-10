@@ -15,11 +15,17 @@ import React from 'react';
  * đã sáng - nó đẩy nút gần về trắng và làm chữ `on-primary` tụt tương phản.
  * Token thì được canh bởi contrast.test.ts ở cả ba chế độ, bộ lọc thì không.
  */
+// Kiểu supabase.com: nút chính tím đặc + viền cùng sắc sáng hơn một bậc; nút phụ
+// nền bề mặt + viền mảnh, rê chuột thì viền đậm lên. Icon bên trong nút ĐẶC màu
+// luôn ăn màu chữ của nút (globals.css: `.bg-primary .tsu-icon`) - icon mang màu
+// vai trò (xanh lá, ngọc...) trên nền tím là đúng lỗi "icon lẫn vào nền nút".
 const VARIANTS = {
-  primary: 'bg-primary text-on-primary shadow-sm hover:bg-primary-hover active:bg-primary-active',
-  secondary: 'bg-surface border border-line-control text-fg hover:bg-hovered hover:border-primary',
+  primary:
+    'bg-primary text-on-primary border border-primary-hover hover:bg-primary-hover active:bg-primary-active',
+  secondary:
+    'bg-surface border border-line-strong text-fg hover:bg-hovered hover:border-line-control',
   ghost: 'bg-transparent text-fg-secondary hover:bg-hovered hover:text-fg',
-  // Sắc NHẤN cam của tông thương hiệu. Chữ dùng --on-status vì nền là màu đậm.
+  // Sắc NHẤN tím hồng của tông thương hiệu. Chữ dùng --on-status vì nền là màu đậm.
   teal: 'bg-accent text-on-status hover:opacity-90',
   danger: 'bg-danger text-on-status hover:opacity-90',
 } as const;
@@ -29,7 +35,7 @@ const VARIANTS = {
 const SIZES = {
   sm: 'h-8 px-3 text-sm',
   md: 'h-control px-sp4 text-sm',
-  lg: 'h-11 px-sp6 text-base',
+  lg: 'h-10 px-sp5 text-sm',
 } as const;
 
 export type ButtonVariant = keyof typeof VARIANTS;
@@ -56,7 +62,7 @@ export const Button = ({
   // Giữ `??` dự phòng dù kiểu đã ràng: các trang gọi component này hiện vẫn là
   // .js chưa được kiểm kiểu, nên giá trị ngoài union vẫn tới được đây lúc chạy.
   const cls = [
-    'inline-flex items-center justify-center gap-2 rounded-lg font-semibold cursor-pointer',
+    'inline-flex items-center justify-center gap-2 rounded-md font-medium cursor-pointer',
     'transition-colors duration-fast ease-standard',
     'focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
     // Disabled thắng mọi biến thể: `:disabled` chặn cả hover lẫn đổ bóng.

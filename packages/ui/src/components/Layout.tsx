@@ -9,8 +9,9 @@ type LayoutProps = {
 };
 
 export const Layout = ({ children, active = '/', bare = false }: LayoutProps) => (
-  // KHÔNG đặt bg-base ở đây: nền trang do <body> vẽ (globals.css), và lớp quầng
-  // xanh `.tsu-backdrop` nằm ở z-index -1 - một nền đặc ở khung này sẽ che mất nó.
+  // KHÔNG đặt bg-base ở đây: nền trang do <body> vẽ (globals.css) - MỘT nền liền
+  // mạch từ header tới footer. `.tsu-backdrop` là một quầng tím rất nhẹ CỐ ĐỊNH ở
+  // đỉnh khung nhìn (z-index -1), nên nó không tạo ra ranh giới nào khi cuộn.
   // Không dùng z-index dương cho <main>: nó tạo ngữ cảnh xếp chồng và nhốt Modal
   // (z-modal) xuống dưới header dính (z-40).
   <div className="min-h-screen flex flex-col text-fg font-sans">

@@ -85,7 +85,7 @@ export default function BlogIndex({ posts, failed }: BlogIndexProps) {
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               ) : (
-                <span className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-surface shadow-sm">
+                <span className="inline-flex h-16 w-16 items-center justify-center rounded-lg bg-surface shadow-sm">
                   <Icon name="doc" size={30} />
                 </span>
               )}

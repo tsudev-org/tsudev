@@ -41,7 +41,7 @@ const ext = JSON.parse(fs.readFileSync(EXT_PATH, 'utf8'));
 const usage = ext.$usage;
 
 /**
- * Lớp tông THƯƠNG HIỆU (kế hoạch Q4 §2.6, chủ dự án chọn chàm 05/11/2026).
+ * Lớp tông THƯƠNG HIỆU (nay: đen tuyền + tím, chủ dự án chọn 10/11/2026).
  *
  * Đường DUY NHẤT để đổi giá trị của bảng chuẩn - bảng `.standards/` vẫn bất khả
  * xâm phạm, lớp này chỉ thay giá trị lúc SINH. Hai luật, cả hai ném lỗi:
@@ -74,29 +74,27 @@ const emitVars = (obj, indent = '  ') =>
     .map(([k, v]) => `${indent}--${k}: ${v};`)
     .join('\n');
 
+// CHỈ HAI bảng màu (chủ dự án chốt 10/11/2026, phiên 47): Sáng / Tối, cộng lựa
+// chọn "Hệ thống" giải ra một trong hai - giống supabase.com. Bảng chuẩn còn khối
+// `warm` nhưng web KHÔNG sinh nó: một bảng màu không ai chọn được vẫn phải được
+// canh tương phản, đổi tông, chụp ảnh ở mọi lần sửa - chi phí không có người dùng.
 const MODES = [
   [
     'dark',
     ":root,\n:root[data-theme='dark']",
     'dark',
-    'Tối - MẶC ĐỊNH từ 10/11/2026 (chủ dự án chọn tông đen + xanh dương/xanh lá).\n   `:root` trần mang bảng này, nên lượt tải đầu tiên của một khách vãng lai luôn là\n   Tối dù hệ điều hành của họ đặt gì. Nền gần-đen #05070B chứ KHÔNG phải #000000:\n   đen tuyệt đối bị DESIGN_SYSTEM.md §1 cấm ở mọi chế độ vì độ chói quá gắt khi đọc lâu.',
+    'Tối - MẶC ĐỊNH (chủ dự án chọn tông đen tuyền + tím tươi 10/11/2026).\n   `:root` trần mang bảng này, nên lượt tải đầu tiên của một khách vãng lai luôn là\n   Tối dù hệ điều hành của họ đặt gì. Nền #0A0A0A chứ KHÔNG phải #000000:\n   đen tuyệt đối bị DESIGN_SYSTEM.md §1 cấm ở mọi chế độ vì độ chói quá gắt khi đọc lâu.',
   ],
   [
     'light',
     ":root[data-theme='light']",
     'light',
-    'Sáng - cho ban ngày, phòng sáng. Chỉ đến bằng lựa chọn thủ công hoặc "Theo hệ thống".',
-  ],
-  [
-    'warm',
-    ":root[data-theme='warm']",
-    'light',
-    'Ấm (sepia) - cho phiên làm việc dài hoặc ánh sáng gắt. Chỉ đến bằng lựa chọn\n   thủ công; không có đường nào tự động rơi vào chế độ này.',
+    'Sáng - chỉ đến bằng lựa chọn thủ công hoặc "Hệ thống".',
   ],
 ];
 
 const header = `/* ============================================================
-   tsudev design tokens - BA chế độ: Tối (mặc định) / Sáng / Ấm.
+   tsudev design tokens - HAI bảng màu: Tối (mặc định) / Sáng.
 
    FILE NÀY ĐƯỢC SINH RA. Đừng sửa tay - lần chạy \`npm run tokens:sync\` kế tiếp
    ghi đè. Nguồn: .standards/tokens/design-tokens.json (nguồn chân lý duy nhất của
@@ -106,12 +104,12 @@ const header = `/* ============================================================
    Chọn chế độ: thuộc tính \`data-theme\` trên <html>. Bảng màu ở đây KHÔNG treo
    vào cài đặt hệ điều hành, và đó là cố ý - làm vậy thì hai người mở CÙNG một
    đường link thấy hai giao diện khác nhau mà không ai chọn gì cả. Người dùng muốn
-   bám theo máy thì chọn "Theo hệ thống" trong nút đổi giao diện; lựa chọn đó được
+   bám theo máy thì chọn "Hệ thống" trong nút đổi giao diện; lựa chọn đó được
    giải ra thành một giá trị data-theme cụ thể trong pages/_document.tsx, TRƯỚC khi
    trang được vẽ. (Test canh điều này bằng cách tìm câu lệnh media query trong file,
    nên đừng viết tên câu lệnh đó ra đây kể cả trong chú thích.)
 
-   Mọi cặp chữ/nền ở CẢ BA chế độ bị packages/ui/test/contrast.test.ts canh ở
+   Mọi cặp chữ/nền ở CẢ HAI chế độ bị packages/ui/test/contrast.test.ts canh ở
    ngưỡng WCAG AA. Đổi một mã màu làm tụt tương phản là CI đỏ.
    ============================================================ */
 `;
@@ -238,7 +236,7 @@ function driftInCanonical() {
   const css = fs.readFileSync(CANON_CSS, 'utf8');
   const drift = [];
   for (const [mode] of MODES) {
-    // Cả ba chế độ đều có bộ chọn `[data-theme="<mode>"]`; riêng dark (mặc định) còn
+    // Mọi chế độ đều có bộ chọn `[data-theme="<mode>"]`; riêng dark (mặc định) còn
     // đứng sau `:root,` trên dòng trước, nên bắt đầu từ bộ chọn là đủ và đồng nhất.
     const start = css.indexOf(`[data-theme="${mode}"]`);
     if (start < 0) {
@@ -295,10 +293,10 @@ async function main() {
       );
       process.exit(1);
     }
-    console.log('tokens: khớp nguồn (3 chế độ).');
+    console.log('tokens: khớp nguồn (2 chế độ).');
   } else {
     fs.writeFileSync(UI_CSS, out);
-    console.log(`tokens: đã sinh ${path.relative(ROOT, UI_CSS)} (3 chế độ).`);
+    console.log(`tokens: đã sinh ${path.relative(ROOT, UI_CSS)} (2 chế độ).`);
   }
 }
 

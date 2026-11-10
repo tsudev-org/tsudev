@@ -44,22 +44,32 @@ export default function EcoAppCard({ app, selectable, selected, onToggle }: Prop
 
   return (
     <article
-      className={`tsu-glow-card flex min-w-0 flex-col rounded-xl border bg-surface p-5 ${
+      className={`tsu-glow-card flex min-w-0 flex-col rounded-lg border bg-surface p-5 ${
         selected ? 'border-primary' : 'border-line'
       }`}
     >
       <div className="flex items-start gap-4">
+        {/* Biểu tượng riêng của từng app (ecosystem.ts > icon), mực --text-link trên
+            ô tím nhạt - xem `.tsu-monogram` ở globals.css. */}
         <span
-          className="tsu-monogram inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-lg font-extrabold"
+          className="tsu-monogram inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg"
           aria-hidden="true"
         >
-          {app.name
-            .replace(/^tsudev[- ]?/i, '')
-            .charAt(0)
-            .toUpperCase()}
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d={app.icon} />
+          </svg>
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-fg text-lg leading-snug">{app.name}</h3>
+          <h3 className="font-medium text-fg text-base leading-snug">{app.name}</h3>
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
             <Badge tone="neutral">{ECO_CATEGORY_LABEL[app.category]}</Badge>
             <Badge tone="outline">{app.openSource ? 'Mã nguồn mở' : 'Độc quyền'}</Badge>
@@ -85,7 +95,7 @@ export default function EcoAppCard({ app, selectable, selected, onToggle }: Prop
         {app.platforms.map((p) => (
           <li
             key={p}
-            className="inline-flex items-center gap-1.5 rounded-md border border-line bg-base px-2 py-1 text-xs text-fg-secondary"
+            className="inline-flex items-center gap-1.5 rounded-md border border-line px-2 py-1 text-xs text-fg-secondary"
           >
             <Icon name={PLATFORM_ICON[p]} size={14} />
             {ECO_PLATFORM_LABEL[p]}
@@ -94,8 +104,8 @@ export default function EcoAppCard({ app, selectable, selected, onToggle }: Prop
       </ul>
 
       {cmd && (
-        <div className="mt-4 flex items-center gap-2 rounded-md border border-line bg-base pl-3 pr-1 py-1 font-mono text-xs text-fg-secondary">
-          <span className="text-accent" aria-hidden="true">
+        <div className="mt-4 flex items-center gap-2 rounded-md border border-line bg-subtle pl-3 pr-1 py-1 font-mono text-xs text-fg-secondary">
+          <span className="text-link" aria-hidden="true">
             &gt;
           </span>
           <code className="min-w-0 flex-1 truncate" title={cmd}>
@@ -118,7 +128,7 @@ export default function EcoAppCard({ app, selectable, selected, onToggle }: Prop
           <a
             href={app.website}
             {...NEW_TAB}
-            className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3.5 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover"
+            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-primary-hover bg-primary px-3 text-sm font-medium text-on-primary transition-colors hover:bg-primary-hover"
           >
             <Icon name="globe" size={16} />
             Trang sản phẩm
@@ -130,10 +140,10 @@ export default function EcoAppCard({ app, selectable, selected, onToggle }: Prop
           <a
             href={app.releases}
             {...NEW_TAB}
-            className={`inline-flex h-9 items-center gap-1.5 rounded-md px-3.5 text-sm font-semibold transition-colors ${
+            className={`inline-flex h-8 items-center gap-1.5 rounded-md border px-3 text-sm font-medium transition-colors ${
               app.website
-                ? 'border border-line-control text-fg hover:bg-subtle'
-                : 'bg-primary text-on-primary hover:bg-primary-hover'
+                ? 'border-line-strong bg-surface text-fg hover:border-line-control hover:bg-hovered'
+                : 'border-primary-hover bg-primary text-on-primary hover:bg-primary-hover'
             }`}
           >
             <Icon name="download" size={16} />

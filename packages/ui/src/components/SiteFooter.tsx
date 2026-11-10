@@ -2,6 +2,7 @@ import React from 'react';
 import { Logo } from './Logo';
 import { MAIN_URL } from '../lib/siteUrls';
 import { ECOSYSTEM_APPS } from '../lib/ecosystem';
+import { ThemeToggle } from './ThemeToggle';
 
 // Riêng đăng nhập giữ đường dẫn tương đối: phiên next-auth thuộc về chính app
 // đang mở, đẩy sang origin khác sẽ đăng nhập nhầm chỗ.
@@ -53,25 +54,27 @@ const COLS: Col[] = [
   },
 ];
 
-// Footer mang nền --bg-surface: ranh giới với nội dung là CHÊNH NỀN cộng một
-// đường mảnh, nên nó rõ ở cả ba chế độ mà không cần đường kẻ đậm.
+// Chân trang kiểu supabase.com: CÙNG NỀN với trang (không dải nền riêng - dải
+// nền khác màu ở cuối trang chính là "khung đứt đoạn" chủ dự án yêu cầu gỡ
+// 10/11/2026), ngăn bằng một đường hairline. Hàng cuối: "© tsudev" bên trái, bộ
+// chọn giao diện Sáng / Tối / Hệ thống bên phải - bố cục chung cho MỌI website
+// trong hệ sinh thái (phiếu 20261110-05).
 export const SiteFooter = () => {
   return (
-    <footer className="mt-16 border-t border-line bg-surface">
-      <div className="max-w-6xl mx-auto px-4 pt-10 pb-8 grid gap-x-8 gap-y-7 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(5,1fr)]">
+    <footer className="mt-24 border-t border-line">
+      <div className="max-w-6xl mx-auto px-4 pt-12 pb-10 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(5,1fr)]">
         <div>
           <Logo />
           {/*
             Câu này là BẢN MÔ TẢ CHUẨN của hệ sinh thái, chép nguyên văn từ
             `.standards/docs/ECOSYSTEM_IDENTITY.md` mục 1. Tài liệu đó `MUST NOT`
-            cho mỗi repo tự nghĩ một câu giới thiệu riêng - một câu lệch ở một
-            repo là một mảnh nhận diện lệch. Đổi câu này thì phải đổi ở repo quy
-            ước trung tâm trước, đừng sửa tại chỗ.
+            cho mỗi repo tự nghĩ một câu giới thiệu riêng. Đổi câu này thì phải đổi
+            ở repo quy ước trung tâm trước, đừng sửa tại chỗ.
           */}
-          <p className="mt-2.5 text-sm text-fg-muted max-w-xs leading-relaxed">
-            <strong className="font-semibold">tsudev</strong> là hệ sinh thái sản phẩm và công cụ
-            phần mềm tại{' '}
-            <a href={MAIN_URL} className="text-fg-secondary hover:text-link transition-colors">
+          <p className="mt-3 text-sm text-fg-muted max-w-xs leading-relaxed">
+            <strong className="font-semibold text-fg-secondary">tsudev</strong> là hệ sinh thái sản
+            phẩm và công cụ phần mềm tại{' '}
+            <a href={MAIN_URL} className="text-fg-secondary hover:text-fg transition-colors">
               tsudev.com
             </a>
             . Mọi sản phẩm trong hệ sinh thái dùng chung một tài khoản, một bộ quy ước kỹ thuật, và
@@ -80,14 +83,14 @@ export const SiteFooter = () => {
         </div>
         {COLS.map((c) => (
           <div key={c.title}>
-            <h4 className="text-sm font-semibold text-fg">{c.title}</h4>
-            <ul className="mt-2.5 space-y-1.5">
+            <h4 className="text-sm font-medium text-fg">{c.title}</h4>
+            <ul className="mt-3 space-y-2">
               {c.links.map(([label, href, external]) => (
                 <li key={label}>
                   <a
                     href={href}
                     {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                    className="text-sm text-fg-secondary hover:text-link transition-colors"
+                    className="text-sm text-fg-muted hover:text-fg transition-colors"
                   >
                     {label}
                     {external && (
@@ -103,23 +106,10 @@ export const SiteFooter = () => {
           </div>
         ))}
       </div>
-      {/* Dòng cuối nói điều RIÊNG của tsudev - mọi tệp phát hành đều kiểm được -
-          kèm đường tới khoá công khai để tự kiểm. Bản trước in "Built with
-          Next.js · Node · PostgreSQL": một danh sách công nghệ không giúp người
-          tải app về quyết định điều gì. */}
-      <div className="border-t border-line">
-        <div className="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-fg-muted">
-          <span>© {new Date().getFullYear()} tsudev · Nguyễn Trang Tình Sử</span>
-          <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span>Mọi bản phát hành kèm SHA-256 và chữ ký Ed25519</span>
-            <span aria-hidden="true">·</span>
-            <a
-              href="/api/releases/jwks"
-              className="font-medium text-fg-secondary hover:text-link transition-colors"
-            >
-              Khoá công khai (JWKS)
-            </a>
-          </span>
+      <div className="max-w-6xl mx-auto px-4 pb-10">
+        <div className="flex flex-col-reverse gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <span className="text-sm text-fg-muted">© tsudev</span>
+          <ThemeToggle />
         </div>
       </div>
     </footer>

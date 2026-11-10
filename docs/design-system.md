@@ -45,30 +45,33 @@ cổng chỉ đối chiếu bản sao với chính nó. Giá phải trả đã �
 tại** trong artifact sinh từ bản sao, nên mọi khối `.prose-tsu` (nội dung Markdown
 của blog và tài liệu) rơi về `--lh-body` 1.55 thay vì 1.6. Không có gì đỏ lên.
 
-## Ba chế độ, và chuyện `prefers-color-scheme`
+## Sáng / Tối / Hệ thống, và chuyện `prefers-color-scheme`
 
-`data-theme` trên `<html>`: `light` (mặc định) · `warm` · `dark`.
+`data-theme` trên `<html>`: `dark` (mặc định) · `light`. Chế độ **Ấm đã bỏ
+10/11/2026** (chủ dự án chốt: chỉ Sáng / Tối / Hệ thống như supabase.com, cho toàn
+hệ sinh thái - phiếu `logs/handover/20261110-05_*`). Bảng chuẩn `.standards/` còn
+khối `warm` nhưng `scripts/sync-tokens.js` không sinh nó; giá trị `warm` cũ trong
+localStorage được đọc thành `light`.
 
-Đây là chỗ hai tài liệu quy ước **mâu thuẫn nhau**, nên ghi rõ cách hoà giải đã chọn:
+Hai tài liệu quy ước **mâu thuẫn nhau**, nên ghi rõ cách hoà giải đã chọn:
 
 - `DESIGN_SYSTEM.md` §1 muốn chế độ mặc định bám theo hệ điều hành.
 - `CLAUDE.md` cấm điều đó: một site đổi diện mạo theo cài đặt máy nghĩa là hai
-  người mở **cùng** một đường link thấy hai thứ khác nhau mà không ai chọn gì cả,
-  và người viết bài không biết bài mình trông ra sao.
+  người mở **cùng** một đường link thấy hai thứ khác nhau mà không ai chọn gì cả.
 
-Cách hoà giải: **mặc định vẫn là Sáng**, nhưng "Theo hệ thống" có mặt như một
-**lựa chọn người dùng tự bật** - lựa chọn thứ tư trong `ThemeToggle`. Hệ quả về mã:
+Cách hoà giải: **mặc định là Tối**, còn "Hệ thống" là **lựa chọn người dùng tự
+bật** trong bộ chọn giao diện (ba nút Sáng / Tối / Hệ thống ở CHÂN TRANG, cạnh
+`© tsudev` - `ThemeToggle.tsx`, `role="radiogroup"`). Hệ quả về mã:
 
 - Bảng màu trong `tokens.css` **không** có media query nào treo vào cài đặt hệ
   điều hành. `themeTokens.test.ts` canh điều này.
 - Việc hỏi cài đặt máy chỉ xảy ra trong JavaScript, ở đúng hai chỗ:
   `pages/_document.tsx` (script đồng bộ, nội tuyến, trong `<head>` - chạy **trước
-  khi trang được vẽ**, nếu không sẽ có một khung hình sáng trắng ở mọi lần tải) và
-  `ThemeToggle.tsx` (theo dõi máy đổi cài đặt giữa chừng).
-- Giá trị lưu trong `localStorage['tsudev-theme']` là **lựa chọn** (`light`/`warm`/
-  `dark`/`system`), không phải bảng màu. Chỉ script boot mới giải nó thành `data-theme`.
+  khi trang được vẽ**) và `ThemeToggle.tsx` (theo dõi máy đổi cài đặt giữa chừng).
+- Giá trị lưu trong `localStorage['tsudev-theme']` là **lựa chọn** (`light`/`dark`/
+  `system`), không phải bảng màu. Chỉ script boot mới giải nó thành `data-theme`.
 
-Màu nền của ba chế độ bị chép ra hai file `.tsx` vì cả hai chạy trước khi CSS
+Màu nền của hai chế độ bị chép ra hai file `.tsx` vì cả hai chạy trước khi CSS
 được tính - `<meta name="theme-color">` không đọc được biến CSS. Đó là bản sao
 **bắt buộc**, và có test canh cho chúng bằng nhau.
 
@@ -81,15 +84,25 @@ Bộ chuẩn v1.0.0 không có sẵn ba nhóm dưới đây; chúng nằm ở
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `--icon-*` (6 màu)                  | Mã màu theo **nhóm hành động** - mắt nhận ra nhóm trước khi đọc nhãn. Sáu, không hơn: quá bảy màu thì chúng thôi là mã và thành nhiễu.                                  |
 | `--<trạng thái>-ink` / `-tint`      | §5 đòi badge "nền trạng thái nhạt 12% + chữ màu trạng thái đậm", nhưng ở chế độ Sáng cặp đó chỉ đạt ~4.1-4.3:1. `-ink` là sắc đậm hơn cho chữ, `-tint` là nền tính sẵn. |
-| `--accent`, `--glow`, `--grid-line` | Sắc NHẤN cam của tông chàm (huy hiệu "Mới", điểm nhấn hero, đầu cam của chữ chuyển sắc) và hai hoạ tiết nền.                                                            |
+| `--accent`, `--glow`, `--grid-line` | Sắc NHẤN tím hồng (huy hiệu "Mới", đầu cuối của chữ chuyển sắc tím) và hai hoạ tiết nền.                                                                                |
 
-### Tông thương hiệu chàm (05/11/2026)
+### Tông thương hiệu đen tuyền + tím, bố cục kiểu Supabase (10/11/2026)
 
-Chủ dự án chọn tông **chàm `#4F46E5` + nhấn cam, nền trắng ngà `#FAFAF9`** thay
-cho bảng xanh dương của bảng chuẩn. Giá trị bảng chuẩn KHÔNG bị sửa: khối `brand`
-trong `tokens/extensions.tsudev-web.json` ghi đè lúc sinh (`colorFor()` trong
-`scripts/sync-tokens.js`), và script ném lỗi khi khối đó gõ sai tên khoá hoặc trùng
-khoá với khối mở rộng. Chế độ Ấm giữ nền sepia, chỉ đổi sắc chủ đạo.
+Lịch sử: chàm + cam (05/11) → đen + xanh dương/xanh lá (10/11, phiên 46) → **đen
+tuyền `#0A0A0A` + tím `#A970FF`/`#7C3AED`** (10/11, phiên 47). Giá trị bảng chuẩn
+KHÔNG bị sửa: khối `brand` trong `tokens/extensions.tsudev-web.json` ghi đè lúc sinh
+(`colorFor()` trong `scripts/sync-tokens.js`), và script ném lỗi khi khối đó gõ sai
+tên khoá hoặc trùng khoá với khối mở rộng.
+
+Ở chế độ Tối chữ trên nút tím là **mực đen** (`--on-primary: #0A0A0A`): không mã tím
+nào vừa đạt 4.5:1 làm chữ trên nền `#0A0A0A` vừa đạt 4.5:1 dưới chữ trắng.
+
+Ngôn ngữ thiết kế (học supabase.com): một nền liền mạch, không dải nền khác màu
+giữa các khối (PageHeader, AuthShell, footer đều trong suốt); thẻ = bề mặt + viền
+hairline, hover đậm viền; nút bo `radius-md`, `font-medium`; icon trong nút/ô nền
+đặc ăn màu chữ của nút (`.tsu-icon` + quy tắc `:is(.bg-primary, ...)` ở
+`globals.css`); biểu tượng app vẽ inline từ `ecosystem.ts > icon` trên ô
+`.tsu-monogram`.
 
 Đổi màu nền (`--bg-base`) thì phải đổi theo **bốn bản chép** ngoài `tokens.css`
 (`_document.tsx`, `ThemeToggle.tsx`, `site.webmanifest`, `build-assets.js`) VÀ băm
@@ -123,7 +136,7 @@ sẵn cả hai giá trị và khối ghi đè đã bị gỡ - giao diện khôn
 còn vẽ tay. Chúng nhúng thẳng thành path trong bảng icon - không thêm
 dependency, không thêm request mạng, sắc ở mọi DPI.
 
-- Mặc định một màu (`role: 'info'`), ăn theo ba chế độ như mọi icon khác.
+- Mặc định một màu (`role: 'info'`), ăn theo hai chế độ như mọi icon khác.
 - Rê chuột vào ô chứa (`platformChipClass(name)`), ô ra **màu hãng**
   (`--platform-*`) và dấu hiệu đổi sang mực `--on-platform-*`. Màu hãng làm NỀN
   chứ không làm màu dấu hiệu: xanh Android và vàng Tux tô thẳng lên nền sáng chỉ
@@ -191,7 +204,7 @@ lúc đêm hiện lệch một ngày giữa hai lần vẽ.
 
 `npm --workspace packages/ui run storybook` - lệnh tự in địa chỉ ra terminal
 (cổng của Storybook cố ý KHÔNG khai trong `config/topology.json`: nó là công cụ
-dev, không phải một thành phần của hệ). Thanh công cụ có nút **Giao diện** đổi giữa ba chế độ. Storybook **không** nằm trong CI - nó
+dev, không phải một thành phần của hệ). Thanh công cụ có nút **Giao diện** đổi giữa hai chế độ. Storybook **không** nằm trong CI - nó
 là công cụ rà bằng mắt, cổng thật là `contrast.test.ts`.
 
 Chạy được từ 20/08/2026. Trước đó nó hỏng ở **bốn** tầng chồng lên nhau, và mỗi
@@ -207,7 +220,7 @@ hơn mã:
 
 Cả bốn đều KHÔNG làm `storybook build` thất bại. Nên phép nghiệm thu ở đây phải
 là **đếm story vẽ ra được**, không phải "lệnh chạy xong": mở
-`iframe.html?id=<story>&globals=theme:<chế độ>` cho từng story ở cả ba chế độ và
+`iframe.html?id=<story>&globals=theme:<chế độ>` cho từng story ở cả hai chế độ và
 kiểm `#storybook-root` có nội dung. Lần nghiệm thu 20/08/2026: **36/36 lượt**
 (12 story × 3 chế độ) vẽ ra nội dung, đúng `data-theme`, 0 lỗi console, 0 ảnh 404.
 

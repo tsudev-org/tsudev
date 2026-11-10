@@ -127,7 +127,7 @@ export default function DocPage({ doc, siblings, failed, slug, toc }: DocPagePro
                 {prev ? (
                   <a
                     href={`/docs/${prev.slug}`}
-                    className="rounded-xl border border-line bg-surface p-4 hover:border-line-strong transition-colors"
+                    className="rounded-lg border border-line bg-surface p-4 hover:border-line-strong transition-colors"
                   >
                     <span className="text-xs text-fg-muted">← Trước</span>
                     <span className="mt-1 block font-semibold text-fg">{prev.title}</span>
@@ -138,7 +138,7 @@ export default function DocPage({ doc, siblings, failed, slug, toc }: DocPagePro
                 {next && (
                   <a
                     href={`/docs/${next.slug}`}
-                    className="rounded-xl border border-line bg-surface p-4 text-right hover:border-line-strong transition-colors"
+                    className="rounded-lg border border-line bg-surface p-4 text-right hover:border-line-strong transition-colors"
                   >
                     <span className="text-xs text-fg-muted">Tiếp theo →</span>
                     <span className="mt-1 block font-semibold text-fg">{next.title}</span>
