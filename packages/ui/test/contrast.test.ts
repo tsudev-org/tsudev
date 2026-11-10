@@ -26,8 +26,8 @@ const CSS = readFileSync(join(__dirname, '..', 'src', 'tokens.css'), 'utf8').rep
 /**
  * Giá trị các biến CSS mà một phần tử khớp `selector` NHÌN THẤY.
  *
- * Không tìm bằng `indexOf(selector + ' {')` như bản trước: khối chế độ Sáng được
- * sinh ra với danh sách selector nhiều dòng (`:root,\n:root[data-theme='light']`),
+ * Không tìm bằng `indexOf(selector + ' {')` như bản trước: khối chế độ mặc định được
+ * sinh ra với danh sách selector nhiều dòng (`:root,\n:root[data-theme='dark']`),
  * nên phép tìm chuỗi trượt qua nó và rơi vào khối `:root` KHÁC ở cuối file - khối
  * chỉ có bo góc và khoảng cách, không có màu nào. Hậu quả là mọi cặp màu của chế
  * độ mặc định trả về `undefined` và test vẫn ĐỎ đúng - nhưng đỏ vì lý do sai, và
@@ -188,7 +188,11 @@ const PAIRS: Array<[string, string, number, string]> = [
 ];
 
 describe.each([
-  ['Sáng (mặc định)', ':root'],
+  // Tối là MẶC ĐỊNH từ 10/11/2026: `:root` trần mang bảng Tối, nên kiểm cả `:root`
+  // lẫn bộ chọn tường minh - khách vãng lai thấy cái thứ nhất, người bấm "Tối"
+  // thấy cái thứ hai, và hai cái phải là một.
+  ['Tối (mặc định)', ':root'],
+  ['Sáng', ":root[data-theme='light']"],
   ['Ấm', ":root[data-theme='warm']"],
   ['Tối', ":root[data-theme='dark']"],
 ])('tương phản - chế độ %s', (_label, selector) => {
@@ -267,8 +271,10 @@ describe.each([
 // vẫn xanh vì chúng chỉ kiểm từng chế độ một.
 test('ba chế độ có nền trang khác nhau', () => {
   const base = (s: string) => tokensIn(s)['--bg-base'];
-  const [light, warm, dark] = [':root', ":root[data-theme='warm']", ":root[data-theme='dark']"].map(
-    base
-  );
+  const [light, warm, dark] = [
+    ":root[data-theme='light']",
+    ":root[data-theme='warm']",
+    ":root[data-theme='dark']",
+  ].map(base);
   expect(new Set([light, warm, dark]).size).toBe(3);
 });

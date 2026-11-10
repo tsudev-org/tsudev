@@ -1,11 +1,12 @@
 import React from 'react';
 import { Logo } from './Logo';
 import { MAIN_URL } from '../lib/siteUrls';
+import { ECOSYSTEM_APPS } from '../lib/ecosystem';
 
 // Riêng đăng nhập giữ đường dẫn tương đối: phiên next-auth thuộc về chính app
 // đang mở, đẩy sang origin khác sẽ đăng nhập nhầm chỗ.
 // tsudev là MỘT site nên href tương đối.
-type FooterLink = [label: string, href: string];
+type FooterLink = [label: string, href: string, external?: boolean];
 
 const eco = (label: string, path: string): FooterLink => [label, path];
 
@@ -14,7 +15,22 @@ type Col = { title: string; links: FooterLink[] };
 const COLS: Col[] = [
   {
     title: 'Sản phẩm',
-    links: [eco('Ứng dụng & công cụ', '/projects'), eco('Hướng dẫn cài đặt', '/docs')],
+    links: [
+      eco('Danh bạ ứng dụng', '/apps'),
+      eco('Dự án & bản phát hành', '/projects'),
+      eco('Hướng dẫn cài đặt', '/docs'),
+    ],
+  },
+  {
+    // Website RIÊNG của từng sản phẩm - mở tab mới (ECOSYSTEM_IDENTITY: mọi trang
+    // trong hệ sinh thái liên kết qua lại với nhau). App chưa có website thì không
+    // hiện ở cột này; nó vẫn có trong /apps với nút tải từ GitHub.
+    title: 'Hệ sinh thái',
+    links: ECOSYSTEM_APPS.filter((a) => a.website).map((a): FooterLink => [
+      a.name,
+      a.website as string,
+      true,
+    ]),
   },
   {
     title: 'Nội dung',
@@ -42,7 +58,7 @@ const COLS: Col[] = [
 export const SiteFooter = () => {
   return (
     <footer className="mt-16 border-t border-line bg-surface">
-      <div className="max-w-6xl mx-auto px-4 pt-10 pb-8 grid gap-x-8 gap-y-7 sm:grid-cols-2 md:grid-cols-[1.6fr_repeat(4,1fr)]">
+      <div className="max-w-6xl mx-auto px-4 pt-10 pb-8 grid gap-x-8 gap-y-7 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(5,1fr)]">
         <div>
           <Logo />
           {/*
@@ -66,13 +82,20 @@ export const SiteFooter = () => {
           <div key={c.title}>
             <h4 className="text-sm font-semibold text-fg">{c.title}</h4>
             <ul className="mt-2.5 space-y-1.5">
-              {c.links.map(([label, href]) => (
+              {c.links.map(([label, href, external]) => (
                 <li key={label}>
                   <a
                     href={href}
+                    {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                     className="text-sm text-fg-secondary hover:text-link transition-colors"
                   >
                     {label}
+                    {external && (
+                      <>
+                        <span aria-hidden="true"> ↗</span>
+                        <span className="sr-only"> (mở tab mới)</span>
+                      </>
+                    )}
                   </a>
                 </li>
               ))}

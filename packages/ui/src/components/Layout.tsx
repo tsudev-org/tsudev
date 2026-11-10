@@ -9,7 +9,12 @@ type LayoutProps = {
 };
 
 export const Layout = ({ children, active = '/', bare = false }: LayoutProps) => (
-  <div className="min-h-screen flex flex-col bg-base text-fg font-sans">
+  // KHÔNG đặt bg-base ở đây: nền trang do <body> vẽ (globals.css), và lớp quầng
+  // xanh `.tsu-backdrop` nằm ở z-index -1 - một nền đặc ở khung này sẽ che mất nó.
+  // Không dùng z-index dương cho <main>: nó tạo ngữ cảnh xếp chồng và nhốt Modal
+  // (z-modal) xuống dưới header dính (z-40).
+  <div className="min-h-screen flex flex-col text-fg font-sans">
+    <div className="tsu-backdrop" style={{ zIndex: -1 }} aria-hidden="true" />
     <SiteHeader active={active} />
     <main
       id="main-content"

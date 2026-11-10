@@ -36,9 +36,9 @@ export type ThemeChoice = ThemeMode | 'system';
 // .standards/tokens/design-tokens.json); có test canh. Dùng cho <meta name="theme-color">,
 // thứ chạy trước khi trình duyệt tính lại style nên không đọc được biến CSS.
 const BASE: Record<ThemeMode, string> = {
-  light: '#fafaf9',
+  light: '#f6f8fb',
   warm: '#f6f1e6',
-  dark: '#110f1f',
+  dark: '#05070b',
 };
 
 const CHOICES: Array<{ value: ThemeChoice; label: string; hint: string }> = [
@@ -71,7 +71,7 @@ const readChoice = (): ThemeChoice => {
     // localStorage ném lỗi khi cookie bên thứ ba bị chặn hoặc trang chạy trong
     // iframe sandbox. Hỏng ở đây phải là "về mặc định", không phải trang trắng.
   }
-  return 'light';
+  return 'dark';
 };
 
 // Kho lựa chọn cho `useSyncExternalStore`: đọc localStorage làm ảnh chụp (máy
@@ -144,7 +144,7 @@ export const ThemeToggle = () => {
   // `null` = đang dựng ở máy chủ / lượt hydrat - xem ghi chú `mounted` ở đầu tệp.
   const stored = useSyncExternalStore(subscribeChoice, getChoice, getServerChoice);
   const mounted = stored !== null;
-  const choice: ThemeChoice = stored ?? 'light';
+  const choice: ThemeChoice = stored ?? 'dark';
   const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
 

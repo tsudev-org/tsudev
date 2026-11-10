@@ -1,5 +1,5 @@
 /* ============================================================
-   tsudev design tokens - BA chế độ: Sáng (mặc định) / Ấm / Tối.
+   tsudev design tokens - BA chế độ: Tối (mặc định) / Sáng / Ấm.
 
    FILE NÀY ĐƯỢC SINH RA. Đừng sửa tay - lần chạy `npm run tokens:sync` kế tiếp
    ghi đè. Nguồn: .standards/tokens/design-tokens.json (nguồn chân lý duy nhất của
@@ -18,42 +18,103 @@
    ngưỡng WCAG AA. Đổi một mã màu làm tụt tương phản là CI đỏ.
    ============================================================ */
 
-/* Sáng - MẶC ĐỊNH. `:root` trần mang bảng này, nên lượt tải đầu tiên của một
-   khách vãng lai luôn là Sáng dù hệ điều hành của họ đặt gì. */
+/* Tối - MẶC ĐỊNH từ 10/11/2026 (chủ dự án chọn tông đen + xanh dương/xanh lá).
+   `:root` trần mang bảng này, nên lượt tải đầu tiên của một khách vãng lai luôn là
+   Tối dù hệ điều hành của họ đặt gì. Nền gần-đen #05070B chứ KHÔNG phải #000000:
+   đen tuyệt đối bị DESIGN_SYSTEM.md §1 cấm ở mọi chế độ vì độ chói quá gắt khi đọc lâu. */
 :root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Bảng chuẩn hệ sinh thái - .standards/tokens/design-tokens.json > color.dark */
+  /* Tông thương hiệu ghi đè 17 khoá - tokens/extensions.tsudev-web.json > brand.dark */
+  --bg-base: #05070b;
+  --bg-surface: #0b0f16;
+  --bg-subtle: #111722;
+  --bg-hover: #18202d;
+  --border: #1c2533;
+  --border-strong: #2b3849;
+  --border-control: #66768c;
+  --text-primary: #eaf0f7;
+  --text-secondary: #aebbcb;
+  --text-muted: #94a3b8;
+  --text-link: #6cb4ff;
+  --primary: #3d9bff;
+  --primary-hover: #6ab2ff;
+  --primary-active: #2e86ee;
+  --on-primary: #03101f;
+  --focus-ring: #3d9bff;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #38bdf8;
+  --on-status: #05070b;
+  --overlay: rgba(0, 0, 0, 0.6);
+
+  /* Mở rộng riêng của tsudev-web - tokens/extensions.tsudev-web.json > dark */
+  --accent: #2ee6a6;
+  --glow: rgba(61, 155, 255, 0.2);
+  --glow-alt: rgba(46, 230, 166, 0.14);
+  --grid-line: rgba(120, 180, 255, 0.06);
+  --icon-nav: #6cb4ff;
+  --icon-create: #34d399;
+  --icon-edit: #fbbf24;
+  --icon-danger: #f87171;
+  --icon-info: #a5b4fc;
+  --icon-trust: #2dd4bf;
+  --success-ink: #4ade80;
+  --warning-ink: #fbbf24;
+  --danger-ink: #f87171;
+  --info-ink: #38bdf8;
+  --success-tint: #0d2a20;
+  --warning-tint: #2b2112;
+  --danger-tint: #2d1418;
+  --info-tint: #0c2235;
+  --platform-windows: #0078d4;
+  --on-platform-windows: #ffffff;
+  --platform-android: #3ddc84;
+  --on-platform-android: #05070b;
+  --platform-apple: #eaf0f7;
+  --on-platform-apple: #05070b;
+  --platform-linux: #fcc624;
+  --on-platform-linux: #0b1220;
+}
+
+/* Sáng - cho ban ngày, phòng sáng. Chỉ đến bằng lựa chọn thủ công hoặc "Theo hệ thống". */
 :root[data-theme='light'] {
   color-scheme: light;
 
   /* Bảng chuẩn hệ sinh thái - .standards/tokens/design-tokens.json > color.light */
   /* Tông thương hiệu ghi đè 16 khoá - tokens/extensions.tsudev-web.json > brand.light */
-  --bg-base: #fafaf9;
+  --bg-base: #f6f8fb;
   --bg-surface: #ffffff;
-  --bg-subtle: #f1f0fb;
-  --bg-hover: #e9e7f9;
-  --border: #e4e2f0;
-  --border-strong: #c4c0e2;
-  --border-control: #77738f;
-  --text-primary: #1e1b3a;
-  --text-secondary: #4a4766;
-  --text-muted: #575470;
-  --text-link: #4338ca;
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --primary-active: #3730a3;
+  --bg-subtle: #eef3f9;
+  --bg-hover: #e5edf6;
+  --border: #dde5ef;
+  --border-strong: #b8c6d8;
+  --border-control: #6b7a8f;
+  --text-primary: #0b1220;
+  --text-secondary: #3a4658;
+  --text-muted: #4f5b6d;
+  --text-link: #0b5fd0;
+  --primary: #0b6be0;
+  --primary-hover: #0a5bc0;
+  --primary-active: #084a9e;
   --on-primary: #ffffff;
-  --focus-ring: #4f46e5;
+  --focus-ring: #0b6be0;
   --success: #15803d;
   --warning: #b45309;
   --danger: #dc2626;
   --info: #0369a1;
   --on-status: #ffffff;
-  --overlay: rgba(20, 17, 45, 0.45);
+  --overlay: rgba(5, 10, 20, 0.45);
 
   /* Mở rộng riêng của tsudev-web - tokens/extensions.tsudev-web.json > light */
-  --accent: #c2410c;
-  --glow: rgba(79, 70, 229, 0.16);
-  --grid-line: rgba(30, 27, 58, 0.05);
-  --icon-nav: #4338ca;
+  --accent: #047857;
+  --glow: rgba(11, 107, 224, 0.14);
+  --glow-alt: rgba(4, 120, 87, 0.12);
+  --grid-line: rgba(11, 18, 32, 0.05);
+  --icon-nav: #0b5fd0;
   --icon-create: #146c37;
   --icon-edit: #7a4d00;
   --icon-danger: #b3243c;
@@ -70,11 +131,11 @@
   --platform-windows: #0078d4;
   --on-platform-windows: #ffffff;
   --platform-android: #3ddc84;
-  --on-platform-android: #14122b;
-  --platform-apple: #1e1b3a;
+  --on-platform-android: #0b1220;
+  --platform-apple: #0b1220;
   --on-platform-apple: #ffffff;
   --platform-linux: #fcc624;
-  --on-platform-linux: #1e1b3a;
+  --on-platform-linux: #0b1220;
 }
 
 /* Ấm (sepia) - cho phiên làm việc dài hoặc ánh sáng gắt. Chỉ đến bằng lựa chọn
@@ -94,12 +155,12 @@
   --text-primary: #2e2a21;
   --text-secondary: #5b5342;
   --text-muted: #5e5646;
-  --text-link: #4038b8;
-  --primary: #4a42c8;
-  --primary-hover: #3d36ad;
-  --primary-active: #312b8f;
+  --text-link: #0a55b8;
+  --primary: #0a5fc8;
+  --primary-hover: #084fa8;
+  --primary-active: #063f88;
   --on-primary: #ffffff;
-  --focus-ring: #4a42c8;
+  --focus-ring: #0a5fc8;
   --success: #1b6e38;
   --warning: #9a4a07;
   --danger: #be2020;
@@ -108,10 +169,11 @@
   --overlay: rgba(46, 42, 33, 0.45);
 
   /* Mở rộng riêng của tsudev-web - tokens/extensions.tsudev-web.json > warm */
-  --accent: #a8410f;
-  --glow: rgba(74, 66, 200, 0.12);
+  --accent: #0f6b4c;
+  --glow: rgba(10, 95, 200, 0.12);
+  --glow-alt: rgba(15, 107, 76, 0.1);
   --grid-line: rgba(46, 42, 33, 0.07);
-  --icon-nav: #4038b8;
+  --icon-nav: #0a55b8;
   --icon-create: #1b6e38;
   --icon-edit: #9a4a07;
   --icon-danger: #be2020;
@@ -128,70 +190,11 @@
   --platform-windows: #0078d4;
   --on-platform-windows: #ffffff;
   --platform-android: #3ddc84;
-  --on-platform-android: #14122b;
-  --platform-apple: #1e1b3a;
+  --on-platform-android: #0b1220;
+  --platform-apple: #0b1220;
   --on-platform-apple: #ffffff;
   --platform-linux: #fcc624;
-  --on-platform-linux: #1e1b3a;
-}
-
-/* Tối - cho phòng tối. Nền là mực chàm sẫm chứ KHÔNG phải đen tuyền: đen tuyệt
-   đối bị DESIGN_SYSTEM.md §1 cấm ở mọi chế độ vì độ chói giữa chữ và nền quá
-   gắt khi đọc lâu. */
-:root[data-theme='dark'] {
-  color-scheme: dark;
-
-  /* Bảng chuẩn hệ sinh thái - .standards/tokens/design-tokens.json > color.dark */
-  /* Tông thương hiệu ghi đè 17 khoá - tokens/extensions.tsudev-web.json > brand.dark */
-  --bg-base: #110f1f;
-  --bg-surface: #1a1830;
-  --bg-subtle: #221f3d;
-  --bg-hover: #2a2749;
-  --border: #332f57;
-  --border-strong: #4a4577;
-  --border-control: #7f7aa8;
-  --text-primary: #ecebf7;
-  --text-secondary: #b6b3d4;
-  --text-muted: #a7a4c8;
-  --text-link: #a5b4fc;
-  --primary: #8b8cf8;
-  --primary-hover: #a5a6fb;
-  --primary-active: #7577ef;
-  --on-primary: #14122b;
-  --focus-ring: #8b8cf8;
-  --success: #4ade80;
-  --warning: #fbbf24;
-  --danger: #f87171;
-  --info: #38bdf8;
-  --on-status: #14122b;
-  --overlay: rgba(0, 0, 0, 0.6);
-
-  /* Mở rộng riêng của tsudev-web - tokens/extensions.tsudev-web.json > dark */
-  --accent: #fb923c;
-  --glow: rgba(139, 140, 248, 0.22);
-  --grid-line: rgba(236, 235, 247, 0.05);
-  --icon-nav: #a5b4fc;
-  --icon-create: #4ade80;
-  --icon-edit: #fbbf24;
-  --icon-danger: #f87171;
-  --icon-info: #c4b5fd;
-  --icon-trust: #3fddc4;
-  --success-ink: #4ade80;
-  --warning-ink: #fbbf24;
-  --danger-ink: #f87171;
-  --info-ink: #38bdf8;
-  --success-tint: #183a33;
-  --warning-tint: #3a2e22;
-  --danger-tint: #3a2030;
-  --info-tint: #17304a;
-  --platform-windows: #0078d4;
-  --on-platform-windows: #ffffff;
-  --platform-android: #3ddc84;
-  --on-platform-android: #14122b;
-  --platform-apple: #ecebf7;
-  --on-platform-apple: #14122b;
-  --platform-linux: #fcc624;
-  --on-platform-linux: #1e1b3a;
+  --on-platform-linux: #0b1220;
 }
 
 /* ------------------------------------------------------------

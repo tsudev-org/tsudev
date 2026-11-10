@@ -10,6 +10,7 @@ import type { GetServerSidePropsContext } from 'next';
 
 const STATIC_ROUTES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
+  { path: '/apps', priority: '0.9', changefreq: 'weekly' },
   { path: '/projects', priority: '0.9', changefreq: 'weekly' },
   { path: '/blog', priority: '0.8', changefreq: 'daily' },
   { path: '/docs', priority: '0.7', changefreq: 'weekly' },

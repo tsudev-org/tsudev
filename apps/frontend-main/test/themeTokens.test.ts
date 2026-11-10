@@ -11,7 +11,7 @@ import { join } from 'path';
  *    lúc bấm nút, cũng chạy trước khi trình duyệt tính lại style.
  *  - `public/site.webmanifest` (sinh bởi `packages/brand/build-assets.js`) - hệ
  *    điều hành đọc nó để vẽ màn hình chờ PWA, trước khi trang chạy dòng mã nào.
- *    Chỉ chế độ Sáng, vì manifest không có khái niệm chế độ.
+ *    Chỉ chế độ MẶC ĐỊNH (Tối), vì manifest không có khái niệm chế độ.
  *
  * Một bản sao im lặng trôi lệch ở đây cho ra thanh địa chỉ màu này còn trang màu
  * kia - sai lệch nhỏ đến mức không ai báo lỗi, nhưng trông rẻ tiền. Test này bắt
@@ -39,9 +39,9 @@ function baseOf(selector: string): string {
 }
 
 describe('màu nền chép ra ngoài tokens.css phải khớp nguồn', () => {
-  const light = baseOf(":root,\n:root[data-theme='light'] {");
+  const light = baseOf(":root[data-theme='light'] {");
   const warm = baseOf(":root[data-theme='warm'] {");
-  const dark = baseOf(":root[data-theme='dark'] {");
+  const dark = baseOf(":root,\n:root[data-theme='dark'] {");
 
   test('tokens.css khai ba chế độ khác nhau', () => {
     expect(new Set([light, warm, dark]).size).toBe(3);
@@ -59,10 +59,15 @@ describe('màu nền chép ra ngoài tokens.css phải khớp nguồn', () => {
     for (const hex of [light, warm, dark]) expect(src).toContain(`'${hex}'`);
   });
 
-  // Chế độ SÁNG là mặc định: `:root` TRẦN phải mang bảng sáng. Đảo lại thì lượt
-  // tải đầu tiên của một khách chưa từng chọn gì sẽ hiện chế độ khác.
-  test('chế độ sáng là mặc định', () => {
-    expect(css).toMatch(/:root,\s*\n:root\[data-theme='light'\]\s*\{[^}]*color-scheme:\s*light/);
+  // Chế độ TỐI là mặc định (đen + xanh, chủ dự án chọn 10/11/2026): `:root` TRẦN
+  // phải mang bảng tối. Đảo lại thì lượt tải đầu tiên của một khách chưa từng chọn
+  // gì sẽ hiện chế độ khác, và ba bản sao bên dưới (_document, ThemeToggle,
+  // manifest) phải đổi cùng lúc.
+  test('chế độ tối là mặc định', () => {
+    expect(css).toMatch(/:root,\s*\n:root\[data-theme='dark'\]\s*\{[^}]*color-scheme:\s*dark/);
+    const doc = read('pages', '_document.tsx');
+    expect(doc).toContain('data-theme="dark"');
+    expect(doc).toContain("var mode = 'dark';");
   });
 
   // Bảng màu KHÔNG được treo vào prefers-color-scheme - nếu có, hai người mở
@@ -89,21 +94,21 @@ describe('màu nền chép ra ngoài tokens.css phải khớp nguồn', () => {
       'packages/brand/build-assets.js',
       () => readFileSync(join(ROOT, 'packages', 'brand', 'build-assets.js'), 'utf8'),
     ],
-  ])('%s dùng đúng màu nền chế độ Sáng', (_name, load) => {
+  ])('%s dùng đúng màu nền chế độ mặc định (Tối)', (_name, load) => {
     const src = load().toLowerCase();
     // Khớp cả `"theme_color": "#…"` (JSON) lẫn `theme_color: '#…'` (JS).
     const m = src.match(/theme_color["']?:\s*["']([^"']+)["']/);
     expect(m).not.toBeNull();
-    expect((m as RegExpMatchArray)[1]).toBe(light);
+    expect((m as RegExpMatchArray)[1]).toBe(dark);
     const bgm = src.match(/background_color["']?:\s*["']([^"']+)["']/);
     expect(bgm).not.toBeNull();
-    expect((bgm as RegExpMatchArray)[1]).toBe(light);
+    expect((bgm as RegExpMatchArray)[1]).toBe(dark);
   });
 
   test('script chống nháy màu giải được cả bốn lựa chọn', () => {
     const doc = read('pages', '_document.tsx');
     // Bốn lựa chọn của ThemeToggle. Thiếu nhánh nào ở script đồng bộ thì lựa chọn
-    // đó chỉ có tác dụng cho tới lần tải trang kế tiếp - rồi âm thầm về Sáng.
+    // đó chỉ có tác dụng cho tới lần tải trang kế tiếp - rồi âm thầm về Tối.
     for (const choice of ['system', 'warm', 'dark', 'light']) {
       expect(doc).toContain(`'${choice}'`);
     }

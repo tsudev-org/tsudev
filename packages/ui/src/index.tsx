@@ -21,9 +21,19 @@ import { TableOfContents } from './components/TableOfContents';
 import { RecordFooter } from './components/RecordFooter';
 import { usePageSize, pageAfterResize } from './lib/usePageSize';
 import { MAIN_URL } from './lib/siteUrls';
+import {
+  ECOSYSTEM_APPS,
+  ECO_PLATFORM_LABEL,
+  ECO_CATEGORY_LABEL,
+  wingetCommand,
+} from './lib/ecosystem';
 
 export {
   MAIN_URL,
+  ECOSYSTEM_APPS,
+  ECO_PLATFORM_LABEL,
+  ECO_CATEGORY_LABEL,
+  wingetCommand,
   SiteHeader,
   SiteFooter,
   Button,
@@ -58,6 +68,7 @@ export default Layout;
 // xuất chúng thì nơi dùng buộc phải viết `string` rồi đụng vào union bên trong -
 // đúng thứ đã xảy ra với `tone` của Badge ở trang quản trị dự án.
 export type { BadgeTone } from './components/Badge';
+export type { EcoApp, EcoPlatform, EcoCategory } from './lib/ecosystem';
 export type { ButtonSize, ButtonVariant } from './components/Button';
 export type { ToastType } from './components/Toast';
 export type { IconName, PlatformBrand } from './components/Icon';

@@ -399,39 +399,222 @@
   background-size: 44px 44px;
 }
 
-/* Nền tông thương hiệu chàm cho hero và khối kêu gọi (phiếu 20261105-03).
-   Chỉ trộn từ token, không mã hex: ba chế độ tự đổi theo --primary/--accent. */
-.tsu-hero-bg {
+/* ============================================================
+   TÔNG ĐEN + XANH (chủ dự án chọn 10/11/2026)
+   ============================================================
+   Mọi màu dưới đây trộn từ TOKEN (--primary xanh dương, --accent xanh lá,
+   --glow/--glow-alt), không mã hex: ba chế độ tự đổi theo bảng của chúng, và
+   contrast.test.ts đã canh hai đầu dải màu.
+
+   Chuyển động là TRANG TRÍ thuần, nên:
+   - mọi lớp nền mang aria-hidden ở nơi gọi và pointer-events: none;
+   - chỉ động `transform`/`background-position` (không gây layout lại);
+   - dưới prefers-reduced-motion, quy tắc chung phía trên rút thời lượng về
+     0.001ms, và khối cuối mục này tắt hẳn để nền đứng yên. */
+
+/* Nền cố định cho MỌI trang (Layout): hai quầng xanh dương/xanh lá rất nhẹ,
+   không chuyển động - để trang nội dung dài không bị nhiễu khi đọc. */
+.tsu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background:
-    radial-gradient(60% 70% at 85% 0%, var(--glow), transparent 70%),
-    radial-gradient(
-      45% 55% at 0% 100%,
-      color-mix(in srgb, var(--accent) 10%, transparent),
-      transparent 70%
-    ),
-    linear-gradient(180deg, color-mix(in srgb, var(--primary) 6%, var(--bg-base)), var(--bg-base));
+    radial-gradient(55% 45% at 85% -10%, var(--glow), transparent 70%),
+    radial-gradient(45% 40% at -5% 105%, var(--glow-alt), transparent 70%);
 }
-.tsu-cta-bg {
-  background:
-    radial-gradient(
-      70% 90% at 100% 0%,
-      color-mix(in srgb, var(--accent) 14%, transparent),
-      transparent 65%
-    ),
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--primary) 12%, var(--bg-surface)),
-      var(--bg-surface)
-    );
+
+/* Aurora CHUYỂN ĐỘNG cho hero và khối kêu gọi: hai khối màu mờ trôi chậm. */
+.tsu-aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
-/* Chữ chuyển sắc chàm → cam ở tiêu đề hero. Cả hai đầu đều đạt 4.5:1 trên nền
-   trang (contrast.test.ts canh --primary và --accent), nên mọi điểm giữa cũng
-   đọc được ở cỡ chữ hiển thị. */
+.tsu-aurora::before,
+.tsu-aurora::after,
+.tsu-aurora > span {
+  content: '';
+  position: absolute;
+  width: 55vmax;
+  height: 55vmax;
+  border-radius: 50%;
+  filter: blur(70px);
+  will-change: transform;
+}
+.tsu-aurora::before {
+  top: -28vmax;
+  left: -12vmax;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--primary) 34%, transparent),
+    transparent 62%
+  );
+  animation: tsu-drift-a 18s ease-in-out infinite alternate;
+}
+.tsu-aurora::after {
+  bottom: -32vmax;
+  right: -14vmax;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent) 26%, transparent),
+    transparent 62%
+  );
+  animation: tsu-drift-b 22s ease-in-out infinite alternate;
+}
+.tsu-aurora > span {
+  top: 10%;
+  left: 35%;
+  width: 38vmax;
+  height: 38vmax;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--info) 18%, transparent),
+    transparent 62%
+  );
+  animation: tsu-drift-c 26s ease-in-out infinite alternate;
+}
+@keyframes tsu-drift-a {
+  to {
+    transform: translate3d(18vmax, 10vmax, 0) scale(1.15);
+  }
+}
+@keyframes tsu-drift-b {
+  to {
+    transform: translate3d(-20vmax, -8vmax, 0) scale(1.1);
+  }
+}
+@keyframes tsu-drift-c {
+  to {
+    transform: translate3d(-12vmax, 12vmax, 0) scale(0.85);
+  }
+}
+
+/* Hoạ tiết lưới mờ dần về cuối khối - dùng cùng .tsu-grid. */
+.tsu-grid-fade {
+  mask-image: radial-gradient(75% 70% at 50% 0%, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(75% 70% at 50% 0%, #000 30%, transparent 75%);
+}
+
+/* Chữ chuyển sắc xanh dương → xanh lá, ánh sáng trượt chậm. Cả hai đầu đều đạt
+   4.5:1 trên nền trang (contrast.test.ts canh --primary và --accent), nên mọi
+   điểm giữa cũng đọc được ở cỡ chữ hiển thị. */
 .tsu-text-gradient {
-  background: linear-gradient(90deg, var(--primary), var(--accent));
+  background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
+  background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  animation: tsu-shine 8s linear infinite;
+}
+@keyframes tsu-shine {
+  to {
+    background-position: 200% 0;
+  }
+}
+
+/* Thẻ có VIỀN chuyển sắc hiện ra khi rê chuột/focus bàn phím, kèm quầng xanh. */
+.tsu-glow-card {
+  position: relative;
+  isolation: isolate;
+  transition:
+    transform var(--motion-base) var(--motion-easing-enter),
+    box-shadow var(--motion-base) var(--motion-easing-enter);
+}
+.tsu-glow-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity var(--motion-base) var(--motion-easing-enter);
+  pointer-events: none;
+}
+.tsu-glow-card:hover,
+.tsu-glow-card:focus-within {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 50px -24px color-mix(in srgb, var(--primary) 60%, transparent);
+}
+.tsu-glow-card:hover::before,
+.tsu-glow-card:focus-within::before {
+  opacity: 1;
+}
+
+/* Ô biểu tượng chữ cái của app: nền chuyển sắc, chữ mực on-primary. */
+.tsu-monogram {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: var(--on-primary);
+}
+
+/* Quầng sáng cho nút chính ở hero. */
+.tsu-btn-glow {
+  box-shadow: 0 0 28px -6px color-mix(in srgb, var(--primary) 75%, transparent);
+}
+
+/* Chấm "đang sống" - nhịp sáng xanh lá. */
+.tsu-live-dot {
+  position: relative;
+}
+.tsu-live-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: var(--accent);
+  animation: tsu-ping 1.8s var(--motion-easing-exit) infinite;
+}
+@keyframes tsu-ping {
+  75%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* Nền tĩnh cho đầu trang con (PageHeader, AuthShell): quầng xanh dương góc
+   phải, xanh lá góc trái, chìm về nền trang. */
+.tsu-hero-bg {
+  background:
+    radial-gradient(60% 80% at 90% 0%, var(--glow), transparent 70%),
+    radial-gradient(45% 70% at 0% 100%, var(--glow-alt), transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--primary) 5%, var(--bg-base)), var(--bg-base));
+}
+/* Ô màu thay ảnh bìa / khối nhấn: chuyển sắc xanh dương → xanh lá rất nhẹ. */
+.tsu-cta-bg {
+  background:
+    radial-gradient(70% 90% at 100% 0%, var(--glow-alt), transparent 65%),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--primary) 14%, var(--bg-surface)),
+      var(--bg-surface)
+    );
+}
+/* Kính mờ trên aurora (khối kêu gọi cuối trang chủ, thanh chọn nhiều app). */
+.tsu-glass {
+  background: color-mix(in srgb, var(--bg-surface) 72%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tsu-aurora::before,
+  .tsu-aurora::after,
+  .tsu-aurora > span,
+  .tsu-text-gradient,
+  .tsu-live-dot::after {
+    animation: none;
+  }
+  .tsu-glow-card:hover,
+  .tsu-glow-card:focus-within {
+    transform: none;
+  }
 }
 
 /* Markdown dựng từ DB. Thang cỡ chữ và chiều cao dòng lấy thẳng từ token: văn

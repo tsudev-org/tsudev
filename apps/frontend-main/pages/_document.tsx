@@ -4,9 +4,9 @@ import { Html, Head, Main, NextScript } from 'next/document';
 // (bản sinh ra từ .standards/tokens/design-tokens.json). Dùng cho <meta name="theme-color">
 // (thanh địa chỉ trên di động) và cho nền vẽ trước khi CSS tải xong.
 // test/themeTokens.test.ts canh cho ba giá trị này không trôi lệch khỏi nguồn.
-const LIGHT_BASE = '#fafaf9';
+const LIGHT_BASE = '#f6f8fb';
 const WARM_BASE = '#f6f1e6';
-const DARK_BASE = '#110f1f';
+const DARK_BASE = '#05070b';
 
 /**
  * Áp chế độ hiển thị TRƯỚC KHI TRANG ĐƯỢC VẼ.
@@ -19,17 +19,17 @@ const DARK_BASE = '#110f1f';
  * Script này GIẢI lựa chọn của người dùng thành một bảng màu cụ thể: 'system'
  * là một lựa chọn được lưu, không phải một bảng màu, nên chỉ ở đây nó mới hỏi
  * `prefers-color-scheme`. Bản thân tokens.css KHÔNG có @media
- * prefers-color-scheme, và đó là điều kiện để mặc định vẫn là Sáng cho khách
- * vãng lai - xem ghi chú ở đầu ThemeToggle.tsx.
+ * prefers-color-scheme, và đó là điều kiện để mặc định vẫn là Tối (đen + xanh,
+ * chủ dự án chọn 10/11/2026) cho khách vãng lai - xem ghi chú ở đầu ThemeToggle.tsx.
  *
  * Bọc trong try/catch vì localStorage ném lỗi khi cookie bên thứ ba bị chặn hoặc
- * khi trang chạy trong iframe sandbox. Hỏng ở đây phải là "hiện chế độ sáng mặc
+ * khi trang chạy trong iframe sandbox. Hỏng ở đây phải là "hiện chế độ tối mặc
  * định", không phải "trang trắng vì script chết".
  */
 const THEME_SCRIPT = `
 (function () {
   var BASE = { light: '${LIGHT_BASE}', warm: '${WARM_BASE}', dark: '${DARK_BASE}' };
-  var mode = 'light';
+  var mode = 'dark';
   try {
     var saved = localStorage.getItem('tsudev-theme');
     if (saved === 'system') {
@@ -47,7 +47,7 @@ const THEME_SCRIPT = `
 
 export default function Document() {
   return (
-    <Html lang="vi" data-theme="light">
+    <Html lang="vi" data-theme="dark">
       <Head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
@@ -55,8 +55,8 @@ export default function Document() {
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
-        {/* Giá trị mặc định là chế độ SÁNG; script bên dưới đổi nó khi cần. */}
-        <meta name="theme-color" content={LIGHT_BASE} />
+        {/* Giá trị mặc định là chế độ TỐI; script bên dưới đổi nó khi cần. */}
+        <meta name="theme-color" content={DARK_BASE} />
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </Head>
       {/* data-platform quyết định cỡ chữ thân bài (DESIGN_SYSTEM.md §7): web dùng
