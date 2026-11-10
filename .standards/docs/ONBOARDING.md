@@ -148,7 +148,7 @@ kiểm tra và khóa file trong LOCKS.md trước khi sửa.
 <mô tả thay đổi giao diện>. Bắt buộc dùng token trong .standards/tokens/tokens.css
 (hoặc đọc .standards/tokens/design-tokens.json), theo docs/DESIGN_SYSTEM.md.
 Cấm hard-code màu, cỡ chữ, radius. Ngày hiển thị dạng số DD/MM/YYYY.
-Kiểm tra tương phản ở cả ba chế độ Sáng, Ấm, Tối.
+Kiểm tra tương phản ở cả hai chế độ Sáng, Tối.
 ```
 
 **c) Trước khi cho phép commit hoặc push:**

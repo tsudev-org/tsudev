@@ -20,7 +20,8 @@
           "description": "Ngày dạng DD/MM/YYYY theo DESIGN_SYSTEM.md mục 4"
         },
         "source": { "type": "string", "format": "uri" },
-        "note": { "type": "string" }
+        "note": { "type": "string" },
+        "deprecated": { "type": "string", "description": "Phần token đã ngừng dùng và phiên bản sẽ gỡ" }
       }
     },
     "color": {
