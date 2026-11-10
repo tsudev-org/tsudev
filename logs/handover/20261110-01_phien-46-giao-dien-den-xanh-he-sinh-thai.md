@@ -1,7 +1,7 @@
 # PHIẾU BÀN GIAO - Giao diện đen + xanh, danh bạ app hệ sinh thái
 
 - **Mã phiếu**: 20261110-01
-- **Phiên**: 46 - nhánh `feat/giao-dien-den-xanh-he-sinh-thai` (CHƯA commit/push - chờ chủ dự án duyệt)
+- **Phiên**: 46 - PR #211 (merge `f05b0be`), frontend deploy Workers version `9e94665b-feb6-40a0-92a2-646b2bf1c07c`
 - **Trạng thái**: MỞ
 
 ## 1. Đã làm
@@ -28,8 +28,11 @@ Tối và Sáng: không tràn ngang. CHƯA chạy E2E và chưa build OpenNext.
 
 ## 3. Việc còn lại
 
-1. Chủ dự án duyệt giao diện ⇒ commit, PR, CI; deploy qua `scripts/deploy-frontend.js`, nghiệm thu
-   `curl -sI https://tsudev.com/` (CSP mang băm mới) + mở trang thấy chế độ Tối.
+1. ✅ XONG 10/11/2026: PR #211 merge (CI 19/19), deploy qua `scripts/deploy-frontend.js` (tài khoản Cloudflare
+   `9541f44e...` đã kiểm). Nghiệm thu production: CSP mang băm mới `sha256-7xkQ2QGX...`; `/api/auth/providers` =
+   `credentials,passkey,github,google` (không provider dev); `/`, `/apps`, `/projects`, `/blog`, `/docs` 200,
+   `data-theme="dark"`; Playwright trên tsudev.com: trang chủ 6 thẻ hệ sinh thái + 3 dự án + 3 bài thật, `/apps`
+   7 thẻ, console 0 lỗi (không lỗi CSP). Ngay sau deploy `/` còn bản dựng rỗng lúc build - tự hết sau ~1 phút.
 2. `tsudev-contact` chưa có website (contact.tsudev.com không phân giải) - thẻ chỉ có nút tải GitHub.
    `tsudev-files`/`tsudev-lotus` chưa có bản phát hành GitHub - thẻ chỉ có nút website.
 3. Ảnh icon PWA (apple-touch-icon...) vẫn nền sáng `#eef4fb` - cố ý, không dựng lại.
