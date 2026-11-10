@@ -68,6 +68,19 @@ sống Toà soạn dịch lại. Script `scripts/don-noi-dung-lac-de.js`:
 - Seed dev (`packages/db/prisma/seed.js`) vẫn tạo các mục mẫu cũ - chỉ ảnh hưởng dev; sửa thì qua agent
   data-schema.
 
+### 4b. ✅ ĐÃ ÁP production (10/11/2026)
+
+- Lượt in rồi áp trên Neon: xoá mềm **577 bài blog, 50 tài liệu, 4 dự án** - TẤT CẢ khớp quy tắc (Toà soạn
+  hoặc mẫu seed), không mục nào phải tự quyết; 4 dự án không có bản phát hành nào. Mốc đảo lại:
+  `deletedAt = 2026-11-10T15:37:48.147Z` ở ba bảng Post/Doc/Project.
+- Đăng nội dung THẬT (`--noi-dung`, `scripts/noi-dung-he-sinh-thai.js`): 4 tài liệu (giới thiệu hệ sinh thái,
+  cài bằng winget, kiểm SHA-256/Ed25519, cảnh báo SmartScreen/Android) + 1 bài thông báo. Giữ cho cron
+  canh-site-cron không báo động. `lib/md.ts` KHÔNG dựng bảng Markdown - bản đầu dùng bảng, hiện ký tự `|` thô,
+  đã đổi sang danh sách và đăng lại.
+- `node scripts/dem-noi-dung-prod.js`: ĐẠT (feed 1, blog 1, docs 4, tìm kiếm 4, projects 0 - không canh).
+- Bẫy kết nối: sandbox của phiên chặn cổng 5432 (chạy ngoài sandbox); chuỗi Neon phải đủ user:mật khẩu (Neon
+  Console che mật khẩu cho tới khi bấm Show password). Chuỗi ở `~/.tsudev/neon-prod.url` (600), không vào repo.
+
 ## 5. Phiếu đã gửi các repo hệ sinh thái (`20261110-05_yeu-cau-giao-dien-den-tim-kieu-supabase.md`)
 
 Nội dung chung: bảng mã màu hai chế độ, hợp đồng bộ chọn giao diện (khoá `tsudev-theme`, `warm` ⇒ `light`,
@@ -102,7 +115,7 @@ này THAY phần "nút ở header" của phiếu `20261110-02/03` phiên 46. T�
 ## 6. Việc cho phiên sau (theo thứ tự)
 
 1. ✅ XONG: PR #213, deploy, nghiệm thu (§5b).
-2. Chủ dự án áp §4 lên production (hoặc giao lại kèm DATABASE_URL trong shell).
+2. ✅ XONG: §4 đã áp production (§4b).
 3. Khi `tsudev-standards` phát hành bản gỡ Ấm: đồng bộ `.standards/` và kiểm `themeTokens.test.ts` (đang chỉ
    đòi `light` + `dark` có mặt).
 4. Việc cũ còn nguyên từ phiếu `20261110-03`: hạn minimatch (từ 08:08 11/11), chốt kiểu URL phiếu `20261109-06`.

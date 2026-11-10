@@ -24,6 +24,12 @@
  *
  *   node scripts/don-noi-dung-lac-de.js            # CHỈ IN - không ghi gì
  *   node scripts/don-noi-dung-lac-de.js --apply    # xoá mềm những mục đã in
+ *   ... --apply --noi-dung                         # + đăng nội dung THẬT thay thế
+ *
+ * `--noi-dung` upsert (theo slug) các tài liệu/bài viết ở scripts/noi-dung-he-sinh-thai.js,
+ * tác giả là tài khoản `tsudev`, cột tìm kiếm chuẩn hoá tính bằng @tsudev/search -
+ * đúng hàm content-service dùng, nên bài mới tìm được ngay. Không có nó thì site
+ * rỗng và cron canh-site-cron báo động mỗi ngày.
  *
  * Chạy với production: đặt DATABASE_URL của Neon trong shell (KHÔNG ghi vào .env).
  * Neon đang ngủ thì lượt đầu chậm vài giây - bình thường.
@@ -31,6 +37,8 @@
 const path = require('path');
 require('dotenv').config({ quiet: true, path: path.join(__dirname, '..', '.env') });
 const { prisma } = require('../packages/db/src/index');
+const { buildPostSearch, buildDocSearch } = require('../packages/search/dist/index.js');
+const { DOCS, POSTS } = require('./noi-dung-he-sinh-thai');
 
 const SEED_POSTS = ['welcome-to-tsudev', 'kien-truc-microservices', 'toi-uu-seo-nextjs'];
 const SEED_DOCS = ['getting-started', 'api-reference'];
@@ -120,6 +128,38 @@ async function main() {
   console.log(
     'Đảo lại: SET "deletedAt" = NULL WHERE "deletedAt" = thời điểm trên, ở ba bảng Post/Doc/Project.'
   );
+
+  if (process.argv.includes('--noi-dung')) await dangNoiDung();
+}
+
+async function dangNoiDung() {
+  const tacGia = await prisma.user.findUnique({
+    where: { username: 'tsudev' },
+    select: { id: true },
+  });
+  if (!tacGia) throw new Error('Không có tài khoản tsudev - không đăng nội dung.');
+  const now = new Date();
+  for (const d of DOCS) {
+    const data = { ...d, ...buildDocSearch(d), deletedAt: null };
+    await prisma.doc.upsert({ where: { slug: d.slug }, update: data, create: data });
+    console.log(`  + docs ${d.slug}`);
+  }
+  for (const p of POSTS) {
+    const data = {
+      ...p,
+      ...buildPostSearch(p),
+      published: true,
+      authorId: tacGia.id,
+      deletedAt: null,
+    };
+    await prisma.post.upsert({
+      where: { slug: p.slug },
+      update: data,
+      create: { ...data, publishedAt: now },
+    });
+    console.log(`  + blog ${p.slug}`);
+  }
+  console.log(`Đã đăng ${DOCS.length} tài liệu, ${POSTS.length} bài viết.`);
 }
 
 main()

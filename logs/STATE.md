@@ -6,7 +6,8 @@
 > ✅ Giao diện đen tuyền + tím kiểu Supabase, chỉ Sáng / Tối / Hệ thống: PR #213, deploy `88759036`, nghiệm thu
 > production + ảnh chụp 2 chế độ × 2 khổ. tsudev-files cũng ĐÓNG phiếu 20261110-05.
 >
-> 🧹 `scripts/don-noi-dung-lac-de.js` (xoá mềm dự án/tài liệu/blog lạc đề) - CHƯA áp production, chờ chủ dự án.
+> 🧹 Đã dọn production: ẩn 577 bài + 50 tài liệu + 4 dự án do Toà soạn/seed; đăng 4 tài liệu + 1 bài thật
+> (`scripts/don-noi-dung-lac-de.js --apply --noi-dung`). Cổng đếm nội dung ĐẠT.
 >
 > 📨 Phiếu `20261110-05` đã đặt ở 8 repo hệ sinh thái (thay phần nút-ở-header của phiếu 20261110-02/03).
 
