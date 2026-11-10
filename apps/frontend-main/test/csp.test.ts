@@ -45,7 +45,6 @@ function independentThemeHash(): string {
   if (!tpl) throw new Error('_document.tsx thiếu THEME_SCRIPT');
   const body = (tpl[1] as string)
     .replace(/\$\{LIGHT_BASE\}/g, hex('LIGHT_BASE'))
-    .replace(/\$\{WARM_BASE\}/g, hex('WARM_BASE'))
     .replace(/\$\{DARK_BASE\}/g, hex('DARK_BASE'));
   return `sha256-${createHash('sha256').update(body, 'utf8').digest('base64')}`;
 }

@@ -44,12 +44,13 @@ test('các trang nạp dữ liệu bằng useLoader có nội dung thật', asyn
   }
 });
 
-test('nút giao diện: đổi chế độ, nhớ qua lần tải lại', async ({ page }) => {
+test('bộ chọn giao diện ở chân trang: đổi chế độ, nhớ qua lần tải lại', async ({ page }) => {
   await page.goto(MAIN, { waitUntil: 'networkidle' });
-  await page.getByRole('button', { name: /Đổi giao diện/ }).click();
-  await page.getByRole('menuitemradio', { name: /Tối/ }).click();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  const group = page.getByRole('radiogroup', { name: 'Giao diện' });
+  // Tối là mặc định - chọn Sáng mới chứng minh được việc đổi + nhớ.
+  await group.getByRole('radio', { name: 'Sáng' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.reload({ waitUntil: 'networkidle' });
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await expect(page.getByRole('button', { name: /Giao diện: Tối/ })).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await expect(group.getByRole('radio', { name: 'Sáng' })).toHaveAttribute('aria-checked', 'true');
 });

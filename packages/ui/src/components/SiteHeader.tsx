@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { Logo } from './Logo';
-import { ThemeToggle } from './ThemeToggle';
 import { hasAtLeastRole } from '@tsudev/types';
 // tsudev là MỘT site nên href tương đối. Trước đây có hai origin (trang chính và
 // diễn đàn) nên mọi link điều hướng buộc phải là URL tuyệt đối.
@@ -42,24 +41,18 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
   const [open, setOpen] = useState(false);
 
   return (
+    // Kiểu supabase.com: header CÙNG NỀN với trang (kính mờ trên --bg-base), chỉ một
+    // đường hairline ở mép dưới - không dải màu, không vạch chuyển sắc, để trang
+    // liền một mạch từ đỉnh tới chân. Nút đổi giao diện nằm ở CHÂN TRANG (SiteFooter).
     <header
-      className="sticky top-0 z-40 border-b border-line backdrop-blur-md backdrop-saturate-150"
-      style={{ backgroundColor: 'color-mix(in srgb, var(--bg-base) 72%, transparent)' }}
+      className="sticky top-0 z-40 border-b border-line backdrop-blur-md"
+      style={{ backgroundColor: 'color-mix(in srgb, var(--bg-base) 82%, transparent)' }}
     >
-      {/* Vạch sáng xanh dương → xanh lá ở mép dưới header - nhận diện tông mới. */}
-      <span
-        className="pointer-events-none absolute inset-x-0 -bottom-px h-px opacity-70"
-        style={{
-          background:
-            'linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent)',
-        }}
-        aria-hidden="true"
-      />
       <a href="#main-content" className="skip-link">
         Bỏ qua tới nội dung
       </a>
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-8">
           <a href="/" className="shrink-0" aria-label="tsudev trang chủ">
             <Logo />
           </a>
@@ -68,10 +61,9 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
               <a
                 key={n.key}
                 href={n.path}
-                className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
-                  isActive(n, active)
-                    ? 'text-link bg-subtle shadow-[inset_0_-2px_0_var(--primary)]'
-                    : 'text-fg-secondary hover:text-fg hover:bg-subtle'
+                aria-current={isActive(n, active) ? 'page' : undefined}
+                className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors duration-fast ${
+                  isActive(n, active) ? 'text-fg' : 'text-fg-secondary hover:text-fg'
                 }`}
               >
                 {n.label}
@@ -101,7 +93,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
             action="/search"
             method="get"
             role="search"
-            className="hidden xl:flex items-center gap-2 h-9 px-3 rounded-md border border-line bg-base text-fg-muted focus-within:border-primary"
+            className="hidden xl:flex items-center gap-2 h-8 px-3 rounded-md border border-line bg-surface text-fg-muted transition-colors hover:border-line-strong focus-within:border-primary"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.7" />
@@ -125,7 +117,6 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
               Tìm
             </button>
           </form>
-          <ThemeToggle />
           {session ? (
             <div className="flex items-center gap-2">
               {/*
@@ -138,13 +129,13 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
               */}
               <a
                 href="/settings/profile"
-                className="hidden lg:inline text-sm text-fg-secondary max-w-40 truncate rounded-md px-2 py-1 hover:bg-subtle hover:text-fg transition-colors"
+                className="hidden lg:inline text-sm text-fg-secondary max-w-40 truncate rounded-md px-2 py-1 hover:text-fg transition-colors"
               >
                 {session.user?.name || session.user?.email}
               </a>
               <button
                 onClick={() => signOut()}
-                className="inline-flex items-center h-8 px-3 rounded-md text-sm font-medium text-fg-secondary hover:bg-subtle hover:text-fg transition-colors"
+                className="inline-flex items-center h-8 px-3 rounded-md border border-line-strong bg-surface text-sm font-medium text-fg transition-colors hover:border-line-control hover:bg-hovered"
               >
                 Đăng xuất
               </button>
@@ -153,12 +144,21 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
             // Link chứ không phải nút gọi signIn(): trang /login là trang thật
             // của site, và một thẻ <a> mở được bằng chuột giữa, bookmark được,
             // và hoạt động cả khi JavaScript chưa kịp tải.
-            <a
-              href="/login"
-              className="inline-flex items-center h-8 px-4 rounded-md text-sm font-semibold text-on-primary bg-primary hover:bg-primary-hover transition-colors tsu-btn-glow"
-            >
-              Đăng nhập
-            </a>
+            // Cặp nút kiểu supabase.com: nút phụ viền mảnh + nút chính tím, cùng cao 32px.
+            <div className="flex items-center gap-2">
+              <a
+                href="/login"
+                className="inline-flex items-center h-8 px-3 rounded-md border border-line-strong bg-surface text-sm font-medium text-fg transition-colors hover:border-line-control hover:bg-hovered"
+              >
+                Đăng nhập
+              </a>
+              <a
+                href="/apps"
+                className="hidden sm:inline-flex items-center h-8 px-3 rounded-md border border-primary-hover bg-primary text-sm font-medium text-on-primary transition-colors hover:bg-primary-hover"
+              >
+                Tải ứng dụng
+              </a>
+            </div>
           )}
           <button
             className="md:hidden inline-flex h-8 w-8 items-center justify-center rounded-md text-fg-secondary hover:bg-subtle hover:text-fg transition-colors"
@@ -178,7 +178,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
       </div>
 
       {open && (
-        <nav className="md:hidden border-t border-line bg-surface px-4 py-2" aria-label="Di động">
+        <nav className="md:hidden border-t border-line px-4 py-2" aria-label="Di động">
           {nav.map((n) => (
             <a
               key={n.key}

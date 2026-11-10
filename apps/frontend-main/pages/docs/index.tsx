@@ -85,7 +85,7 @@ export default function DocsIndex({ groups, failed }: DocsIndexProps) {
             return (
               <section key={g.category} id={`cm-${c.key}`} className="scroll-mt-24">
                 <div className="mb-4 flex items-center gap-3">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-glow">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-glow">
                     <Icon name={c.icon} size={20} />
                   </span>
                   <h2 className="text-xl font-bold text-fg">{c.label}</h2>

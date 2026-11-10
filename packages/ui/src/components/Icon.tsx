@@ -45,7 +45,9 @@ export const Icon = ({ name, size = 16, label, className = '' }: IconProps) => {
       role={label ? 'img' : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}
-      className={`${ROLE_CLASS[spec.role]} ${ink} shrink-0 ${className}`}
+      // `tsu-icon`: móc cho globals.css - icon nằm trong nút/ô nền ĐẶC (bg-primary,
+      // bg-danger...) ăn màu chữ của nút thay vì màu vai trò (xem Button.tsx).
+      className={`tsu-icon ${ROLE_CLASS[spec.role]} ${ink} shrink-0 ${className}`}
     >
       {c && <circle cx={c[0]} cy={c[1]} r={c[2]} stroke="currentColor" strokeWidth="1.6" />}
       {sc && <circle cx={sc[0]} cy={sc[1]} r={sc[2]} fill="currentColor" />}

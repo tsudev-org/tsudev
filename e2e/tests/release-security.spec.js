@@ -11,7 +11,7 @@ const { signIn } = require('./helpers/login');
 // thân request hay header - test service không thấy được điều đó).
 
 const MAIN = process.env.E2E_MAIN_URL || publicUrl(loadTopology(), 'main');
-const THEMES = ['light', 'warm', 'dark'];
+const THEMES = ['light', 'dark'];
 
 test('OWNER có TOTP mở được trang, thấy bảng kê và kiểm được chuỗi nhật ký', async ({ page }) => {
   await signIn(page, MAIN);

@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 /**
- * Màu nền của BA chế độ bị CHÉP ra ba nơi ngoài tokens.css, và cả ba đều buộc
+ * Màu nền của HAI chế độ bị CHÉP ra ba nơi ngoài tokens.css, và cả ba đều buộc
  * phải như vậy:
  *
  *  - `pages/_document.tsx` - script chống nháy màu phải là chuỗi nội tuyến chạy
@@ -40,11 +40,12 @@ function baseOf(selector: string): string {
 
 describe('màu nền chép ra ngoài tokens.css phải khớp nguồn', () => {
   const light = baseOf(":root[data-theme='light'] {");
-  const warm = baseOf(":root[data-theme='warm'] {");
   const dark = baseOf(":root,\n:root[data-theme='dark'] {");
 
-  test('tokens.css khai ba chế độ khác nhau', () => {
-    expect(new Set([light, warm, dark]).size).toBe(3);
+  test('tokens.css khai hai chế độ khác nhau, KHÔNG còn chế độ Ấm', () => {
+    expect(new Set([light, dark]).size).toBe(2);
+    // Bỏ từ 10/11/2026 (phiên 47): chỉ Sáng / Tối / Hệ thống, giống supabase.com.
+    expect(css).not.toContain("data-theme='warm'");
   });
 
   test.each([
@@ -54,12 +55,12 @@ describe('màu nền chép ra ngoài tokens.css phải khớp nguồn', () => {
       () =>
         readFileSync(join(ROOT, 'packages', 'ui', 'src', 'components', 'ThemeToggle.tsx'), 'utf8'),
     ],
-  ])('%s dùng đúng ba giá trị đó', (_name, load) => {
+  ])('%s dùng đúng hai giá trị đó', (_name, load) => {
     const src = load().toLowerCase();
-    for (const hex of [light, warm, dark]) expect(src).toContain(`'${hex}'`);
+    for (const hex of [light, dark]) expect(src).toContain(`'${hex}'`);
   });
 
-  // Chế độ TỐI là mặc định (đen + xanh, chủ dự án chọn 10/11/2026): `:root` TRẦN
+  // Chế độ TỐI là mặc định (đen tuyền + tím, chủ dự án chọn 10/11/2026): `:root` TRẦN
   // phải mang bảng tối. Đảo lại thì lượt tải đầu tiên của một khách chưa từng chọn
   // gì sẽ hiện chế độ khác, và ba bản sao bên dưới (_document, ThemeToggle,
   // manifest) phải đổi cùng lúc.
@@ -105,11 +106,12 @@ describe('màu nền chép ra ngoài tokens.css phải khớp nguồn', () => {
     expect((bgm as RegExpMatchArray)[1]).toBe(dark);
   });
 
-  test('script chống nháy màu giải được cả bốn lựa chọn', () => {
+  test('script chống nháy màu giải được cả ba lựa chọn', () => {
     const doc = read('pages', '_document.tsx');
-    // Bốn lựa chọn của ThemeToggle. Thiếu nhánh nào ở script đồng bộ thì lựa chọn
-    // đó chỉ có tác dụng cho tới lần tải trang kế tiếp - rồi âm thầm về Tối.
-    for (const choice of ['system', 'warm', 'dark', 'light']) {
+    // Ba lựa chọn của ThemeToggle (Sáng / Tối / Hệ thống). Thiếu nhánh nào ở script
+    // đồng bộ thì lựa chọn đó chỉ có tác dụng cho tới lần tải trang kế tiếp - rồi
+    // âm thầm về Tối.
+    for (const choice of ['system', 'dark', 'light']) {
       expect(doc).toContain(`'${choice}'`);
     }
     expect(doc).toContain('prefers-color-scheme');
@@ -124,14 +126,16 @@ describe('tokens.css là bản sinh ra, không phải bản viết tay', () => {
     expect(css).toMatch(/ĐƯỢC SINH RA/);
   });
 
-  // Nguồn chân lý phải khai đủ ba chế độ. Xoá nhầm một chế độ khỏi JSON sẽ làm
-  // tokens.css thiếu khối tương ứng, và triệu chứng là "chọn Ấm thì không có gì
+  // Nguồn chân lý phải khai đủ các chế độ được sinh. Xoá nhầm một chế độ khỏi JSON sẽ làm
+  // tokens.css thiếu khối tương ứng, và triệu chứng là "chọn Sáng thì không có gì
   // đổi" - một lỗi im lặng.
-  test('cả hai nguồn token khai đủ ba chế độ', () => {
+  test('bảng chuẩn có Sáng + Tối, khối mở rộng khai đúng hai chế độ đó', () => {
     const std = JSON.parse(
       readFileSync(join(ROOT, '.standards', 'tokens', 'design-tokens.json'), 'utf8')
     );
-    expect(Object.keys(std.color).sort()).toEqual(['dark', 'light', 'warm']);
+    // Bảng chuẩn còn `warm` cho tới khi tsudev-standards gỡ nó (phiếu 20261110-05);
+    // web chỉ sinh hai chế độ, nên chỉ đòi hai khối này tồn tại.
+    expect(Object.keys(std.color)).toEqual(expect.arrayContaining(['dark', 'light']));
     const ext = JSON.parse(
       readFileSync(join(ROOT, 'tokens', 'extensions.tsudev-web.json'), 'utf8')
     );
@@ -152,7 +156,7 @@ describe('tokens.css là bản sinh ra, không phải bản viết tay', () => {
       Object.keys(ext)
         .filter((k) => !k.startsWith('$') && !KHONG_THEO_CHE_DO.has(k))
         .sort()
-    ).toEqual(['dark', 'light', 'warm']);
+    ).toEqual(['dark', 'light']);
   });
 
   // Bản sao cục bộ của bảng dùng chung đã bị xoá 26/08/2026 (QU-STD-1) và không

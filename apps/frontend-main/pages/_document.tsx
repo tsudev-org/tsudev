@@ -1,12 +1,11 @@
 import { Html, Head, Main, NextScript } from 'next/document';
 
-// Màu nền của BA chế độ, phải khớp `--bg-base` trong packages/ui/src/tokens.css
+// Màu nền của HAI chế độ, phải khớp `--bg-base` trong packages/ui/src/tokens.css
 // (bản sinh ra từ .standards/tokens/design-tokens.json). Dùng cho <meta name="theme-color">
 // (thanh địa chỉ trên di động) và cho nền vẽ trước khi CSS tải xong.
-// test/themeTokens.test.ts canh cho ba giá trị này không trôi lệch khỏi nguồn.
-const LIGHT_BASE = '#f6f8fb';
-const WARM_BASE = '#f6f1e6';
-const DARK_BASE = '#05070b';
+// test/themeTokens.test.ts canh cho hai giá trị này không trôi lệch khỏi nguồn.
+const LIGHT_BASE = '#fafafa';
+const DARK_BASE = '#0a0a0a';
 
 /**
  * Áp chế độ hiển thị TRƯỚC KHI TRANG ĐƯỢC VẼ.
@@ -19,8 +18,8 @@ const DARK_BASE = '#05070b';
  * Script này GIẢI lựa chọn của người dùng thành một bảng màu cụ thể: 'system'
  * là một lựa chọn được lưu, không phải một bảng màu, nên chỉ ở đây nó mới hỏi
  * `prefers-color-scheme`. Bản thân tokens.css KHÔNG có @media
- * prefers-color-scheme, và đó là điều kiện để mặc định vẫn là Tối (đen + xanh,
- * chủ dự án chọn 10/11/2026) cho khách vãng lai - xem ghi chú ở đầu ThemeToggle.tsx.
+ * prefers-color-scheme, và đó là điều kiện để mặc định vẫn là Tối (đen tuyền +
+ * tím, chủ dự án chọn 10/11/2026) cho khách vãng lai - xem ghi chú ở đầu ThemeToggle.tsx.
  *
  * Bọc trong try/catch vì localStorage ném lỗi khi cookie bên thứ ba bị chặn hoặc
  * khi trang chạy trong iframe sandbox. Hỏng ở đây phải là "hiện chế độ tối mặc
@@ -28,15 +27,17 @@ const DARK_BASE = '#05070b';
  */
 const THEME_SCRIPT = `
 (function () {
-  var BASE = { light: '${LIGHT_BASE}', warm: '${WARM_BASE}', dark: '${DARK_BASE}' };
+  var BASE = { light: '${LIGHT_BASE}', dark: '${DARK_BASE}' };
   var mode = 'dark';
   try {
     var saved = localStorage.getItem('tsudev-theme');
     if (saved === 'system') {
       mode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
         ? 'dark' : 'light';
-    } else if (saved === 'warm' || saved === 'dark' || saved === 'light') {
+    } else if (saved === 'dark' || saved === 'light') {
       mode = saved;
+    } else if (saved === 'warm') {
+      mode = 'light';
     }
   } catch (e) {}
   document.documentElement.setAttribute('data-theme', mode);

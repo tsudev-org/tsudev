@@ -112,7 +112,7 @@ export default function BlogPost({ post, related, failed, slug, toc }: BlogPostP
           <img
             src={post.coverImageUrl}
             alt=""
-            className="w-full rounded-xl mb-8 max-h-96 object-cover border border-line"
+            className="w-full rounded-lg mb-8 max-h-96 object-cover border border-line"
           />
         )}
         {/* Hai cột từ lg trở lên: thân bài giữ bề rộng đọc được, mục lục bám

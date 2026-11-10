@@ -4,7 +4,11 @@ import React from 'react';
  * Dải đầu trang dùng chung cho mọi trang con (tài liệu, blog, dự án, tìm kiếm,
  * pháp lý). Trước đây mỗi trang tự đặt một SectionHeading trên nền trống, và
  * kết quả là trang con trông như bản nháp so với trang chủ. Một component thì
- * nhịp khoảng cách, nền chàm và breadcrumb giống nhau ở mọi nơi.
+ * nhịp khoảng cách và breadcrumb giống nhau ở mọi nơi.
+ *
+ * KHÔNG nền riêng, KHÔNG viền dưới (10/11/2026): dải đầu trang khác màu từng là
+ * một "khung đứt đoạn" giữa header và nội dung. Nay đầu trang nằm thẳng trên nền
+ * trang, như supabase.com.
  */
 type Crumb = { label: string; href?: string };
 
@@ -29,9 +33,9 @@ export default function PageHeader({
   width = 'wide',
 }: PageHeaderProps) {
   return (
-    <section className="relative overflow-hidden border-b border-line tsu-hero-bg">
+    <section className="relative">
       <div
-        className={`relative mx-auto px-4 pt-10 pb-10 md:pt-14 md:pb-12 ${
+        className={`relative mx-auto px-4 pt-12 pb-4 md:pt-16 md:pb-6 ${
           width === 'wide' ? 'max-w-6xl' : 'max-w-4xl'
         }`}
       >
@@ -58,11 +62,11 @@ export default function PageHeader({
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="max-w-3xl">
             {eyebrow && (
-              <div className="mb-3 inline-flex items-center rounded-full bg-glow px-3 py-1 text-xs font-semibold text-link">
+              <div className="mb-3 font-mono text-xs uppercase tracking-caps text-link">
                 {eyebrow}
               </div>
             )}
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-fg text-balance leading-tight md:leading-(--text-4xl--line-height)">
+            <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-fg text-balance leading-tight md:leading-(--text-4xl--line-height)">
               {title}
             </h1>
             {description && (

@@ -31,17 +31,17 @@ const GUARANTEES: [IconName, string, string][] = [
 export const AuthShell = ({ title, description, children, footer }: AuthShellProps) => (
   <Layout active="/login" bare>
     <Seo title={`${title} - tsudev`} description={description} />
-    <div className="tsu-hero-bg border-b border-line">
+    <div>
       <div className="mx-auto grid max-w-5xl items-center gap-10 px-4 py-12 md:py-16 lg:grid-cols-[1fr_26rem]">
         <div className="hidden lg:block">
           <Logo size={40} />
-          <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-fg text-balance">
+          <h2 className="mt-6 text-3xl font-semibold tracking-tight text-fg text-balance">
             Một tài khoản cho mọi ứng dụng tsudev
           </h2>
           <ul className="mt-8 space-y-5">
             {GUARANTEES.map(([icon, head, text]) => (
               <li key={head} className="flex gap-3">
-                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface shadow-sm">
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-line bg-surface">
                   <Icon name={icon} size={20} />
                 </span>
                 <span>
@@ -53,7 +53,7 @@ export const AuthShell = ({ title, description, children, footer }: AuthShellPro
           </ul>
         </div>
         <div className="mx-auto w-full max-w-104">
-          <div className="rounded-2xl border border-line bg-surface p-6 shadow-lg sm:p-8">
+          <div className="rounded-lg border border-line bg-surface p-6 shadow-lg sm:p-8">
             <h1 className="text-2xl font-bold text-fg">{title}</h1>
             {description && <p className="mt-1.5 text-sm text-fg-muted">{description}</p>}
             <div className="mt-6">{children}</div>

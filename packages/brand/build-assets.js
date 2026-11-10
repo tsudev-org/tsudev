@@ -496,7 +496,7 @@ async function main() {
 
   // Nền đặc cho những icon mà HỆ ĐIỀU HÀNH tự tô nền nếu ta để trong suốt.
   // Nền đặc này GIỮ tông sáng #eef4fb dù từ 10/11/2026 manifest mang nền Tối
-  // (#05070b, chế độ mặc định): icon là ảnh tĩnh, hệ điều hành đặt nó lên màn hình
+  // (#0a0a0a, chế độ mặc định): icon là ảnh tĩnh, hệ điều hành đặt nó lên màn hình
   // chính của người dùng chứ không lên trang tsudev. Chọn nó thay vì trắng tinh vì
   // nền của chính bộ nguồn là #f7fbfc (gần trắng, hơi ngả xanh): đặt dấu hiệu lên
   // nền cùng họ thì tương quan màu giữ nguyên như bản gốc, còn 17% pixel sáng ở
@@ -589,8 +589,8 @@ async function main() {
     // ước v1.0.0, ba bản kia lên #eef4fb còn bản này ở lại #eef3fa - lệch một
     // đơn vị ở hai kênh, không ai nhìn ra, và chỉ hiện trên màn hình chờ PWA.
     // Nay `apps/frontend-main/test/themeTokens.test.ts` canh cả bản này.
-    theme_color: '#05070b',
-    background_color: '#05070b',
+    theme_color: '#0a0a0a',
+    background_color: '#0a0a0a',
     // `purpose` phải khai TÁCH BẠCH: bản thường ('any') và bản maskable là hai
     // ảnh khác nhau. Gộp thành 'any maskable' trên MỘT ảnh là cách Android vừa
     // dùng nó nguyên khung vừa xén nó theo hình dạng máy - một trong hai lần

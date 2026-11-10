@@ -20,10 +20,10 @@ export const Card = ({ children, className = '', hover = false, as, ...props }: 
       //
       // rounded-lg: §2 xếp card cùng bậc với modal lớn và khung bảng - mềm góc,
       // không góc cạnh sắc. Bậc md dành cho button/input.
-      className={`bg-surface border border-line rounded-xl ${
-        // `tsu-glow-card` (apps/frontend-main/styles/globals.css): viền chuyển sắc
-        // xanh dương → xanh lá + quầng sáng khi rê chuột/focus, nhấc 2px; tự tắt
-        // chuyển động dưới prefers-reduced-motion.
+      className={`bg-surface border border-line rounded-lg ${
+        // `tsu-glow-card` (apps/frontend-main/styles/globals.css): kiểu supabase.com -
+        // rê chuột/focus thì viền đậm lên và nền sáng hơn một bậc, không nhảy, không
+        // quầng màu.
         hover ? 'tsu-glow-card' : ''
       } ${className}`}
       {...props}
