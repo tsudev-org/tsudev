@@ -1,5 +1,9 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 46 (10/11/2026)**: giao diện đen + xanh (Tối mặc định) + danh bạ `/apps` kiểu winstall, nhánh
+> `feat/giao-dien-den-xanh-he-sinh-thai` CHƯA commit. Phiếu
+> [`20261110-01`](handover/20261110-01_phien-46-giao-dien-den-xanh-he-sinh-thai.md).
+
 > **Phiên 46 BẮT ĐẦU Ở ĐÂY** (cuối phiên 45, 09/11/2026). Phiếu:
 > [`20261109-05`](handover/20261109-05_phien-45-minimatch-11-vo-glob-10.md) (thay 20261109-04 và §2 phiếu 20261109-02).
 >

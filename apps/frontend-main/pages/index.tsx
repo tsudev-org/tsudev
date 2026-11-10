@@ -2,6 +2,7 @@ import React from 'react';
 import { useRecoverBuildPlaceholder } from '../lib/useRecoverBuildPlaceholder';
 import Seo from '../components/Seo';
 import DownloadSection from '../components/DownloadSection';
+import EcoAppCard from '../components/EcoAppCard';
 import { useScrollReveal } from '../lib/useScrollReveal';
 import {
   Layout,
@@ -14,6 +15,7 @@ import {
   Icon,
   platformChipClass,
   platformInkClass,
+  ECOSYSTEM_APPS,
 } from '@tsudev/ui';
 import type { IconName } from '@tsudev/ui';
 import { api } from '../lib/api';
@@ -37,11 +39,11 @@ import { keepStaleOnFailure } from '../lib/isr';
  * ký ra ngọc vì nó là trust, dự án ra xanh lá vì `package` thuộc nhóm create
  * (thứ tạo ra và phát hành được).
  */
-const ECOSYSTEM: { title: string; desc: string; href: string; icon: IconName }[] = [
+const FEATURES: { title: string; desc: string; href: string; icon: IconName }[] = [
   {
-    title: 'Dự án & tải về',
-    desc: 'Ứng dụng, công cụ và thư viện do tsudev phát triển - tải bản cài đặt cho từng nền tảng.',
-    href: '/projects',
+    title: 'Danh bạ ứng dụng',
+    desc: 'Mọi app của hệ sinh thái ở một chỗ - tìm, lọc theo nền tảng, cài nhiều app một lượt bằng winget.',
+    href: '/apps',
     icon: 'package',
   },
   {
@@ -99,70 +101,104 @@ export default function Home({
     <Layout active="/" bare>
       <Seo
         path="/"
-        description="Tải ứng dụng do tsudev tự phát triển cho Windows, Android, macOS, Linux - kèm SHA-256, chữ ký Ed25519, tài liệu cài đặt và blog kỹ thuật."
+        description="Hệ sinh thái phần mềm tsudev: tìm, tải và cài ứng dụng cho Windows, Android, macOS, Linux - website riêng từng sản phẩm, winget, SHA-256 và chữ ký Ed25519."
       />
 
       {/* ---------- HERO ----------
-          Tông chàm (phiếu 20261105-03). Khung bên phải trước đây là một
-          "terminal" in cứng `content healthy` - một trạng thái KHÔNG được đo, tức
-          là nói dối khi backend chết. Nay nó mô tả đúng thứ trang này phát hành:
-          nền tảng, checksum, chữ ký - không có con số nào giả vờ là số đo. */}
-      <section className="relative overflow-hidden border-b border-line tsu-hero-bg">
-        <div
-          className="absolute inset-0 tsu-grid"
-          // `#000` ở đây là kênh alpha của mặt nạ, không phải màu hiển thị.
-          style={{
-            maskImage: 'radial-gradient(70% 70% at 70% 0%, #000 25%, transparent 70%)',
-            WebkitMaskImage: 'radial-gradient(70% 70% at 70% 0%, #000 25%, transparent 70%)',
-          }}
-          aria-hidden="true"
-        />
+          Tông đen + xanh (chủ dự án chọn 10/11/2026), bố cục học theo winstall.app:
+          ô tìm ứng dụng là thứ đầu tiên mắt chạm tới. Ô đó là <form method="get">
+          THẬT trỏ vào /apps - chạy được cả khi JavaScript chưa tải.
+
+          Khung bên phải là các LỆNH THẬT (gói winget có trong microsoft/winget-pkgs,
+          đo 10/11/2026), không phải một "terminal" in trạng thái giả - bản cũ từng
+          in cứng `content healthy`, tức là nói dối khi backend chết. */}
+      <section className="relative overflow-hidden border-b border-line">
+        <div className="tsu-aurora" aria-hidden="true">
+          <span />
+        </div>
+        <div className="absolute inset-0 tsu-grid tsu-grid-fade" aria-hidden="true" />
         <div className="relative max-w-6xl mx-auto px-4 py-16 md:py-24 grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
           <div className="animate-fade-up">
-            <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold text-fg-secondary shadow-sm mb-6">
-              <span className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
-              Ứng dụng tự phát triển · tải miễn phí
+            <span className="inline-flex items-center gap-2 rounded-full border border-line tsu-glass px-3 py-1 text-xs font-semibold text-fg-secondary mb-6">
+              <span className="tsu-live-dot h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
+              {ECOSYSTEM_APPS.length} ứng dụng · Windows · Android · macOS · Linux
             </span>
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-fg text-balance leading-[1.08] md:leading-(--text-6xl--line-height)">
-              Phần mềm nhỏ, gọn,
+              Hệ sinh thái phần mềm
               <br />
-              <span className="tsu-text-gradient">làm ra để dùng thật</span>.
+              <span className="tsu-text-gradient">nhỏ, gọn, dùng thật</span>.
             </h1>
             <p className="mt-6 text-lg text-fg-secondary max-w-xl">
-              Nơi tsudev phát hành các ứng dụng tự phát triển - tải bản cài đặt cho Windows,
-              Android, macOS, Linux, kèm checksum và chữ ký để bạn tự kiểm trước khi cài.
+              Tìm, tải và cài các ứng dụng do tsudev tự phát triển - mở website riêng của từng sản
+              phẩm, cài nhiều app một lượt bằng winget, kèm checksum và chữ ký để bạn tự kiểm.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button as="a" href="/projects" size="lg">
-                <Icon name="download" size={18} />
-                Xem & tải ứng dụng
+
+            <form
+              action="/apps"
+              method="get"
+              role="search"
+              className="mt-8 flex max-w-xl items-center gap-2 rounded-xl border border-line-control tsu-glass p-1.5 pl-4 focus-within:border-primary"
+            >
+              <Icon name="search" size={20} />
+              <input
+                type="search"
+                name="q"
+                aria-label="Tìm ứng dụng trong hệ sinh thái tsudev"
+                placeholder="Bạn cần app gì? Ví dụ: chuyển đổi tệp"
+                className="h-11 min-w-0 flex-1 bg-transparent text-base text-fg outline-hidden placeholder:text-fg-muted"
+              />
+              <button
+                type="submit"
+                className="tsu-btn-glow inline-flex h-11 shrink-0 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover"
+              >
+                Tìm app
+              </button>
+            </form>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button as="a" href="/apps" size="lg" className="tsu-btn-glow">
+                <Icon name="grid" size={18} />
+                Duyệt mọi ứng dụng
               </Button>
-              <Button as="a" href="/docs" variant="secondary" size="lg">
-                Hướng dẫn cài đặt
+              <Button as="a" href="/projects" variant="secondary" size="lg">
+                <Icon name="download" size={18} />
+                Bản phát hành có chữ ký
               </Button>
             </div>
             <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm text-fg-muted">
-              {['Mã nguồn mở', 'SHA-256 do máy chủ tính', 'Chữ ký Ed25519'].map((t) => (
-                <li key={t} className="inline-flex items-center gap-1.5">
-                  <Icon name="check-circle" size={16} />
-                  {t}
-                </li>
-              ))}
+              {['Mã nguồn mở', 'SHA-256 do máy chủ tính', 'Chữ ký Ed25519', 'Cài bằng winget'].map(
+                (t) => (
+                  <li key={t} className="inline-flex items-center gap-1.5">
+                    <Icon name="check-circle" size={16} />
+                    {t}
+                  </li>
+                )
+              )}
             </ul>
           </div>
 
           <div className="animate-fade-up hidden lg:block" style={{ animationDelay: '.1s' }}>
-            <Card className="p-6 shadow-lg">
-              <div className="flex items-center gap-3">
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-glow">
-                  <Icon name="package" size={24} />
+            <div className="tsu-glow-card rounded-2xl border border-line tsu-glass shadow-lg overflow-hidden">
+              <div className="flex items-center gap-2 border-b border-line px-4 py-3">
+                <span className="h-3 w-3 rounded-full bg-danger" aria-hidden="true" />
+                <span className="h-3 w-3 rounded-full bg-warning" aria-hidden="true" />
+                <span className="h-3 w-3 rounded-full bg-success" aria-hidden="true" />
+                <span className="ml-2 text-xs text-fg-muted font-mono">
+                  PowerShell - cài bằng winget
                 </span>
-                <div>
-                  <div className="font-semibold text-fg">Một bản phát hành trên tsudev</div>
-                  <div className="text-sm text-fg-muted">gồm những gì bạn nhận được</div>
-                </div>
               </div>
-              <div className="mt-5 grid grid-cols-4 gap-2">
+              <pre className="px-5 py-4 font-mono text-sm leading-relaxed text-fg-secondary whitespace-pre-wrap">
+                {ECOSYSTEM_APPS.filter((a) => a.winget).map((a) => (
+                  <span key={a.id} className="block">
+                    <span className="text-accent">PS&gt;</span> winget install --id{' '}
+                    <span className="text-link">{a.winget}</span> -e
+                  </span>
+                ))}
+                <span className="mt-2 block text-fg-muted">
+                  # hoặc chọn nhiều app ở /apps để lấy một lệnh
+                </span>
+              </pre>
+              <div className="grid grid-cols-4 gap-2 border-t border-line p-4">
                 {(
                   [
                     ['windows', 'Windows'],
@@ -184,34 +220,42 @@ export default function Home({
                   </div>
                 ))}
               </div>
-              <dl className="mt-5 space-y-3 text-sm">
-                <div className="flex items-start gap-3">
-                  <Icon name="hash" size={18} />
-                  <div>
-                    <dt className="font-medium text-fg">SHA-256</dt>
-                    <dd className="text-fg-muted">Máy chủ tự tính khi niêm phong tệp.</dd>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Icon name="signature" size={18} />
-                  <div>
-                    <dt className="font-medium text-fg">Chữ ký Ed25519</dt>
-                    <dd className="text-fg-muted">Kiểm được bằng khoá công khai (JWKS).</dd>
-                  </div>
-                </div>
-              </dl>
-            </Card>
+            </div>
           </div>
         </div>
       </section>
 
       <div className="max-w-6xl mx-auto px-4">
-        {/* ---------- ECOSYSTEM ---------- */}
-        <section className="pt-16 pb-6 reveal">
+        {/* ---------- HỆ SINH THÁI ----------
+            Mỗi thẻ mở WEBSITE RIÊNG của sản phẩm (*.tsudev.com) ở tab mới - đó là
+            nơi giới thiệu đầy đủ và tải bản cài đặt của từng app. */}
+        <section className="pt-16 pb-6 reveal" id="he-sinh-thai">
+          <SectionHeading
+            eyebrow="Hệ sinh thái"
+            title="Sản phẩm của tsudev"
+            action={
+              <Button as="a" href="/apps" variant="ghost" size="sm">
+                Danh bạ đầy đủ →
+              </Button>
+            }
+          />
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {ECOSYSTEM_APPS.slice(0, 6).map((a) => (
+              <EcoAppCard key={a.id} app={a} />
+            ))}
+          </div>
+        </section>
+
+        {/* ---------- CÓ GÌ Ở ĐÂY ---------- */}
+        <section className="pt-10 pb-6 reveal">
           <SectionHeading eyebrow="Có gì ở đây" title="Mọi thứ cho một ứng dụng, ở một chỗ" />
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {ECOSYSTEM.map((e) => (
-              <Card as="a" hover key={e.title} href={e.href} className="p-5 block group">
+            {FEATURES.map((e) => (
+              <a
+                key={e.title}
+                href={e.href}
+                className="tsu-glow-card block rounded-xl border border-line bg-surface p-5 group"
+              >
                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl mb-4 bg-glow">
                   <Icon name={e.icon} size={22} />
                 </span>
@@ -219,7 +263,7 @@ export default function Home({
                   {e.title}
                 </h3>
                 <p className="mt-1.5 text-sm text-fg-muted">{e.desc}</p>
-              </Card>
+              </a>
             ))}
           </div>
         </section>
@@ -361,9 +405,12 @@ export default function Home({
 
         {/* ---------- CTA ---------- */}
         <section className="pb-20">
-          <div className="tsu-cta-bg rounded-2xl border border-line p-10 md:p-14 text-center">
-            <div>
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-surface shadow-sm mb-5">
+          <div className="relative overflow-hidden rounded-2xl border border-line">
+            <div className="tsu-aurora" aria-hidden="true">
+              <span />
+            </div>
+            <div className="relative tsu-glass p-10 md:p-14 text-center">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl mb-5 bg-glow border border-line">
                 <Icon name="shield" size={24} />
               </span>
               <h2 className="text-2xl md:text-3xl font-bold text-fg text-balance">
@@ -373,8 +420,8 @@ export default function Home({
                 Dự án cá nhân không có chứng chỉ ký mã thương mại. Mỗi bản phát hành đều kèm SHA-256
                 và chữ ký Ed25519 - tài liệu chỉ cách đối chiếu trước khi cài.
               </p>
-              <div className="mt-7 flex justify-center gap-3">
-                <Button as="a" href="/projects" size="lg">
+              <div className="mt-7 flex flex-wrap justify-center gap-3">
+                <Button as="a" href="/apps" size="lg" className="tsu-btn-glow">
                   Xem ứng dụng
                 </Button>
                 <Button as="a" href="/docs" variant="secondary" size="lg">

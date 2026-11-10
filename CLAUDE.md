@@ -153,8 +153,12 @@ nguồn là hiện trạng; TSD là đích đến.
   không tồn tại trong artifact ⇒ thân bài Markdown của blog và tài liệu chạy sai
   chiều cao dòng suốt nhiều tháng mà không gì đỏ lên. Cần token dùng chung khác đi
   thì mở đề xuất ở repo `tsudev-standards` theo `.standards/docs/SYNC.md`.
-- **Giao diện có BA chế độ: Sáng (mặc định) · Ấm · Tối**, chọn bằng `data-theme`
-  trên `<html>`. `:root` trần mang bảng Sáng, nên khách vãng lai luôn thấy Sáng.
+- **Giao diện có BA chế độ: Tối (mặc định từ 10/11/2026) · Sáng · Ấm**, chọn bằng
+  `data-theme` trên `<html>`. `:root` trần mang bảng Tối (nền gần-đen `#05070B`,
+  primary xanh dương, accent xanh lá - KHÔNG `#000`, DESIGN_SYSTEM §1 cấm), nên
+  khách vãng lai luôn thấy Tối. Đổi script chống nháy ở `_document.tsx` ⇒ cập nhật
+  `THEME_SCRIPT_HASH` trong `proxy.ts` (`test/csp.test.ts` bắt). Danh bạ app hệ
+  sinh thái (website riêng, winget): `packages/ui/src/lib/ecosystem.ts` → `/apps`.
   Bảng màu KHÔNG treo vào `prefers-color-scheme` - hai người mở cùng một đường
   link phải thấy cùng một trang. Ai muốn bám theo máy thì chọn "Theo hệ thống"
   trong nút đổi giao diện; lựa chọn đó được giải thành `data-theme` cụ thể bởi

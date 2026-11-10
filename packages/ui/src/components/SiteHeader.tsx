@@ -14,6 +14,8 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { key: 'home', path: '/', label: 'Trang chủ' },
+  // Danh bạ app của hệ sinh thái (website riêng, winget) - kiểu winstall.app.
+  { key: 'apps', path: '/apps', label: 'Ứng dụng' },
   { key: 'projects', path: '/projects', label: 'Dự án' },
   { key: 'blog', path: '/blog', label: 'Blog' },
   { key: 'docs', path: '/docs', label: 'Tài liệu' },
@@ -41,9 +43,18 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
 
   return (
     <header
-      className="sticky top-0 z-40 border-b border-line backdrop-blur-sm"
-      style={{ backgroundColor: 'color-mix(in srgb, var(--bg-surface) 88%, transparent)' }}
+      className="sticky top-0 z-40 border-b border-line backdrop-blur-md backdrop-saturate-150"
+      style={{ backgroundColor: 'color-mix(in srgb, var(--bg-base) 72%, transparent)' }}
     >
+      {/* Vạch sáng xanh dương → xanh lá ở mép dưới header - nhận diện tông mới. */}
+      <span
+        className="pointer-events-none absolute inset-x-0 -bottom-px h-px opacity-70"
+        style={{
+          background:
+            'linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent)',
+        }}
+        aria-hidden="true"
+      />
       <a href="#main-content" className="skip-link">
         Bỏ qua tới nội dung
       </a>
@@ -59,7 +70,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
                 href={n.path}
                 className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
                   isActive(n, active)
-                    ? 'text-link bg-subtle'
+                    ? 'text-link bg-subtle shadow-[inset_0_-2px_0_var(--primary)]'
                     : 'text-fg-secondary hover:text-fg hover:bg-subtle'
                 }`}
               >
@@ -144,7 +155,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
             // và hoạt động cả khi JavaScript chưa kịp tải.
             <a
               href="/login"
-              className="inline-flex items-center h-8 px-4 rounded-md text-sm font-semibold text-on-primary bg-primary hover:bg-primary-hover transition-colors"
+              className="inline-flex items-center h-8 px-4 rounded-md text-sm font-semibold text-on-primary bg-primary hover:bg-primary-hover transition-colors tsu-btn-glow"
             >
               Đăng nhập
             </a>

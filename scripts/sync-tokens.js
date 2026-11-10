@@ -76,10 +76,16 @@ const emitVars = (obj, indent = '  ') =>
 
 const MODES = [
   [
+    'dark',
+    ":root,\n:root[data-theme='dark']",
+    'dark',
+    'Tối - MẶC ĐỊNH từ 10/11/2026 (chủ dự án chọn tông đen + xanh dương/xanh lá).\n   `:root` trần mang bảng này, nên lượt tải đầu tiên của một khách vãng lai luôn là\n   Tối dù hệ điều hành của họ đặt gì. Nền gần-đen #05070B chứ KHÔNG phải #000000:\n   đen tuyệt đối bị DESIGN_SYSTEM.md §1 cấm ở mọi chế độ vì độ chói quá gắt khi đọc lâu.',
+  ],
+  [
     'light',
-    ":root,\n:root[data-theme='light']",
+    ":root[data-theme='light']",
     'light',
-    'Sáng - MẶC ĐỊNH. `:root` trần mang bảng này, nên lượt tải đầu tiên của một\n   khách vãng lai luôn là Sáng dù hệ điều hành của họ đặt gì.',
+    'Sáng - cho ban ngày, phòng sáng. Chỉ đến bằng lựa chọn thủ công hoặc "Theo hệ thống".',
   ],
   [
     'warm',
@@ -87,16 +93,10 @@ const MODES = [
     'light',
     'Ấm (sepia) - cho phiên làm việc dài hoặc ánh sáng gắt. Chỉ đến bằng lựa chọn\n   thủ công; không có đường nào tự động rơi vào chế độ này.',
   ],
-  [
-    'dark',
-    ":root[data-theme='dark']",
-    'dark',
-    'Tối - cho phòng tối. Nền là mực chàm sẫm chứ KHÔNG phải đen tuyền: đen tuyệt\n   đối bị DESIGN_SYSTEM.md §1 cấm ở mọi chế độ vì độ chói giữa chữ và nền quá\n   gắt khi đọc lâu.',
-  ],
 ];
 
 const header = `/* ============================================================
-   tsudev design tokens - BA chế độ: Sáng (mặc định) / Ấm / Tối.
+   tsudev design tokens - BA chế độ: Tối (mặc định) / Sáng / Ấm.
 
    FILE NÀY ĐƯỢC SINH RA. Đừng sửa tay - lần chạy \`npm run tokens:sync\` kế tiếp
    ghi đè. Nguồn: .standards/tokens/design-tokens.json (nguồn chân lý duy nhất của
@@ -238,8 +238,8 @@ function driftInCanonical() {
   const css = fs.readFileSync(CANON_CSS, 'utf8');
   const drift = [];
   for (const [mode] of MODES) {
-    // Cả ba chế độ đều có bộ chọn `[data-theme="<mode>"]`; riêng light còn đứng
-    // sau `:root,` trên dòng trước, nên bắt đầu từ bộ chọn là đủ và đồng nhất.
+    // Cả ba chế độ đều có bộ chọn `[data-theme="<mode>"]`; riêng dark (mặc định) còn
+    // đứng sau `:root,` trên dòng trước, nên bắt đầu từ bộ chọn là đủ và đồng nhất.
     const start = css.indexOf(`[data-theme="${mode}"]`);
     if (start < 0) {
       drift.push(`.standards/tokens/tokens.css thiếu khối chế độ "${mode}"`);
