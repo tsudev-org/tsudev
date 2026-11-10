@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20261109-06
 - **Từ**: phiên tsudev-files-c2 (repo `tsudev-files`) - **Đến**: phiên sau của repo `tsudev` + chủ dự án
 - **Thời điểm**: 21:30 09/11/2026
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG (11/11/2026 - chủ dự án chốt giữ tên miền con 1 cấp)
 - **Ủy quyền**: chủ dự án đồng ý xây trang sản phẩm *.tsudev.com cho mọi repo hệ tsudev, chi phí 0 đồng (chat
   09/11/2026, phiên tsudev-files).
 
@@ -41,4 +41,7 @@
   `<title>` 10/11/2026).
 - Đo 10/11/2026: trafficmonitor, cwico, swico, files, lotus, compass, contact đều có tên miền con 1 cấp. Còn
   `tsudev-standards` chưa có website. Kiểu URL: chờ chủ dự án chốt giữ tên miền con (đề xuất của phiên 46).
--
+- **11/11/2026 - QUYẾT ĐỊNH của chủ dự án** (hỏi qua phiên projects-0c): GIỮ kiểu **tên miền con 1 cấp**
+  `<ten>.tsudev.com` cho trang sản phẩm (đang chạy thật, Universal SSL phủ được), KHÔNG chuyển sang
+  `tsudev.com/san-pham/<ten>`. `tsudev-standards` là bộ quy ước, không cần website riêng.
+- Mục 4: README `tsudev-standards` thêm dòng nhận diện trong bản v3.4.0 (PR tsudev-org/tsudev-standards#49).
