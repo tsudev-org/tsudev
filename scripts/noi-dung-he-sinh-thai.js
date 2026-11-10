@@ -2,6 +2,8 @@
  * Nội dung THẬT của tsudev.com thay cho bài do Toà soạn Agent AI sinh (đã gỡ
  * 29/10/2026). Dùng bởi `scripts/don-noi-dung-lac-de.js --noi-dung`.
  *
+ * KHÔNG dùng bảng Markdown: lib/md.ts không dựng bảng (hiện thành ký tự | thô) - dùng danh sách.
+ *
  * Mọi dữ kiện dưới đây đã ĐO 10/11/2026: website từng app trả 200 (danh sách ở
  * packages/ui/src/lib/ecosystem.ts), gói winget `tsudev.cwico`/`tsudev.SWICO` có
  * trong microsoft/winget-pkgs, JWKS phát hành ở /.well-known/tsudev-release-jwks.json
@@ -21,15 +23,13 @@ const DOCS = [
 
 ## Các ứng dụng
 
-| Ứng dụng | Việc nó làm | Nền tảng | Website |
-| --- | --- | --- | --- |
-| TrafficMonitor-VN | Theo dõi tốc độ mạng, CPU, RAM trên thanh tác vụ | Windows | [trafficmonitor.tsudev.com](https://trafficmonitor.tsudev.com) |
-| cwico | Rà quét sâu và gỡ phần mềm thừa, tạo điểm khôi phục trước mỗi lần chạy | Windows | [cwico.tsudev.com](https://cwico.tsudev.com) |
-| tsudev SWICO | Kiểm tra bản quyền Windows, Office và cấu hình phần cứng | Windows | [swico.tsudev.com](https://swico.tsudev.com) |
-| tsudev-files | Chuyển đổi tệp ngoại tuyến bằng kéo thả | Windows, macOS, Linux | [files.tsudev.com](https://files.tsudev.com) |
-| tsudev-lotus | Gửi tệp, tin nhắn trong cùng mạng Wi-Fi, mã hoá đầu cuối | Windows, Android, macOS/iOS, Linux | [lotus.tsudev.com](https://lotus.tsudev.com) |
-| La bàn | La bàn, toạ độ, độ cao, thước thuỷ | Android | [compass.tsudev.com](https://compass.tsudev.com) |
-| tsudev-contact | Chuyển danh bạ CSV sang vCard (.vcf) | Windows | [contact.tsudev.com](https://contact.tsudev.com) |
+- **TrafficMonitor-VN** - theo dõi tốc độ mạng, CPU, RAM trên thanh tác vụ (Windows): [trafficmonitor.tsudev.com](https://trafficmonitor.tsudev.com)
+- **cwico** - rà quét sâu và gỡ phần mềm thừa, tạo điểm khôi phục trước mỗi lần chạy (Windows): [cwico.tsudev.com](https://cwico.tsudev.com)
+- **tsudev SWICO** - kiểm tra bản quyền Windows, Office và cấu hình phần cứng (Windows): [swico.tsudev.com](https://swico.tsudev.com)
+- **tsudev-files** - chuyển đổi tệp ngoại tuyến bằng kéo thả (Windows, macOS, Linux): [files.tsudev.com](https://files.tsudev.com)
+- **tsudev-lotus** - gửi tệp, tin nhắn trong cùng mạng Wi-Fi, mã hoá đầu cuối (Windows, Android, macOS/iOS, Linux): [lotus.tsudev.com](https://lotus.tsudev.com)
+- **La bàn** - la bàn, toạ độ, độ cao, thước thuỷ (Android): [compass.tsudev.com](https://compass.tsudev.com)
+- **tsudev-contact** - chuyển danh bạ CSV sang vCard .vcf (Windows): [contact.tsudev.com](https://contact.tsudev.com)
 
 Danh bạ đầy đủ, có tìm kiếm và lọc theo nền tảng: [/apps](/apps).
 
@@ -47,10 +47,8 @@ Danh bạ đầy đủ, có tìm kiếm và lọc theo nền tảng: [/apps](/ap
 
 ## Gói đang có
 
-| Ứng dụng | Lệnh cài |
-| --- | --- |
-| cwico | \`winget install --id tsudev.cwico -e\` |
-| tsudev SWICO | \`winget install --id tsudev.SWICO -e\` |
+- **cwico**: \`winget install --id tsudev.cwico -e\`
+- **tsudev SWICO**: \`winget install --id tsudev.SWICO -e\`
 
 \`-e\` (khớp chính xác) đảm bảo winget cài đúng gói có mã đó, không phải một gói tên gần giống.
 
