@@ -33,3 +33,18 @@ Tối và Sáng: không tràn ngang. CHƯA chạy E2E và chưa build OpenNext.
 2. `tsudev-contact` chưa có website (contact.tsudev.com không phân giải) - thẻ chỉ có nút tải GitHub.
    `tsudev-files`/`tsudev-lotus` chưa có bản phát hành GitHub - thẻ chỉ có nút website.
 3. Ảnh icon PWA (apple-touch-icon...) vẫn nền sáng `#eef4fb` - cố ý, không dựng lại.
+
+## 4. Phiếu đã gửi: nút đổi giao diện Sáng/Tối ở header website từng dự án (chủ dự án yêu cầu 10/11/2026)
+
+Tệp phiếu CHƯA commit ở repo đích (repo đó tự commit khi nhận). Mỗi phiếu ghi riêng ràng buộc CSP của site:
+
+| Repo                    | Phiếu                                                                             | CSP hiện tại                             | Đã báo phiên                                                      |
+| ----------------------- | --------------------------------------------------------------------------------- | ---------------------------------------- | ----------------------------------------------------------------- |
+| `tsudev-trafficmonitor` | `logs/handover/20261110-02_*`                                                     | `default-src 'none'`, KHÔNG `script-src` | chưa có phiên mở                                                  |
+| `tsudev-cwico`          | đổi số thành `20261110-03` (02 đã có)                                             | `script-src 'self'`                      | `tsudev-cwico-2c` đã nhận, nhánh `feat/website-nut-doi-giao-dien` |
+| `tsudev-swico`          | `logs/handover/20261110-02_*`                                                     | `script-src 'unsafe-inline'`             | chưa có phiên mở                                                  |
+| `tsudev-files`          | `logs/handover/20261110-02_*` (website ở nhánh `feat/website`)                    | `default-src 'none'`                     | `tsudev-files-50` (đã nhắn)                                       |
+| `tsudev-lotus`          | `logs/handover/20261110-02_*`                                                     | `default-src 'none'`                     | chưa có phiên mở                                                  |
+| `app-la-ban`            | `docs/phieu/20261110-02_*` + `./agents.sh inbox agent-laban` (`HGLB-1110-125225`) | `'self' 'strict-dynamic'`                | chưa có phiên mở                                                  |
+
+`tsudev-contact` chưa có website - không có phiếu.
