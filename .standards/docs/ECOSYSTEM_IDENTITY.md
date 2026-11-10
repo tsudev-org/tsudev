@@ -135,7 +135,9 @@ Hộp thoại **Giới thiệu** `MUST` có dấu hiệu, tên sản phẩm, chu
 ## 4. Nối về nhà chung
 
 - Chân trang của mọi sản phẩm web `MUST` có dấu hiệu tsudev kèm liên kết
-  `https://tsudev.com`, và dòng bản quyền `(c) {năm} tsudev`.
+  `https://tsudev.com`, và dòng bản quyền `© {năm} tsudev` (hoặc `(c) {năm} tsudev`).
+- Hàng cuối cùng của chân trang `SHOULD` là `© {năm} tsudev` (bên trái) + **bộ chọn giao diện** (bên phải) theo mục
+  4.1. Bộ chọn `SHOULD NOT` nằm ở đầu trang.
 - Chân trang `MUST` có liên kết tới **Điều khoản sử dụng** và **Chính sách riêng
   tư**. Hai trang này ở `tsudev.com` và dùng chung cho cả hệ sinh thái; sản phẩm
   `MUST NOT` tự viết bản riêng trừ khi có yêu cầu pháp lý riêng, và khi đó `MUST`
@@ -145,6 +147,54 @@ Hộp thoại **Giới thiệu** `MUST` có dấu hiệu, tên sản phẩm, chu
 - Liên kết ra ngoài `MUST` có `rel="noopener noreferrer"` khi mở tab mới.
 - `MUST NOT` nhúng khung `iframe` của `tsudev.com` vào sản phẩm khác. Trang chủ
   `MUST` đặt `X-Frame-Options: DENY` theo `SECURITY_BASELINE.md` mục 7.2.
+
+### 4.1. Bộ chọn giao diện (từ v3.4.0)
+
+Hợp đồng chung để chọn một lần ở site này thì site kia trong hệ sinh thái cũng theo (cùng tên miền gốc không chia
+sẻ localStorage, nhưng cùng khóa và cùng hành vi giữ trải nghiệm nhất quán):
+
+- Khóa localStorage `tsudev-theme`, giá trị `light` | `dark` | `system`. Giá trị cũ `warm` ⇒ `light`. Không có hoặc
+  không đọc được ⇒ `dark`.
+- Áp **trước khi vẽ** bằng script đồng bộ trong `<head>`, đặt **sau** `<meta name="theme-color">` và **trước**
+  stylesheet; script đặt `data-theme="light|dark"` lên `<html>` và đổi `content` của meta theme-color (Tối
+  `#0a0a0a`, Sáng `#fafafa`). `system` hỏi `matchMedia('(prefers-color-scheme: dark)')` và nghe sự kiện `change`.
+- CSS `MUST NOT` treo bảng màu vào `@media (prefers-color-scheme)` - chỉ JavaScript được hỏi hệ điều hành. Không
+  có JavaScript thì trang ở Tối (giá trị mặc định trong HTML) và bộ chọn ẩn.
+- Giao diện: nhóm 3 nút biểu tượng (mặt trời / mặt trăng / màn hình) bo tròn, `role="radiogroup"`
+  `aria-label="Giao diện"`, mỗi nút `role="radio"` + `aria-checked` + `aria-label`; chỉ nút đang chọn nằm trong
+  thứ tự Tab; phím mũi tên chọn nút kế bên.
+- CSP: script là tệp cùng nguồn (`script-src 'self'`) hoặc nội tuyến có băm `sha256-...`. `MUST NOT` nới thành
+  `'unsafe-inline'`.
+
+### 4.2. Bảng màu và ngôn ngữ thiết kế của website (từ v3.4.0)
+
+Website trong hệ sinh thái dùng **đen tuyền + tím**, ghi đè token màu chuẩn ở tầng repo (ví dụ `palette.css`,
+`tokens/extensions.<repo>.json`) - không sửa `.standards/`. Mọi cặp chữ/nền đạt WCAG AA.
+
+| Vai trò (token) | Tối (mặc định) | Sáng |
+| --- | --- | --- |
+| `bg-base` / `bg-surface` / `bg-subtle` / `bg-hover` | `#0A0A0A` / `#111111` / `#171717` / `#1F1F1F` | `#FAFAFA` / `#FFFFFF` / `#F4F4F5` / `#EBEBED` |
+| `border` / `border-strong` / `border-control` | `#242424` / `#2E2E2E` / `#6E6E6E` | `#E4E4E7` / `#D4D4D8` / `#71717A` |
+| `text-primary` / `text-secondary` / `text-muted` | `#EDEDED` / `#B4B4B4` / `#8F8F8F` | `#0A0A0A` / `#3F3F46` / `#52525B` |
+| `text-link` | `#C4A1FF` | `#6D28D9` |
+| `primary` / `primary-hover` / `primary-active` | `#A970FF` / `#BB8CFF` / `#9A5CF5` | `#7C3AED` / `#6D28D9` / `#5B21B6` |
+| `on-primary` | `#0A0A0A` (mực đen) | `#FFFFFF` |
+| `focus-ring` | `#A970FF` | `#7C3AED` |
+| nhấn phụ `accent` / quầng `glow` | `#E879F9` / `rgba(169,112,255,0.16)` | `#A21CAF` / `rgba(124,58,237,0.10)` |
+
+Ở chế độ Tối chữ trên nút tím là **mực đen**: không mã tím nào vừa đạt 4.5:1 làm chữ trên `#0A0A0A` vừa đạt 4.5:1
+dưới chữ trắng. Viền nút phụ và ô nhập là `border-control` (3:1), không phải `border-strong`.
+
+Ngôn ngữ thiết kế (tham khảo supabase.com, không chép logo/chữ/ảnh):
+
+- MỘT nền liền mạch từ đầu tới chân trang: không dải nền khác màu giữa các khối, không viền ngang cắt trang;
+  ranh giới là khoảng trống. Tím chỉ ở điểm nhấn; một quầng tím **tĩnh** ở đỉnh trang, không chuyển động nền.
+- Đầu trang dính, kính mờ trên cùng màu nền + một đường hairline; bên phải nút phụ + nút chính cao 32px.
+- Nút chính: nền `primary` + viền `primary-hover`, bo 6px, chữ `font-medium` 14px; nút phụ: nền bề mặt + viền
+  `border-control`. Không quầng sáng, không gradient trên nút.
+- Thẻ: nền bề mặt + viền hairline, bo 8px; hover đậm viền + nền một bậc; không nhấc, không quầng màu.
+- Hero canh giữa, tiêu đề `font-semibold`, một cụm chữ tím → tím hồng tĩnh; nhãn nhỏ kiểu mono chữ hoa màu liên kết.
+- Icon trong nút/ô nền đặc ăn màu chữ của nút (`currentColor`); biểu tượng app trên ô nền tím nhạt, chênh ≥ 4.5:1.
 
 ---
 
@@ -397,7 +447,9 @@ Sản phẩm có hồ sơ công khai (`/nguoi-dung/{ten-dinh-danh}`):
 - [ ] `<head>` đủ `title`, `description`, `canonical`, `theme-color`, khối
       Open Graph với `og:site_name` là `tsudev`.
 - [ ] Có đủ bộ tài sản nhận diện ở mục 5, sinh từ dây chuyền chính thức.
-- [ ] Chân trang có dấu hiệu, liên kết `tsudev.com`, Điều khoản, Chính sách riêng tư.
+- [ ] Chân trang có dấu hiệu, liên kết `tsudev.com`, Điều khoản, Chính sách riêng tư; hàng cuối `© tsudev` +
+      bộ chọn Sáng / Tối / Hệ thống theo mục 4.1.
+- [ ] Website dùng bảng màu và ngôn ngữ thiết kế mục 4.2; không còn lựa chọn "Ấm".
 - [ ] Ảnh đại diện: kiểm magic number, mã hóa lại, xóa EXIF, từ chối SVG và ảnh động.
 - [ ] Có đủ Tải ảnh lên / Đổi ảnh / Xóa ảnh, có hộp thoại cắt khung tròn.
 - [ ] Không có ảnh thì ra ảnh chữ cái, không phải hình bóng người.

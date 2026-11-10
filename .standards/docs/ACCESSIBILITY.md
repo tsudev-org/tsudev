@@ -101,6 +101,6 @@ Một màn hình chỉ được coi là xong khi:
 - [ ] Đi hết được mọi chức năng bằng bàn phím, focus luôn nhìn thấy.
 - [ ] `axe-core` không báo vi phạm mức nghiêm trọng.
 - [ ] Mọi ô nhập có nhãn, mọi ảnh có `alt`, mọi nút icon có `aria-label`.
-- [ ] Tương phản đạt ngưỡng ở **cả ba** chế độ Sáng / Ấm / Tối.
+- [ ] Tương phản đạt ngưỡng ở **cả hai** chế độ Sáng / Tối (lựa chọn "Hệ thống" giải về một trong hai).
 - [ ] Phóng to trình duyệt lên 200% không mất nội dung và không xuất hiện cuộn ngang.
 - [ ] Thông báo lỗi được trình đọc màn hình đọc lên, không chỉ đổi màu viền.

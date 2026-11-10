@@ -1,0 +1,8 @@
+# .standards-upstream - khai báo upstream cho ngoại lệ 3 của AGENTS.md mục 7.1 (CHỈ dùng ở repo fork).
+#
+# Đặt ở gốc repo con, commit cùng repo. Mỗi lần gộp upstream xong, nâng `ref` trong cùng PR.
+#   repo = <owner>/<tên> của repo upstream trên GitHub
+#   ref  = SHA ĐỦ 40 ký tự (chữ thường) của commit upstream đã gộp gần nhất; phải là tổ tiên của HEAD
+# CI chạy: STANDARDS_VERIFY_UPSTREAM=1 ./scripts/check-standards.sh  (xác minh ref thuộc đúng repo upstream)
+repo=localsend/localsend
+ref=8476c091c5a107e4507b6b3ec0cb15a069e857b5

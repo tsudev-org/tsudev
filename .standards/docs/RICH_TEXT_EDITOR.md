@@ -323,7 +323,7 @@ src/
 - `MUST` vùng soạn thảo có nhãn gắn đúng và thông báo được cho trình đọc màn hình
   khi đổi định dạng.
 - `MUST` tương phản của thanh công cụ đạt ngưỡng tại
-  [`ACCESSIBILITY.md`](ACCESSIBILITY.md) mục 2, ở cả ba chế độ Sáng / Ấm / Tối.
+  [`ACCESSIBILITY.md`](ACCESSIBILITY.md) mục 2, ở cả hai chế độ Sáng / Tối.
 
 ---
 

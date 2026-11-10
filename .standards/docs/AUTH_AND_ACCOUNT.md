@@ -38,9 +38,9 @@ khi** viết dòng mã xác thực đầu tiên, rồi ghi hạng đó vào `REA
 
 | Hạng | Mô tả | Xác thực |
 | --- | --- | --- |
-| **A - Web có tài khoản** | Website, ứng dụng web, bảng quản trị. Ví dụ: `tsudev`, `tsudev-contact` | `MUST` đủ mục 3 tới 13 |
+| **A - Web có tài khoản** | Website, ứng dụng web, bảng quản trị. Ví dụ: `tsudev` | `MUST` đủ mục 3 tới 13 |
 | **B - Desktop/app có kết nối** | App cài đặt nhưng có tính năng cần máy chủ (đồng bộ, giấy phép, báo cáo) | `MUST` đủ mục 3 tới 13, thêm mục 14.1 |
-| **C - Ngoại tuyến** | Chạy trọn vẹn không cần internet. Ví dụ: `tsudev-swico` rà quét máy tính | Đăng nhập là **tùy chọn**, theo mục 14 |
+| **C - Ngoại tuyến** | Chạy trọn vẹn không cần internet. Ví dụ: `tsudev-swico` rà quét máy tính, `tsudev-contact` chuyển CSV sang vCard | Đăng nhập là **tùy chọn**, theo mục 14 |
 
 **Quy tắc cứng:** hạng C `MUST NOT` chặn bất kỳ chức năng lõi nào sau một màn
 hình đăng nhập. Người dùng mở phần mềm ra là dùng được ngay. Đăng nhập ở hạng C

@@ -5,7 +5,8 @@
     "version": "2.0.0",
     "updated": "24/08/2026",
     "source": "https://github.com/tsudev-org/tsudev-standards",
-    "note": "Nguồn chân lý duy nhất cho giao diện toàn hệ sinh thái tsudev. tokens/tokens.css là bản SINH RA từ file này (node scripts/build-tokens.mjs), không sửa tay. Khối extensions.* riêng của từng repo con KHÔNG nằm ở đây."
+    "note": "Nguồn chân lý duy nhất cho giao diện toàn hệ sinh thái tsudev. tokens/tokens.css là bản SINH RA từ file này (node scripts/build-tokens.mjs), không sửa tay. Khối extensions.* riêng của từng repo con KHÔNG nằm ở đây.",
+    "deprecated": "Từ v3.4.0 (10/11/2026): khối color.warm (chế độ Ấm) đã ngừng dùng - giao diện chỉ còn Sáng / Tối / Hệ thống, mặc định Tối (docs/DESIGN_SYSTEM.md mục 1). Khối còn giữ để repo con không vỡ; gỡ ở v4.0.0."
   },
 
   "color": {

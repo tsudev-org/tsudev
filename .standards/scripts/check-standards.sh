@@ -210,9 +210,40 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
   #      mã điểm "U+2014" hoặc "U+2013" ghi trên cùng dòng.
   DASH_SKIP='^(migrations/|.*/migrations/|assets/brand/)'
 
+  # Ngoại lệ 3 (v3.3.0) - dòng kế thừa NGUYÊN VĂN từ upstream ở repo fork.
+  # Repo con khai `.standards-upstream` (repo=<owner>/<tên>, ref=<SHA 40 ký tự>). Một dòng có gạch dài chỉ được
+  # miễn khi dòng đó (bỏ khoảng trắng đầu/cuối) có nguyên văn ở commit upstream `ref`. Chống lạm dụng:
+  #   - `ref` phải là SHA đầy đủ, có trong repo và là TỔ TIÊN của HEAD (đã gộp thật, không trỏ bừa).
+  #   - STANDARDS_VERIFY_UPSTREAM=1 (nên bật ở CI): tải `ref` từ chính https://github.com/<repo> - commit
+  #     không thuộc upstream đã khai thì trượt, nên fork không tự tạo commit rồi khai làm "upstream" được.
+  #   - Em-dash do fork tự thêm (dòng mới, hay sửa một dòng kế thừa) vẫn TRƯỢT như thường.
+  UP_SET=""
+  UP_EXEMPT_FILE="$(mktemp)"
+  if [[ $IS_CENTRAL == 0 && -f .standards-upstream ]]; then
+    up_repo="$(sed -n 's/^repo=\([A-Za-z0-9_.-]*\/[A-Za-z0-9_.-]*\)[[:space:]]*$/\1/p' .standards-upstream | head -1)"
+    up_ref="$(sed -n 's/^ref=\([0-9a-f]\{40\}\)[[:space:]]*$/\1/p' .standards-upstream | head -1)"
+    if [[ -z "$up_repo" || -z "$up_ref" ]]; then
+      fail ".standards-upstream sai định dạng: cần 'repo=<owner>/<tên>' và 'ref=<SHA đủ 40 ký tự thường>'"
+    elif ! git cat-file -e "${up_ref}^{commit}" 2>/dev/null; then
+      fail ".standards-upstream: commit $up_ref không có trong repo (chưa gộp upstream, hoặc clone nông)"
+    elif ! git merge-base --is-ancestor "$up_ref" HEAD 2>/dev/null; then
+      fail ".standards-upstream: $up_ref không phải tổ tiên của HEAD - chỉ khai commit upstream đã gộp"
+    elif [[ "${STANDARDS_VERIFY_UPSTREAM:-0}" == 1 ]] \
+      && ! git fetch --quiet --no-tags --depth=1 "https://github.com/${up_repo}.git" "$up_ref" 2>/dev/null; then
+      fail ".standards-upstream: không tải được $up_ref từ github.com/$up_repo - commit không thuộc upstream đã khai"
+    else
+      UP_SET="$(mktemp)"
+      git grep -h -I -F -e "$(printf '\xe2\x80\x94')" -e "$(printf '\xe2\x80\x93')" "$up_ref" -- 2>/dev/null \
+        | tr -d '\r' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | grep -v '^$' | sort -u > "$UP_SET" || true
+      [[ "${STANDARDS_VERIFY_UPSTREAM:-0}" == 1 ]] && up_how="đã xác minh với github.com/$up_repo" \
+        || up_how="chưa xác minh trực tuyến (bật STANDARDS_VERIFY_UPSTREAM=1 ở CI)"
+      pass "ngoại lệ upstream: $up_repo@${up_ref:0:12}, $(wc -l < "$UP_SET" | tr -d ' ') dòng gốc - $up_how"
+    fi
+  fi
+
   scan_dash() {
     # $1 = ký tự cần bắt, $2 = mã điểm dùng làm dấu miễn trừ
-    local ch="$1" code="$2" hits kept f
+    local ch="$1" code="$2" hits kept f lines rest
     hits="$(git ls-files -- "${DASH_GLOBS[@]}" 2>/dev/null \
       | grep -Ev "$DASH_SKIP" \
       | xargs -r grep -lF -- "$ch" 2>/dev/null || true)"
@@ -220,11 +251,31 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
     kept=""
     while IFS= read -r f; do
       [[ -z "$f" ]] && continue
-      if grep -F -- "$ch" "$f" | grep -qvF "$code"; then
-        kept+="$f"$'\n'
+      lines="$(grep -F -- "$ch" "$f" | grep -vF "$code" || true)"
+      [[ -z "$lines" ]] && continue
+      if [[ -n "$UP_SET" ]]; then
+        rest="$(printf '%s\n' "$lines" | tr -d '\r' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' \
+          | grep -vxF -f "$UP_SET" || true)"
+        printf '%s\n' "$lines" | grep -c . >> "$UP_EXEMPT_FILE" || true
+        if [[ -z "$rest" ]]; then continue; fi
+        printf '%s\n' "$rest" | grep -c . | sed 's/^/-/' >> "$UP_EXEMPT_FILE" || true
       fi
+      kept+="$f"$'\n'
     done <<< "$hits"
     printf '%s' "$kept"
+  }
+
+  # In dòng vi phạm của một file: khi có ngoại lệ upstream thì chỉ in dòng KHÔNG kế thừa.
+  show_dash_lines() {
+    local ch="$1" code="$2" f="$3"
+    if [[ -n "$UP_SET" ]]; then
+      grep -nF -- "$ch" "$f" | grep -vF "$code" | while IFS= read -r l; do
+        t="$(printf '%s' "${l#*:}" | tr -d '\r' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+        grep -qxF -- "$t" "$UP_SET" || printf '%s\n' "$l"
+      done | head -3
+    else
+      grep -nF -- "$ch" "$f" | grep -vF "$code" | head -3
+    fi
   }
 
   emdash="$(scan_dash "$EM_DASH" 'U+2014')"
@@ -232,7 +283,7 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
     while IFS= read -r f; do
       [[ -z "$f" ]] && continue
       fail "còn em-dash (U+2014) trong: $f"
-      grep -nF -- "$EM_DASH" "$f" | grep -vF 'U+2014' | head -3 | sed 's/^/        /' >&2
+      show_dash_lines "$EM_DASH" 'U+2014' "$f" | sed 's/^/        /' >&2
     done <<< "$emdash"
     echo "        Thay bằng gạch ngang ngắn - theo AGENTS.md mục 7.1." >&2
   else
@@ -244,10 +295,17 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
   if [[ -n "$endash" ]]; then
     n_en="$(printf '%s\n' "$endash" | grep -c . || true)"
     warn "có en-dash (U+2013) trong $n_en file - nên thay bằng - (AGENTS.md mục 7.1)"
-    printf '%s' "$endash" | head -5 | sed 's/^/        /' >&2
+    printf '%s\n' "$endash" | grep -v '^$' | head -5 | sed 's/^/        /' >&2
   else
     pass "không có en-dash trong file văn bản và mã nguồn"
   fi
+
+  if [[ -n "$UP_SET" ]]; then
+    n_ex="$(awk '{s+=$1} END {print s+0}' "$UP_EXEMPT_FILE")"
+    [[ "$n_ex" -gt 0 ]] && warn "miễn $n_ex dòng gạch dài kế thừa nguyên văn từ upstream (AGENTS.md mục 7.1, ngoại lệ 3)"
+    rm -f "$UP_SET"
+  fi
+  rm -f "$UP_EXEMPT_FILE"
 fi
 
 # ------------------------------------------------------------------
