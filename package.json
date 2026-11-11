@@ -86,7 +86,8 @@
     "node": ">=22"
   },
   "overrides": {
-    "glob@>=10.2.0 <10.5.0": "^10.5.0",
+    "minimatch@>=7 <11.0.1": "11.0.2",
+    "glob@>=10 <14": "13.0.6",
     "eslint-plugin-react": {
       "eslint": "$eslint"
     },
