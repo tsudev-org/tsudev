@@ -76,7 +76,7 @@ Nghiệm thu - **so với bản trước override**, vì lỗi này không đỏ
 
 | việc                                              | trạng thái                                                                                              |
 | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Override minimatch + glob                         | từ 08:08 11/11 - §3                                                                                     |
+| Override minimatch + glob                         | **XONG 11/11** - PR #220, kết quả ở §8                                                                  |
 | `tsudev-files` vào org                            | phiên của repo đó, chờ chủ dự án xác nhận ở phiên đó (phiếu `tsudev-files/logs/handover/20261109-03_*`) |
 | Gỡ `fixupPluginRules` (ESLint 10)                 | đo 09/11 tối: vẫn chặn (§1)                                                                             |
 | Đổi hẳn sang TS 7                                 | đo 09/11 tối: vẫn chặn (§1)                                                                             |
@@ -88,3 +88,18 @@ Nghiệm thu - **so với bản trước override**, vì lỗi này không đỏ
 Việc chủ dự án: T18, T20, T21 (phiếu 20261106-02); (tuỳ chọn) T24 bắt 2FA cho org.
 
 Hiện trạng máy: không khoá, không tiến trình nền, không worktree, không lịch CronCreate.
+
+## 8. Kết quả §3 (11/11/2026, PR #220)
+
+- Override `"minimatch@>=7 <11.0.1": "11.0.2"` và `"glob@>=10 <14": "13.0.6"`. **Lệch §3 có chủ ý**: dải glob mở tới
+  `<14` vì lock trên `main` đã có sẵn `glob@13.0.7` (chưa đủ tuổi tới 20/11) - ghim cả nó về 13.0.6. Phải gỡ 14 mục
+  `glob`/`minimatch` lồng nhau cũ khỏi lock thì npm mới giải lại (chỉ thêm override, `npm install` giữ nguyên chúng).
+- `npm ls minimatch --all`: chỉ 11.0.2 và 3.1.5. `npm ls glob --all`: chỉ 13.0.6. Dependency graph GitHub khớp.
+- Cổng: format:check, lint, typecheck, topology:check, tokens:check đạt; jest frontend-main 172/172; CI PR 19/19 xanh.
+- OpenNext TRƯỚC/SAU: 2261/2261 tệp, kích thước lệch 30 byte (build id) - không mất tệp minify.
+- jest `--coverage` TRƯỚC/SAU (máy không có Postgres nên test cần DB lỗi kết nối như nhau): số tệp trong bảng độ phủ
+  auth 9/9, storage 1/1, content 4/4.
+- Storybook: **12** story / 9 tệp, đúng bằng số `export const` trong `packages/ui/src/stories` - con số 36 ở §3 bước 4
+  không khớp mã nguồn; không mất story nào.
+- Render `/health` 200 (`backend-bundle`), JWKS `/.well-known/tsudev-release-jwks.json` 200. Không cần deploy frontend.
+- Dependabot #40 tự đóng khi GitHub quét lại lock; Scorecard #76 (VulnerabilitiesID) cập nhật ở lần Scorecard chạy kế.
