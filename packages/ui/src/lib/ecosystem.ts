@@ -9,7 +9,8 @@
  *
  * Mọi đường link dưới đây ĐÃ ĐO ngày 10/11/2026 (curl: website 200 kèm <title>
  * đúng sản phẩm; `releases/latest` có bản phát hành; gói winget có thư mục phiên
- * bản trong microsoft/winget-pkgs). Thêm mục mới thì đo lại như vậy - một nút
+ * bản trong microsoft/winget-pkgs; gói Scoop / Homebrew được CI của bucket và tap
+ * cài thử thật - đo 11/11/2026). Thêm mục mới thì đo lại như vậy - một nút
  * "Tải về" trỏ vào trang 404 tệ hơn không có nút.
  *
  * Repo nằm ở `tsudev-org` - KHÔNG BAO GIỜ trỏ về tên cũ dưới `tsudev-tsudev`
@@ -48,6 +49,10 @@ export type EcoApp = {
   releases?: string;
   /** Mã gói winget ĐÃ có trong microsoft/winget-pkgs. */
   winget?: string;
+  /** Gói Scoop trong bucket tsudev-org/scoop-bucket (lệnh `scoop install tsudev/<gói>`). */
+  scoop?: string;
+  /** Cask trong tap tsudev-org/homebrew-tap (lệnh `brew install --cask tsudev-org/tap/<cask>`). */
+  brew?: string;
   /** Mã nguồn mở hay độc quyền - hiện thành nhãn. */
   openSource: boolean;
   /** Ghi công dự án gốc (bắt buộc với bản Việt hoá theo giấy phép). */
@@ -71,6 +76,7 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
     platforms: ['windows'],
     website: 'https://trafficmonitor.tsudev.com',
     releases: 'https://github.com/tsudev-org/tsudev-trafficmonitor/releases/latest',
+    scoop: 'tsudev-trafficmonitor',
     openSource: true,
     basedOn: 'TrafficMonitor',
     icon: 'M4.5 17a7.5 7.5 0 1 1 15 0M12 17l3.6-5.2M7.6 13.4h.01M12 9.6v.01M16.4 13.4h.01',
@@ -98,6 +104,7 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
     website: 'https://swico.tsudev.com',
     releases: 'https://github.com/tsudev-org/tsudev-swico/releases/latest',
     winget: 'tsudev.SWICO',
+    scoop: 'tsudev-swico',
     openSource: true,
     icon: 'M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6zM8.8 12.2l2.2 2.2 4.4-4.4',
   },
@@ -108,6 +115,8 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
     category: 'files',
     platforms: ['windows', 'apple', 'linux'],
     website: 'https://files.tsudev.com',
+    scoop: 'tsudev-files',
+    brew: 'tsudev-files',
     openSource: true,
     basedOn: 'Filee',
     icon: 'M6 3h7l5 5v4M6 3v18h6M13 3v5h5M14.5 17H21M18.5 14.5 21 17l-2.5 2.5',
@@ -120,6 +129,8 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
     category: 'network',
     platforms: ['windows', 'android', 'apple', 'linux'],
     website: 'https://lotus.tsudev.com',
+    scoop: 'tsudev-lotus',
+    brew: 'tsudev-lotus',
     openSource: true,
     basedOn: 'LocalSend',
     icon: 'M20.5 3.5 3.5 10l6.5 2.8L13 20zM10 12.8 20.5 3.5',
@@ -154,4 +165,18 @@ export function wingetCommand(apps: EcoApp[]): string {
   const ids = apps.map((a) => a.winget).filter((x): x is string => Boolean(x));
   if (ids.length === 0) return '';
   return ids.map((id) => `winget install --id ${id} -e --accept-package-agreements`).join(' ; ');
+}
+
+/** Mọi lệnh cài bằng terminal của một app, theo thứ tự ưu tiên (tsudev-standards PACKAGING.md). */
+export function installCommands(app: EcoApp): { channel: string; cmd: string }[] {
+  const out: { channel: string; cmd: string }[] = [];
+  if (app.winget) out.push({ channel: 'winget', cmd: `winget install --id ${app.winget} -e` });
+  if (app.scoop)
+    out.push({
+      channel: 'Scoop',
+      cmd: `scoop bucket add tsudev https://github.com/tsudev-org/scoop-bucket; scoop install tsudev/${app.scoop}`,
+    });
+  if (app.brew)
+    out.push({ channel: 'Homebrew', cmd: `brew install --cask tsudev-org/tap/${app.brew}` });
+  return out;
 }

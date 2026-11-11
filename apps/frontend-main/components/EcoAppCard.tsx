@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Icon, Badge, ECO_PLATFORM_LABEL, ECO_CATEGORY_LABEL } from '@tsudev/ui';
+import { Icon, Badge, ECO_PLATFORM_LABEL, ECO_CATEGORY_LABEL, installCommands } from '@tsudev/ui';
 import type { EcoApp, IconName } from '@tsudev/ui';
 
 /**
@@ -29,14 +29,14 @@ const PLATFORM_ICON: Record<EcoApp['platforms'][number], IconName> = {
 const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' } as const;
 
 export default function EcoAppCard({ app, selectable, selected, onToggle }: Props) {
-  const [copied, setCopied] = useState(false);
-  const cmd = app.winget ? `winget install --id ${app.winget} -e` : '';
+  const [copied, setCopied] = useState<string | null>(null);
+  const cmds = installCommands(app);
 
-  const copy = async () => {
+  const copy = async (channel: string, cmd: string) => {
     try {
       await navigator.clipboard.writeText(cmd);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
+      setCopied(channel);
+      window.setTimeout(() => setCopied(null), 1800);
     } catch {
       // Clipboard bị chặn (HTTP thường, iframe): lệnh vẫn hiện nguyên văn để chép tay.
     }
@@ -103,24 +103,29 @@ export default function EcoAppCard({ app, selectable, selected, onToggle }: Prop
         ))}
       </ul>
 
-      {cmd && (
-        <div className="mt-4 flex items-center gap-2 rounded-md border border-line bg-subtle pl-3 pr-1 py-1 font-mono text-xs text-fg-secondary">
-          <span className="text-link" aria-hidden="true">
-            &gt;
-          </span>
-          <code className="min-w-0 flex-1 truncate" title={cmd}>
-            {cmd}
-          </code>
-          <button
-            type="button"
-            onClick={copy}
-            className="inline-flex h-7 items-center gap-1 rounded px-2 text-fg-secondary hover:bg-subtle hover:text-fg"
-            aria-label={`Sao chép lệnh winget cài ${app.name}`}
-          >
-            <Icon name={copied ? 'check' : 'copy'} size={14} />
-            <span aria-live="polite">{copied ? 'Đã chép' : 'Chép'}</span>
-          </button>
-        </div>
+      {cmds.length > 0 && (
+        <ul className="mt-4 space-y-2" aria-label={`Lệnh cài ${app.name}`}>
+          {cmds.map(({ channel, cmd }) => (
+            <li
+              key={channel}
+              className="flex items-center gap-2 rounded-md border border-line bg-subtle pl-3 pr-1 py-1 font-mono text-xs text-fg-secondary"
+            >
+              <span className="shrink-0 text-link">{channel}</span>
+              <code className="min-w-0 flex-1 truncate" title={cmd}>
+                {cmd}
+              </code>
+              <button
+                type="button"
+                onClick={() => copy(channel, cmd)}
+                className="inline-flex h-7 items-center gap-1 rounded px-2 text-fg-secondary hover:bg-subtle hover:text-fg"
+                aria-label={`Sao chép lệnh ${channel} cài ${app.name}`}
+              >
+                <Icon name={copied === channel ? 'check' : 'copy'} size={14} />
+                <span aria-live="polite">{copied === channel ? 'Đã chép' : 'Chép'}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
 
       <div className="mt-4 flex flex-wrap gap-2">
