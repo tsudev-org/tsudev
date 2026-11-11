@@ -26,6 +26,7 @@ import {
   ECO_PLATFORM_LABEL,
   ECO_CATEGORY_LABEL,
   wingetCommand,
+  installCommands,
 } from './lib/ecosystem';
 
 export {
@@ -34,6 +35,7 @@ export {
   ECO_PLATFORM_LABEL,
   ECO_CATEGORY_LABEL,
   wingetCommand,
+  installCommands,
   SiteHeader,
   SiteFooter,
   Button,
