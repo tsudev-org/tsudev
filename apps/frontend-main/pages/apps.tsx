@@ -9,6 +9,7 @@ import {
   ECO_PLATFORM_LABEL,
   ECO_CATEGORY_LABEL,
   wingetCommand,
+  PKG_REPO,
 } from '@tsudev/ui';
 import type { EcoPlatform, EcoCategory } from '@tsudev/ui';
 import Seo from '../components/Seo';
@@ -179,7 +180,48 @@ export default function AppsPage() {
           </div>
         )}
 
-        <section className="mt-14 rounded-lg border border-line bg-surface p-6 md:p-8">
+        <section
+          className="mt-14 rounded-lg border border-line bg-surface p-6 md:p-8"
+          aria-labelledby="kho-linux"
+        >
+          <h2 id="kho-linux" className="text-xl font-semibold text-fg">
+            Kho APT / RPM cho Linux
+          </h2>
+          <p className="mt-1.5 max-w-2xl text-sm text-fg-secondary">
+            Gói <code>.deb</code> / <code>.rpm</code> tại{' '}
+            <a
+              href={PKG_REPO.url}
+              className="text-link underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              pkg.tsudev.com<span className="sr-only"> (mở tab mới)</span>
+            </a>{' '}
+            dựng từ đúng tệp đã phát hành trên GitHub, ký GPG; apt và dnf tự kiểm chữ ký trước khi
+            cài. Đối chiếu vân tay khóa ký trước khi tin kho:
+          </p>
+          <dl className="mt-4 grid gap-2 text-sm md:grid-cols-[max-content_1fr] md:gap-x-4">
+            <dt className="text-fg-secondary">Vân tay khóa</dt>
+            <dd className="min-w-0 break-all font-mono text-fg">{PKG_REPO.fingerprint}</dd>
+            <dt className="text-fg-secondary">Tự kiểm</dt>
+            <dd className="min-w-0 break-all font-mono text-xs text-fg-secondary">
+              curl -fsSL {PKG_REPO.keyring} | gpg --show-keys
+            </dd>
+            <dt className="text-fg-secondary">Mã nguồn kho</dt>
+            <dd className="min-w-0">
+              <a
+                href={PKG_REPO.source}
+                className="text-link underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                tsudev-org/linux-packages<span className="sr-only"> (mở tab mới)</span>
+              </a>
+            </dd>
+          </dl>
+        </section>
+
+        <section className="mt-6 rounded-lg border border-line bg-surface p-6 md:p-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-xl font-semibold text-fg">Cần bản có chữ ký Ed25519?</h2>

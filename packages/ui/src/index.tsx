@@ -27,6 +27,7 @@ import {
   ECO_CATEGORY_LABEL,
   wingetCommand,
   installCommands,
+  PKG_REPO,
 } from './lib/ecosystem';
 
 export {
@@ -36,6 +37,7 @@ export {
   ECO_CATEGORY_LABEL,
   wingetCommand,
   installCommands,
+  PKG_REPO,
   SiteHeader,
   SiteFooter,
   Button,
