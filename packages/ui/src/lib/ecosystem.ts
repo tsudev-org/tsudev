@@ -10,7 +10,8 @@
  * Mọi đường link dưới đây ĐÃ ĐO ngày 10/11/2026 (curl: website 200 kèm <title>
  * đúng sản phẩm; `releases/latest` có bản phát hành; gói winget có thư mục phiên
  * bản trong microsoft/winget-pkgs; gói Scoop / Homebrew được CI của bucket và tap
- * cài thử thật - đo 11/11/2026). Thêm mục mới thì đo lại như vậy - một nút
+ * cài thử thật - đo 11/11/2026; gói `pkg` trong kho APT/RPM pkg.tsudev.com được CI
+ * của tsudev-org/linux-packages cài thật trên Ubuntu, Debian, Fedora - đo 11/11/2026). Thêm mục mới thì đo lại như vậy - một nút
  * "Tải về" trỏ vào trang 404 tệ hơn không có nút.
  *
  * Repo nằm ở `tsudev-org` - KHÔNG BAO GIỜ trỏ về tên cũ dưới `tsudev-tsudev`
@@ -53,6 +54,8 @@ export type EcoApp = {
   scoop?: string;
   /** Cask trong tap tsudev-org/homebrew-tap (lệnh `brew install --cask tsudev-org/tap/<cask>`). */
   brew?: string;
+  /** Gói ĐÃ có trong kho APT/RPM `pkg.tsudev.com` (lệnh `apt install` / `dnf install <gói>`). */
+  pkg?: string;
   /** Mã nguồn mở hay độc quyền - hiện thành nhãn. */
   openSource: boolean;
   /** Ghi công dự án gốc (bắt buộc với bản Việt hoá theo giấy phép). */
@@ -131,6 +134,7 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
     website: 'https://lotus.tsudev.com',
     scoop: 'tsudev-lotus',
     brew: 'tsudev-lotus',
+    pkg: 'tsudev-lotus',
     openSource: true,
     basedOn: 'LocalSend',
     icon: 'M20.5 3.5 3.5 10l6.5 2.8L13 20zM10 12.8 20.5 3.5',
@@ -160,6 +164,31 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
   },
 ];
 
+/**
+ * Kho APT/RPM `pkg.tsudev.com` (tsudev-standards PACKAGING.md mục 5). Khóa chính RSA-4096 giữ ngoại tuyến;
+ * CI chỉ có khóa con ký. Vân tay này PHẢI khớp `keys/` của tsudev-org/linux-packages.
+ */
+export const PKG_REPO = {
+  url: 'https://pkg.tsudev.com',
+  source: 'https://github.com/tsudev-org/linux-packages',
+  keyring: 'https://pkg.tsudev.com/tsudev-archive-keyring.gpg',
+  fingerprint: '3883 10F4 7FA8 224D 76C0  A9C7 9745 B6AF 3EA3 3C74',
+} as const;
+
+/** Lệnh thêm kho APT (dạng `signed-by`, không dùng `apt-key`) rồi cài gói. */
+export function aptCommand(pkg: string): string {
+  return (
+    `curl -fsSL ${PKG_REPO.keyring} | sudo tee /usr/share/keyrings/tsudev.gpg >/dev/null && ` +
+    `echo "deb [signed-by=/usr/share/keyrings/tsudev.gpg] ${PKG_REPO.url}/apt stable main" | ` +
+    `sudo tee /etc/apt/sources.list.d/tsudev.list >/dev/null && sudo apt update && sudo apt install ${pkg}`
+  );
+}
+
+/** Lệnh thêm kho RPM rồi cài gói (dnf kiểm chữ ký cả siêu dữ liệu lẫn gói). */
+export function dnfCommand(pkg: string): string {
+  return `sudo curl -fsSLo /etc/yum.repos.d/tsudev.repo ${PKG_REPO.url}/rpm/tsudev.repo && sudo dnf install ${pkg}`;
+}
+
 /** Lệnh winget cài MỘT LƯỢT mọi app đã chọn (chỉ app có gói winget). */
 export function wingetCommand(apps: EcoApp[]): string {
   const ids = apps.map((a) => a.winget).filter((x): x is string => Boolean(x));
@@ -178,5 +207,9 @@ export function installCommands(app: EcoApp): { channel: string; cmd: string }[]
     });
   if (app.brew)
     out.push({ channel: 'Homebrew', cmd: `brew install --cask tsudev-org/tap/${app.brew}` });
+  if (app.pkg) {
+    out.push({ channel: 'APT', cmd: aptCommand(app.pkg) });
+    out.push({ channel: 'DNF', cmd: dnfCommand(app.pkg) });
+  }
   return out;
 }
