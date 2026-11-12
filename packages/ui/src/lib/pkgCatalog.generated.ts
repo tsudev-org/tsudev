@@ -13,6 +13,12 @@ export const PKG_CATALOG = {
       homepage: 'https://lotus.tsudev.com',
     },
     {
+      name: 'tsudev-files',
+      version: '2.4.0-vn.1',
+      arch: ['arm64', 'x64'],
+      homepage: 'https://files.tsudev.com',
+    },
+    {
       name: 'tsudev-luyen-go-phim',
       version: '26.11.1201-1',
       arch: ['x64'],
