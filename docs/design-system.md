@@ -163,8 +163,7 @@ tảng này" là cách dùng danh nghĩa, không phải nhận diện của tsud
 (cú + chữ "tsudev"), chỉ xoá nền đen - chủ dự án chốt dùng logo hoàn chỉnh ở mọi chỗ, kể cả
 favicon, nên header không vẽ thêm chữ HTML. Tải qua `<picture>`: AVIF → WebP → PNG 256; bản
 `logo-tsudev-{48,96,144,192}.{avif,webp}` 2-20 kB do `packages/brand/build-assets.js` sinh,
-khung vuông `object-contain` nên không bao giờ kéo giãn. Lệch `.standards/BRAND_ASSETS.md`
-(đòi favicon "chỉ hình cú") là CÓ CHỦ Ý - đã mở đề xuất ở `tsudev-standards`.
+khung vuông `object-contain` nên không bao giờ kéo giãn. Khớp `.standards/docs/BRAND_ASSETS.md` mục 2 từ v3.6.0 (quy ước nhận lựa chọn này 13/11/2026).
 
 **Biểu tượng app** trên `/apps` (`components/EcoIcon.tsx`): app có logo riêng dùng logo thật
 (`public/eco/*.webp`, sinh bằng `packages/brand/build-eco-icons.js` từ website của app hoặc từ

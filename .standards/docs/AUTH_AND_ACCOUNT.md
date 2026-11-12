@@ -457,7 +457,7 @@ kiện để chia sẻ liên kết giữa các sản phẩm mà không hỏng.
 
 ```
 +---------------------------------------------------+
-|                  [ dấu hiệu tsudev ]              |  logo-mark 48px + chữ text
+|                  [ dấu hiệu tsudev ]              |  logo tsudev 48px (BRAND_ASSETS mục 2)
 |                Đăng nhập vào tsudev               |  24px / 600
 |          Chưa có tài khoản? Đăng ký ngay          |  14px, liên kết
 |                                                   |

@@ -1,4 +1,4 @@
-# TÀI SẢN THƯƠNG HIỆU (v3.0.0)
+# TÀI SẢN THƯƠNG HIỆU (v3.6.0)
 
 > Logo, dấu hiệu thu gọn, wordmark, favicon và icon ứng dụng của hệ sinh thái
 > tsudev: bản gốc nằm ở đâu, sinh ra bằng gì, dùng dấu hiệu nào ở cỡ nào.
@@ -12,22 +12,20 @@ Hệ sinh thái đã có sẵn một dây chuyền hoàn chỉnh, đặt tại r
 
 | Thứ | Đường dẫn (repo `tsudev-org/tsudev`) |
 | --- | --- |
-| **Bản gốc** | `packages/brand/source/logo.jpeg` - `2048x2048`, nền trắng |
-| Bộ favicon gốc | `packages/brand/source/favicons/` (bản xuất của RealFaviconGenerator) |
-| **Dây chuyền sinh** | `packages/brand/build-assets.js` |
+| **Bản gốc** | `packages/brand/source/logo-tsudev.png` - `1254x1254`, cú + chữ "tsudev" trên nền đen (từ 13/11/2026) |
+| **Dây chuyền sinh** | `packages/brand/build-assets.js` (xoá nền đen, mọi cỡ `fit: contain` - không biến dạng) |
 | Tài liệu dây chuyền | `packages/brand/README.md` |
 
 SHA-256 của bản gốc:
 
 ```
-4bf56738c0b9534a65ec3d6ba4e618a3570ae6ec4133fde1612313d4f60bdb32
+2ad933bde3f5bc81325fd21896b036df883787b12723020e544b2b8d582577ba
 ```
 
 Chạy lại dây chuyền:
 
 ```bash
-npm i --no-save sharp                 # sharp không nằm trong dependency của repo
-node packages/brand/build-assets.js
+node packages/brand/build-assets.js   # sharp có sẵn trong node_modules (qua Next)
 ```
 
 **Repo quy ước này KHÔNG giữ bản sao của bản gốc.** Hai bản gốc song song là hai
@@ -41,17 +39,19 @@ chạy lại dây chuyền sẽ ghi đè. Sửa thì sửa ở `packages/brand/s
 
 | Dấu hiệu | File sinh ra | Là gì | Dùng khi |
 | --- | --- | --- | --- |
-| **Logo đầy đủ** | `brand/logo-full.png` (`768x1169`) | Cú + chữ "tsudev" + tagline | Trang giới thiệu, bìa tài liệu, ảnh chia sẻ, bản in. Cạnh ngắn **từ 160px** |
-| **Dấu hiệu thu gọn** | `brand/logo-mark.png` (`512x626`) | **Chỉ hình cú**, không chữ | Mặc định ở giao diện, và **bắt buộc** cho mọi icon: favicon, icon ứng dụng, khay hệ thống, avatar |
-| **Wordmark ảnh** | `brand/logo-wordmark.png` (`640x192`) | Chỉ phần chữ | Chỉ nơi không chạy được chữ thật: ảnh mở đầu bản cài, chữ ký email, bản in |
-| **Bản cho nền tối** | `brand/logo-full-dark.png`, `brand/logo-wordmark-dark.png` | Như trên, mực navy đổi sang trắng | Bắt buộc khi đặt trên nền tối (mục 4) |
+| **Logo** | `brand/logo-tsudev.png` (`1024x1024`), `brand/logo-tsudev-256.png` | NGUYÊN logo: cú + chữ "tsudev", nền trong suốt | Mọi nơi - giao diện, ảnh chia sẻ, tài liệu, bản in |
+| **Bản cho giao diện** | `brand/logo-tsudev-{48,96,144,192}.{avif,webp}` | Như trên, đa cỡ | Header/footer qua `<picture>` (AVIF → WebP → PNG) |
+| **Favicon / icon** | `favicon.ico` (7 lớp), `favicon-*.png`, `android-chrome-*`, `apple-touch-icon.png` | NGUYÊN logo (có chữ) | Tab trình duyệt, PWA, màn hình chính |
 
-**Dấu hiệu thu gọn là dấu hiệu mặc định trên giao diện**, không phải logo đầy đủ.
-Logo đầy đủ có tagline chữ nhỏ; thu xuống dưới 160px là tagline thành vệt xám.
+Từ 13/11/2026 chủ dự án chốt dùng **logo hoàn chỉnh có chữ ở MỌI cỡ**, kể cả favicon - thay bộ cũ (logo đầy đủ +
+dấu hiệu "chỉ hình cú" + wordmark + bản `-dark`, đã gỡ). Logo tự có nền tối riêng trong hình nên không cần bản `-dark`.
+Ở cỡ rất nhỏ (16-32px) chữ "tsudev" khó đọc - đó là đánh đổi chủ dự án đã chọn; repo nào cần icon không chữ cho khay
+hệ thống hoặc icon đơn sắc `MAY` cắt dấu hiệu riêng từ chính logo, ghi rõ trong tài liệu brand của repo.
 
-Bản cài đặt tham chiếu: `packages/ui/src/components/Logo.tsx` ở repo `tsudev` -
-dùng `logo-mark.png` cho hình và **render chữ "tsudev" bằng text**, không dùng
-ảnh wordmark.
+Bản cài đặt tham chiếu: `packages/ui/src/components/Logo.tsx` ở repo `tsudev` - khung vuông `object-contain`, không vẽ
+thêm chữ HTML cạnh logo (chữ đã nằm trong logo).
+
+Sản phẩm có **logo riêng** (khác logo tsudev): mục 15.
 
 ## 3. Quy tắc đặt tên
 
@@ -298,3 +298,27 @@ không phải bằng chứng. Chuỗi băm mới là bằng chứng.
 8. File ảnh lớn không cần lúc chạy `MUST` vào `.gitignore`.
 9. Bộ tài sản bắt buộc ở mục 12 đã đủ, và cổng kiểm CI của repo đã canh nó.
 10. File ảnh nhận được từ bên ngoài đã đối chiếu chuỗi băm theo mục 13.
+
+## 15. Logo sản phẩm riêng (từ v3.6.0)
+
+Một sản phẩm `MAY` có logo riêng thay logo tsudev khi **chủ dự án duyệt** (đề xuất
+`logs/handover/20261112-01_de-xuat-logo-rieng-tung-san-pham.md`). Khi đó repo `MUST`:
+
+1. Giữ **một ảnh gốc duy nhất** ở `assets/brand/source/` (ghi SHA-256 trong tài liệu brand của repo). Mọi bản khác
+   SINH từ đó - `MUST NOT` cắt tay từng cỡ. Đổi logo = thay một tệp + chạy một lệnh.
+2. Có cấu hình sinh `assets/brand/brand.json` và **một script sinh mọi bản** có chế độ `--check`, chạy trong CI để bắt
+   tệp đã commit lệch ảnh gốc. Mẫu đã chạy thật:
+   - `website/scripts/brand-assets.mjs` (Node + sharp; tsudev-cwico, tsudev-swico, tsudev-contact) - chế độ `tile` cho
+     logo vẽ sẵn trên ô nền đặc (giữ nền, bo góc) và `no-white` cho logo nền trắng (flood fill từ mép, khử nhân với trắng);
+   - `tools/brand/build_brand.py` + `assets/brand/brand.json` (tsudev-trafficmonitor) - logo nền đen.
+3. Đủ bộ tài sản bắt buộc ở mục 12 (favicon.ico 7 lớp, apple-touch nền đặc, PWA + maskable riêng, og-image) và icon
+   ứng dụng desktop (`assets/brand/app/`), web phục vụ `<picture>` AVIF → WebP → PNG.
+4. **Xoá nền** thì chỉ xoá vùng nền NỐI LIỀN mép ảnh (giữ mảng cùng màu nằm trong logo); logo có nét trắng trên ô nền
+   tối thì GIỮ nền làm ô - xoá đi là nét biến mất trên nền Sáng.
+5. Giữ liên kết về hệ sinh thái (chân trang dẫn về tsudev.com với logo tsudev - `ECOSYSTEM_IDENTITY.md`). Khối "nhà
+   làm" trong giao diện app (logo tsudev + chữ tsudev) giữ logo tsudev, không thay bằng logo sản phẩm.
+6. Báo phiên repo `tsudev` URL logo trên website sản phẩm để danh bạ tsudev.com/apps lấy từ đó
+   (`packages/brand/build-eco-icons.js`).
+
+Ảnh gốc `SHOULD` có cạnh ngắn từ 1024px hoặc là SVG; ảnh nhỏ hơn thì bản 512/1024 là phóng to - ghi nợ trong repo.
+

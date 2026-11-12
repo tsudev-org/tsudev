@@ -37,6 +37,7 @@
 1. [`ECOSYSTEM_IDENTITY.md`](ECOSYSTEM_IDENTITY.md) mục 2 - siêu dữ liệu bắt buộc
 2. [`BRAND_ASSETS.md`](BRAND_ASSETS.md) mục 12 - bộ tài sản nhận diện bắt buộc
 3. [`VERSIONING.md`](VERSIONING.md) - đặt tên bản phát hành
+4. [`PACKAGING.md`](PACKAGING.md) - cài bằng lệnh: winget, Scoop, apt/rpm, Homebrew
 
 **Bạn sắp commit hoặc mở PR:**
 1. [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md) - nhánh, commit, PR
@@ -74,6 +75,7 @@
 | [`TESTING_QUALITY.md`](TESTING_QUALITY.md) | Kiểm thử và chất lượng mã | Bất khả xâm phạm |
 | [`LANGUAGE_SELECTION.md`](LANGUAGE_SELECTION.md) | Chọn ngôn ngữ theo loại project | Bất khả xâm phạm |
 | [`FREE_TIER_STACK.md`](FREE_TIER_STACK.md) | Hạ tầng 0 đồng | Bất khả xâm phạm |
+| [`PACKAGING.md`](PACKAGING.md) | Phân phối, cài bằng lệnh, ký gói | Bất khả xâm phạm |
 | [`RICH_TEXT_EDITOR.md`](RICH_TEXT_EDITOR.md) | Trình soạn thảo nội dung | Bất khả xâm phạm |
 | [`SEARCH_AND_FILTER.md`](SEARCH_AND_FILTER.md) | Tìm kiếm và lọc tiếng Việt | Bất khả xâm phạm |
 | [`ONBOARDING.md`](ONBOARDING.md) | Triển khai và bộ câu lệnh agent | Hướng dẫn |
