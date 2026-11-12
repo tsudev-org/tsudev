@@ -33,6 +33,10 @@ Phiếu chung 20261112-04 (bắt buộc cập nhật): ghi KHÔNG ÁP DỤNG (ts
   khoản + ảnh QR. sitemap có `/ung-ho`.
 - `/api/auth/providers` = credentials, passkey, github, google (không có provider dev).
 
+Sau #224 (Worker `cdd53375`): `/apps` có "Lotus Share" + `install lotus-share` + link `tsudev-org/lotus-share`;
+`/`, `/apps`, `/ung-ho`, `/blog`, `/docs` trả 200; providers không đổi. Dòng "Dựa trên LocalSend" GIỮ, vì đó là ghi
+công theo giấy phép, không phải câu "tương thích LocalSend" mà phiên lotus-share dặn bỏ (Lotus Share 2.0 có giao thức riêng).
+
 ## 4. Việc còn lại
 
 1. 🔴 Chủ dự án: bật "Require review from Code Owners" ở ruleset `main` (CODEOWNERS đã có cho dữ liệu ủng hộ).
