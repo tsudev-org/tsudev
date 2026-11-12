@@ -364,10 +364,8 @@ async function main() {
   }
 
   console.log('\n[3/5] Favicon - NGUYÊN logo (cú + chữ "tsudev"), nền trong suốt');
-  // Chủ dự án chốt 13/11/2026: favicon là logo HOÀN CHỈNH có chữ, chỉ bỏ nền - KHÁC
-  // `.standards/docs/BRAND_ASSETS.md` (đòi "chỉ hình cú"). Đã mở đề xuất cập nhật
-  // quy ước ở repo tsudev-standards; cho tới khi nó được nhận, đây là chỗ repo này
-  // lệch chuẩn CÓ CHỦ Ý.
+  // Chủ dự án chốt 13/11/2026: favicon là logo HOÀN CHỈNH có chữ, chỉ bỏ nền -
+  // `.standards/docs/BRAND_ASSETS.md` mục 2 nhận lựa chọn này từ v3.6.0.
   const PNG_SMALL = { compressionLevel: 9, palette: true, quality: 90, effort: 10 };
   const iconAt = (size) => square(logo, size);
   const iconPng = async (size) =>
