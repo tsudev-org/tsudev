@@ -6,6 +6,7 @@ import {
   Icon,
   EmptyState,
   ECOSYSTEM_APPS,
+  ECO_GAMES,
   ECO_PLATFORM_LABEL,
   ECO_CATEGORY_LABEL,
   wingetCommand,
@@ -15,6 +16,7 @@ import type { EcoPlatform, EcoCategory } from '@tsudev/ui';
 import Seo from '../components/Seo';
 import PageHeader from '../components/PageHeader';
 import EcoAppCard from '../components/EcoAppCard';
+import EcoGameCard from '../components/EcoGameCard';
 
 /**
  * Danh bạ ứng dụng của hệ sinh thái tsudev - học theo winstall.app:
@@ -61,6 +63,15 @@ export default function AppsPage() {
     );
   }, [q, platform, category]);
 
+  // Trò chơi chạy trên trình duyệt (mọi nền tảng) - chỉ ô tìm áp lên mục này;
+  // chip nền tảng / nhóm là bộ lọc của app cài đặt.
+  const games = useMemo(() => {
+    const nq = viNormalizeText(q);
+    return ECO_GAMES.filter(
+      (g) => !nq || viNormalizeText(`${g.name} ${g.genre} ${g.tagline}`).includes(nq)
+    );
+  }, [q]);
+
   const toggle = (id: string) =>
     setPicked((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
 
@@ -83,7 +94,7 @@ export default function AppsPage() {
       <Seo
         title="Danh bạ ứng dụng"
         path="/apps"
-        description="Mọi ứng dụng của hệ sinh thái tsudev ở một chỗ: tìm, lọc theo nền tảng, mở website sản phẩm, tải bản mới nhất hoặc cài nhiều app một lượt bằng winget."
+        description="Mọi ứng dụng và trò chơi của hệ sinh thái tsudev ở một chỗ: tìm, lọc theo nền tảng, mở website sản phẩm, tải bản mới nhất hoặc cài nhiều app một lượt bằng winget."
       />
       <PageHeader
         eyebrow="Hệ sinh thái tsudev"
@@ -179,6 +190,27 @@ export default function AppsPage() {
             ))}
           </div>
         )}
+
+        <section id="tro-choi" className="mt-14 scroll-mt-24" aria-labelledby="tro-choi-tieu-de">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="tro-choi-tieu-de" className="text-xl font-semibold text-fg">
+              Trò chơi
+            </h2>
+            <p className="text-sm text-fg-muted">
+              {games.length} / {ECO_GAMES.length} trò chơi · chơi ngay trên trình duyệt, không cần
+              cài
+            </p>
+          </div>
+          {games.length === 0 ? (
+            <p className="mt-4 text-sm text-fg-secondary">Không có trò chơi nào khớp từ khoá.</p>
+          ) : (
+            <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {games.map((g) => (
+                <EcoGameCard key={g.id} game={g} />
+              ))}
+            </div>
+          )}
+        </section>
 
         <section
           className="mt-14 rounded-lg border border-line bg-surface p-6 md:p-8"

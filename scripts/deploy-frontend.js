@@ -84,6 +84,12 @@ try {
   // nhưng ghép nó vào một chuỗi shell là để lớp an toàn duy nhất nằm cách đó 40
   // dòng. Truyền dạng mảng đối số thì không ký tự nào thành lệnh được.
   const opts = { cwd: APP, stdio: 'inherit', env };
+  // Cổng chống tráo QR / số tài khoản của /ung-ho (phiếu 20261112-01 mục 3.4): ảnh QR
+  // phải khớp SHA-256 đã ghim và VietQR phải trỏ đúng tài khoản - lệch thì KHÔNG dựng.
+  execFileSync('npx', ['jest', 'test/ungHo.test.ts'], {
+    ...opts,
+    env: { ...env, NODE_ENV: 'test' },
+  });
   execFileSync('npx', ['opennextjs-cloudflare', 'build'], opts);
   execFileSync('npx', ['opennextjs-cloudflare', action], opts);
 } finally {

@@ -23,6 +23,7 @@ import { usePageSize, pageAfterResize } from './lib/usePageSize';
 import { MAIN_URL } from './lib/siteUrls';
 import {
   ECOSYSTEM_APPS,
+  ECO_GAMES,
   ECO_PLATFORM_LABEL,
   ECO_CATEGORY_LABEL,
   wingetCommand,
@@ -33,6 +34,7 @@ import {
 export {
   MAIN_URL,
   ECOSYSTEM_APPS,
+  ECO_GAMES,
   ECO_PLATFORM_LABEL,
   ECO_CATEGORY_LABEL,
   wingetCommand,
@@ -72,7 +74,7 @@ export default Layout;
 // xuất chúng thì nơi dùng buộc phải viết `string` rồi đụng vào union bên trong -
 // đúng thứ đã xảy ra với `tone` của Badge ở trang quản trị dự án.
 export type { BadgeTone } from './components/Badge';
-export type { EcoApp, EcoPlatform, EcoCategory } from './lib/ecosystem';
+export type { EcoApp, EcoGame, EcoPlatform, EcoCategory } from './lib/ecosystem';
 export type { ButtonSize, ButtonVariant } from './components/Button';
 export type { ToastType } from './components/Toast';
 export type { IconName, PlatformBrand } from './components/Icon';

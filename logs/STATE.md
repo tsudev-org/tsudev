@@ -1,5 +1,15 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 49 BẮT ĐẦU Ở ĐÂY** (cuối phiên 48, 12/11/2026). Phiếu đã xử lý trong phiên:
+> [`20261112-02`](handover/20261112-02_yeu-cau-danh-muc-tro-choi.md) (mục Trò chơi - ĐÓNG),
+> [`20261112-01`](handover/20261112-01_yeu-cau-trang-ung-ho-trung-tam.md) (trang `/ung-ho` - ĐÃ XỬ LÝ),
+> [`20261111-01`](handover/20261111-01_yeu-cau-tai-khoan-github-rieng-moi-phien.md) (đã ghi "Đã đọc": KHÔNG `gh auth switch`).
+>
+> ✅ `/apps#tro-choi` (6 game `ECO_GAMES`), `/ung-ho` (VietQR kiểm lúc build + SHA-256 ghim, CODEOWNERS, FUNDING.yml).
+>
+> 🔴 Chủ dự án: bật "Require review from Code Owners" cho ruleset `main`; áp `scripts/noi-dung-he-sinh-thai.js` lên
+> Neon (`--apply --noi-dung`) để tài liệu giới thiệu có mục Trò chơi.
+
 > **Phiên 48 BẮT ĐẦU Ở ĐÂY** (cuối phiên 47, 10/11/2026). Phiếu:
 > [`20261110-05`](handover/20261110-05_phien-47-giao-dien-den-tim-supabase.md) (đọc kèm 20261110-03).
 >
