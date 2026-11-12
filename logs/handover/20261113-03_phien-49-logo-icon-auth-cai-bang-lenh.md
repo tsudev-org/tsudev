@@ -91,3 +91,17 @@ liệu đó vào `ecosystem.ts` ⇒ đổi tên/kênh ở repo app không tự l
 - Phủ kênh còn thiếu + ký mã Windows: phiếu toàn hệ `~/projects/logs/handover/20261113-01_yeu-cau-phu-kenh-cai-dat-va-ky-ma-windows.md`
   (SignPath cần CHỦ DỰ ÁN đăng ký).
 - 🪤 Lần thứ hai trong phiên: `pkill -f "<chuỗi>"` giết chính shell (exit 144). Dừng tiến trình theo PID.
+
+## 7. Sự cố 06:46-06:50 13/11/2026 - đổi mật khẩu Neon, Render còn mật khẩu cũ
+
+- Chủ dự án đổi mật khẩu Neon (mật khẩu cũ lộ trong ảnh chụp chat) rồi áp `--noi-dung` lên Neon thành công. Render
+  `tsudev-backend` vẫn giữ `DATABASE_URL` cũ ⇒ MỌI `/api` đọc DB trả 500 (`/api/docs`, `/api/posts`, tìm kiếm); `/health`
+  (không chạm DB) vẫn 200. Trang ISR kẹt ở bản "Đang cập nhật nội dung…" (MÃ 200), trang slug 503.
+- Phát hiện bằng: kiểm NỘI DUNG trang (không chỉ mã HTTP) + `XDG_CONFIG_HOME=~/.config/wrangler-tsudev npx wrangler tail tsudev`
+  (dòng `[api] ... 500 Internal Server Error https://tsudev-backend.onrender.com/api/...`).
+- Sửa: chủ dự án cập nhật `DATABASE_URL` trên Render; hồi phục 06:50:41. Nghiệm thu: `/docs` 4 tài liệu, `/blog` có bài,
+  tài liệu giới thiệu dùng tên tsudev-trafficmonitor, tài liệu "Cài bằng lệnh" có lệnh một dòng.
+- 🪤 Bài học: khuyên đổi secret thì liệt kê MỌI nơi dùng nó như bước BẮT BUỘC làm cùng lúc (Neon → Render
+  `DATABASE_URL`/`DIRECT_URL`). Các lần nghiệm thu trước của phiên này kiểm `/docs`, `/blog` bằng mã 200 - đúng cái bẫy
+  "200 không chứng minh có nội dung" của CLAUDE.md.
+- Sau đó: `tsudev-contact` vào Scoop (#233), `tsudev-files` vào APT/RPM (#234) - `npm run pkg:catalog`; Worker `6ca9e280`.
