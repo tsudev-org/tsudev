@@ -126,15 +126,19 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
   },
   {
     id: 'lotus',
-    name: 'tsudev-lotus',
+    // Đổi tên thành Lotus Share 12/11/2026 (phiếu ~/projects/logs/handover/20261112-02_yeu-cau-dong-goi-
+    // doi-ten-lotus-share.md): repo, gói APT/RPM, Scoop, Homebrew đều là `lotus-share`; gói cũ
+    // `tsudev-lotus` chỉ còn là gói chuyển tiếp. Website giữ lotus.tsudev.com. Đo 12/11/2026.
+    name: 'Lotus Share',
     tagline:
       'Gửi tệp và tin nhắn giữa điện thoại, máy tính trong cùng mạng Wi-Fi - không cần Internet, mã hoá đầu cuối.',
     category: 'network',
     platforms: ['windows', 'android', 'apple', 'linux'],
     website: 'https://lotus.tsudev.com',
-    scoop: 'tsudev-lotus',
-    brew: 'tsudev-lotus',
-    pkg: 'tsudev-lotus',
+    releases: 'https://github.com/tsudev-org/lotus-share/releases/latest',
+    scoop: 'lotus-share',
+    brew: 'lotus-share',
+    pkg: 'lotus-share',
     openSource: true,
     basedOn: 'LocalSend',
     icon: 'M20.5 3.5 3.5 10l6.5 2.8L13 20zM10 12.8 20.5 3.5',

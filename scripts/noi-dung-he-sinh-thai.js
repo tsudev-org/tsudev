@@ -27,7 +27,7 @@ const DOCS = [
 - **cwico** - rà quét sâu và gỡ phần mềm thừa, tạo điểm khôi phục trước mỗi lần chạy (Windows): [cwico.tsudev.com](https://cwico.tsudev.com)
 - **tsudev SWICO** - kiểm tra bản quyền Windows, Office và cấu hình phần cứng (Windows): [swico.tsudev.com](https://swico.tsudev.com)
 - **tsudev-files** - chuyển đổi tệp ngoại tuyến bằng kéo thả (Windows, macOS, Linux): [files.tsudev.com](https://files.tsudev.com)
-- **tsudev-lotus** - gửi tệp, tin nhắn trong cùng mạng Wi-Fi, mã hoá đầu cuối (Windows, Android, macOS/iOS, Linux): [lotus.tsudev.com](https://lotus.tsudev.com)
+- **Lotus Share** - gửi tệp, tin nhắn trong cùng mạng Wi-Fi, mã hoá đầu cuối (Windows, Android, macOS/iOS, Linux): [lotus.tsudev.com](https://lotus.tsudev.com)
 - **La bàn** - la bàn, toạ độ, độ cao, thước thuỷ (Android): [compass.tsudev.com](https://compass.tsudev.com)
 - **tsudev-contact** - chuyển danh bạ CSV sang vCard .vcf (Windows): [contact.tsudev.com](https://contact.tsudev.com)
 

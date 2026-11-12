@@ -15,13 +15,13 @@ describe('lệnh cài từ kho APT/RPM pkg.tsudev.com', () => {
       '[signed-by=/usr/share/keyrings/tsudev.gpg] https://pkg.tsudev.com/apt stable main'
     );
     expect(apt?.cmd).not.toContain('apt-key');
-    expect(apt?.cmd).toMatch(/sudo apt install tsudev-lotus$/);
+    expect(apt?.cmd).toMatch(/sudo apt install lotus-share$/);
   });
 
   it('DNF lấy tệp .repo của kho rồi cài', () => {
     const dnf = installCommands(lotus!).find((c) => c.channel === 'DNF');
     expect(dnf?.cmd).toBe(
-      'sudo curl -fsSLo /etc/yum.repos.d/tsudev.repo https://pkg.tsudev.com/rpm/tsudev.repo && sudo dnf install tsudev-lotus'
+      'sudo curl -fsSLo /etc/yum.repos.d/tsudev.repo https://pkg.tsudev.com/rpm/tsudev.repo && sudo dnf install lotus-share'
     );
   });
 

@@ -33,6 +33,9 @@ const ROOT = path.resolve(__dirname, '..');
 const APP = path.join(ROOT, 'apps', 'frontend-main');
 const ENV_LOCAL = path.join(APP, '.env.local');
 const STASHED = path.join(APP, '.env.local.deploy-stash');
+// Tài khoản Cloudflare chứa Worker `tsudev` và bucket `tsudev-next-cache` (không phải bí mật:
+// nó nằm trong mọi URL API của Cloudflare). Khớp `node_modules/.cache/wrangler/wrangler-account.json`.
+const CF_ACCOUNT = '9541f44e84433a32b013ec31bae14848';
 
 const action = process.argv[2] || 'deploy';
 if (!['deploy', 'preview', 'upload'].includes(action)) {
@@ -84,6 +87,34 @@ try {
   // nhưng ghép nó vào một chuỗi shell là để lớp an toàn duy nhất nằm cách đó 40
   // dòng. Truyền dạng mảng đối số thì không ký tự nào thành lệnh được.
   const opts = { cwd: APP, stdio: 'inherit', env };
+
+  // Tài khoản Cloudflare TRƯỚC khi dựng. `~/.config/.wrangler` dùng CHUNG cho mọi
+  // phiên trên máy, và ngày 12/11/2026 nó đã bị đăng nhập sang tài khoản khác. Khi
+  // đó deploy không báo "sai tài khoản": bước đẩy cache R2 thử lại VÔ HẠN với lỗi
+  // "Failed to send request to R2 worker ... timeout" (thật ra là 403). Cấu hình
+  // RIÊNG của hệ tsudev: XDG_CONFIG_HOME=$HOME/.config/wrangler-tsudev.
+  let accounts = [];
+  try {
+    const out = execFileSync('npx', ['wrangler', 'whoami', '--json'], {
+      cwd: APP,
+      env,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    accounts = (JSON.parse(out).accounts || []).map((a) => a.id);
+  } catch {
+    // chưa đăng nhập ⇒ accounts rỗng ⇒ dừng ở dưới với hướng dẫn
+  }
+  if (!accounts.includes(CF_ACCOUNT)) {
+    console.error(
+      `✘ wrangler không thấy tài khoản Cloudflare của tsudev (${CF_ACCOUNT.slice(0, 8)}…); đang thấy: ${
+        accounts.map((a) => a.slice(0, 8)).join(', ') || '(chưa đăng nhập)'
+      }.\n  Chạy lại với cấu hình riêng: XDG_CONFIG_HOME=$HOME/.config/wrangler-tsudev npm --workspace apps/frontend-main run deploy\n  KHÔNG chạy \`wrangler login\` trên cấu hình chung - nó đổi tài khoản của mọi phiên khác.`
+    );
+    process.exit(1);
+  }
+  console.log(`⇢ tài khoản Cloudflare ${CF_ACCOUNT.slice(0, 8)}… - khớp`);
+
   // Cổng chống tráo QR / số tài khoản của /ung-ho (phiếu 20261112-01 mục 3.4): ảnh QR
   // phải khớp SHA-256 đã ghim và VietQR phải trỏ đúng tài khoản - lệch thì KHÔNG dựng.
   execFileSync('npx', ['jest', 'test/ungHo.test.ts'], {
