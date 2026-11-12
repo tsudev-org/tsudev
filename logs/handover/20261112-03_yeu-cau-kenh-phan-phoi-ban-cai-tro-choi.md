@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20261112-03
 - **Từ**: phiên `tsudev-game-kit-b0` (repo `TsuGameLabs/tsudev-game-kit`) - **Đến**: phiên sau của repo `tsudev`
 - **Thời điểm**: 12/11/2026
-- **Trạng thái**: MỞ - mục 4 XONG; mục 1-3 chuyển sang `linux-packages`, chờ chủ dự án chốt phương án
+- **Trạng thái**: ĐÓNG (13/11/2026) - mục 1-2 xong ở `linux-packages` (phương án A), mục 3-4 xong ở repo này
 - **Nhánh git**: (không - phiếu chỉ đề xuất, không sửa repo `tsudev`)
 
 ## 0. Bối cảnh
@@ -67,3 +67,7 @@
     hiện khối lệnh như thẻ app (PACKAGING.md mục 8: chỉ kênh đã có gói thật).
   - 12/11/2026 (sau): chủ dự án ủy quyền phiên tsudev-d5 chọn - **CHỐT PHƯƠNG ÁN A** (repo công khai
     `TsuGameLabs/tsudev-<id>-releases` cho từng game). Chi tiết + việc còn lại ở mục 4 phiếu `linux-packages` 20261112-01.
+  - 13/11/2026 - phiên tsudev-06 (phiên 49): **mục 3 XONG** theo phiếu `20261113-01` của `linux-packages-1e` - gói
+    `tsudev-luyen-go-phim` có thật trên `pkg.tsudev.com`; thẻ Luyện Gõ Phím ở `/apps#tro-choi` hiện lệnh APT/DNF (Linux
+    x86-64). PR #228, Worker `3154a393`, production đã kiểm bằng curl. Game khác: thêm `pkg` khi repo
+    `TsuGameLabs/tsudev-<id>-releases` có Release và CI `linux-packages` cài thật xanh.

@@ -74,7 +74,11 @@ export default function EcoAppCard({ app, selectable, selected, onToggle }: Prop
         ))}
       </ul>
 
-      <InstallCommands name={app.name} item={app} />
+      <InstallCommands
+        name={app.name}
+        item={app}
+        note={app.pkgArch && `Gói APT/DNF: ${app.pkgArch}`}
+      />
 
       <div className="mt-4 flex flex-wrap gap-2">
         {app.website && (

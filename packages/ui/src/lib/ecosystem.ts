@@ -18,6 +18,8 @@
  * (xem CLAUDE.md: tên repo cũ là bất khả xâm phạm).
  */
 
+import { PKG_CATALOG } from './pkgCatalog.generated';
+
 export type EcoPlatform = 'windows' | 'android' | 'apple' | 'linux';
 
 export const ECO_PLATFORM_LABEL: Record<EcoPlatform, string> = {
@@ -54,8 +56,13 @@ export type EcoApp = {
   scoop?: string;
   /** Cask trong tap tsudev-org/homebrew-tap (lệnh `brew install --cask tsudev-org/tap/<cask>`). */
   brew?: string;
-  /** Gói ĐÃ có trong kho APT/RPM `pkg.tsudev.com` (lệnh `apt install` / `dnf install <gói>`). */
+  /**
+   * Gói trong kho APT/RPM `pkg.tsudev.com` - KHÔNG gõ tay: suy từ bản chụp
+   * `pkgCatalog.generated.ts` (catalog.json của kho) theo `website` = `homepage`.
+   */
   pkg?: string;
+  /** Kiến trúc của gói `pkg` (vd. "Linux x86-64 · ARM64"), cùng nguồn với `pkg`. */
+  pkgArch?: string;
   /** Mã nguồn mở hay độc quyền - hiện thành nhãn. */
   openSource: boolean;
   /** Ghi công dự án gốc (bắt buộc với bản Việt hoá theo giấy phép). */
@@ -77,119 +84,150 @@ export type EcoApp = {
   icon: string;
 };
 
-export const ECOSYSTEM_APPS: EcoApp[] = [
-  {
-    id: 'trafficmonitor',
-    // Tên chính thức từ 12/11/2026 (repo, gói Scoop, website, `packaging/package.json`
-    // của tsudev-trafficmonitor). Tên cũ "TrafficMonitor-VN" không còn dùng ở đâu.
-    // winget `tsudev.TrafficMonitor` CHƯA có (PR winget-pkgs #477193 chờ duyệt) - đừng
-    // thêm trường `winget` trước khi gói vào kho.
-    name: 'tsudev-trafficmonitor',
-    tagline:
-      'Theo dõi tốc độ mạng, CPU, RAM trên thanh tác vụ Windows - bản Việt hoá, gia cố bảo mật của TrafficMonitor.',
-    category: 'system',
-    platforms: ['windows'],
-    website: 'https://trafficmonitor.tsudev.com',
-    releases: 'https://github.com/tsudev-org/tsudev-trafficmonitor/releases/latest',
-    scoop: 'tsudev-trafficmonitor',
-    openSource: true,
-    basedOn: 'TrafficMonitor',
-    logo: '/eco/trafficmonitor.webp',
-    tint: ['#4f46e5', '#312e81'],
-    icon: 'M4.5 17a7.5 7.5 0 1 1 15 0M12 17l3.6-5.2M7.6 13.4h.01M12 9.6v.01M16.4 13.4h.01',
-  },
-  {
-    id: 'cwico',
-    name: 'cwico',
-    tagline:
-      'Rà quét sâu và gỡ phần mềm thừa trên Windows - chặn cứng thành phần hệ thống, tạo điểm khôi phục trước mỗi lần chạy.',
-    category: 'system',
-    platforms: ['windows'],
-    website: 'https://cwico.tsudev.com',
-    releases: 'https://github.com/tsudev-org/tsudev-cwico/releases/latest',
-    winget: 'tsudev.cwico',
-    openSource: true,
-    tint: ['#e11d48', '#881337'],
-    icon: 'M4 7h16M9.5 7V4.5h5V7M6 7l1 13h10l1-13M10 11v5.5M14 11v5.5',
-  },
-  {
-    id: 'swico',
-    name: 'tsudev SWICO',
-    tagline:
-      'Kiểm tra bản quyền Windows, Office và thu thập cấu hình phần cứng bằng một tệp .exe - dữ liệu không rời khỏi máy.',
-    category: 'system',
-    platforms: ['windows'],
-    website: 'https://swico.tsudev.com',
-    releases: 'https://github.com/tsudev-org/tsudev-swico/releases/latest',
-    winget: 'tsudev.SWICO',
-    scoop: 'tsudev-swico',
-    openSource: true,
-    tint: ['#059669', '#064e3b'],
-    icon: 'M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6zM8.8 12.2l2.2 2.2 4.4-4.4',
-  },
-  {
-    id: 'files',
-    name: 'tsudev-files',
-    tagline: 'Chuyển đổi tệp ngoại tuyến bằng kéo thả - hơn 260 định dạng, không tải tệp lên mạng.',
-    category: 'files',
-    platforms: ['windows', 'apple', 'linux'],
-    website: 'https://files.tsudev.com',
-    scoop: 'tsudev-files',
-    brew: 'tsudev-files',
-    openSource: true,
-    basedOn: 'Filee',
-    logo: '/eco/files.webp',
-    tint: ['#7c3aed', '#4c1d95'],
-    icon: 'M6 3h7l5 5v4M6 3v18h6M13 3v5h5M14.5 17H21M18.5 14.5 21 17l-2.5 2.5',
-  },
-  {
-    id: 'lotus',
-    // Đổi tên thành Lotus Share 12/11/2026 (phiếu ~/projects/logs/handover/20261112-02_yeu-cau-dong-goi-
-    // doi-ten-lotus-share.md): repo, gói APT/RPM, Scoop, Homebrew đều là `lotus-share`; gói cũ
-    // `tsudev-lotus` chỉ còn là gói chuyển tiếp. Website giữ lotus.tsudev.com. Đo 12/11/2026.
-    name: 'Lotus Share',
-    tagline:
-      'Gửi tệp và tin nhắn giữa điện thoại, máy tính trong cùng mạng Wi-Fi - không cần Internet, mã hoá đầu cuối.',
-    category: 'network',
-    platforms: ['windows', 'android', 'apple', 'linux'],
-    website: 'https://lotus.tsudev.com',
-    releases: 'https://github.com/tsudev-org/lotus-share/releases/latest',
-    scoop: 'lotus-share',
-    brew: 'lotus-share',
-    pkg: 'lotus-share',
-    openSource: true,
-    basedOn: 'LocalSend',
-    logo: '/eco/lotus.webp',
-    tint: ['#db2777', '#831843'],
-    icon: 'M20.5 3.5 3.5 10l6.5 2.8L13 20zM10 12.8 20.5 3.5',
-  },
-  {
-    id: 'compass',
-    name: 'La bàn',
-    tagline:
-      'La bàn thông minh: bắc thực theo mô hình từ trường WMM, toạ độ, độ cao, thước thuỷ - không quảng cáo theo dõi.',
-    category: 'utility',
-    platforms: ['android'],
-    website: 'https://compass.tsudev.com',
-    openSource: false,
-    logo: '/eco/compass.webp',
-    tint: ['#2563eb', '#1e3a8a'],
-    icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18zM15.5 8.5l-2 5-5 2 2-5z',
-  },
-  {
-    id: 'contact',
-    name: 'tsudev-contact',
-    tagline: 'Chuyển danh bạ CSV sang vCard (.vcf) để nạp vào điện thoại, có xem trước từng trang.',
-    category: 'files',
-    platforms: ['windows'],
-    // Website lên 10/11/2026 (phiếu 20261110-04 của repo tsudev-contact; đo 200 + <title>).
-    website: 'https://contact.tsudev.com',
-    releases: 'https://github.com/tsudev-org/tsudev-contact/releases/latest',
-    openSource: true,
-    tint: ['#0284c7', '#0c4a6e'],
-    icon: 'M4 5h16v14H4zM9 11.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5.8 16.5a3.4 3.4 0 0 1 6.4 0M14 9.5h4M14 13h4',
-  },
-];
+/** Nhãn kiến trúc của catalog (`x64`, `arm64`) cho người đọc. */
+const ARCH_LABEL: Record<string, string> = { x64: 'x86-64', arm64: 'ARM64' };
+const ARCH_ORDER: string[] = ['x64', 'arm64'];
+
+/**
+ * Ghép gói APT/RPM từ catalog của kho vào một sản phẩm, theo website. Sản phẩm không
+ * có gói trong kho thì giữ nguyên (không hiện lệnh - PACKAGING.md mục 8).
+ */
+function withPkg<T extends { website?: string; pkg?: string; pkgArch?: string }>(item: T): T {
+  const hit = PKG_CATALOG.packages.find(
+    (p) => item.website && p.homepage.replace(/\/$/, '') === item.website.replace(/\/$/, '')
+  );
+  if (!hit) return item;
+  return {
+    ...item,
+    pkg: hit.name,
+    pkgArch: `Linux ${[...hit.arch]
+      .sort((a, b) => ARCH_ORDER.indexOf(a) - ARCH_ORDER.indexOf(b))
+      .map((a) => ARCH_LABEL[a] ?? a)
+      .join(' · ')}`,
+  };
+}
+
+export const ECOSYSTEM_APPS: EcoApp[] = (
+  [
+    {
+      id: 'trafficmonitor',
+      // Tên chính thức từ 12/11/2026 (repo, gói Scoop, website, `packaging/package.json`
+      // của tsudev-trafficmonitor). Tên cũ "TrafficMonitor-VN" không còn dùng ở đâu.
+      // winget `tsudev.TrafficMonitor` CHƯA có (PR winget-pkgs #477193 chờ duyệt) - đừng
+      // thêm trường `winget` trước khi gói vào kho.
+      name: 'tsudev-trafficmonitor',
+      tagline:
+        'Theo dõi tốc độ mạng, CPU, RAM trên thanh tác vụ Windows - bản Việt hoá, gia cố bảo mật của TrafficMonitor.',
+      category: 'system',
+      platforms: ['windows'],
+      website: 'https://trafficmonitor.tsudev.com',
+      releases: 'https://github.com/tsudev-org/tsudev-trafficmonitor/releases/latest',
+      scoop: 'tsudev-trafficmonitor',
+      openSource: true,
+      basedOn: 'TrafficMonitor',
+      logo: '/eco/trafficmonitor.webp',
+      tint: ['#4f46e5', '#312e81'],
+      icon: 'M4.5 17a7.5 7.5 0 1 1 15 0M12 17l3.6-5.2M7.6 13.4h.01M12 9.6v.01M16.4 13.4h.01',
+    },
+    {
+      id: 'cwico',
+      name: 'cwico',
+      tagline:
+        'Rà quét sâu và gỡ phần mềm thừa trên Windows - chặn cứng thành phần hệ thống, tạo điểm khôi phục trước mỗi lần chạy.',
+      category: 'system',
+      platforms: ['windows'],
+      website: 'https://cwico.tsudev.com',
+      releases: 'https://github.com/tsudev-org/tsudev-cwico/releases/latest',
+      winget: 'tsudev.cwico',
+      openSource: true,
+      // Logo riêng do chủ dự án giao 13/11/2026 (packages/brand/source/eco/) - repo cwico
+      // nhận phiếu 20261113-01 để dùng nó cho app + website.
+      logo: '/eco/cwico.webp',
+      tint: ['#e11d48', '#881337'],
+      icon: 'M4 7h16M9.5 7V4.5h5V7M6 7l1 13h10l1-13M10 11v5.5M14 11v5.5',
+    },
+    {
+      id: 'swico',
+      name: 'tsudev SWICO',
+      tagline:
+        'Kiểm tra bản quyền Windows, Office và thu thập cấu hình phần cứng bằng một tệp .exe - dữ liệu không rời khỏi máy.',
+      category: 'system',
+      platforms: ['windows'],
+      website: 'https://swico.tsudev.com',
+      releases: 'https://github.com/tsudev-org/tsudev-swico/releases/latest',
+      winget: 'tsudev.SWICO',
+      scoop: 'tsudev-swico',
+      openSource: true,
+      logo: '/eco/swico.webp',
+      tint: ['#059669', '#064e3b'],
+      icon: 'M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6zM8.8 12.2l2.2 2.2 4.4-4.4',
+    },
+    {
+      id: 'files',
+      name: 'tsudev-files',
+      tagline:
+        'Chuyển đổi tệp ngoại tuyến bằng kéo thả - hơn 260 định dạng, không tải tệp lên mạng.',
+      category: 'files',
+      platforms: ['windows', 'apple', 'linux'],
+      website: 'https://files.tsudev.com',
+      scoop: 'tsudev-files',
+      brew: 'tsudev-files',
+      openSource: true,
+      basedOn: 'Filee',
+      logo: '/eco/files.webp',
+      tint: ['#7c3aed', '#4c1d95'],
+      icon: 'M6 3h7l5 5v4M6 3v18h6M13 3v5h5M14.5 17H21M18.5 14.5 21 17l-2.5 2.5',
+    },
+    {
+      id: 'lotus',
+      // Đổi tên thành Lotus Share 12/11/2026 (phiếu ~/projects/logs/handover/20261112-02_yeu-cau-dong-goi-
+      // doi-ten-lotus-share.md): repo, gói APT/RPM, Scoop, Homebrew đều là `lotus-share`; gói cũ
+      // `tsudev-lotus` chỉ còn là gói chuyển tiếp. Website giữ lotus.tsudev.com. Đo 12/11/2026.
+      name: 'Lotus Share',
+      tagline:
+        'Gửi tệp và tin nhắn giữa điện thoại, máy tính trong cùng mạng Wi-Fi - không cần Internet, mã hoá đầu cuối.',
+      category: 'network',
+      platforms: ['windows', 'android', 'apple', 'linux'],
+      website: 'https://lotus.tsudev.com',
+      releases: 'https://github.com/tsudev-org/lotus-share/releases/latest',
+      scoop: 'lotus-share',
+      brew: 'lotus-share',
+      openSource: true,
+      basedOn: 'LocalSend',
+      logo: '/eco/lotus.webp',
+      tint: ['#db2777', '#831843'],
+      icon: 'M20.5 3.5 3.5 10l6.5 2.8L13 20zM10 12.8 20.5 3.5',
+    },
+    {
+      id: 'compass',
+      name: 'La bàn',
+      tagline:
+        'La bàn thông minh: bắc thực theo mô hình từ trường WMM, toạ độ, độ cao, thước thuỷ - không quảng cáo theo dõi.',
+      category: 'utility',
+      platforms: ['android'],
+      website: 'https://compass.tsudev.com',
+      openSource: false,
+      logo: '/eco/compass.webp',
+      tint: ['#2563eb', '#1e3a8a'],
+      icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18zM15.5 8.5l-2 5-5 2 2-5z',
+    },
+    {
+      id: 'contact',
+      name: 'tsudev-contact',
+      tagline:
+        'Chuyển danh bạ CSV sang vCard (.vcf) để nạp vào điện thoại, có xem trước từng trang.',
+      category: 'files',
+      platforms: ['windows'],
+      // Website lên 10/11/2026 (phiếu 20261110-04 của repo tsudev-contact; đo 200 + <title>).
+      website: 'https://contact.tsudev.com',
+      releases: 'https://github.com/tsudev-org/tsudev-contact/releases/latest',
+      openSource: true,
+      logo: '/eco/contact.webp',
+      tint: ['#0284c7', '#0c4a6e'],
+      icon: 'M4 5h16v14H4zM9 11.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5.8 16.5a3.4 3.4 0 0 1 6.4 0M14 9.5h4M14 13h4',
+    },
+  ] as EcoApp[]
+).map(withPkg);
 
 /**
  * Trò chơi của hệ sinh thái (org GitHub `TsuGameLabs`) - chạy trên TRÌNH DUYỆT ở
@@ -213,12 +251,10 @@ export type EcoGame = {
   website: string;
   openSource: false;
   /**
-   * Gói ĐÃ có trong kho APT/RPM `pkg.tsudev.com` (bản cài máy tính dựng bằng Tauri,
-   * repo phát hành công khai `TsuGameLabs/tsudev-<id>-releases`). Chỉ thêm khi CI
-   * của tsudev-org/linux-packages đã cài thật - PACKAGING.md mục 8.
+   * Bản cài máy tính trong kho APT/RPM (Tauri, repo `TsuGameLabs/tsudev-<id>-releases`) -
+   * suy từ catalog của kho như `EcoApp.pkg`, KHÔNG gõ tay.
    */
   pkg?: string;
-  /** Kiến trúc của gói `pkg`, hiện cạnh lệnh cài (vd. chỉ có x86-64). */
   pkgArch?: string;
   /** Như `EcoApp.tint` - game chưa có logo riêng. */
   tint: readonly [string, string];
@@ -226,78 +262,76 @@ export type EcoGame = {
   icon: string;
 };
 
-export const ECO_GAMES: EcoGame[] = [
-  {
-    id: 'xin-chao-nui-cam',
-    name: 'Xin Chào Núi Cấm',
-    genre: 'Trò chơi khám phá',
-    tagline:
-      'Trò chơi khám phá vùng Núi Cấm (An Giang): ghép các ô cùng cấp trên lưới để nâng dần lên các biểu tượng của Núi Cấm. Phù hợp trẻ em, đồ hoạ tươi sáng, âm thanh nhẹ nhàng.',
-    website: 'https://xin-chao-nui-cam.tsudev.com',
-    openSource: false,
-    tint: ['#16a34a', '#14532d'],
-    icon: 'M3 19 9.5 8l4 6.5 2-3L21 19zM16.5 6a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0',
-  },
-  {
-    id: 'chu-chim-vo-canh',
-    name: 'Chú Chim Vỗ Cánh',
-    genre: 'Trò chơi hành động',
-    tagline:
-      'Điều khiển chú chim sáo vỗ cánh bay qua các vách đá Núi Cấm (An Giang), nhặt trái thốt nốt để thêm điểm. Sáu chặng từ Chân núi tới Vồ Bồ Hong, rèn tập trung và phản xạ.',
-    website: 'https://chu-chim-vo-canh.tsudev.com',
-    openSource: false,
-    tint: ['#d97706', '#78350f'],
-    icon: 'M3 11c3-4 6-4 9 0 3-4 6-4 9 0M12 11v4.5M9.5 18.5h5',
-  },
-  {
-    id: 'lat-manh-ghep',
-    name: 'Lật Mảnh Ghép',
-    genre: 'Trò chơi giải đố',
-    tagline:
-      'Lật thẻ tìm cặp hình giống nhau qua nhiều cấp độ và chủ đề - rèn trí nhớ, sự tập trung và tư duy logic.',
-    website: 'https://lat-manh-ghep.tsudev.com',
-    openSource: false,
-    tint: ['#c026d3', '#701a75'],
-    icon: 'M3.5 6h8v12h-8zM14.5 7.5 20 6l2 11.5-5.5 1.5M7.5 10.5v3',
-  },
-  {
-    id: 'noi-hinh-giong-nhau',
-    name: 'Nối Hình Giống Nhau',
-    genre: 'Trò chơi trí tuệ',
-    tagline:
-      'Nối các cặp hình giống nhau bằng đường gấp khúc tối đa hai lần rẽ để xoá khỏi bảng; có điểm, combo và cấp độ tăng dần.',
-    website: 'https://noi-hinh-giong-nhau.tsudev.com',
-    openSource: false,
-    tint: ['#0d9488', '#134e4a'],
-    icon: 'M4 4h5v5H4zM15 15h5v5h-5zM6.5 9v8.5H15',
-  },
-  {
-    id: 'luyen-go-phim',
-    name: 'Luyện Gõ Phím',
-    genre: 'Công cụ luyện tập',
-    tagline:
-      'Luyện gõ phím ngoại tuyến: đo WPM, độ chính xác, theo dõi tiến bộ cục bộ. Phát triển từ dự án mã nguồn mở giấy phép MIT.',
-    website: 'https://luyen-go-phim.tsudev.com',
-    openSource: false,
-    // Đo 13/11/2026 (phiếu 20261113-01): 26.11.1201-1 trong Packages của kho APT; CI
-    // linux-packages#8 cài thật trên Ubuntu 22.04/24.04, Debian 12/13, Fedora.
-    pkg: 'tsudev-luyen-go-phim',
-    pkgArch: 'Linux x86-64',
-    tint: ['#4f46e5', '#1e1b4b'],
-    icon: 'M3 7h18v10H3zM6.5 10.5h.01M10 10.5h.01M13.5 10.5h.01M17 10.5h.01M8 14h8',
-  },
-  {
-    id: 'nuicam3d',
-    name: 'Núi Cấm 3D',
-    genre: 'Trò chơi thế giới mở 3D',
-    tagline:
-      'Tham quan xã Núi Cấm trong thế giới 3D (three.js + Rapier), có studio World Editor riêng.',
-    website: 'https://nuicam3d.tsudev.com',
-    openSource: false,
-    tint: ['#ea580c', '#7c2d12'],
-    icon: 'M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9',
-  },
-];
+export const ECO_GAMES: EcoGame[] = (
+  [
+    {
+      id: 'xin-chao-nui-cam',
+      name: 'Xin Chào Núi Cấm',
+      genre: 'Trò chơi khám phá',
+      tagline:
+        'Trò chơi khám phá vùng Núi Cấm (An Giang): ghép các ô cùng cấp trên lưới để nâng dần lên các biểu tượng của Núi Cấm. Phù hợp trẻ em, đồ hoạ tươi sáng, âm thanh nhẹ nhàng.',
+      website: 'https://xin-chao-nui-cam.tsudev.com',
+      openSource: false,
+      tint: ['#16a34a', '#14532d'],
+      icon: 'M3 19 9.5 8l4 6.5 2-3L21 19zM16.5 6a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0',
+    },
+    {
+      id: 'chu-chim-vo-canh',
+      name: 'Chú Chim Vỗ Cánh',
+      genre: 'Trò chơi hành động',
+      tagline:
+        'Điều khiển chú chim sáo vỗ cánh bay qua các vách đá Núi Cấm (An Giang), nhặt trái thốt nốt để thêm điểm. Sáu chặng từ Chân núi tới Vồ Bồ Hong, rèn tập trung và phản xạ.',
+      website: 'https://chu-chim-vo-canh.tsudev.com',
+      openSource: false,
+      tint: ['#d97706', '#78350f'],
+      icon: 'M3 11c3-4 6-4 9 0 3-4 6-4 9 0M12 11v4.5M9.5 18.5h5',
+    },
+    {
+      id: 'lat-manh-ghep',
+      name: 'Lật Mảnh Ghép',
+      genre: 'Trò chơi giải đố',
+      tagline:
+        'Lật thẻ tìm cặp hình giống nhau qua nhiều cấp độ và chủ đề - rèn trí nhớ, sự tập trung và tư duy logic.',
+      website: 'https://lat-manh-ghep.tsudev.com',
+      openSource: false,
+      tint: ['#c026d3', '#701a75'],
+      icon: 'M3.5 6h8v12h-8zM14.5 7.5 20 6l2 11.5-5.5 1.5M7.5 10.5v3',
+    },
+    {
+      id: 'noi-hinh-giong-nhau',
+      name: 'Nối Hình Giống Nhau',
+      genre: 'Trò chơi trí tuệ',
+      tagline:
+        'Nối các cặp hình giống nhau bằng đường gấp khúc tối đa hai lần rẽ để xoá khỏi bảng; có điểm, combo và cấp độ tăng dần.',
+      website: 'https://noi-hinh-giong-nhau.tsudev.com',
+      openSource: false,
+      tint: ['#0d9488', '#134e4a'],
+      icon: 'M4 4h5v5H4zM15 15h5v5h-5zM6.5 9v8.5H15',
+    },
+    {
+      id: 'luyen-go-phim',
+      name: 'Luyện Gõ Phím',
+      genre: 'Công cụ luyện tập',
+      tagline:
+        'Luyện gõ phím ngoại tuyến: đo WPM, độ chính xác, theo dõi tiến bộ cục bộ. Phát triển từ dự án mã nguồn mở giấy phép MIT.',
+      website: 'https://luyen-go-phim.tsudev.com',
+      openSource: false,
+      tint: ['#4f46e5', '#1e1b4b'],
+      icon: 'M3 7h18v10H3zM6.5 10.5h.01M10 10.5h.01M13.5 10.5h.01M17 10.5h.01M8 14h8',
+    },
+    {
+      id: 'nuicam3d',
+      name: 'Núi Cấm 3D',
+      genre: 'Trò chơi thế giới mở 3D',
+      tagline:
+        'Tham quan xã Núi Cấm trong thế giới 3D (three.js + Rapier), có studio World Editor riêng.',
+      website: 'https://nuicam3d.tsudev.com',
+      openSource: false,
+      tint: ['#ea580c', '#7c2d12'],
+      icon: 'M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9',
+    },
+  ] as EcoGame[]
+).map(withPkg);
 
 /**
  * Kho APT/RPM `pkg.tsudev.com` (tsudev-standards PACKAGING.md mục 5). Khóa chính RSA-4096 giữ ngoại tuyến;

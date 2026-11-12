@@ -1,5 +1,15 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 50 BẮT ĐẦU Ở ĐÂY** (cuối phiên 49, 13/11/2026). Phiếu:
+> [`20261113-03`](handover/20261113-03_phien-49-logo-icon-auth-cai-bang-lenh.md).
+>
+> ✅ Logo `logo-tsudev.png` (logo/favicon/OG, nguyên vẹn, xoá nền) · hết chớp "Đăng nhập" · `/projects` trống → 307 `/apps`
+> · logo riêng 7 app trên `/apps` + mục "Cài bằng lệnh" · tên tsudev-trafficmonitor · phiếu 20261113-01 + 20261112-03 ĐÓNG.
+> PR #228 (Worker `3154a393`) + PR logo cwico/SWICO/contact - nghiệm thu production.
+>
+> 🎯 Chủ dự án: áp `--noi-dung` lên Neon (mục 4.1 phiếu); quyết đề xuất "cài bằng một lệnh" (mục 5 phiếu).
+> 📨 Phiếu logo riêng 20261113-01 đã đặt ở tsudev-cwico, tsudev-swico, tsudev-contact.
+
 > **Phiên 49 BẮT ĐẦU Ở ĐÂY** (cuối phiên 48, 12/11/2026). Phiếu đã xử lý trong phiên:
 > [`20261112-02`](handover/20261112-02_yeu-cau-danh-muc-tro-choi.md) (mục Trò chơi - ĐÓNG),
 > [`20261112-01`](handover/20261112-01_yeu-cau-trang-ung-ho-trung-tam.md) (trang `/ung-ho` - ĐÃ XỬ LÝ),

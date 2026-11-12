@@ -167,8 +167,9 @@ khung vuông `object-contain` nên không bao giờ kéo giãn. Lệch `.standar
 (đòi favicon "chỉ hình cú") là CÓ CHỦ Ý - đã mở đề xuất ở `tsudev-standards`.
 
 **Biểu tượng app** trên `/apps` (`components/EcoIcon.tsx`): app có logo riêng dùng logo thật
-(`public/eco/*.webp`, lấy bằng `packages/brand/build-eco-icons.js` từ website của app); app
-chưa có logo riêng vẽ ô chuyển sắc `tint` + glyph trắng (ecosystem.ts). Test ở
+(`public/eco/*.webp`, sinh bằng `packages/brand/build-eco-icons.js` từ website của app hoặc từ
+`packages/brand/source/eco/` - chế độ `tile` giữ ô nền đặc, `no-white` xoá nền trắng); sản phẩm
+chưa có logo riêng (6 trò chơi) vẽ ô chuyển sắc `tint` + glyph trắng (ecosystem.ts). Test ở
 `packages/ui/test/ecosystem.test.ts` canh: mỗi sản phẩm một màu, glyph >= 3:1, logo có tệp thật.
 
 ## Bản đồ tên: token CSS ↔ class Tailwind

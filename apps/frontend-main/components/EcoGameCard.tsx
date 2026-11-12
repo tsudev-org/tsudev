@@ -29,7 +29,11 @@ export default function EcoGameCard({ game }: { game: EcoGame }) {
 
       <p className="mt-3 flex-1 text-sm text-fg-secondary">{game.tagline}</p>
 
-      <InstallCommands name={game.name} item={game} note={game.pkgArch} />
+      <InstallCommands
+        name={game.name}
+        item={game}
+        note={game.pkgArch && `Bản cài máy tính · ${game.pkgArch}`}
+      />
 
       <div className="mt-4">
         <a

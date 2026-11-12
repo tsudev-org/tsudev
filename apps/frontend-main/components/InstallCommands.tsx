@@ -33,7 +33,7 @@ export default function InstallCommands({
 
   return (
     <div className="mt-4">
-      {note && <p className="mb-2 text-xs text-fg-muted">Cài bản máy tính · {note}</p>}
+      {note && <p className="mb-2 text-xs text-fg-muted">{note}</p>}
       <ul className="space-y-2" aria-label={`Lệnh cài ${name}`}>
         {cmds.map(({ channel, cmd }) => (
           <li

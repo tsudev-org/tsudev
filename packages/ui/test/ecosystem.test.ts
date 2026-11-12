@@ -101,3 +101,26 @@ describe('biểu tượng phân biệt được từng sản phẩm (13/11/2026)
     expect(JSON.stringify(ECOSYSTEM_APPS)).not.toMatch(/TrafficMonitor-VN/i);
   });
 });
+
+describe('gói APT/RPM suy từ catalog.json của kho, không gõ tay (phiếu 20261113-02)', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { PKG_CATALOG } = require('../src/lib/pkgCatalog.generated');
+
+  it('bản chụp đúng hợp đồng schema 1 và vân tay khớp PKG_REPO', () => {
+    expect(PKG_CATALOG.schema).toBe(1);
+    expect(PKG_CATALOG.fingerprint).toBe(PKG_REPO.fingerprint.replace(/\s/g, ''));
+  });
+
+  it('mọi gói trong catalog có website trùng một sản phẩm đều được ghép (không gói nào lạc)', () => {
+    const sites = [...ECOSYSTEM_APPS, ...ECO_GAMES].map((x) => x.website);
+    for (const p of PKG_CATALOG.packages as { name: string; homepage: string }[]) {
+      if (!sites.includes(p.homepage)) continue;
+      const owner = [...ECOSYSTEM_APPS, ...ECO_GAMES].find((x) => x.website === p.homepage);
+      expect([p.name, owner?.pkg]).toEqual([p.name, p.name]);
+    }
+  });
+
+  it('Lotus Share có cả x86-64 và ARM64 theo catalog', () => {
+    expect(ECOSYSTEM_APPS.find((a) => a.id === 'lotus')?.pkgArch).toBe('Linux x86-64 · ARM64');
+  });
+});
