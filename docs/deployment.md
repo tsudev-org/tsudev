@@ -18,6 +18,22 @@ npm --workspace apps/frontend-main run deploy    # build + deploy
 npm --workspace apps/frontend-main run cf-typegen  # sinh lại cloudflare-env.d.ts
 ```
 
+### Tài khoản Cloudflare: dùng cấu hình wrangler RIÊNG
+
+`~/.config/.wrangler` (đăng nhập OAuth của wrangler) dùng CHUNG cho mọi phiên trên máy dev, và phiên của dự án
+khác có thể đăng nhập nó sang tài khoản khác bất cứ lúc nào (đã xảy ra 12/11/2026). Hệ tsudev dùng cấu hình riêng,
+trỏ tới tài khoản `9541f44e…`:
+
+```bash
+XDG_CONFIG_HOME=$HOME/.config/wrangler-tsudev npm --workspace apps/frontend-main run deploy
+```
+
+Sai tài khoản thì deploy KHÔNG báo "sai tài khoản": `node_modules/.cache/wrangler/wrangler-account.json` ghim
+`9541f44e…`, nên mọi lệnh gọi R2 nhận 403, và bước đẩy cache của OpenNext thử lại VÔ HẠN với thông báo
+`Failed to send request to R2 worker: The operation was aborted due to timeout`. `scripts/deploy-frontend.js` nay
+kiểm `wrangler whoami --json` TRƯỚC khi dựng và dừng kèm hướng dẫn. Đừng chạy `wrangler login` trên cấu hình
+chung, vì lệnh đó đổi tài khoản của mọi phiên khác.
+
 Worker tên `tsudev`. `wrangler.jsonc` có **service binding tự trỏ về chính nó**
 (`WORKER_SELF_REFERENCE`) mà OpenNext cần cho tầng cache - tên binding phải khớp
 đúng tên worker, đổi tên worker mà quên sửa binding thì cache hỏng lặng lẽ.
@@ -45,7 +61,7 @@ tự dọn tàn dư). Chặn từng biến một là trò đuổi bắt - mỗi 
 `.env` lại là một lỗ mới.
 
 ```bash
-npm --workspace apps/frontend-main run deploy
+XDG_CONFIG_HOME=$HOME/.config/wrangler-tsudev npm --workspace apps/frontend-main run deploy
 ```
 
 **Nghiệm thu sau mỗi lần deploy** - một lệnh, đáng chạy mọi lần:

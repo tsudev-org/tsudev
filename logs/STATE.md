@@ -5,10 +5,15 @@
 > [`20261112-01`](handover/20261112-01_yeu-cau-trang-ung-ho-trung-tam.md) (trang `/ung-ho` - ĐÃ XỬ LÝ),
 > [`20261111-01`](handover/20261111-01_yeu-cau-tai-khoan-github-rieng-moi-phien.md) (đã ghi "Đã đọc": KHÔNG `gh auth switch`).
 >
-> ✅ `/apps#tro-choi` (6 game `ECO_GAMES`), `/ung-ho` (VietQR kiểm lúc build + SHA-256 ghim, CODEOWNERS, FUNDING.yml).
+> Phiếu bàn giao: [`20261112-04`](handover/20261112-04_phien-48-tro-choi-ung-ho-deploy.md).
 >
-> 🔴 Chủ dự án: bật "Require review from Code Owners" cho ruleset `main`; áp `scripts/noi-dung-he-sinh-thai.js` lên
-> Neon (`--apply --noi-dung`) để tài liệu giới thiệu có mục Trò chơi.
+> ✅ `/apps#tro-choi` (6 game `ECO_GAMES`), `/ung-ho` (VietQR kiểm lúc build + SHA-256 ghim, CODEOWNERS, FUNDING.yml),
+> Lotus Share trên `/apps` - production nghiệm thu.
+>
+> 🪤 Deploy: `XDG_CONFIG_HOME=$HOME/.config/wrangler-tsudev npm --workspace apps/frontend-main run deploy` (ngoài
+> sandbox). `~/.config/.wrangler` dùng chung đã bị đăng nhập sang tài khoản khác; triệu chứng là R2 worker timeout vô hạn.
+>
+> 🔴 Chủ dự án: Code Owners trong ruleset `main`; áp nội dung lên Neon; chọn phương án tệp cài game (`linux-packages`).
 
 > **Phiên 48 BẮT ĐẦU Ở ĐÂY** (cuối phiên 47, 10/11/2026). Phiếu:
 > [`20261110-05`](handover/20261110-05_phien-47-giao-dien-den-tim-supabase.md) (đọc kèm 20261110-03).
