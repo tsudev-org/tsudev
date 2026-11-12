@@ -55,13 +55,22 @@ Hợp đồng: thêm trường giữ `schema: 1`; đổi/bỏ trường thì tă
   merge) để component ở mục 2.2 không gõ tay mã winget/scoop/brew. Phiếu riêng cho các repo đó nếu phiên này đồng ý.
 - Kho kiểm bản mới **mỗi giờ** (trước 6 giờ); mỗi lần xuất bản vẫn cần duyệt Environment `packages`.
 
+- **Bổ sung 13/11/2026** (phiên linux-packages-1e nhắn, phiên tsudev-06 chép vào đây): Scoop và Homebrew nay cũng có
+  `catalog.json` schema 1 - `https://raw.githubusercontent.com/tsudev-org/scoop-bucket/main/catalog.json` (PR
+  scoop-bucket#3, 5 gói, arch 32bit/64bit/arm64/any) và `https://raw.githubusercontent.com/tsudev-org/homebrew-tap/main/catalog.json`
+  (PR homebrew-tap#2, 3 cask, có minMacos). Trường chung của cả ba: schema, name, version, arch, install, installFull,
+  replacedBy. Mỗi repo có CI từ chối catalog cũ; catalog chỉ sinh lại sau bước cài thử thật. winget không có catalog
+  riêng (manifest ở microsoft/winget-pkgs) - đề xuất giữ mã winget trong ecosystem.ts và kiểm tồn tại qua GitHub API
+  `repos/microsoft/winget-pkgs/contents/manifests/t/tsudev/<Ten>`. Gói có `replacedBy`: website hiện gói mới, không tên cũ.
+
 ## 4. Kết quả xử lý (phiên nhận điền)
 
 - 13/11/2026 - phiên tsudev-06 (phiên 49):
   - **2.1 XONG**: `scripts/pkg-catalog-sync.js` (`npm run pkg:catalog`, `-- --check`) tải catalog, KIỂM `schema === 1`,
     vân tay khớp giá trị CỨNG trong script, tên gói `^[a-z][a-z0-9-]+$`, `homepage` https://*.tsudev.com - sai là dừng
     không ghi; ghi bản chụp `packages/ui/src/lib/pkgCatalog.generated.ts` (đã commit, bản dựng không cần mạng).
-    `ecosystem.ts` bỏ `pkg`/`pkgArch` gõ tay - suy từ bản chụp theo `website` = `homepage` (Lotus Share: "Linux x86-64 ·
+    Mở rộng cùng ngày cho CẢ BA kho (APT/RPM + Scoop + Homebrew), bỏ gói `replacedBy`, không ghi `updated` (bản chụp
+    chỉ đổi khi GÓI đổi). `ecosystem.ts` bỏ `pkg`/`pkgArch`/`scoop`/`brew` gõ tay (chỉ còn `winget`) - suy từ bản chụp theo `website` = `homepage` (Lotus Share: "Linux x86-64 ·
     ARM64"; Luyện Gõ Phím: "Linux x86-64"). Test: schema 1, vân tay khớp `PKG_REPO`, mọi gói có website trùng sản phẩm
     đều được ghép. `--check` KHÔNG đưa vào CI bắt buộc (sẽ làm đỏ PR không liên quan mỗi khi kho xuất bản gói mới);
     cập nhật bản chụp khi kho thêm gói, theo phiếu.

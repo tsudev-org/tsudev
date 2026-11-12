@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * Chụp `https://pkg.tsudev.com/catalog.json` (kho APT/RPM của tsudev-org/linux-packages)
+ * Chụp `catalog.json` của BA kho gói (APT/RPM `pkg.tsudev.com`, Scoop bucket, Homebrew tap)
  * thành `packages/ui/src/lib/pkgCatalog.generated.ts`.
  *
  *   npm run pkg:catalog            # tải + kiểm + ghi bản chụp
@@ -15,14 +15,21 @@
  *
  * Kiểm trước khi ghi (sai một điều là DỪNG, không ghi):
  *   - `schema === 1` (hợp đồng của kho: đổi/bỏ trường thì tăng schema);
- *   - vân tay khoá ký khớp giá trị CỨNG dưới đây - không tin vân tay tải về;
+ *   - (APT/RPM) vân tay khoá ký khớp giá trị CỨNG dưới đây - không tin vân tay tải về;
  *   - tên gói `^[a-z][a-z0-9-]+$`, `homepage` là https://*.tsudev.com.
  */
 
 const fs = require('fs');
 const path = require('path');
 
-const URL = 'https://pkg.tsudev.com/catalog.json';
+// Ba kho gói của hệ sinh thái, cùng hợp đồng `catalog.json` schema 1 (trường chung: name,
+// version, arch, homepage, install, replacedBy). Mỗi kho có CI từ chối catalog cũ và chỉ
+// sinh lại catalog SAU bước cài thử thật - catalog = gói đã cài được.
+const SOURCES = {
+  pkg: 'https://pkg.tsudev.com/catalog.json',
+  scoop: 'https://raw.githubusercontent.com/tsudev-org/scoop-bucket/main/catalog.json',
+  brew: 'https://raw.githubusercontent.com/tsudev-org/homebrew-tap/main/catalog.json',
+};
 // PHẢI khớp PKG_REPO.fingerprint ở packages/ui/src/lib/ecosystem.ts và keys/ của
 // tsudev-org/linux-packages (test ecosystem.test.ts canh cả hai).
 const FINGERPRINT = '388310F47FA8224D76C0A9C79745B6AF3EA33C74';
@@ -33,66 +40,65 @@ function fail(msg) {
   process.exit(1);
 }
 
-function render(cat) {
-  const packages = cat.packages
+async function load(kind, url) {
+  const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
+  if (!res.ok) fail(`${url} trả ${res.status}`);
+  const cat = await res.json();
+  if (cat.schema !== 1) fail(`${kind}: schema ${cat.schema} - script chỉ hiểu schema 1`);
+  if (kind === 'pkg' && cat.key?.fingerprint !== FINGERPRINT)
+    fail(`vân tay khoá ${cat.key?.fingerprint} KHÁC giá trị cứng ${FINGERPRINT} - dừng`);
+  if (!Array.isArray(cat.packages)) fail(`${kind}: thiếu mảng packages`);
+  for (const p of cat.packages) {
+    if (!/^[a-z][a-z0-9-]+$/.test(p.name || '')) fail(`${kind}: tên gói không hợp lệ: ${p.name}`);
+    if (!/^https:\/\/[a-z0-9-]+\.tsudev\.com\/?$/.test(p.homepage || ''))
+      fail(`${kind}/${p.name}: homepage ${p.homepage} không phải https://*.tsudev.com`);
+    if (!Array.isArray(p.arch) || p.arch.length === 0) fail(`${kind}/${p.name}: thiếu arch`);
+  }
+  // Gói đã đổi tên (`replacedBy`) chỉ là gói chuyển tiếp - website hiện gói MỚI, không tên cũ.
+  return cat.packages
+    .filter((p) => !p.replacedBy)
     .map((p) => ({
       name: p.name,
       version: p.version,
       arch: [...p.arch].sort(),
-      homepage: p.homepage,
-      displayName: p.displayName,
+      homepage: p.homepage.replace(/\/$/, ''),
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
-  const body = JSON.stringify(
-    { schema: cat.schema, updated: cat.updated, fingerprint: cat.key.fingerprint, packages },
-    null,
-    2
-  );
-  return `// SINH TỰ ĐỘNG bởi scripts/pkg-catalog-sync.js từ ${URL} - ĐỪNG SỬA TAY.
-// Cập nhật: \`npm run pkg:catalog\`. Chỉ gồm gói ĐÃ có trong kho (PACKAGING.md mục 8).
-/* eslint-disable */
-export const PKG_CATALOG = ${body} as const;
-`;
 }
 
 async function main() {
-  const res = await fetch(URL, { signal: AbortSignal.timeout(20000) });
-  if (!res.ok) fail(`${URL} trả ${res.status}`);
-  const cat = await res.json();
-  if (cat.schema !== 1)
-    fail(`schema ${cat.schema} - script chỉ hiểu schema 1, đọc phiếu của linux-packages`);
-  if (cat.key?.fingerprint !== FINGERPRINT)
-    fail(`vân tay khoá ${cat.key?.fingerprint} KHÁC giá trị cứng ${FINGERPRINT} - dừng`);
-  if (!Array.isArray(cat.packages)) fail('thiếu mảng packages');
-  for (const p of cat.packages) {
-    if (!/^[a-z][a-z0-9-]+$/.test(p.name || '')) fail(`tên gói không hợp lệ: ${p.name}`);
-    if (!/^https:\/\/[a-z0-9-]+\.tsudev\.com\/?$/.test(p.homepage || ''))
-      fail(`${p.name}: homepage ${p.homepage} không phải https://*.tsudev.com`);
-    if (!Array.isArray(p.arch) || p.arch.length === 0) fail(`${p.name}: thiếu arch`);
-  }
-
+  const out = {};
+  for (const [kind, url] of Object.entries(SOURCES)) out[kind] = await load(kind, url);
+  // KHÔNG ghi dấu thời gian `updated`: các kho xuất bản lại mỗi giờ dù gói không đổi, và
+  // bản chụp chỉ được đổi khi GÓI đổi.
+  const body = JSON.stringify({ schema: 1, fingerprint: FINGERPRINT, ...out }, null, 2);
+  const src = `// SINH TỰ ĐỘNG bởi scripts/pkg-catalog-sync.js - ĐỪNG SỬA TAY. Cập nhật: \`npm run pkg:catalog\`.
+// Nguồn: ${Object.values(SOURCES).join(' · ')}
+// Chỉ gồm gói ĐÃ cài thử được trong từng kho (PACKAGING.md mục 8); bỏ gói có replacedBy.
+/* eslint-disable */
+export const PKG_CATALOG = ${body} as const;
+`;
   // Định dạng bằng prettier của repo để tệp sinh ra khớp `format:check` và `--check` ổn định.
   const prettier = require('prettier');
-  const next = await prettier.format(render(cat), {
+  const next = await prettier.format(src, {
     ...(await prettier.resolveConfig(OUT)),
     filepath: OUT,
   });
   const cur = fs.existsSync(OUT) ? fs.readFileSync(OUT, 'utf8') : '';
-  // So phần gói, bỏ qua dấu thời gian `updated` (kho xuất bản lại mỗi giờ dù không đổi gói).
-  const strip = (s) => s.replace(/"updated": "[^"]*"/, '');
+  const summary = Object.entries(out)
+    .map(([k, v]) => `${k}: ${v.map((p) => p.name).join(', ')}`)
+    .join(' | ');
   if (process.argv.includes('--check')) {
-    if (strip(cur) !== strip(next)) fail('bản chụp LỆCH kho - chạy `npm run pkg:catalog`');
-    console.log(`pkg-catalog: khớp kho (${cat.packages.length} gói).`);
+    if (cur !== next) fail('bản chụp LỆCH kho - chạy `npm run pkg:catalog`');
+    console.log(`pkg-catalog: khớp kho (${summary}).`);
     return;
   }
-  if (strip(cur) === strip(next)) {
-    console.log(`pkg-catalog: không đổi (${cat.packages.length} gói).`);
+  if (cur === next) {
+    console.log(`pkg-catalog: không đổi (${summary}).`);
     return;
   }
   fs.writeFileSync(OUT, next);
-  console.log(
-    `pkg-catalog: đã ghi ${path.relative(process.cwd(), OUT)} - ${cat.packages.map((p) => p.name).join(', ')}`
-  );
+  console.log(`pkg-catalog: đã ghi ${path.relative(process.cwd(), OUT)} - ${summary}`);
 }
 
 main().catch((e) => fail(e.message));

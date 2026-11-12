@@ -52,9 +52,9 @@ export type EcoApp = {
   releases?: string;
   /** Mã gói winget ĐÃ có trong microsoft/winget-pkgs. */
   winget?: string;
-  /** Gói Scoop trong bucket tsudev-org/scoop-bucket (lệnh `scoop install tsudev/<gói>`). */
+  /** Gói Scoop (bucket tsudev-org/scoop-bucket) - suy từ catalog của bucket, không gõ tay. */
   scoop?: string;
-  /** Cask trong tap tsudev-org/homebrew-tap (lệnh `brew install --cask tsudev-org/tap/<cask>`). */
+  /** Cask Homebrew (tap tsudev-org/homebrew-tap) - suy từ catalog của tap, không gõ tay. */
   brew?: string;
   /**
    * Gói trong kho APT/RPM `pkg.tsudev.com` - KHÔNG gõ tay: suy từ bản chụp
@@ -88,22 +88,37 @@ export type EcoApp = {
 const ARCH_LABEL: Record<string, string> = { x64: 'x86-64', arm64: 'ARM64' };
 const ARCH_ORDER: string[] = ['x64', 'arm64'];
 
+/** So website theo dạng không có `/` cuối. */
+const sameSite = (a?: string, b?: string) =>
+  Boolean(a && b) && a!.replace(/\/$/, '') === b!.replace(/\/$/, '');
+
 /**
- * Ghép gói APT/RPM từ catalog của kho vào một sản phẩm, theo website. Sản phẩm không
- * có gói trong kho thì giữ nguyên (không hiện lệnh - PACKAGING.md mục 8).
+ * Ghép gói từ catalog của BA kho (APT/RPM, Scoop, Homebrew) vào một sản phẩm, theo
+ * website = homepage. KHÔNG gõ tay `pkg`/`scoop`/`brew` ở dữ liệu bên dưới - bản chụp
+ * `pkgCatalog.generated.ts` (`npm run pkg:catalog`) là nguồn duy nhất, nên đổi tên gói ở
+ * kho không còn để lại tên cũ trên site. Sản phẩm không có gói ở kho nào thì giữ nguyên
+ * (không hiện lệnh - PACKAGING.md mục 8). Riêng winget giữ trong dữ liệu: manifest nằm ở
+ * microsoft/winget-pkgs, không có catalog của mình.
  */
-function withPkg<T extends { website?: string; pkg?: string; pkgArch?: string }>(item: T): T {
-  const hit = PKG_CATALOG.packages.find(
-    (p) => item.website && p.homepage.replace(/\/$/, '') === item.website.replace(/\/$/, '')
-  );
-  if (!hit) return item;
+function withCatalog<
+  T extends { website?: string; pkg?: string; pkgArch?: string; scoop?: string; brew?: string },
+>(item: T): T {
+  const find = (list: readonly { name: string; homepage: string; arch: readonly string[] }[]) =>
+    list.find((p) => sameSite(p.homepage, item.website));
+  const pkg = find(PKG_CATALOG.pkg);
+  const scoop = find(PKG_CATALOG.scoop);
+  const brew = find(PKG_CATALOG.brew);
   return {
     ...item,
-    pkg: hit.name,
-    pkgArch: `Linux ${[...hit.arch]
-      .sort((a, b) => ARCH_ORDER.indexOf(a) - ARCH_ORDER.indexOf(b))
-      .map((a) => ARCH_LABEL[a] ?? a)
-      .join(' · ')}`,
+    ...(pkg && {
+      pkg: pkg.name,
+      pkgArch: `Linux ${[...pkg.arch]
+        .sort((a, b) => ARCH_ORDER.indexOf(a) - ARCH_ORDER.indexOf(b))
+        .map((a) => ARCH_LABEL[a] ?? a)
+        .join(' · ')}`,
+    }),
+    ...(scoop && { scoop: scoop.name }),
+    ...(brew && { brew: brew.name }),
   };
 }
 
@@ -122,7 +137,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       platforms: ['windows'],
       website: 'https://trafficmonitor.tsudev.com',
       releases: 'https://github.com/tsudev-org/tsudev-trafficmonitor/releases/latest',
-      scoop: 'tsudev-trafficmonitor',
       openSource: true,
       basedOn: 'TrafficMonitor',
       logo: '/eco/trafficmonitor.webp',
@@ -156,7 +170,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       website: 'https://swico.tsudev.com',
       releases: 'https://github.com/tsudev-org/tsudev-swico/releases/latest',
       winget: 'tsudev.SWICO',
-      scoop: 'tsudev-swico',
       openSource: true,
       logo: '/eco/swico.webp',
       tint: ['#059669', '#064e3b'],
@@ -170,8 +183,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       category: 'files',
       platforms: ['windows', 'apple', 'linux'],
       website: 'https://files.tsudev.com',
-      scoop: 'tsudev-files',
-      brew: 'tsudev-files',
       openSource: true,
       basedOn: 'Filee',
       logo: '/eco/files.webp',
@@ -190,8 +201,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       platforms: ['windows', 'android', 'apple', 'linux'],
       website: 'https://lotus.tsudev.com',
       releases: 'https://github.com/tsudev-org/lotus-share/releases/latest',
-      scoop: 'lotus-share',
-      brew: 'lotus-share',
       openSource: true,
       basedOn: 'LocalSend',
       logo: '/eco/lotus.webp',
@@ -227,7 +236,7 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       icon: 'M4 5h16v14H4zM9 11.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5.8 16.5a3.4 3.4 0 0 1 6.4 0M14 9.5h4M14 13h4',
     },
   ] as EcoApp[]
-).map(withPkg);
+).map(withCatalog);
 
 /**
  * Trò chơi của hệ sinh thái (org GitHub `TsuGameLabs`) - chạy trên TRÌNH DUYỆT ở
@@ -331,7 +340,7 @@ export const ECO_GAMES: EcoGame[] = (
       icon: 'M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9',
     },
   ] as EcoGame[]
-).map(withPkg);
+).map(withCatalog);
 
 /**
  * Kho APT/RPM `pkg.tsudev.com` (tsudev-standards PACKAGING.md mục 5). Khóa chính RSA-4096 giữ ngoại tuyến;

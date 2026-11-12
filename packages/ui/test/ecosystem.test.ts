@@ -111,13 +111,25 @@ describe('gói APT/RPM suy từ catalog.json của kho, không gõ tay (phiếu 
     expect(PKG_CATALOG.fingerprint).toBe(PKG_REPO.fingerprint.replace(/\s/g, ''));
   });
 
-  it('mọi gói trong catalog có website trùng một sản phẩm đều được ghép (không gói nào lạc)', () => {
-    const sites = [...ECOSYSTEM_APPS, ...ECO_GAMES].map((x) => x.website);
-    for (const p of PKG_CATALOG.packages as { name: string; homepage: string }[]) {
-      if (!sites.includes(p.homepage)) continue;
-      const owner = [...ECOSYSTEM_APPS, ...ECO_GAMES].find((x) => x.website === p.homepage);
-      expect([p.name, owner?.pkg]).toEqual([p.name, p.name]);
+  it('mọi gói của 3 kho có website trùng một sản phẩm đều được ghép (không gói nào lạc)', () => {
+    const all = [...ECOSYSTEM_APPS, ...ECO_GAMES] as { website?: string; [k: string]: unknown }[];
+    for (const kind of ['pkg', 'scoop', 'brew'] as const) {
+      for (const p of PKG_CATALOG[kind] as { name: string; homepage: string }[]) {
+        const owner = all.find((x) => x.website === p.homepage);
+        if (!owner) continue;
+        expect([kind, p.name, owner[kind]]).toEqual([kind, p.name, p.name]);
+      }
     }
+  });
+
+  it('kênh Scoop/Homebrew khớp thực tế đã đo (tsudev-trafficmonitor, SWICO, files, Lotus Share)', () => {
+    const by = (id: string) => ECOSYSTEM_APPS.find((a) => a.id === id);
+    expect(by('trafficmonitor')?.scoop).toBe('tsudev-trafficmonitor');
+    expect(by('swico')?.scoop).toBe('tsudev-swico');
+    expect(by('files')?.brew).toBe('tsudev-files');
+    expect(by('lotus')?.brew).toBe('lotus-share');
+    // Gói chuyển tiếp `tsudev-lotus` (replacedBy) KHÔNG được hiện.
+    expect(JSON.stringify(PKG_CATALOG)).not.toContain('tsudev-lotus');
   });
 
   it('Lotus Share có cả x86-64 và ARM64 theo catalog', () => {
