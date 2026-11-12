@@ -49,7 +49,7 @@ import type { NextRequest } from 'next/server';
 // `fs` để đọc `_document.tsx`. `test/csp.test.ts` tính lại băm TỪ NGUỒN và bắt
 // lệch (giống cách themeTokens.test.ts canh màu chép ra ngoài).
 // ---------------------------------------------------------------------------
-const THEME_SCRIPT_HASH = 'sha256-6OxaX4ZX/Z1i7xeteXEN/5zkcRN2gWISAWLtOI9kELk=';
+const THEME_SCRIPT_HASH = 'sha256-Uc44BAbW7/IXmN3PsSRw5V6bija+xIcJDxYwDFK4k3w=';
 const CF_INSIGHTS = 'https://static.cloudflareinsights.com';
 
 function newNonce(): string {

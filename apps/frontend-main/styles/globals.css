@@ -652,3 +652,20 @@
   color: var(--text-primary);
   font-weight: var(--fw-semibold);
 }
+
+/*
+ * Chống chớp "chưa đăng nhập" (13/11/2026). Khi useSession() còn `loading`,
+ * SiteHeader vẽ CẢ hai biến thể tài khoản; script nội tuyến ở _document.tsx đã
+ * đặt `data-auth` lên <html> TRƯỚC lần vẽ đầu theo gợi ý trong localStorage
+ * (packages/ui/src/lib/authHint.ts). Các luật dưới đây ẩn biến thể sai. Ngoài
+ * @layer và có !important vì phải thắng các tiện ích hiển thị `hidden sm:inline-flex`
+ * đặt trên cùng phần tử.
+ */
+html:not([data-auth='in']) .tsu-auth-in,
+html[data-auth='in'] .tsu-auth-out,
+html:not([data-auth-author]) .tsu-auth-author {
+  display: none !important;
+}
+.tsu-user-name::before {
+  content: var(--tsu-user-name, 'Tài khoản');
+}

@@ -1,4 +1,4 @@
-<img src="apps/frontend-main/public/brand/logo-mark.png" alt="Dấu hiệu tsudev" width="96" />
+<img src="apps/frontend-main/public/brand/logo-tsudev-256.png" alt="Logo tsudev" width="128" />
 
 # tsudev
 

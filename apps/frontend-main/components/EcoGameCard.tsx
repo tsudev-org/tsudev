@@ -1,45 +1,35 @@
 import React from 'react';
 import { Icon, Badge } from '@tsudev/ui';
 import type { EcoGame } from '@tsudev/ui';
+import EcoIcon from './EcoIcon';
+import InstallCommands from './InstallCommands';
 
 /**
  * Thẻ một trò chơi của hệ sinh thái (mục "Trò chơi" ở /apps).
  *
- * Game chạy trên trình duyệt ở website riêng: CHỈ một nút mở tab mới, không lệnh
- * cài, không ô chọn winget. Không nhúng iframe - game cấm đóng khung
+ * Game chạy trên trình duyệt ở website riêng: nút chính mở tab mới. Game đã có bản
+ * cài máy tính trong kho pkg.tsudev.com (`pkg`) thì hiện thêm khối lệnh APT/DNF
+ * (phiếu 20261113-01). Không nhúng iframe - game cấm đóng khung
  * (`frame-ancestors 'self'`). Repo private nên không có link mã nguồn.
  */
 export default function EcoGameCard({ game }: { game: EcoGame }) {
   return (
     <article className="tsu-glow-card flex min-w-0 flex-col rounded-lg border border-line bg-surface p-5">
       <div className="flex items-start gap-4">
-        <span
-          className="tsu-monogram inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg"
-          aria-hidden="true"
-        >
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d={game.icon} />
-          </svg>
-        </span>
+        <EcoIcon name={game.name} tint={game.tint} icon={game.icon} />
         <div className="min-w-0 flex-1">
           <h3 className="font-medium text-fg text-base leading-snug">{game.name}</h3>
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
             <Badge tone="neutral">{game.genre}</Badge>
             <Badge tone="outline">Trình duyệt</Badge>
+            {game.pkg && <Badge tone="outline">Linux</Badge>}
           </div>
         </div>
       </div>
 
       <p className="mt-3 flex-1 text-sm text-fg-secondary">{game.tagline}</p>
+
+      <InstallCommands name={game.name} item={game} note={game.pkgArch} />
 
       <div className="mt-4">
         <a

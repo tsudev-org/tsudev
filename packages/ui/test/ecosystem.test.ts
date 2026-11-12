@@ -45,3 +45,59 @@ describe('mục Trò chơi (phiếu 20261112-02)', () => {
     for (const g of ECO_GAMES) expect(g.openSource).toBe(false);
   });
 });
+
+describe('thẻ trò chơi có bản cài (phiếu 20261113-01)', () => {
+  const go = ECO_GAMES.find((g) => g.id === 'luyen-go-phim');
+
+  it('Luyện Gõ Phím sinh đúng hai lệnh APT/DNF cho gói tsudev-luyen-go-phim', () => {
+    const cmds = installCommands(go!);
+    expect(cmds.map((c) => c.channel)).toEqual(['APT', 'DNF']);
+    expect(cmds[0]?.cmd).toMatch(/sudo apt install tsudev-luyen-go-phim$/);
+    expect(cmds[1]?.cmd).toMatch(/sudo dnf install tsudev-luyen-go-phim$/);
+    expect(go?.pkgArch).toBe('Linux x86-64');
+  });
+
+  it('game không có `pkg` thì không có lệnh nào', () => {
+    for (const g of ECO_GAMES.filter((x) => !x.pkg)) expect(installCommands(g)).toEqual([]);
+  });
+});
+
+describe('biểu tượng phân biệt được từng sản phẩm (13/11/2026)', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { existsSync } = require('fs') as typeof import('fs');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { join } = require('path') as typeof import('path');
+  const PUBLIC = join(__dirname, '..', '..', '..', 'apps', 'frontend-main', 'public');
+
+  const lum = (hex: string) => {
+    const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+    const l = c.map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * l[0]! + 0.7152 * l[1]! + 0.0722 * l[2]!;
+  };
+  const all = [...ECOSYSTEM_APPS, ...ECO_GAMES];
+
+  it('mỗi sản phẩm một dải màu riêng (không hai thẻ trùng màu)', () => {
+    const tints = all.map((x) => x.tint.join('|'));
+    expect(new Set(tints).size).toBe(tints.length);
+  });
+
+  it('glyph trắng đạt >= 3:1 trên màu đầu của dải (WCAG 1.4.11)', () => {
+    for (const x of all) {
+      const ratio = (1 + 0.05) / (lum(x.tint[0]) + 0.05);
+      expect([x.id, ratio >= 3]).toEqual([x.id, true]);
+    }
+  });
+
+  it('logo khai trong dữ liệu có tệp thật trong public/ (nếu không: ảnh vỡ trên production)', () => {
+    for (const a of ECOSYSTEM_APPS.filter((x) => x.logo)) {
+      expect(a.logo).toMatch(/^\/eco\/[a-z0-9-]+\.webp$/);
+      expect([a.id, existsSync(join(PUBLIC, a.logo!))]).toEqual([a.id, true]);
+    }
+  });
+
+  it('tên trafficmonitor là tên chính thức hiện hành, không phải tên cũ', () => {
+    const tm = ECOSYSTEM_APPS.find((a) => a.id === 'trafficmonitor');
+    expect(tm?.name).toBe('tsudev-trafficmonitor');
+    expect(JSON.stringify(ECOSYSTEM_APPS)).not.toMatch(/TrafficMonitor-VN/i);
+  });
+});

@@ -1,63 +1,40 @@
 import React from 'react';
 
 type LogoProps = {
+  /** Cạnh của khung vuông chứa logo, tính bằng px. */
   size?: number;
-  withWordmark?: boolean;
   className?: string;
 };
 
-// Bậc chiều cao của bản nhỏ do packages/brand/build-assets.js sinh ra.
-// Đổi ở đây thì đổi cùng vòng `for (const h of [...])` trong script đó.
-const MARK_SIZES = [64, 96, 128] as const;
-// Tỉ lệ rộng/cao của dấu hiệu (512x626) - để khai bề rộng THẬT cho srcset `w`.
-const MARK_RATIO = 512 / 626;
+// Bậc cạnh của bản nhỏ do packages/brand/build-assets.js sinh ra. Đổi ở đây thì
+// đổi cùng vòng `for (const s of [...])` trong script đó.
+const LOGO_SIZES = [48, 96, 144, 192] as const;
 
 const srcSet = (ext: 'avif' | 'webp') =>
-  MARK_SIZES.map((h) => `/brand/logo-mark-${h}.${ext} ${Math.round(h * MARK_RATIO)}w`).join(', ');
+  LOGO_SIZES.map((s) => `/brand/logo-tsudev-${s}.${ext} ${s}w`).join(', ');
 
-// Biểu tượng thương hiệu tsudev (chim cú mạch điện), sinh từ packages/brand.
-// Chỉ dùng phần biểu tượng ở đây; chữ "tsudev" render bằng text để ăn theo
-// token màu của giao diện và luôn sắc nét ở mọi kích thước.
+// Logo tsudev HOÀN CHỈNH (cú + chữ "tsudev"), sinh từ
+// packages/brand/source/logo-tsudev.png - chủ dự án chốt 13/11/2026 dùng nguyên
+// logo ở mọi chỗ, chỉ xoá nền. Vì chữ "tsudev" đã nằm TRONG logo nên không vẽ
+// thêm chữ bằng HTML bên cạnh (lặp chữ trông nghiệp dư); tên đọc màn hình do
+// thẻ <a> bao ngoài (`aria-label`) hoặc `alt` ở đây cung cấp.
 //
-// Ảnh đi qua <picture>: trình duyệt lấy bản AVIF (~2-6 kB), không hỗ trợ thì
-// WebP, cuối cùng mới tới PNG 512px (~131 kB) - trước đây PNG đó là thứ DUY
-// NHẤT được tải, để vẽ một con cú 32px trên mọi trang. `sizes` khai đúng bề
-// rộng hiển thị nên máy mật độ 1x lấy bản nhỏ nhất, màn retina lấy bản lớn hơn.
-export const Logo = ({ size = 32, withWordmark = true, className = '' }: LogoProps) => (
-  <span className={`inline-flex items-center gap-2.5 ${className}`}>
-    <picture className="contents">
-      <source
-        type="image/avif"
-        srcSet={srcSet('avif')}
-        sizes={`${Math.round(size * MARK_RATIO)}px`}
-      />
-      <source
-        type="image/webp"
-        srcSet={srcSet('webp')}
-        sizes={`${Math.round(size * MARK_RATIO)}px`}
-      />
-      <img
-        src="/brand/logo-mark.png"
-        alt=""
-        width={size}
-        height={size}
-        decoding="async"
-        className="object-contain shrink-0"
-        style={{ width: size, height: size }}
-        aria-hidden="true"
-      />
-    </picture>
-    {/* Chữ hiệu dùng bậc h4 (18px) của thang §4, không phải một giá trị tuỳ ý.
-        Trước đây nó là 1.05rem ≈ 16.8px - không nằm trên thang nào và không đổi
-        theo token. Đừng viết lại giá trị cũ ở đây kể cả trong chú thích: Tailwind
-        quét NGUYÊN VĂN file, nên một class nằm trong comment vẫn được sinh ra
-        CSS thật. */}
-    {withWordmark && (
-      <span className="font-bold text-h4 tracking-heading text-fg">
-        tsu<span className="text-link">dev</span>
-      </span>
-    )}
-  </span>
+// Khung luôn VUÔNG và ảnh `object-contain`: logo không bao giờ bị kéo giãn.
+// <picture>: AVIF (~2-13 kB) trước, WebP sau, PNG 256 cuối cùng.
+export const Logo = ({ size = 48, className = '' }: LogoProps) => (
+  <picture className={`inline-flex shrink-0 ${className}`}>
+    <source type="image/avif" srcSet={srcSet('avif')} sizes={`${size}px`} />
+    <source type="image/webp" srcSet={srcSet('webp')} sizes={`${size}px`} />
+    <img
+      src="/brand/logo-tsudev-256.png"
+      alt="tsudev"
+      width={size}
+      height={size}
+      decoding="async"
+      className="object-contain"
+      style={{ width: size, height: size }}
+    />
+  </picture>
 );
 
 export default Logo;

@@ -57,10 +57,10 @@ const FEATURES: { title: string; desc: string; href: string; icon: IconName }[] 
     icon: 'list',
   },
   {
-    title: 'Tải về an toàn',
-    desc: 'Mỗi bản phát hành công bố SHA-256 và chữ ký Ed25519 để bạn tự đối chiếu.',
-    href: '/projects',
-    icon: 'signature',
+    title: 'Trò chơi trên web',
+    desc: 'Trò chơi nhẹ chạy ngay trên trình duyệt - không cần cài, không quảng cáo.',
+    href: '/apps#tro-choi',
+    icon: 'play',
   },
 ];
 
@@ -125,15 +125,15 @@ export default function Home({
           </h1>
           <p className="mt-6 mx-auto max-w-2xl text-lg text-fg-secondary text-pretty">
             Hệ sinh thái ứng dụng do tsudev tự phát triển - mở website riêng của từng sản phẩm, cài
-            nhiều app một lượt bằng winget, kèm SHA-256 và chữ ký Ed25519 để bạn tự kiểm.
+            bằng một lệnh qua winget, Scoop, Homebrew hoặc kho APT/DNF có chữ ký.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Button as="a" href="/apps" size="lg">
               Duyệt ứng dụng
             </Button>
-            <Button as="a" href="/projects" variant="secondary" size="lg">
-              <Icon name="signature" size={16} />
-              Bản phát hành có chữ ký
+            <Button as="a" href="/apps#cai-bang-lenh" variant="secondary" size="lg">
+              <Icon name="code" size={16} />
+              Cài bằng một lệnh
             </Button>
           </div>
 
@@ -159,7 +159,7 @@ export default function Home({
             </button>
           </form>
           <ul className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-fg-muted">
-            {['Mã nguồn mở', 'SHA-256 do máy chủ tính', 'Chữ ký Ed25519', 'Cài bằng winget'].map(
+            {['Mã nguồn mở', 'winget · Scoop · Homebrew', 'APT · DNF có ký GPG', 'Tiếng Việt'].map(
               (t) => (
                 <li key={t} className="inline-flex items-center gap-1.5">
                   <Icon name="check-circle" size={16} />
@@ -344,18 +344,18 @@ export default function Home({
                 <Icon name="shield" size={22} />
               </span>
               <h2 className="text-2xl md:text-3xl font-semibold text-fg text-balance">
-                Tải về rồi mà Windows hay Android cảnh báo?
+                Tải về rồi mà Windows cảnh báo?
               </h2>
               <p className="mt-3 text-fg-secondary max-w-lg mx-auto">
-                Dự án cá nhân không có chứng chỉ ký mã thương mại. Mỗi bản phát hành đều kèm SHA-256
-                và chữ ký Ed25519 - đối chiếu được trước khi cài.
+                Dự án cá nhân không có chứng chỉ ký mã thương mại. Cài qua winget, Scoop, Homebrew
+                hoặc kho APT/DNF thì trình quản lý gói tự kiểm SHA-256 và chữ ký cho bạn.
               </p>
               <div className="mt-7 flex flex-wrap justify-center gap-3">
-                <Button as="a" href="/apps">
-                  Xem ứng dụng
+                <Button as="a" href="/apps#cai-bang-lenh">
+                  Cài bằng lệnh
                 </Button>
-                <Button as="a" href="/projects" variant="secondary">
-                  Bản phát hành
+                <Button as="a" href="/docs" variant="secondary">
+                  Hướng dẫn cài đặt
                 </Button>
               </div>
             </div>

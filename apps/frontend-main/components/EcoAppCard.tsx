@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { Icon, Badge, ECO_PLATFORM_LABEL, ECO_CATEGORY_LABEL, installCommands } from '@tsudev/ui';
+import React from 'react';
+import { Icon, Badge, ECO_PLATFORM_LABEL, ECO_CATEGORY_LABEL } from '@tsudev/ui';
 import type { EcoApp, IconName } from '@tsudev/ui';
+import EcoIcon from './EcoIcon';
+import InstallCommands from './InstallCommands';
 
 /**
  * Thẻ một app của hệ sinh thái (danh bạ /apps và khối trang chủ).
@@ -29,19 +31,6 @@ const PLATFORM_ICON: Record<EcoApp['platforms'][number], IconName> = {
 const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' } as const;
 
 export default function EcoAppCard({ app, selectable, selected, onToggle }: Props) {
-  const [copied, setCopied] = useState<string | null>(null);
-  const cmds = installCommands(app);
-
-  const copy = async (channel: string, cmd: string) => {
-    try {
-      await navigator.clipboard.writeText(cmd);
-      setCopied(channel);
-      window.setTimeout(() => setCopied(null), 1800);
-    } catch {
-      // Clipboard bị chặn (HTTP thường, iframe): lệnh vẫn hiện nguyên văn để chép tay.
-    }
-  };
-
   return (
     <article
       className={`tsu-glow-card flex min-w-0 flex-col rounded-lg border bg-surface p-5 ${
@@ -49,25 +38,7 @@ export default function EcoAppCard({ app, selectable, selected, onToggle }: Prop
       }`}
     >
       <div className="flex items-start gap-4">
-        {/* Biểu tượng riêng của từng app (ecosystem.ts > icon), mực --text-link trên
-            ô tím nhạt - xem `.tsu-monogram` ở globals.css. */}
-        <span
-          className="tsu-monogram inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg"
-          aria-hidden="true"
-        >
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d={app.icon} />
-          </svg>
-        </span>
+        <EcoIcon name={app.name} logo={app.logo} tint={app.tint} icon={app.icon} />
         <div className="min-w-0 flex-1">
           <h3 className="font-medium text-fg text-base leading-snug">{app.name}</h3>
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
@@ -103,30 +74,7 @@ export default function EcoAppCard({ app, selectable, selected, onToggle }: Prop
         ))}
       </ul>
 
-      {cmds.length > 0 && (
-        <ul className="mt-4 space-y-2" aria-label={`Lệnh cài ${app.name}`}>
-          {cmds.map(({ channel, cmd }) => (
-            <li
-              key={channel}
-              className="flex items-center gap-2 rounded-md border border-line bg-subtle pl-3 pr-1 py-1 font-mono text-xs text-fg-secondary"
-            >
-              <span className="shrink-0 text-link">{channel}</span>
-              <code className="min-w-0 flex-1 truncate" title={cmd}>
-                {cmd}
-              </code>
-              <button
-                type="button"
-                onClick={() => copy(channel, cmd)}
-                className="inline-flex h-7 items-center gap-1 rounded px-2 text-fg-secondary hover:bg-subtle hover:text-fg"
-                aria-label={`Sao chép lệnh ${channel} cài ${app.name}`}
-              >
-                <Icon name={copied === channel ? 'check' : 'copy'} size={14} />
-                <span aria-live="polite">{copied === channel ? 'Đã chép' : 'Chép'}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <InstallCommands name={app.name} item={app} />
 
       <div className="mt-4 flex flex-wrap gap-2">
         {app.website && (

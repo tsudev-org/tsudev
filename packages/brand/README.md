@@ -8,68 +8,45 @@ trực tiếp trong `public/`, vì lần chạy lại script sẽ ghi đè.
 
 ```
 packages/brand/
-  source/                     ← ảnh gốc, độ phân giải cao (sửa ở đây)
-    logo.jpeg                 2048×2048, nền trắng - chim cú, biểu tượng chính
-    wordmark-light.svg        chữ "tsudev" dạng đường vẽ, tông chàm, cho nền sáng
-    wordmark-dark.svg         bản cho nền tối
-    avatar.png                1490×1490, avatar thương hiệu
-    favicons/                 bộ favicon do RealFaviconGenerator xuất
-    favicons.zip              bản lưu trữ gốc của bộ favicon
-  build-assets.js             script sinh tài nguyên
-  build-wordmark.py           sinh hai wordmark SVG từ font Be Vietnam Pro 700
+  source/
+    logo-tsudev.png           1254x1254, cú + chữ "tsudev" trên nền đen - logo DUY NHẤT (13/11/2026)
+    avatar.png                1490x1490, tham chiếu thiết kế cho avatar mặc định
+  build-assets.js             logo, favicon, manifest, ảnh OG, avatar
+  build-eco-icons.js          logo THẬT của từng app hệ sinh thái → public/eco/*.webp
 ```
 
-Wordmark là **SVG master** của chữ hiệu (kế hoạch Q4 §2, chủ dự án chọn 05/11/2026:
-giữ con cú raster làm biểu tượng, thêm wordmark vector). Header của site vẫn vẽ
-chữ hiệu bằng HTML + token màu để tự đổi theo ba chế độ; SVG dành cho nơi không có
-CSS của site - ảnh OG, README, tài liệu in, nhúng bên ngoài. Đổi màu thương hiệu thì
-sửa `MODES` trong script rồi chạy lại (lệnh ở đầu tệp).
+Logo cũ (`logo.jpeg` nền trắng, bộ favicon RealFaviconGenerator, wordmark SVG) đã gỡ
+13/11/2026 khi chủ dự án đổi sang `logo-tsudev.png`; còn trong lịch sử git.
 
 ## Cập nhật tài nguyên
 
 ```bash
-npm i --no-save sharp                    # sharp không nằm trong dependency của repo
-node packages/brand/build-assets.js
+node packages/brand/build-assets.js       # sharp có sẵn trong node_modules (qua Next)
+node packages/brand/build-eco-icons.js    # tải lại logo app từ website của app
+node scripts/check-brand-assets.js        # cổng kiểm (CI cũng chạy)
 ```
 
-Script ghi vào `public/` của `frontend-main`. Muốn thêm app, bổ sung vào mảng
-`APPS` trong script.
+### Đầu ra (`apps/frontend-main/public/`)
 
-### Đầu ra
-
-| File                                                            | Nguồn                        | Ghi chú                                                  |
-| --------------------------------------------------------------- | ---------------------------- | -------------------------------------------------------- |
-| `brand/logo-full.png`                                           | `logo.jpeg`                  | logo đầy đủ, nền trong suốt                              |
-| `brand/logo-mark.png`                                           | `logo.jpeg`                  | chỉ biểu tượng cú - dùng ở `SiteHeader`                  |
-| `brand/logo-wordmark.png`                                       | `logo.jpeg`                  | chỉ phần chữ                                             |
-| `brand/logo-full-dark.png`                                      | `logo.jpeg`                  | bản cho nền tối - mực navy đổi sang trắng                |
-| `brand/logo-wordmark-dark.png`                                  | `logo.jpeg`                  | chỉ phần chữ, bản cho nền tối                            |
-| `avatars/default-0N.webp`                                       | vẽ bằng vector trong script  | 6 tông, 256×256, 3 kinh + 5 vĩ                           |
-| `avatars/sm/default-0N.webp`                                    | vẽ bằng vector trong script  | 6 tông, 128×128, 2 kinh + 3 vĩ                           |
-| `favicon.ico`                                                   | `android-chrome-512x512.png` | ICO thật, 3 độ phân giải 16/32/48                        |
-| `favicon-*.png`, `apple-touch-icon.png`, `android-chrome-*.png` | `android-chrome-512x512.png` | đã xoá nền trắng                                         |
-| `site.webmanifest`                                              | script                       | `theme_color` khớp `--bg-base` chế độ Sáng; có test canh |
+- `brand/logo-tsudev.png` (1024) và `brand/logo-tsudev-256.png` - logo đầy đủ, nền trong suốt.
+- `brand/logo-tsudev-{48,96,144,192}.{avif,webp}` - cho `Logo.tsx` (header 48px, footer 72px).
+- `favicon.ico` (7 lớp 16-256), `favicon-{16,32,96}.png`, `android-chrome-{192,512}.png` -
+  NGUYÊN logo, nền trong suốt.
+- `apple-touch-icon.png`, `android-chrome-maskable-*.png` - logo trên nền đặc `#0A0A0A`
+  (iOS/Android tô nền vào chỗ trong suốt; maskable chừa 20% vùng an toàn).
+- `site.webmanifest`, `og-image.png` (1200x630, nền tối là hằng thương hiệu).
+- `avatars/*.webp` - 6 tông × 2 mức chi tiết.
+- `eco/<id>.webp` - logo app (128px), từ `build-eco-icons.js`.
 
 ## Vài quyết định kỹ thuật
 
-**Xoá nền logo.** Dùng flood fill 4 hướng từ viền ảnh, không dùng kiểu "biến mọi
-pixel gần trắng thành trong suốt". Lý do: cách sau sẽ đục thủng các mảng sáng
-_bên trong_ logo (chữ TSU, nét bộ não, highlight trên cánh). Ngưỡng
-`inner=40 / outer=58` là kết quả dò thực nghiệm: thấp hơn thì còn quầng xám
-quanh cú trên nền đen, cao hơn thì flood fill lách qua vùng quầng sáng và ăn lẹm
-viền bộ não.
+**Xoá nền đen mà không thủng mặt cú.** Logo vẽ trên nền đen và lòng logo cũng có nhiều mảng
+gần đen. Flood fill trần từ mép ảnh lọt qua khe tối hẹp giữa tai cú và vòng tròn, ăn thủng mặt
+cú - trên nền tối không ai thấy, trên nền Sáng thành lỗ trắng. Script đóng hình thái học mặt nạ
+nội dung (`seal=14`, dò thực nghiệm: 6 còn lọt) làm rào chắn cho flood fill, rồi làm mềm alpha
+theo độ sáng và khử nhân với nền đen để quầng xanh giữ đúng sắc trên nền sáng.
 
-**Bản cho nền tối.** Chữ navy `#11355A` chỉ đạt **1.38:1** trên nền Tối - không
-đọc được. Bản `-dark` đổi mực navy sang trắng (**17.28:1**) và **giữ nguyên chữ
-cam**, vốn đã đạt 6.66:1 trên cùng nền đó. Phân biệt hai màu mực bằng hiệu
-`b - r`: navy cho +73, cam cho -208; pixel ở giữa được pha theo tỉ lệ nên không
-sinh viền tối quanh chữ cam. Hình con cú **không bị đụng tới** - nó đủ tương phản
-trên cả hai nền. Lưu ý: quầng sáng của cú vốn được vẽ để tan vào nền trắng, nên ở
-cỡ rất lớn trên nền tối phần đáy thân cú vẫn hơi lộ vệt sáng.
-
-**Lòng chữ kín.** Flood fill từ viền không với tới vùng nền bị bao kín (lòng chữ
-"d", "e"). Phần chữ là hình phẳng không có quầng sáng nên được dọn thêm bằng
-ngưỡng màu toàn cục, chỉ áp dụng cho dải chữ bên dưới.
+**Không kéo giãn.** Mọi cỡ đều `fit: 'contain'` trên khung vuông; ảnh nguồn không bị cắt.
 
 **Avatar vẽ bằng vector.** `source/avatar.png` có dòng chữ "tsudev\_" đè lên vùng
 xích đạo của quả cầu lưới, nên phần lưới nằm dưới chữ đã mất hẳn dữ liệu - mọi
@@ -89,11 +66,5 @@ Sau khi gỡ Diễn đàn/Chợ, **không trang nào còn dùng avatar trên 48p
 là bộ đầy đủ hiện chỉ phục vụ Storybook. Đừng xoá: thêm một trang hồ sơ cỡ lớn
 là cần lại ngay, và bộ này sinh từ ảnh gốc chứ không chép tay.
 
-**Xoá nền favicon.** Bộ gốc bị nung sẵn nền trắng (0% pixel trong suốt). Script
-tách nền trên bản 512 rồi thu nhỏ xuống các cỡ còn lại - hạ cỡ từ ảnh đã có alpha
-cho biên mượt hơn nhiều so với tách nền trực tiếp trên ảnh 16px.
-
-**favicon.ico.** File `.ico` trong bộ gốc thực chất là PNG đổi đuôi (không phải
-container ICO). Script dựng lại ICO thật chứa 3 độ phân giải, nên bộ gốc đã được
-lược bỏ file đó để tránh nhầm lẫn - bản lưu trữ đầy đủ vẫn nằm trong
-`favicons.zip`.
+**favicon.ico** là container ICO thật 7 lớp (16/24/32/48/64/128/256), không phải PNG đổi
+đuôi - `scripts/check-brand-assets.js` canh.

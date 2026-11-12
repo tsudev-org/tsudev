@@ -128,5 +128,13 @@ export default function ProjectsIndex({ projects, failed }: ProjectsIndexProps) 
 export async function getStaticProps() {
   const r = await api.projects(100);
   const revalidate = keepStaleOnFailure(r.failed, '/projects');
+  // Chưa có dự án công khai nào ⇒ chuyển về /apps thay vì vẽ một trang "Chưa có dự
+  // án nào" (chủ dự án yêu cầu gỡ 13/11/2026 - trang trống làm site thiếu chuyên
+  // nghiệp). TẠM THỜI (307) và vẫn theo nhịp ISR: đăng dự án đầu tiên thì trang tự
+  // sống lại sau tối đa `revalidate` giây, không cần deploy. Lỗi tải KHÔNG rơi vào
+  // nhánh này - `keepStaleOnFailure` đã ném ở runtime, và bản build giữ trang chờ.
+  if (!r.failed && r.data.length === 0) {
+    return { revalidate, redirect: { destination: '/apps', permanent: false } };
+  }
   return { revalidate, props: { projects: r.data, failed: r.failed } };
 }
