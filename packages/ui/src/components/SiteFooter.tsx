@@ -20,6 +20,8 @@ const COLS: Col[] = [
       eco('Danh bạ ứng dụng', '/apps'),
       eco('Dự án & bản phát hành', '/projects'),
       eco('Hướng dẫn cài đặt', '/docs'),
+      // Trang Ủng hộ TRUNG TÂM của hệ sinh thái (phiếu 20261112-01).
+      eco('Ủng hộ', '/ung-ho'),
     ],
   },
   {
@@ -27,11 +29,16 @@ const COLS: Col[] = [
     // trong hệ sinh thái liên kết qua lại với nhau). App chưa có website thì không
     // hiện ở cột này; nó vẫn có trong /apps với nút tải từ GitHub.
     title: 'Hệ sinh thái',
-    links: ECOSYSTEM_APPS.filter((a) => a.website).map((a): FooterLink => [
-      a.name,
-      a.website as string,
-      true,
-    ]),
+    // Sáu game *.tsudev.com gom thành MỘT liên kết về mục Trò chơi của /apps -
+    // liệt kê từng game thì cột này quá dài (phiếu 20261112-02).
+    links: [
+      ...ECOSYSTEM_APPS.filter((a) => a.website).map((a): FooterLink => [
+        a.name,
+        a.website as string,
+        true,
+      ]),
+      eco('Trò chơi', '/apps#tro-choi'),
+    ],
   },
   {
     title: 'Nội dung',

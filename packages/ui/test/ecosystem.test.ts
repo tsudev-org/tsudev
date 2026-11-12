@@ -1,4 +1,4 @@
-import { ECOSYSTEM_APPS, PKG_REPO, installCommands } from '../src/lib/ecosystem';
+import { ECOSYSTEM_APPS, ECO_GAMES, PKG_REPO, installCommands } from '../src/lib/ecosystem';
 
 describe('lệnh cài từ kho APT/RPM pkg.tsudev.com', () => {
   const lotus = ECOSYSTEM_APPS.find((a) => a.id === 'lotus');
@@ -29,5 +29,19 @@ describe('lệnh cài từ kho APT/RPM pkg.tsudev.com', () => {
     for (const app of ECOSYSTEM_APPS.filter((a) => !a.pkg)) {
       expect(installCommands(app).map((c) => c.channel)).not.toContain('APT');
     }
+  });
+});
+
+describe('mục Trò chơi (phiếu 20261112-02)', () => {
+  it('sáu game, id duy nhất, website https://<id>.tsudev.com', () => {
+    expect(ECO_GAMES).toHaveLength(6);
+    expect(new Set(ECO_GAMES.map((g) => g.id)).size).toBe(ECO_GAMES.length);
+    for (const g of ECO_GAMES) expect(g.website).toBe(`https://${g.id}.tsudev.com`);
+  });
+
+  it('repo private: không lộ link GitHub, không link studio sau Cloudflare Access', () => {
+    const all = JSON.stringify(ECO_GAMES);
+    expect(all).not.toMatch(/github\.com|TsuGameLabs|studio-/i);
+    for (const g of ECO_GAMES) expect(g.openSource).toBe(false);
   });
 });

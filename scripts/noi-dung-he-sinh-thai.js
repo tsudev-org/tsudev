@@ -4,7 +4,7 @@
  *
  * KHÔNG dùng bảng Markdown: lib/md.ts không dựng bảng (hiện thành ký tự | thô) - dùng danh sách.
  *
- * Mọi dữ kiện dưới đây đã ĐO 10/11/2026: website từng app trả 200 (danh sách ở
+ * Mọi dữ kiện dưới đây đã ĐO 10/11/2026 (6 trò chơi: 12/11/2026): website từng app trả 200 (danh sách ở
  * packages/ui/src/lib/ecosystem.ts), gói winget `tsudev.cwico`/`tsudev.SWICO` có
  * trong microsoft/winget-pkgs, JWKS phát hành ở /.well-known/tsudev-release-jwks.json
  * và /api/releases/jwks trả 200. Đổi sản phẩm thì sửa ở đây VÀ ở ecosystem.ts.
@@ -31,7 +31,18 @@ const DOCS = [
 - **La bàn** - la bàn, toạ độ, độ cao, thước thuỷ (Android): [compass.tsudev.com](https://compass.tsudev.com)
 - **tsudev-contact** - chuyển danh bạ CSV sang vCard .vcf (Windows): [contact.tsudev.com](https://contact.tsudev.com)
 
-Danh bạ đầy đủ, có tìm kiếm và lọc theo nền tảng: [/apps](/apps).
+## Trò chơi
+
+Chơi ngay trên trình duyệt, không cần cài:
+
+- **Xin Chào Núi Cấm** - trò chơi khám phá: [xin-chao-nui-cam.tsudev.com](https://xin-chao-nui-cam.tsudev.com)
+- **Chú Chim Vỗ Cánh** - trò chơi hành động: [chu-chim-vo-canh.tsudev.com](https://chu-chim-vo-canh.tsudev.com)
+- **Lật Mảnh Ghép** - trò chơi giải đố: [lat-manh-ghep.tsudev.com](https://lat-manh-ghep.tsudev.com)
+- **Nối Hình Giống Nhau** - trò chơi trí tuệ: [noi-hinh-giong-nhau.tsudev.com](https://noi-hinh-giong-nhau.tsudev.com)
+- **Luyện Gõ Phím** - công cụ luyện tập: [luyen-go-phim.tsudev.com](https://luyen-go-phim.tsudev.com)
+- **Núi Cấm 3D** - trò chơi thế giới mở 3D: [nuicam3d.tsudev.com](https://nuicam3d.tsudev.com)
+
+Danh bạ đầy đủ, có tìm kiếm và lọc theo nền tảng: [/apps](/apps). Muốn ủng hộ hệ sinh thái: [/ung-ho](/ung-ho).
 
 ## Tải ở đâu cho an toàn
 

@@ -165,6 +165,94 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
 ];
 
 /**
+ * Trò chơi của hệ sinh thái (org GitHub `TsuGameLabs`) - chạy trên TRÌNH DUYỆT ở
+ * `<id>.tsudev.com` (Cloudflare Pages): không bản cài, không GitHub Releases, repo
+ * private. Tách khỏi `ECOSYSTEM_APPS` vì không có lệnh cài, không lọc theo hệ điều hành.
+ *
+ * Nguồn sự thật: `danh-muc.json` của repo `TsuGameLabs/tsudev-game-kit` (phiếu
+ * 20261112-02). `tagline` chép NGUYÊN VĂN `mo_ta` của tệp đó. Đã đo 12/11/2026: trang
+ * chủ 200 + `<title>` đúng tên, `og-image.png` 200.
+ *
+ * CHỈ LIÊN KẾT, không nhúng iframe: game đặt `X-Frame-Options: SAMEORIGIN` và
+ * `frame-ancestors 'self'`. KHÔNG đưa link studio World Editor của Núi Cấm 3D (sau
+ * Cloudflare Access).
+ */
+export type EcoGame = {
+  id: string;
+  name: string;
+  /** Thể loại (`the_loai` trong danh-muc.json). */
+  genre: string;
+  tagline: string;
+  website: string;
+  openSource: false;
+  /** Đường vẽ SVG 24x24, nét 1.6 - cùng ngữ pháp với `EcoApp.icon`. */
+  icon: string;
+};
+
+export const ECO_GAMES: EcoGame[] = [
+  {
+    id: 'xin-chao-nui-cam',
+    name: 'Xin Chào Núi Cấm',
+    genre: 'Trò chơi khám phá',
+    tagline:
+      'Trò chơi khám phá vùng Núi Cấm (An Giang): ghép các ô cùng cấp trên lưới để nâng dần lên các biểu tượng của Núi Cấm. Phù hợp trẻ em, đồ hoạ tươi sáng, âm thanh nhẹ nhàng.',
+    website: 'https://xin-chao-nui-cam.tsudev.com',
+    openSource: false,
+    icon: 'M3 19 9.5 8l4 6.5 2-3L21 19zM16.5 6a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0',
+  },
+  {
+    id: 'chu-chim-vo-canh',
+    name: 'Chú Chim Vỗ Cánh',
+    genre: 'Trò chơi hành động',
+    tagline:
+      'Điều khiển chú chim sáo vỗ cánh bay qua các vách đá Núi Cấm (An Giang), nhặt trái thốt nốt để thêm điểm. Sáu chặng từ Chân núi tới Vồ Bồ Hong, rèn tập trung và phản xạ.',
+    website: 'https://chu-chim-vo-canh.tsudev.com',
+    openSource: false,
+    icon: 'M3 11c3-4 6-4 9 0 3-4 6-4 9 0M12 11v4.5M9.5 18.5h5',
+  },
+  {
+    id: 'lat-manh-ghep',
+    name: 'Lật Mảnh Ghép',
+    genre: 'Trò chơi giải đố',
+    tagline:
+      'Lật thẻ tìm cặp hình giống nhau qua nhiều cấp độ và chủ đề - rèn trí nhớ, sự tập trung và tư duy logic.',
+    website: 'https://lat-manh-ghep.tsudev.com',
+    openSource: false,
+    icon: 'M3.5 6h8v12h-8zM14.5 7.5 20 6l2 11.5-5.5 1.5M7.5 10.5v3',
+  },
+  {
+    id: 'noi-hinh-giong-nhau',
+    name: 'Nối Hình Giống Nhau',
+    genre: 'Trò chơi trí tuệ',
+    tagline:
+      'Nối các cặp hình giống nhau bằng đường gấp khúc tối đa hai lần rẽ để xoá khỏi bảng; có điểm, combo và cấp độ tăng dần.',
+    website: 'https://noi-hinh-giong-nhau.tsudev.com',
+    openSource: false,
+    icon: 'M4 4h5v5H4zM15 15h5v5h-5zM6.5 9v8.5H15',
+  },
+  {
+    id: 'luyen-go-phim',
+    name: 'Luyện Gõ Phím',
+    genre: 'Công cụ luyện tập',
+    tagline:
+      'Luyện gõ phím ngoại tuyến: đo WPM, độ chính xác, theo dõi tiến bộ cục bộ. Phát triển từ dự án mã nguồn mở giấy phép MIT.',
+    website: 'https://luyen-go-phim.tsudev.com',
+    openSource: false,
+    icon: 'M3 7h18v10H3zM6.5 10.5h.01M10 10.5h.01M13.5 10.5h.01M17 10.5h.01M8 14h8',
+  },
+  {
+    id: 'nuicam3d',
+    name: 'Núi Cấm 3D',
+    genre: 'Trò chơi thế giới mở 3D',
+    tagline:
+      'Tham quan xã Núi Cấm trong thế giới 3D (three.js + Rapier), có studio World Editor riêng.',
+    website: 'https://nuicam3d.tsudev.com',
+    openSource: false,
+    icon: 'M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9',
+  },
+];
+
+/**
  * Kho APT/RPM `pkg.tsudev.com` (tsudev-standards PACKAGING.md mục 5). Khóa chính RSA-4096 giữ ngoại tuyến;
  * CI chỉ có khóa con ký. Vân tay này PHẢI khớp `keys/` của tsudev-org/linux-packages.
  */

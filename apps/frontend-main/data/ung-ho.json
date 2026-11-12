@@ -1,0 +1,19 @@
+{
+  "ghiChu": "Nguồn DUY NHẤT của kênh ủng hộ hệ sinh thái tsudev, hiển thị ở https://tsudev.com/ung-ho (trang trung tâm; app và repo chỉ trỏ tới trang). Thông tin chuẩn: phiếu gốc ~/projects/logs/handover/20261112-01 mục 2. Ảnh QR chép NGUYÊN TỆP từ tsudev-files (tools/ung-ho/tao-vietqr.py sinh); tên tệp mang 8 ký tự đầu SHA-256 để cache immutable - đổi QR thì đổi tên tệp. lib/ungHo.ts kiểm VietQR lúc build trang; test/ungHo.test.ts ghim SHA-256 (CI + scripts/deploy-frontend.js).",
+  "kenh": [
+    {
+      "ten": "Chuyển khoản ngân hàng (VietQR)",
+      "moTa": "Quét mã bằng ứng dụng ngân hàng hoặc ví điện tử hỗ trợ VietQR/NAPAS 247, hoặc chuyển khoản theo thông tin bên dưới. Nội dung chuyển khoản gợi ý: Ung ho <tên sản phẩm>.",
+      "nganHang": "VIB (Ngân hàng TMCP Quốc Tế Việt Nam)",
+      "soTaiKhoan": "056485506",
+      "chuTaiKhoan": "NGUYEN TRANG TINH SU",
+      "anhQr": "/ung-ho/vietqr-vib-7209698f.svg",
+      "anhQrSha256": "7209698f1393857607ec7bea95b06349ca8ce332d6fb0c9f1774d6beab4cecae",
+      "vietqr": {
+        "bin": "970441",
+        "soTaiKhoan": "056485506",
+        "payload": "00020101021138530010A0000007270123000697044101090564855060208QRIBFTTA53037045802VN63040B90"
+      }
+    }
+  ]
+}

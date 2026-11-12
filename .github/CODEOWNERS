@@ -1,0 +1,8 @@
+# Kênh ủng hộ (số tài khoản, mã QR) và cổng kiểm của trang /ung-ho: chỉ chủ dự án duyệt - chống tráo
+# tài khoản nhận tiền (phiếu 20261112-01 mục 3.4). Ruleset của main nên bật "Require review from Code Owners".
+/apps/frontend-main/data/ung-ho.json @tsudev-tsudev
+/apps/frontend-main/lib/ungHo.ts @tsudev-tsudev
+/apps/frontend-main/test/ungHo.test.ts @tsudev-tsudev
+/apps/frontend-main/public/ung-ho/ @tsudev-tsudev
+/.github/FUNDING.yml @tsudev-tsudev
+/.github/CODEOWNERS @tsudev-tsudev

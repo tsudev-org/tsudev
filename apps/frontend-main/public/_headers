@@ -2,3 +2,7 @@
 # https://opennext.js.org/cloudflare/caching#static-assets-caching
 /_next/static/*
   Cache-Control: public,max-age=31536000,immutable
+
+# Ảnh QR trang /ung-ho: tên tệp mang 8 ký tự đầu SHA-256 (lib/ungHo.ts bắt buộc) - đổi QR là đổi tên tệp.
+/ung-ho/*
+  Cache-Control: public,max-age=31536000,immutable
