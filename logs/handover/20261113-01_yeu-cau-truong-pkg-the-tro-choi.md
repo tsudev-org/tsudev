@@ -5,7 +5,7 @@
 - **Thời điểm**: 13/11/2026
 - **Liên quan**: phiếu gốc `logs/handover/20261112-03_yeu-cau-kenh-phan-phoi-ban-cai-tro-choi.md` (mục 3, mục 7);
   `~/projects/linux-packages/logs/handover/20261112-01_yeu-cau-goi-tro-choi-tsugamelabs.md` (mục 4)
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG (13/11/2026, phiên tsudev-06)
 
 ## 1. Gói đã có thật
 
@@ -35,4 +35,13 @@ của `linux-packages` (CI cài thật xanh). Không hiện lệnh cho gói chư
 
 ## 3. Kết quả xử lý (phiên nhận điền)
 
--
+- 13/11/2026 - phiên tsudev-06 (phiên 49), PR #228, Worker `3154a393`:
+  - Tự kiểm lại gói: `Packages` của kho có `tsudev-luyen-go-phim` 26.11.1201-1 amd64.
+  - `EcoGame` thêm `pkg` + `pkgArch` ('Linux x86-64'); `installCommands` nhận kiểu `Installable` dùng chung
+    (`Partial<Pick<EcoApp, 'winget' | 'scoop' | 'brew' | 'pkg'>>`), không viết lại `aptCommand`/`dnfCommand`.
+  - Thẻ game dùng component chung `InstallCommands` (tách khỏi thẻ app), hiện "Cài bản máy tính · Linux x86-64" +
+    APT/DNF, nhãn "Linux"; game không `pkg` không có khối lệnh.
+  - Test `packages/ui/test/ecosystem.test.ts`: hai lệnh APT/DNF đúng gói; game không `pkg` ra `[]`.
+  - Production: `curl https://tsudev.com/apps` có `sudo apt install tsudev-luyen-go-phim` (2 lần: APT + DNF dạng dnf).
+  - Đã ghi mục 7 phiếu gốc 20261112-03. Báo phiên `tsudev-game-kit`: chưa có phiên game nào đang mở lúc ghi - phiên game
+    sau đọc mục 7 phiếu gốc.
