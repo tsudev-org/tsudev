@@ -65,3 +65,5 @@
     **Chủ dự án chọn phương án.**
   - **Mục 3**: làm khi gói có thật. `ECO_GAMES` (`packages/ui/src/lib/ecosystem.ts`) thêm trường `pkg`; thẻ game
     hiện khối lệnh như thẻ app (PACKAGING.md mục 8: chỉ kênh đã có gói thật).
+  - 12/11/2026 (sau): chủ dự án ủy quyền phiên tsudev-d5 chọn - **CHỐT PHƯƠNG ÁN A** (repo công khai
+    `TsuGameLabs/tsudev-<id>-releases` cho từng game). Chi tiết + việc còn lại ở mục 4 phiếu `linux-packages` 20261112-01.
