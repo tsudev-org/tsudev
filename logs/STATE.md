@@ -13,7 +13,9 @@
 > 🪤 Deploy: `XDG_CONFIG_HOME=$HOME/.config/wrangler-tsudev npm --workspace apps/frontend-main run deploy` (ngoài
 > sandbox). `~/.config/.wrangler` dùng chung đã bị đăng nhập sang tài khoản khác; triệu chứng là R2 worker timeout vô hạn.
 >
-> 🔴 Chủ dự án: Code Owners trong ruleset `main`; áp nội dung lên Neon; chọn phương án tệp cài game (`linux-packages`).
+> ✅ Sau đó (cùng ngày): Code Owners bật trên branch protection `main` (🪤 PR của agent sửa dữ liệu ủng hộ không tự
+> duyệt được - cố ý); nội dung giới thiệu đã áp lên Neon + nghiệm thu; tệp cài game CHỐT phương án A (chờ phiên game
+> tạo `TsuGameLabs/tsudev-luyen-go-phim-releases`, rồi `linux-packages`, rồi `ECO_GAMES.pkg`).
 
 > **Phiên 48 BẮT ĐẦU Ở ĐÂY** (cuối phiên 47, 10/11/2026). Phiếu:
 > [`20261110-05`](handover/20261110-05_phien-47-giao-dien-den-tim-supabase.md) (đọc kèm 20261110-03).

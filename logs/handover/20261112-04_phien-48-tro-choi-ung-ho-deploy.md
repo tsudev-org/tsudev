@@ -39,9 +39,16 @@ công theo giấy phép, không phải câu "tương thích LocalSend" mà phiê
 
 ## 4. Việc còn lại
 
-1. 🔴 Chủ dự án: bật "Require review from Code Owners" ở ruleset `main` (CODEOWNERS đã có cho dữ liệu ủng hộ).
-2. 🔴 Chủ dự án: áp `scripts/noi-dung-he-sinh-thai.js` lên Neon (`DATABASE_URL='<neon>' node scripts/don-noi-dung-lac-de.js --apply --noi-dung`).
-   Tài liệu giới thiệu sẽ có mục Trò chơi + tên Lotus Share. Máy không còn chuỗi Neon (`~/.tsudev/neon-prod.url` đã mất).
-3. 🔴 Chủ dự án: chọn phương án A/B cho tệp cài game ở phiếu `~/projects/linux-packages/logs/handover/20261112-01_*`.
-   Khi gói có thật: `ECO_GAMES` thêm `pkg` (phiếu 20261112-03 mục 3).
+1. ✅ (12/11/2026) Chủ dự án bật `require_code_owner_reviews` + `dismiss_stale_reviews` trên **branch protection**
+   `main` (repo KHÔNG dùng ruleset - các phiếu cũ ghi "ruleset" là sai). Số lượt duyệt chung giữ 0: chỉ PR sửa tệp
+   trong CODEOWNERS cần duyệt. 🪤 Code owner = `tsudev-tsudev` = tài khoản agent mở PR, GitHub cấm tự duyệt và
+   `enforce_admins` bật ⇒ PR của agent sửa dữ liệu ủng hộ KHÔNG merge được (cố ý). Đổi kênh ủng hộ: PR từ tài khoản
+   khác, hoặc chủ dự án tạm `require_code_owner_reviews=false`.
+2. ✅ (12/11/2026) Chủ dự án áp `--apply --noi-dung` lên Neon (kết nối trực tiếp, không pooler; bỏ `channel_binding`
+   cho Prisma 5): đăng 4 tài liệu + 1 bài, xoá mềm 0. Nghiệm thu: `/search?q=nuicam3d` ra bài giới thiệu,
+   `/docs/gioi-thieu-he-sinh-thai-tsudev` có đủ 6 game + Lotus Share, hết `tsudev-lotus`.
+3. ✅ Phương án tệp cài game: **CHỐT A** (chủ dự án ủy quyền phiên này chọn) - mỗi game một repo CÔNG KHAI
+   `TsuGameLabs/tsudev-<id>-releases`. Phiên game đã dựng sẵn (`tsudev-luyen-go-phim` 087fbb7); repo công khai
+   CHƯA tạo - đã nhắn `tsudev-game-kit-b0`. Chuỗi việc tiếp: Release đầu tiên → `linux-packages` thêm vào
+   `products.json` + CI cài thử → phiếu mới về repo này → `ECO_GAMES` thêm `pkg` (phiếu 20261112-03 mục 3).
 4. Việc cũ không đổi: QU-STD-4, QU-STD-AUTH, C1; T18/T20/T21/T24 (phiếu 20261109-05 mục 4).
