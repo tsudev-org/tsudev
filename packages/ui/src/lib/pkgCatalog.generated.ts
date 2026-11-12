@@ -27,6 +27,12 @@ export const PKG_CATALOG = {
       homepage: 'https://lotus.tsudev.com',
     },
     {
+      name: 'tsudev-contact',
+      version: '26.11.1001',
+      arch: ['any'],
+      homepage: 'https://contact.tsudev.com',
+    },
+    {
       name: 'tsudev-files',
       version: '2.4.0-vn.1',
       arch: ['any'],
