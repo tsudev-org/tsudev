@@ -1,0 +1,91 @@
+name: Script cài một dòng
+
+# Thử THẬT install.sh / install.ps1 (tsudev-standards PACKAGING.md mục 6) - test jest chỉ quét
+# nguồn, không chạy được `curl | sh`. Chạy khi đổi script, và hằng tuần vì kho gói / catalog
+# đổi bên ngoài repo này.
+on:
+  pull_request:
+    paths:
+      - 'apps/frontend-main/public/install.*'
+      - '.github/workflows/install-scripts.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'apps/frontend-main/public/install.*'
+  schedule:
+    - cron: '23 4 * * 3'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: install-scripts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    name: install.sh - ${{ matrix.image }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ['ubuntu:22.04', 'ubuntu:24.04', 'debian:12', 'fedora:42']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: shellcheck
+        if: matrix.image == 'ubuntu:24.04'
+        run: shellcheck -s sh apps/frontend-main/public/install.sh
+      - name: Cài thật trong container sạch
+        env:
+          IMAGE: ${{ matrix.image }}
+        run: |
+          docker run --rm -e DEBIAN_FRONTEND=noninteractive -v "$PWD/apps/frontend-main/public:/s:ro" "$IMAGE" sh -euc '
+            if command -v apt-get >/dev/null; then apt-get update -q && apt-get install -yq --no-install-recommends curl ca-certificates; fi
+            sh /s/install.sh --list | grep -q tsudev-luyen-go-phim
+            if sh /s/install.sh "x;rm" 2>/dev/null; then echo "tên gói xấu lọt qua"; exit 1; fi
+            sh /s/install.sh tsudev-luyen-go-phim
+            command -v tsudev-luyen-go-phim || ls /usr/bin | grep -i luyen
+          '
+      - name: Khoá ký bị đổi thì PHẢI dừng, không thêm kho
+        env:
+          IMAGE: ${{ matrix.image }}
+        run: |
+          sed -E 's/^(PIN_(GPG|ASC)_SHA256=")[0-9a-f]{64}/\10000000000000000000000000000000000000000000000000000000000000000/' \
+            apps/frontend-main/public/install.sh > /tmp/install-sai.sh
+          docker run --rm -e DEBIAN_FRONTEND=noninteractive -v /tmp/install-sai.sh:/s.sh:ro "$IMAGE" sh -euc '
+            if command -v apt-get >/dev/null; then apt-get update -q && apt-get install -yq --no-install-recommends curl ca-certificates; fi
+            if sh /s.sh tsudev-luyen-go-phim; then echo "khoá sai mà vẫn cài"; exit 1; fi
+            test ! -e /etc/apt/sources.list.d/tsudev.list
+            test ! -e /etc/yum.repos.d/tsudev.repo
+            echo "đã từ chối đúng"
+          '
+
+  windows:
+    name: install.ps1 - Windows
+    runs-on: windows-2025
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Cú pháp, -List, chặn tên xấu (PowerShell 5.1)
+        shell: powershell
+        run: |
+          $t = Get-Content -Raw apps/frontend-main/public/install.ps1
+          & ([scriptblock]::Create($t)) -List
+          $bad = $false
+          try { & ([scriptblock]::Create($t)) 'x;rm' } catch { $bad = $true }
+          if (-not $bad) { throw 'tên gói xấu lọt qua' }
+      - name: Cài thật qua Scoop (tsudev-trafficmonitor)
+        shell: powershell
+        run: |
+          Invoke-RestMethod -Uri https://get.scoop.sh -OutFile "$env:RUNNER_TEMP\scoop.ps1"
+          & "$env:RUNNER_TEMP\scoop.ps1" -RunAsAdmin
+          $env:PATH = "$env:USERPROFILE\scoop\shims;$env:PATH"
+          $t = Get-Content -Raw apps/frontend-main/public/install.ps1
+          & ([scriptblock]::Create($t)) tsudev-trafficmonitor
+          scoop list tsudev-trafficmonitor

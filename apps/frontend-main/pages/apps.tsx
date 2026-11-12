@@ -266,6 +266,42 @@ export default function AppsPage() {
             kiểm trước khi cài. Thêm nguồn tsudev một lần, sau đó cài và cập nhật như mọi phần mềm
             khác.
           </p>
+          {/* Lệnh cài một dòng (PACKAGING.md mục 6): script chỉ chuyển sang trình quản lý gói,
+              khoá ký ghim SHA-256, có tệp .sha256 công bố để tự kiểm trước khi chạy. */}
+          <div className="mt-5 rounded-md border border-primary/40 bg-subtle p-4">
+            <div className="text-sm font-medium text-fg">Một lệnh cho mọi máy</div>
+            <dl className="mt-2 grid gap-2 text-xs md:grid-cols-[max-content_1fr] md:gap-x-4">
+              <dt className="text-fg-secondary">Linux, macOS</dt>
+              <dd className="min-w-0 break-all font-mono text-fg">
+                curl -fsSL https://tsudev.com/install.sh | sh -s -- &lt;tên-gói&gt;
+              </dd>
+              <dt className="text-fg-secondary">Windows</dt>
+              <dd className="min-w-0 break-all font-mono text-fg">
+                &amp; ([scriptblock]::Create((irm https://tsudev.com/install.ps1))) &lt;tên-gói&gt;
+              </dd>
+            </dl>
+            <p className="mt-2 text-xs text-fg-muted">
+              Thay <code>&lt;tên-gói&gt;</code> bằng <code>--list</code> (Windows:{' '}
+              <code>-List</code>) để xem gói có thể cài. Script chỉ gọi winget, Scoop, Homebrew, apt
+              hoặc dnf - đọc trước khi chạy:{' '}
+              <a href="/install.sh" className="text-link underline">
+                install.sh
+              </a>{' '}
+              (
+              <a href="/install.sh.sha256" className="text-link underline">
+                SHA-256
+              </a>
+              ),{' '}
+              <a href="/install.ps1" className="text-link underline">
+                install.ps1
+              </a>{' '}
+              (
+              <a href="/install.ps1.sha256" className="text-link underline">
+                SHA-256
+              </a>
+              ).
+            </p>
+          </div>
           <ul className="mt-5 grid gap-3 md:grid-cols-2">
             {CHANNELS.map((c) => (
               <li key={c.name} className="min-w-0 rounded-md border border-line bg-subtle p-4">

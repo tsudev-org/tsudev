@@ -57,6 +57,13 @@ Danh bạ đầy đủ, có tìm kiếm và lọc theo nền tảng: [/apps](/ap
     position: 1,
     contentMd: `Mọi ứng dụng tsudev đã đóng gói đều cài được bằng một dòng lệnh. Gói dựng từ đúng tệp đã phát hành trên GitHub của \`tsudev-org\`, kèm SHA-256; trình quản lý gói tự kiểm trước khi cài. Lệnh cụ thể của từng ứng dụng nằm trên thẻ của nó ở [/apps](/apps) - chỉ kênh đã có gói thật mới hiện.
 
+## Một lệnh cho mọi máy
+
+- Linux, macOS: \`curl -fsSL https://tsudev.com/install.sh | sh -s -- <tên-gói>\`
+- Windows (PowerShell): \`& ([scriptblock]::Create((irm https://tsudev.com/install.ps1))) <tên-gói>\`
+
+Thay \`<tên-gói>\` bằng \`--list\` (Windows: \`-List\`) để xem gói có thể cài. Script chỉ gọi trình quản lý gói bên dưới, kiểm khoá ký bằng mã băm ghim sẵn, và công bố SHA-256 của chính nó ở [/install.sh.sha256](/install.sh.sha256) và [/install.ps1.sha256](/install.ps1.sha256) - đọc script trước khi chạy.
+
 ## winget (Windows 10/11)
 
 Có sẵn trong Windows, không cần thêm nguồn:
