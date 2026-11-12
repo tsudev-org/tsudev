@@ -4,7 +4,7 @@
 
 # Sửa xong file → XÓA dòng khóa của mình.
 
-(TRỐNG - phiên 47 đã nhả mọi khoá, 10/11/2026.)
+(TRỐNG - phiên 48 đã nhả mọi khoá, 12/11/2026.)
 
-✅ Phiên 47 xong (10/11/2026): không giữ khoá nào, không tiến trình nền (dev server, backend giả, Postgres dev
-đã dừng), không worktree. Việc kế tiếp: phiếu `logs/handover/20261110-05_phien-47-giao-dien-den-tim-supabase.md`.
+✅ Phiên 48 xong (12/11/2026): không giữ khoá nào, không tiến trình nền, không worktree. Việc kế tiếp: phiếu
+`logs/handover/20261112-04_phien-48-tro-choi-ung-ho-deploy.md` mục 4 (đều là việc của chủ dự án).
