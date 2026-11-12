@@ -76,3 +76,18 @@ liệu đó vào `ecosystem.ts` ⇒ đổi tên/kênh ở repo app không tự l
    quyền người dùng - cần ký (Authenticode cho .ps1, chữ ký GPG/SHA-256 công bố cho .sh) và review kỹ. Làm SAU 1-2.
 4. **Ký mã Windows** để hết cảnh báo SmartScreen: SignPath Foundation (miễn phí cho mã nguồn mở) hoặc Azure Trusted Signing
    (trả phí theo tháng). Đây là điều kiện để winget/Scoop trông "chính thức" trên máy người dùng.
+
+## 6. Bổ sung cuối phiên (13/11/2026, sau khi chủ dự án ủy quyền làm hết)
+
+- ⚠️ Lần chạy `--apply --noi-dung` của chủ dự án RƠI VÀO DB LOCAL: `&` trong URL không đặt trong nháy đơn nên shell cắt
+  lệnh (dòng `DB: localhost:5433`, `[1] <pid>`). Production chưa đổi. Mật khẩu Neon hiện trong ảnh chụp chat - đã khuyên
+  đổi. Lệnh đúng (nháy đơn, bỏ `channel_binding`): mục 4.1.
+- Logo riêng cwico / SWICO / contact: làm TRỰC TIẾP ở ba repo (không phiên nào mở) - tsudev-cwico#68, tsudev-swico#18,
+  tsudev-contact#23; website deploy `091fe71e` / `d66ac20a` / `e97e9d42`, favicon production khớp byte. Dây chuyền chung
+  `website/scripts/brand-assets.mjs` + `assets/brand/brand.json` + `--check` trong CI. `/apps` nay lấy logo từ website app.
+- CodeQL: chuyển sang workflow riêng `.github/workflows/codeql.yml` (actions, JS/TS, Rust; bỏ Python), default setup TẮT
+  (#230). Ảnh chụp cấu hình cũ: `{"languages":["actions","javascript","javascript-typescript","python","rust","typescript"],"query_suite":"default","schedule":"weekly"}`.
+- Lệnh cài một dòng `install.sh` / `install.ps1` + CI cài thật: phiếu 20261113-02 mục 4.
+- Phủ kênh còn thiếu + ký mã Windows: phiếu toàn hệ `~/projects/logs/handover/20261113-01_yeu-cau-phu-kenh-cai-dat-va-ky-ma-windows.md`
+  (SignPath cần CHỦ DỰ ÁN đăng ký).
+- 🪤 Lần thứ hai trong phiên: `pkill -f "<chuỗi>"` giết chính shell (exit 144). Dừng tiến trình theo PID.

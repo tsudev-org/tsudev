@@ -51,7 +51,8 @@
     "prod:dem-noi-dung": "node scripts/dem-noi-dung-prod.js",
     "r2:cors": "npx wrangler r2 bucket cors set tsudev --file infrastructure/r2/cors.tsudev.json",
     "r2:cors:list": "npx wrangler r2 bucket cors list tsudev",
-    "pkg:catalog": "node scripts/pkg-catalog-sync.js"
+    "pkg:catalog": "node scripts/pkg-catalog-sync.js",
+    "install-scripts:sha": "node scripts/install-scripts-sha.js"
   },
   "devDependencies": {
     "@eslint/compat": "^2.1.1",

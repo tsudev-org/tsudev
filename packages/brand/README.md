@@ -11,7 +11,6 @@ packages/brand/
   source/
     logo-tsudev.png           1254x1254, cú + chữ "tsudev" trên nền đen - logo DUY NHẤT (13/11/2026)
     avatar.png                1490x1490, tham chiếu thiết kế cho avatar mặc định
-    eco/{cwico,swico,contact}.png  logo app chủ dự án giao 13/11/2026, CHƯA lên website app
   build-assets.js             logo, favicon, manifest, ảnh OG, avatar
   build-eco-icons.js          logo THẬT của từng app hệ sinh thái → public/eco/*.webp
 ```

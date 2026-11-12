@@ -6,3 +6,19 @@
 # Ảnh QR trang /ung-ho: tên tệp mang 8 ký tự đầu SHA-256 (lib/ungHo.ts bắt buộc) - đổi QR là đổi tên tệp.
 /ung-ho/*
   Cache-Control: public,max-age=31536000,immutable
+
+# Script cài một dòng (PACKAGING.md mục 6): luôn lấy bản mới nhất (no-cache), trình duyệt hiện
+# dạng văn bản thuần, CSP chặn mọi thứ nếu ai đó mở bằng trình duyệt.
+/install.sh
+  Cache-Control: no-cache
+  Content-Type: text/plain; charset=utf-8
+  Content-Security-Policy: default-src 'none'; sandbox
+  X-Content-Type-Options: nosniff
+/install.ps1
+  Cache-Control: no-cache
+  Content-Type: text/plain; charset=utf-8
+  Content-Security-Policy: default-src 'none'; sandbox
+  X-Content-Type-Options: nosniff
+/install.*.sha256
+  Cache-Control: no-cache
+  Content-Type: text/plain; charset=utf-8

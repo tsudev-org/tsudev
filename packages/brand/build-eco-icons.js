@@ -14,9 +14,10 @@
  * Hai loại nguồn:
  *   - URL `https://...` - logo đang chạy trên website của app (nguồn sự thật khi
  *     app đã tự phát hành logo của nó);
- *   - tệp trong `source/eco/` - logo chủ dự án giao trực tiếp, CHƯA lên website app
- *     (cwico, SWICO, tsudev-contact: 13/11/2026). Khi repo app đã dùng logo đó trên
- *     website của nó, đổi dòng tương ứng sang URL.
+ *   - tệp trong `source/eco/` - logo chủ dự án giao trực tiếp, CHƯA lên website app.
+ *     Khi repo app đã dùng logo đó trên website của nó, đổi dòng sang URL và xoá tệp
+ *     (cwico, SWICO, tsudev-contact đã chuyển 13/11/2026 - tsudev-cwico#68, swico#18,
+ *     contact#23; bản trên website đã xử lý nền, nên dùng 'as-is').
  *
  * `mode` quyết định cách xử lý ảnh gốc:
  *   - 'as-is'  : giữ nguyên, chỉ đặt vào khung vuông (logo đã nền trong suốt);
@@ -53,9 +54,9 @@ const SOURCES = {
   files: { src: 'https://files.tsudev.com/android-chrome-512x512.png' },
   lotus: { src: 'https://lotus.tsudev.com/android-chrome-512x512.png' },
   compass: { src: 'https://compass.tsudev.com/icon-512.png' },
-  cwico: { src: 'source/eco/cwico.png', mode: 'no-white' },
-  swico: { src: 'source/eco/swico.png', mode: 'tile' },
-  contact: { src: 'source/eco/contact.png', mode: 'tile' },
+  cwico: { src: 'https://cwico.tsudev.com/brand/logo-cwico.png' },
+  swico: { src: 'https://swico.tsudev.com/brand/logo-swico.png' },
+  contact: { src: 'https://contact.tsudev.com/brand/logo-contact.png' },
 };
 
 /** Ô app: cắt vuông chính giữa rồi bo góc (mặt nạ SVG), cạnh ra = SIZE * 4 để thu nhỏ mượt. */

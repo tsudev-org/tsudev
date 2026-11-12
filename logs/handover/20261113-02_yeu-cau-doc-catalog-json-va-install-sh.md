@@ -5,7 +5,7 @@
 - **Thời điểm**: 13/11/2026
 - **Ủy quyền**: chủ dự án giao phiên `linux-packages-1e` chọn phương án chuẩn hóa "mọi phần mềm/tool cài được bằng
   lệnh terminal" cho toàn hệ `*.tsudev.com` (13/11/2026). Phiếu này là phần thuộc repo `tsudev`.
-- **Trạng thái**: MỞ - mục 2.1 XONG (13/11/2026); 2.2-2.3 chờ chủ dự án quyết (xem mục 4)
+- **Trạng thái**: ĐÓNG (13/11/2026) - 2.1 + 2.3 XONG; 2.2 chuyển về tsudev-standards (lý do ở mục 4)
 
 ## 1. Đã có phía kho
 
@@ -78,6 +78,11 @@ Hợp đồng: thêm trường giữ `schema: 1`; đổi/bỏ trường thì tă
     riêng, stack riêng), nên component "dùng chung" ở đây không tới được các site đó. Đúng chỗ là bộ quy ước
     (`tsudev-standards`: hợp đồng dữ liệu + mẫu khối HTML/CSS thuần) - phiếu tsudev-standards 20261113-01 của phiên
     linux-packages là nơi chốt.
-  - **2.3 CHỜ CHỦ DỰ ÁN**: `install.sh` / `install.ps1` chạy qua `curl | sh` / `irm | iex` trên máy người dùng - chủ dự
-    án đã nói muốn THẢO LUẬN phần cài-bằng-lệnh toàn hệ sinh thái trước (chat 13/11/2026). Phương án đề xuất ở mục 5
-    phiếu `20261113-03_phien-49-logo-icon-auth-cai-bang-lenh.md`.
+  - **2.3 XONG** (chủ dự án duyệt 13/11/2026): `apps/frontend-main/public/install.sh` (POSIX sh: tên gói qua regex
+    và phải có trong catalog; apt/dnf với lệnh thêm kho GHI CỨNG - không chạy chuỗi `setup` tải về; khoá `.gpg`/`.asc`
+    kiểm SHA-256 ghim cứng TRƯỚC khi thêm kho - không cần gpg trên máy; macOS dùng brew + catalog tap) và `install.ps1`
+    (winget → Scoop nếu máy đã có Scoop; KHÔNG `exit` vì chạy trong cửa sổ người dùng; BOM UTF-8 cho PowerShell 5.1).
+    `.sha256` công bố cạnh script (`npm run install-scripts:sha`), `_headers` no-cache + CSP `default-src 'none'; sandbox`.
+    Test quét nguồn `test/installScripts.test.ts`; workflow `.github/workflows/install-scripts.yml` cài THẬT trong
+    container Ubuntu 22.04/24.04, Debian 12, Fedora 42 + phép thử khoá giả (phải từ chối, không ghi nguồn kho) +
+    Windows qua Scoop. Đã thử tay trên Windows PowerShell 5.1: -List, chặn tên xấu, cửa sổ không bị đóng.
