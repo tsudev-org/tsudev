@@ -526,8 +526,8 @@ export default function ProfilePage() {
               <ReadOnlyRow label="Vai trò" value={profile?.role ?? '…'} />
             </div>
             <p className="mt-4 text-sm text-fg-muted">
-              Tên đăng nhập là định danh cố định. Vai trò chỉ nâng được bằng mã mời hoặc do quản trị
-              cấp - không tự đổi được ở đây.
+              Tên đăng nhập là định danh cố định. Vai trò do chủ hệ thống cấp - không tự đổi được ở
+              đây.
             </p>
             <Button as="a" href="/settings/security" variant="secondary" className="mt-4">
               Bảo mật: 2FA và passkey

@@ -24,6 +24,17 @@ const DARK_BASE = '#0a0a0a';
  * Bọc trong try/catch vì localStorage ném lỗi khi cookie bên thứ ba bị chặn hoặc
  * khi trang chạy trong iframe sandbox. Hỏng ở đây phải là "hiện chế độ tối mặc
  * định", không phải "trang trắng vì script chết".
+ *
+ * Cùng lúc, script đọc GỢI Ý PHIÊN `tsu-auth` (packages/ui/src/lib/authHint.ts) và
+ * đặt `data-auth="in"` (+ `data-auth-author`, `--tsu-user-name`) lên <html>. Trang
+ * công khai là ISR nên HTML luôn dựng ở trạng thái chưa đăng nhập, và `useSession()`
+ * chỉ biết phiên SAU một lượt gọi /api/auth/session - trước 13/11/2026 khoảng đó
+ * hiện nút "Đăng nhập" rồi mới đổi sang tên người dùng, ở MỌI lần tải trang. Nay
+ * SiteHeader vẽ cả hai biến thể khi đang `loading` và CSS ẩn biến thể sai theo thuộc
+ * tính này, trước lần vẽ đầu. Gợi ý chỉ để vẽ giao diện - KHÔNG phải bằng chứng đăng
+ * nhập; mọi cổng quyền vẫn ở máy chủ.
+ *
+ * Đổi script này ⇒ cập nhật `THEME_SCRIPT_HASH` trong proxy.ts (test/csp.test.ts bắt).
  */
 const THEME_SCRIPT = `
 (function () {
@@ -40,9 +51,18 @@ const THEME_SCRIPT = `
       mode = 'light';
     }
   } catch (e) {}
-  document.documentElement.setAttribute('data-theme', mode);
+  var d = document.documentElement;
+  d.setAttribute('data-theme', mode);
   var m = document.querySelector('meta[name="theme-color"]');
   if (m) m.setAttribute('content', BASE[mode]);
+  try {
+    var h = JSON.parse(localStorage.getItem('tsu-auth') || 'null');
+    if (h && typeof h === 'object') {
+      d.setAttribute('data-auth', 'in');
+      if (h.a === 1) d.setAttribute('data-auth-author', '');
+      if (typeof h.n === 'string' && h.n) d.style.setProperty('--tsu-user-name', JSON.stringify(h.n.slice(0, 40)));
+    }
+  } catch (e) {}
 })();
 `;
 

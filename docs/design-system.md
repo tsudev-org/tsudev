@@ -159,11 +159,17 @@ Nguồn và giấy phép (bản `mono` 24×24 của [thesvg.org](https://thesvg.
 Mọi dấu hiệu vẫn là nhãn hiệu của chủ sở hữu; dùng chúng để báo "có bản cho nền
 tảng này" là cách dùng danh nghĩa, không phải nhận diện của tsudev.
 
-**Logo cú** (`Logo.tsx`) tải qua `<picture>`: AVIF → WebP → PNG. Bản nhỏ
-`logo-mark-{64,96,128}.{avif,webp}` do `packages/brand/build-assets.js` sinh,
-2-9 kB thay vì `logo-mark.png` 131 kB cho một con cú 32-40px. Chưa có bản SVG:
-bản gốc là JPEG raster, vector hoá tự động phải được đo (dung lượng + độ sạch
-nét) trước khi thay, và đổi bản gốc là việc của `.standards/BRAND_ASSETS.md`.
+**Logo** (`Logo.tsx`, từ 13/11/2026) là NGUYÊN logo `packages/brand/source/logo-tsudev.png`
+(cú + chữ "tsudev"), chỉ xoá nền đen - chủ dự án chốt dùng logo hoàn chỉnh ở mọi chỗ, kể cả
+favicon, nên header không vẽ thêm chữ HTML. Tải qua `<picture>`: AVIF → WebP → PNG 256; bản
+`logo-tsudev-{48,96,144,192}.{avif,webp}` 2-20 kB do `packages/brand/build-assets.js` sinh,
+khung vuông `object-contain` nên không bao giờ kéo giãn. Lệch `.standards/BRAND_ASSETS.md`
+(đòi favicon "chỉ hình cú") là CÓ CHỦ Ý - đã mở đề xuất ở `tsudev-standards`.
+
+**Biểu tượng app** trên `/apps` (`components/EcoIcon.tsx`): app có logo riêng dùng logo thật
+(`public/eco/*.webp`, lấy bằng `packages/brand/build-eco-icons.js` từ website của app); app
+chưa có logo riêng vẽ ô chuyển sắc `tint` + glyph trắng (ecosystem.ts). Test ở
+`packages/ui/test/ecosystem.test.ts` canh: mỗi sản phẩm một màu, glyph >= 3:1, logo có tệp thật.
 
 ## Bản đồ tên: token CSS ↔ class Tailwind
 

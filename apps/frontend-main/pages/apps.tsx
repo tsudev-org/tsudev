@@ -12,7 +12,7 @@ import {
   wingetCommand,
   PKG_REPO,
 } from '@tsudev/ui';
-import type { EcoPlatform, EcoCategory } from '@tsudev/ui';
+import type { EcoPlatform, EcoCategory, IconName } from '@tsudev/ui';
 import Seo from '../components/Seo';
 import PageHeader from '../components/PageHeader';
 import EcoAppCard from '../components/EcoAppCard';
@@ -26,12 +26,50 @@ import EcoGameCard from '../components/EcoGameCard';
  *
  * Trang TĨNH (không getStaticProps/ISR): dữ liệu là danh mục `ECOSYSTEM_APPS`
  * trong @tsudev/ui, không gọi backend, nên không có nhánh "máy chủ chết".
- * Bản phát hành có chữ ký do tsudev.com niêm phong vẫn ở /projects.
+ * Mục "Cài bằng lệnh" (#cai-bang-lenh) gom cách thêm nguồn của mọi kênh gói.
  *
  * Tham số `?q=` (ô tìm ở trang chủ gửi tới) được đọc từ router SAU hydrat; ô
  * nhập giữ giá trị riêng một khi người dùng gõ - không đồng bộ ngược bằng effect
  * (react-hooks 7 cấm set-state-in-effect).
  */
+
+/** Bốn kênh gói của hệ sinh thái - lệnh THÊM NGUỒN (một lần cho mỗi máy). */
+const CHANNELS: { name: string; os: string; icon: IconName; setup: string; note: string }[] = [
+  {
+    name: 'winget',
+    os: 'Windows 10/11',
+    icon: 'windows',
+    setup: 'winget install --id <mã gói> -e',
+    note: 'Có sẵn trong Windows, không cần thêm nguồn. Mã gói ghi trên thẻ từng app.',
+  },
+  {
+    name: 'Scoop',
+    os: 'Windows',
+    icon: 'windows',
+    setup: 'scoop bucket add tsudev https://github.com/tsudev-org/scoop-bucket',
+    note: 'Cài không cần quyền quản trị; cập nhật: scoop update *.',
+  },
+  {
+    name: 'Homebrew',
+    os: 'macOS / Linux',
+    icon: 'apple',
+    setup: 'brew tap tsudev-org/tap',
+    note: 'Cập nhật cùng mọi gói khác: brew upgrade.',
+  },
+  {
+    name: 'APT / DNF',
+    os: 'Ubuntu, Debian, Fedora',
+    icon: 'linux',
+    setup: `curl -fsSL ${PKG_REPO.keyring} | sudo tee /usr/share/keyrings/tsudev.gpg >/dev/null`,
+    note: 'Kho pkg.tsudev.com ký GPG; apt/dnf tự kiểm chữ ký. Lệnh đầy đủ trên thẻ từng app.',
+  },
+];
+
+const SOURCES: [string, string][] = [
+  ['tsudev-org/scoop-bucket', 'https://github.com/tsudev-org/scoop-bucket'],
+  ['tsudev-org/homebrew-tap', 'https://github.com/tsudev-org/homebrew-tap'],
+  ['tsudev-org/linux-packages', PKG_REPO.source],
+];
 
 const PLATFORMS: EcoPlatform[] = ['windows', 'android', 'apple', 'linux'];
 const CATEGORIES = Object.keys(ECO_CATEGORY_LABEL) as EcoCategory[];
@@ -212,64 +250,60 @@ export default function AppsPage() {
           )}
         </section>
 
+        {/* Cài bằng lệnh - trang đích của nút "Cài bằng một lệnh" ở trang chủ. Mỗi kênh
+            chỉ cần THÊM NGUỒN MỘT LẦN; lệnh cài từng app nằm trên thẻ của app đó (chỉ
+            kênh đã có gói thật - PACKAGING.md mục 8). */}
         <section
-          className="mt-14 rounded-lg border border-line bg-surface p-6 md:p-8"
-          aria-labelledby="kho-linux"
+          id="cai-bang-lenh"
+          className="mt-14 scroll-mt-24 rounded-lg border border-line bg-surface p-6 md:p-8"
+          aria-labelledby="cai-bang-lenh-tieu-de"
         >
-          <h2 id="kho-linux" className="text-xl font-semibold text-fg">
-            Kho APT / RPM cho Linux
+          <h2 id="cai-bang-lenh-tieu-de" className="text-xl font-semibold text-fg">
+            Cài bằng lệnh
           </h2>
           <p className="mt-1.5 max-w-2xl text-sm text-fg-secondary">
-            Gói <code>.deb</code> / <code>.rpm</code> tại{' '}
-            <a
-              href={PKG_REPO.url}
-              className="text-link underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              pkg.tsudev.com<span className="sr-only"> (mở tab mới)</span>
-            </a>{' '}
-            dựng từ đúng tệp đã phát hành trên GitHub, ký GPG; apt và dnf tự kiểm chữ ký trước khi
-            cài. Đối chiếu vân tay khóa ký trước khi tin kho:
+            Mọi gói dựng từ đúng tệp đã phát hành trên GitHub, kèm SHA-256; trình quản lý gói tự
+            kiểm trước khi cài. Thêm nguồn tsudev một lần, sau đó cài và cập nhật như mọi phần mềm
+            khác.
           </p>
-          <dl className="mt-4 grid gap-2 text-sm md:grid-cols-[max-content_1fr] md:gap-x-4">
-            <dt className="text-fg-secondary">Vân tay khóa</dt>
+          <ul className="mt-5 grid gap-3 md:grid-cols-2">
+            {CHANNELS.map((c) => (
+              <li key={c.name} className="min-w-0 rounded-md border border-line bg-subtle p-4">
+                <div className="flex items-center gap-2 text-sm font-medium text-fg">
+                  <Icon name={c.icon} size={16} />
+                  {c.name}
+                  <span className="text-xs font-normal text-fg-muted">· {c.os}</span>
+                </div>
+                <code className="mt-2 block break-all font-mono text-xs text-fg-secondary">
+                  {c.setup}
+                </code>
+                <p className="mt-2 text-xs text-fg-muted">{c.note}</p>
+              </li>
+            ))}
+          </ul>
+          <dl className="mt-5 grid gap-2 text-sm md:grid-cols-[max-content_1fr] md:gap-x-4">
+            <dt className="text-fg-secondary">Vân tay khóa APT/DNF</dt>
             <dd className="min-w-0 break-all font-mono text-fg">{PKG_REPO.fingerprint}</dd>
             <dt className="text-fg-secondary">Tự kiểm</dt>
             <dd className="min-w-0 break-all font-mono text-xs text-fg-secondary">
               curl -fsSL {PKG_REPO.keyring} | gpg --show-keys
             </dd>
             <dt className="text-fg-secondary">Mã nguồn kho</dt>
-            <dd className="min-w-0">
-              <a
-                href={PKG_REPO.source}
-                className="text-link underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                tsudev-org/linux-packages<span className="sr-only"> (mở tab mới)</span>
-              </a>
+            <dd className="min-w-0 flex flex-wrap gap-x-4 gap-y-1">
+              {SOURCES.map(([label, href]) => (
+                <a
+                  key={href}
+                  href={href}
+                  className="text-link underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {label}
+                  <span className="sr-only"> (mở tab mới)</span>
+                </a>
+              ))}
             </dd>
           </dl>
-        </section>
-
-        <section className="mt-6 rounded-lg border border-line bg-surface p-6 md:p-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-fg">Cần bản có chữ ký Ed25519?</h2>
-              <p className="mt-1.5 max-w-2xl text-sm text-fg-secondary">
-                Bản phát hành đăng trực tiếp trên tsudev.com được máy chủ tính SHA-256 và ký Ed25519
-                - bạn tự đối chiếu được trước khi cài.
-              </p>
-            </div>
-            <a
-              href="/projects"
-              className="inline-flex h-9 shrink-0 items-center gap-2 rounded-md border border-primary-hover bg-primary px-4 text-sm font-medium text-on-primary hover:bg-primary-hover"
-            >
-              <Icon name="signature" size={16} />
-              Xem bản phát hành
-            </a>
-          </div>
         </section>
       </div>
 

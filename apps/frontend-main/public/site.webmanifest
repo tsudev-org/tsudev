@@ -1,7 +1,7 @@
 {
-  "name": "tsudev - Dự án, bản quyền và con dấu tín nhiệm",
+  "name": "tsudev - Hệ sinh thái phần mềm",
   "short_name": "tsudev",
-  "description": "Website dự án cá nhân: dự án & bản quyền, blog, tài liệu, con dấu tín nhiệm.",
+  "description": "Tìm, tải và cài ứng dụng của hệ sinh thái tsudev bằng một lệnh: winget, Scoop, Homebrew, APT, DNF.",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#0a0a0a",

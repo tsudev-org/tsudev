@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { Logo } from './Logo';
 import { hasAtLeastRole } from '@tsudev/types';
+import { saveAuthHint } from '../lib/authHint';
 // tsudev là MỘT site nên href tương đối. Trước đây có hai origin (trang chính và
 // diễn đàn) nên mọi link điều hướng buộc phải là URL tuyệt đối.
 type NavItem = {
@@ -15,7 +16,8 @@ const NAV: NavItem[] = [
   { key: 'home', path: '/', label: 'Trang chủ' },
   // Danh bạ app của hệ sinh thái (website riêng, winget) - kiểu winstall.app.
   { key: 'apps', path: '/apps', label: 'Ứng dụng' },
-  { key: 'projects', path: '/projects', label: 'Dự án' },
+  // "Dự án" (/projects) gỡ khỏi menu 13/11/2026: danh sách đó trống trên production
+  // và mọi app thật nằm ở /apps. /projects tự chuyển về /apps khi trống.
   { key: 'blog', path: '/blog', label: 'Blog' },
   { key: 'docs', path: '/docs', label: 'Tài liệu' },
   // Chỉ hiện với tài khoản đăng bài (AUTHOR trở lên). Trang /author tự đá người
@@ -30,15 +32,36 @@ const isActive = (n: NavItem, active: string) => active === n.key || active === 
 type SiteHeaderProps = { active?: string };
 
 export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   // ⚠️ Vai trò lấy từ PHIÊN (token.role chỉ ghi ở lần đăng nhập đầu). Chỉ để dọn
   // giao diện, không phải cổng quyền.
   const canAuthor = hasAtLeastRole(
     (session?.user as { role?: string } | undefined)?.role,
     'AUTHOR'
   );
-  const nav = NAV.filter((n) => !n.needsAuthor || canAuthor);
+  const userName = session?.user?.name || session?.user?.email || '';
+  // `loading` = HTML dựng sẵn + khoảng chờ /api/auth/session. Lúc đó vẽ CẢ HAI biến
+  // thể; CSS (globals.css, theo `data-auth` do script ở _document.tsx đặt trước lần
+  // vẽ đầu) ẩn biến thể sai. Trước 13/11/2026 nhánh này vẽ nút "Đăng nhập" cho người
+  // ĐÃ đăng nhập ở mọi lần tải trang - xem lib/authHint.ts.
+  const pending = status === 'loading';
   const [open, setOpen] = useState(false);
+
+  // Ghi gợi ý cho lần tải trang SAU, chỉ khi phiên đã rõ (không xoá lúc loading).
+  useEffect(() => {
+    if (status === 'authenticated') saveAuthHint({ n: userName, ...(canAuthor ? { a: 1 } : {}) });
+    else if (status === 'unauthenticated') saveAuthHint(null);
+  }, [status, userName, canAuthor]);
+
+  const logout = () => {
+    saveAuthHint(null);
+    signOut();
+  };
+
+  // Mục "Viết bài": rõ phiên thì lọc thật; đang loading thì giữ lại và để CSS
+  // (`tsu-auth-author`) quyết định theo gợi ý.
+  const nav = NAV.filter((n) => !n.needsAuthor || canAuthor || pending);
+  const navClass = (n: NavItem) => (n.needsAuthor && pending ? ' tsu-auth-author' : '');
 
   return (
     // Kiểu supabase.com: header CÙNG NỀN với trang (kính mờ trên --bg-base), chỉ một
@@ -64,7 +87,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
                 aria-current={isActive(n, active) ? 'page' : undefined}
                 className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors duration-fast ${
                   isActive(n, active) ? 'text-fg' : 'text-fg-secondary hover:text-fg'
-                }`}
+                }${navClass(n)}`}
               >
                 {n.label}
               </a>
@@ -117,35 +140,32 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
               Tìm
             </button>
           </form>
-          {session ? (
-            <div className="flex items-center gap-2">
+          {(session || pending) && (
+            <div className={`flex items-center gap-2${pending ? ' tsu-auth-in' : ''}`}>
               {/*
-                Tên người dùng là LIÊN KẾT, không phải nhãn. Trước đợt này
-                `/settings/security` và `/settings/profile` không được nhắc tới ở
-                bất kỳ đâu trong giao diện - chỉ vào được bằng cách gõ URL. Một
-                trang quản lý tài khoản mà không có lối vào thì nó là trang chết,
-                đúng cái số phận mà chính nó được dựng ra để cứu 2FA và passkey
-                khỏi mắc phải.
+                Tên người dùng là LIÊN KẾT tới trang tài khoản - lối vào duy nhất của
+                /settings/profile và /settings/security trên màn hình rộng. Lúc
+                loading, tên lấy từ gợi ý qua `--tsu-user-name` (.tsu-user-name ở
+                globals.css) nên không nhảy chữ khi phiên về.
               */}
               <a
                 href="/settings/profile"
                 className="hidden lg:inline text-sm text-fg-secondary max-w-40 truncate rounded-md px-2 py-1 hover:text-fg transition-colors"
               >
-                {session.user?.name || session.user?.email}
+                {pending ? <span className="tsu-user-name" /> : userName}
               </a>
               <button
-                onClick={() => signOut()}
+                onClick={logout}
                 className="inline-flex items-center h-8 px-3 rounded-md border border-line-strong bg-surface text-sm font-medium text-fg transition-colors hover:border-line-control hover:bg-hovered"
               >
                 Đăng xuất
               </button>
             </div>
-          ) : (
-            // Link chứ không phải nút gọi signIn(): trang /login là trang thật
-            // của site, và một thẻ <a> mở được bằng chuột giữa, bookmark được,
-            // và hoạt động cả khi JavaScript chưa kịp tải.
-            // Cặp nút kiểu supabase.com: nút phụ viền mảnh + nút chính tím, cùng cao 32px.
-            <div className="flex items-center gap-2">
+          )}
+          {(!session || pending) && (
+            // Link chứ không phải nút gọi signIn(): /login là trang thật của site,
+            // mở được bằng chuột giữa và chạy cả khi JavaScript chưa tải.
+            <div className={`flex items-center gap-2${pending ? ' tsu-auth-out' : ''}`}>
               <a
                 href="/login"
                 className="inline-flex items-center h-8 px-3 rounded-md border border-line-strong bg-surface text-sm font-medium text-fg transition-colors hover:border-line-control hover:bg-hovered"
@@ -183,7 +203,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
             <a
               key={n.key}
               href={n.path}
-              className="block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle"
+              className={`block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle${navClass(n)}`}
             >
               {n.label}
             </a>
@@ -205,8 +225,8 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
             hai mục này là lối vào DUY NHẤT tới trang tài khoản. Thiếu chúng thì
             người dùng điện thoại không có đường nào tới đó.
           */}
-          {session && (
-            <div className="mt-1 border-t border-line pt-1">
+          {(session || pending) && (
+            <div className={`mt-1 border-t border-line pt-1${pending ? ' tsu-auth-in' : ''}`}>
               <a
                 href="/settings/profile"
                 className="block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle"

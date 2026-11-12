@@ -11,7 +11,6 @@ import type { GetServerSidePropsContext } from 'next';
 const STATIC_ROUTES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
   { path: '/apps', priority: '0.9', changefreq: 'weekly' },
-  { path: '/projects', priority: '0.9', changefreq: 'weekly' },
   { path: '/blog', priority: '0.8', changefreq: 'daily' },
   { path: '/docs', priority: '0.7', changefreq: 'weekly' },
   { path: '/ung-ho', priority: '0.5', changefreq: 'monthly' },
@@ -79,6 +78,10 @@ export async function getServerSideProps({ res }: GetServerSidePropsContext) {
 
   const entries = [
     ...STATIC_ROUTES.map((r) => urlTag(r)),
+    // /projects chỉ là trang thật khi có dự án; trống thì nó chuyển về /apps.
+    ...(projects.length
+      ? [urlTag({ path: '/projects', priority: '0.9', changefreq: 'weekly' })]
+      : []),
     ...posts.map((p) =>
       urlTag({
         path: `/blog/${p.slug}`,

@@ -18,7 +18,6 @@ const COLS: Col[] = [
     title: 'Sản phẩm',
     links: [
       eco('Danh bạ ứng dụng', '/apps'),
-      eco('Dự án & bản phát hành', '/projects'),
       eco('Hướng dẫn cài đặt', '/docs'),
       // Trang Ủng hộ TRUNG TÂM của hệ sinh thái (phiếu 20261112-01).
       eco('Ủng hộ', '/ung-ho'),
@@ -71,7 +70,7 @@ export const SiteFooter = () => {
     <footer className="mt-24 border-t border-line">
       <div className="max-w-6xl mx-auto px-4 pt-12 pb-10 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(5,1fr)]">
         <div>
-          <Logo />
+          <Logo size={72} />
           {/*
             Câu này là BẢN MÔ TẢ CHUẨN của hệ sinh thái, chép nguyên văn từ
             `.standards/docs/ECOSYSTEM_IDENTITY.md` mục 1. Tài liệu đó `MUST NOT`

@@ -7,7 +7,7 @@
  *    tsudev.com niêm phong + ký. Bản phát hành có chữ ký vẫn đi qua `/projects`.
  *  - SiteFooter (packages/ui) cũng cần danh sách này, mà footer không gọi API.
  *
- * Mọi đường link dưới đây ĐÃ ĐO ngày 10/11/2026 (curl: website 200 kèm <title>
+ * Mọi đường link dưới đây ĐÃ ĐO ngày 10/11/2026 (tên + logo đo lại 13/11/2026) (curl: website 200 kèm <title>
  * đúng sản phẩm; `releases/latest` có bản phát hành; gói winget có thư mục phiên
  * bản trong microsoft/winget-pkgs; gói Scoop / Homebrew được CI của bucket và tap
  * cài thử thật - đo 11/11/2026; gói `pkg` trong kho APT/RPM pkg.tsudev.com được CI
@@ -61,20 +61,32 @@ export type EcoApp = {
   /** Ghi công dự án gốc (bắt buộc với bản Việt hoá theo giấy phép). */
   basedOn?: string;
   /**
-   * Biểu tượng của app: một đường vẽ SVG nét 1.6 trên lưới 24x24 (cùng ngữ pháp
-   * với `ICONS` của packages/ui). Vẽ inline chứ không lấy favicon từ website của
-   * app: CSP `img-src` của tsudev.com chỉ cho 'self', và favicon các site con hiện
-   * là CÙNG một ảnh thương hiệu chung - không phân biệt được app nào với app nào.
+   * LOGO THẬT của app (đường dẫn trên tsudev.com, WebP vuông 128px) - chỉ app có
+   * logo riêng. Sinh bằng `packages/brand/build-eco-icons.js` từ website của app;
+   * tự lưu vì CSP `img-src` của tsudev.com chỉ cho 'self'.
    */
+  logo?: string;
+  /**
+   * Ô màu riêng [màu đầu, màu cuối] của dải chuyển sắc - nền của `icon` khi app
+   * CHƯA có logo riêng (favicon của nó là con cú dùng chung, đặt lên danh bạ thì
+   * mọi thẻ giống hệt nhau). Mỗi app một sắc độ khác nhau; glyph vẽ màu trắng nên
+   * màu đầu phải đủ đậm (>= 3:1 với trắng - WCAG 1.4.11 cho đồ hoạ).
+   */
+  tint: readonly [string, string];
+  /** Glyph SVG nét 1.6 trên lưới 24x24 (cùng ngữ pháp với `ICONS` của packages/ui). */
   icon: string;
 };
 
 export const ECOSYSTEM_APPS: EcoApp[] = [
   {
     id: 'trafficmonitor',
-    name: 'TrafficMonitor-VN',
+    // Tên chính thức từ 12/11/2026 (repo, gói Scoop, website, `packaging/package.json`
+    // của tsudev-trafficmonitor). Tên cũ "TrafficMonitor-VN" không còn dùng ở đâu.
+    // winget `tsudev.TrafficMonitor` CHƯA có (PR winget-pkgs #477193 chờ duyệt) - đừng
+    // thêm trường `winget` trước khi gói vào kho.
+    name: 'tsudev-trafficmonitor',
     tagline:
-      'Theo dõi tốc độ mạng, CPU, RAM ngay trên thanh tác vụ Windows - tiếng Việt, gia cố bảo mật.',
+      'Theo dõi tốc độ mạng, CPU, RAM trên thanh tác vụ Windows - bản Việt hoá, gia cố bảo mật của TrafficMonitor.',
     category: 'system',
     platforms: ['windows'],
     website: 'https://trafficmonitor.tsudev.com',
@@ -82,6 +94,8 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
     scoop: 'tsudev-trafficmonitor',
     openSource: true,
     basedOn: 'TrafficMonitor',
+    logo: '/eco/trafficmonitor.webp',
+    tint: ['#4f46e5', '#312e81'],
     icon: 'M4.5 17a7.5 7.5 0 1 1 15 0M12 17l3.6-5.2M7.6 13.4h.01M12 9.6v.01M16.4 13.4h.01',
   },
   {
@@ -95,6 +109,7 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
     releases: 'https://github.com/tsudev-org/tsudev-cwico/releases/latest',
     winget: 'tsudev.cwico',
     openSource: true,
+    tint: ['#e11d48', '#881337'],
     icon: 'M4 7h16M9.5 7V4.5h5V7M6 7l1 13h10l1-13M10 11v5.5M14 11v5.5',
   },
   {
@@ -109,6 +124,7 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
     winget: 'tsudev.SWICO',
     scoop: 'tsudev-swico',
     openSource: true,
+    tint: ['#059669', '#064e3b'],
     icon: 'M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6zM8.8 12.2l2.2 2.2 4.4-4.4',
   },
   {
@@ -122,6 +138,8 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
     brew: 'tsudev-files',
     openSource: true,
     basedOn: 'Filee',
+    logo: '/eco/files.webp',
+    tint: ['#7c3aed', '#4c1d95'],
     icon: 'M6 3h7l5 5v4M6 3v18h6M13 3v5h5M14.5 17H21M18.5 14.5 21 17l-2.5 2.5',
   },
   {
@@ -141,6 +159,8 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
     pkg: 'lotus-share',
     openSource: true,
     basedOn: 'LocalSend',
+    logo: '/eco/lotus.webp',
+    tint: ['#db2777', '#831843'],
     icon: 'M20.5 3.5 3.5 10l6.5 2.8L13 20zM10 12.8 20.5 3.5',
   },
   {
@@ -152,6 +172,8 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
     platforms: ['android'],
     website: 'https://compass.tsudev.com',
     openSource: false,
+    logo: '/eco/compass.webp',
+    tint: ['#2563eb', '#1e3a8a'],
     icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18zM15.5 8.5l-2 5-5 2 2-5z',
   },
   {
@@ -164,6 +186,7 @@ export const ECOSYSTEM_APPS: EcoApp[] = [
     website: 'https://contact.tsudev.com',
     releases: 'https://github.com/tsudev-org/tsudev-contact/releases/latest',
     openSource: true,
+    tint: ['#0284c7', '#0c4a6e'],
     icon: 'M4 5h16v14H4zM9 11.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5.8 16.5a3.4 3.4 0 0 1 6.4 0M14 9.5h4M14 13h4',
   },
 ];
@@ -189,6 +212,16 @@ export type EcoGame = {
   tagline: string;
   website: string;
   openSource: false;
+  /**
+   * Gói ĐÃ có trong kho APT/RPM `pkg.tsudev.com` (bản cài máy tính dựng bằng Tauri,
+   * repo phát hành công khai `TsuGameLabs/tsudev-<id>-releases`). Chỉ thêm khi CI
+   * của tsudev-org/linux-packages đã cài thật - PACKAGING.md mục 8.
+   */
+  pkg?: string;
+  /** Kiến trúc của gói `pkg`, hiện cạnh lệnh cài (vd. chỉ có x86-64). */
+  pkgArch?: string;
+  /** Như `EcoApp.tint` - game chưa có logo riêng. */
+  tint: readonly [string, string];
   /** Đường vẽ SVG 24x24, nét 1.6 - cùng ngữ pháp với `EcoApp.icon`. */
   icon: string;
 };
@@ -202,6 +235,7 @@ export const ECO_GAMES: EcoGame[] = [
       'Trò chơi khám phá vùng Núi Cấm (An Giang): ghép các ô cùng cấp trên lưới để nâng dần lên các biểu tượng của Núi Cấm. Phù hợp trẻ em, đồ hoạ tươi sáng, âm thanh nhẹ nhàng.',
     website: 'https://xin-chao-nui-cam.tsudev.com',
     openSource: false,
+    tint: ['#16a34a', '#14532d'],
     icon: 'M3 19 9.5 8l4 6.5 2-3L21 19zM16.5 6a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0',
   },
   {
@@ -212,6 +246,7 @@ export const ECO_GAMES: EcoGame[] = [
       'Điều khiển chú chim sáo vỗ cánh bay qua các vách đá Núi Cấm (An Giang), nhặt trái thốt nốt để thêm điểm. Sáu chặng từ Chân núi tới Vồ Bồ Hong, rèn tập trung và phản xạ.',
     website: 'https://chu-chim-vo-canh.tsudev.com',
     openSource: false,
+    tint: ['#d97706', '#78350f'],
     icon: 'M3 11c3-4 6-4 9 0 3-4 6-4 9 0M12 11v4.5M9.5 18.5h5',
   },
   {
@@ -222,6 +257,7 @@ export const ECO_GAMES: EcoGame[] = [
       'Lật thẻ tìm cặp hình giống nhau qua nhiều cấp độ và chủ đề - rèn trí nhớ, sự tập trung và tư duy logic.',
     website: 'https://lat-manh-ghep.tsudev.com',
     openSource: false,
+    tint: ['#c026d3', '#701a75'],
     icon: 'M3.5 6h8v12h-8zM14.5 7.5 20 6l2 11.5-5.5 1.5M7.5 10.5v3',
   },
   {
@@ -232,6 +268,7 @@ export const ECO_GAMES: EcoGame[] = [
       'Nối các cặp hình giống nhau bằng đường gấp khúc tối đa hai lần rẽ để xoá khỏi bảng; có điểm, combo và cấp độ tăng dần.',
     website: 'https://noi-hinh-giong-nhau.tsudev.com',
     openSource: false,
+    tint: ['#0d9488', '#134e4a'],
     icon: 'M4 4h5v5H4zM15 15h5v5h-5zM6.5 9v8.5H15',
   },
   {
@@ -242,6 +279,11 @@ export const ECO_GAMES: EcoGame[] = [
       'Luyện gõ phím ngoại tuyến: đo WPM, độ chính xác, theo dõi tiến bộ cục bộ. Phát triển từ dự án mã nguồn mở giấy phép MIT.',
     website: 'https://luyen-go-phim.tsudev.com',
     openSource: false,
+    // Đo 13/11/2026 (phiếu 20261113-01): 26.11.1201-1 trong Packages của kho APT; CI
+    // linux-packages#8 cài thật trên Ubuntu 22.04/24.04, Debian 12/13, Fedora.
+    pkg: 'tsudev-luyen-go-phim',
+    pkgArch: 'Linux x86-64',
+    tint: ['#4f46e5', '#1e1b4b'],
     icon: 'M3 7h18v10H3zM6.5 10.5h.01M10 10.5h.01M13.5 10.5h.01M17 10.5h.01M8 14h8',
   },
   {
@@ -252,6 +294,7 @@ export const ECO_GAMES: EcoGame[] = [
       'Tham quan xã Núi Cấm trong thế giới 3D (three.js + Rapier), có studio World Editor riêng.',
     website: 'https://nuicam3d.tsudev.com',
     openSource: false,
+    tint: ['#ea580c', '#7c2d12'],
     icon: 'M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9',
   },
 ];
@@ -288,8 +331,11 @@ export function wingetCommand(apps: EcoApp[]): string {
   return ids.map((id) => `winget install --id ${id} -e --accept-package-agreements`).join(' ; ');
 }
 
-/** Mọi lệnh cài bằng terminal của một app, theo thứ tự ưu tiên (tsudev-standards PACKAGING.md). */
-export function installCommands(app: EcoApp): { channel: string; cmd: string }[] {
+/** Các kênh gói một sản phẩm có thể có - dùng chung cho app và trò chơi. */
+export type Installable = Partial<Pick<EcoApp, 'winget' | 'scoop' | 'brew' | 'pkg'>>;
+
+/** Mọi lệnh cài bằng terminal của một app/game, theo thứ tự ưu tiên (tsudev-standards PACKAGING.md). */
+export function installCommands(app: Installable): { channel: string; cmd: string }[] {
   const out: { channel: string; cmd: string }[] = [];
   if (app.winget) out.push({ channel: 'winget', cmd: `winget install --id ${app.winget} -e` });
   if (app.scoop)
