@@ -1,5 +1,13 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 53 BẮT ĐẦU Ở ĐÂY** (cuối phiên 52, 13/11/2026). Phiếu:
+> [`20261113-08`](handover/20261113-08_phien-52-menu-tai-khoan-ra-quet-giao-dien.md).
+>
+> ✅ #251 (Worker `8a1da656`): avatar + menu "Hồ sơ tài khoản / Đăng xuất" ở header; sửa tiêu đề lặp + h1 thiếu.
+> ⏳ #252 cột "Tài khoản" ở chân trang theo phiên ("Bảo mật tài khoản"): CHỜ `nguyentrangtinhsu` duyệt.
+> 🎯 Chủ dự án chốt `docs/de-xuat-bao-mat-cms-cai-bang-lenh.md` (bảo mật 8 tầng, CMS "Viết bài", cài bằng lệnh).
+> 📨 Phiếu 20261113-07 (rà quét giao diện) ở 14 repo; công cụ `~/projects/logs/tools/quet-giao-dien.cjs`.
+
 > **Phiên 52 BẮT ĐẦU Ở ĐÂY** (cuối phiên 51, 13/11/2026). Phiếu:
 > [`20261113-06`](handover/20261113-06_phien-51-merge-245-tsufiles.md).
 >
