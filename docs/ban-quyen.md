@@ -65,3 +65,16 @@ thực, có nhật ký kiểm toán - đó là "văn bản ủy quyền" có th�
   ⇒ cổng đỏ, PR `BLOCKED` - đã đóng.
 - Phê duyệt vẫn còn hiệu lực sau `gh pr update-branch` khi phần thay đổi của PR không đổi (GitHub giữ phê duyệt khi chỉ
   kéo thêm commit từ `main`); đẩy commit MỚI vào PR thì phải duyệt lại.
+
+## 6. Repo có bot tự đẩy `main` (scoop-bucket, homebrew-tap)
+
+Bot cập nhật gói (`excavator.yml`, `cap-nhat.yml`) đẩy thẳng `main` vài lần mỗi ngày. Ruleset cấp repo KHÔNG nhận
+GitHub Actions làm ngoại lệ (422), và ruleset cấp tổ chức cần quyền `admin:org` (gói Free). Thiết kế đã chọn:
+
+- Bot đẩy bằng **deploy key ghi** (secret `BOT_DEPLOY_KEY` của environment `bot` - CHỈ nhánh `main` dùng được, workflow
+  từ nhánh PR không đọc được). Deploy key là ngoại lệ DUY NHẤT của ruleset `Bao ve ban quyen` (required check
+  `Bảo vệ bản quyền`, integration 15368). Mọi người khác - kể cả admin và agent - phải qua PR + cổng.
+- Chỉ tạo key SAU KHI `.github/workflows/` đã là đường dẫn bảo vệ: nếu không, một workflow mới có thể dùng key để vượt.
+- Tạo key + ngoại lệ là việc CHỦ DỰ ÁN tự chạy (agent bị bộ phân loại an toàn chặn - đúng thiết kế):
+  `bash ~/projects/logs/bat-bao-ve-scoop-homebrew.sh` - script tự kiểm điều kiện tiên quyết và dừng nếu chưa đủ.
+- Đã bật sẵn (13/11/2026): ruleset `Bao ve main - khong force-push, khong xoa` (không ngoại lệ) ở cả hai repo.
