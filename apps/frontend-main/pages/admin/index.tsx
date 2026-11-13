@@ -78,6 +78,7 @@ export default function AdminHome() {
       <Seo title="Quản trị" path="/admin" noindex />
       <div className="max-w-5xl mx-auto px-4 py-10">
         <SectionHeading
+          headingAs="h1"
           eyebrow="Bảng điều khiển"
           title="Quản trị hệ thống"
           action={

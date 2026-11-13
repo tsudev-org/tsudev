@@ -30,7 +30,7 @@ const GUARANTEES: [IconName, string, string][] = [
 
 export const AuthShell = ({ title, description, children, footer }: AuthShellProps) => (
   <Layout active="/login" bare>
-    <Seo title={`${title} - tsudev`} description={description} />
+    <Seo title={title} description={description} />
     <div>
       <div className="mx-auto grid max-w-5xl items-center gap-10 px-4 py-12 md:py-16 lg:grid-cols-[1fr_26rem]">
         <div className="hidden lg:block">
