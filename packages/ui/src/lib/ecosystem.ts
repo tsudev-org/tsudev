@@ -177,7 +177,9 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
     },
     {
       id: 'files',
-      name: 'tsudev-files',
+      // Tên sản phẩm TsuFiles từ 12/11/2026 (ADR-0003 repo tsudev-org/tsufiles). Tên gói Scoop/Homebrew/APT
+      // GIỮ `tsudev-files` (catalog pkg.tsudev.com) - đừng đổi theo tên hiển thị.
+      name: 'TsuFiles',
       tagline:
         'Chuyển đổi tệp ngoại tuyến bằng kéo thả - hơn 260 định dạng, không tải tệp lên mạng.',
       category: 'files',
