@@ -108,6 +108,11 @@
       "description": "Official Homebrew tap for tsudev apps on macOS · Homebrew tap chính thức của tsudev",
       "homepage": "https://tsudev.com/apps#cai-bang-lenh",
       "topics": ["homebrew", "homebrew-tap", "macos", "package-manager"]
+    },
+    ".github": {
+      "description": "Organization profile and default community health files for tsudev-org · Hồ sơ tổ chức và tệp cộng đồng mặc định",
+      "homepage": "https://tsudev.com",
+      "topics": ["community-health", "code-of-conduct", "organization-profile"]
     }
   }
 }
