@@ -68,3 +68,12 @@ là cần lại ngay, và bộ này sinh từ ảnh gốc chứ không chép tay
 
 **favicon.ico** là container ICO thật 7 lớp (16/24/32/48/64/128/256), không phải PNG đổi
 đuôi - `scripts/check-brand-assets.js` canh.
+
+## Logo sáu trò chơi (13/11/2026)
+
+`source/eco/game-<id>.png` là logo GỐC chủ dự án giao (biểu tượng + tên game trên nền đặc). `build-eco-icons.js`
+(mode `mark-tile`) cắt riêng BIỂU TƯỢNG (bỏ dòng chữ - không đọc được ở 48px - và dấu ✦ của công cụ tạo ảnh ở góc),
+đặt giữa ô nền đặc cùng màu nền gốc, bo góc 22%, ra `apps/frontend-main/public/eco/game-<id>.webp` (128px, 2-6 kB).
+KHÔNG xoá nền: nét trắng (Xin Chào Núi Cấm, Luyện Gõ Phím) mất trên nền Sáng, chim đen (Chú Chim Vỗ Cánh) mất trên nền
+Tối. Đổi logo: thay tệp nguồn rồi `node packages/brand/build-eco-icons.js game-<id>`. Khi website game tự phục vụ logo
+mới (phiếu 20261113-04 ở từng repo game), đổi dòng `SOURCES` sang URL và xoá tệp nguồn ở đây.

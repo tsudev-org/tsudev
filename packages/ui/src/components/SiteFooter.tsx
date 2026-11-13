@@ -113,7 +113,10 @@ export const SiteFooter = () => {
         ))}
       </div>
       <div className="max-w-6xl mx-auto px-4 pb-10">
-        <div className="flex flex-col-reverse gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
+        {/* MỘT hàng ở mọi khổ màn hình: "© tsudev" trái, bộ chọn giao diện phải - như
+            trafficmonitor.tsudev.com. Trước 13/11/2026 khổ di động xếp cột ngược nên bộ chọn
+            nằm TRÊN dòng bản quyền và giãn hết bề ngang. */}
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
           <span className="text-sm text-fg-muted">© tsudev</span>
           <ThemeToggle />
         </div>
