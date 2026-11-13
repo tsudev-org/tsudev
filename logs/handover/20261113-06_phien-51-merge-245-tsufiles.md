@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261113-06
 - **Phiên**: phiên 51, 13/11/2026
-- **Trạng thái**: HOÀN THÀNH phần agent làm được - PR #247 CHỜ CHỦ SỞ HỮU DUYỆT (mục 3)
+- **Trạng thái**: HOÀN THÀNH - #247 đã duyệt + merge; nội dung giới thiệu đã áp lên Neon (mục 3.1-3.2)
 
 ## 1. Đã làm
 
@@ -32,10 +32,10 @@ Nghiệm thu production (13/11): `/eco/game-*.webp` 6/6 = 200 và tải được
 
 ## 3. Việc còn lại
 
-1. **Chủ dự án duyệt #247** bằng `nguyentrangtinhsu`; rồi agent: Re-run cổng, merge (không cần deploy - chỉ script).
-   Worktree `../tsudev-wt-metadata` (nhánh `chore/metadata-tsufiles`) - xoá sau khi merge.
-2. Tài liệu giới thiệu trên Neon vẫn ghi `tsudev-files` cho tới khi chủ dự án chạy lại
-   `scripts/don-noi-dung-lac-de.js --apply --noi-dung` với `DATABASE_URL` production.
+1. ✅ #247 duyệt + merge 13/11 (`0598c12`); `he-sinh-thai:metadata` --check: khớp. Worktree đã xoá.
+2. ✅ Chủ dự án đã chạy `node scripts/don-noi-dung-lac-de.js --apply --noi-dung` lên Neon 13/11 (4 tài liệu + 1 bài);
+   `/docs/gioi-thieu-he-sinh-thai-tsudev` hiện TsuFiles. 🪤 Gọi qua `node` (tệp không có quyền chạy); thiếu
+   `DATABASE_URL` trong shell thì script lặng lẽ dùng DB local của `.env` - xem dòng `DB:` đầu tiên.
 3. Khi tag `v2.4.1-vn.*` của tsufiles ra và catalog có gói `tsufiles`: `ecosystem.ts`/catalog sinh lại
    (`npm run pkg:catalog`) để lệnh cài trỏ gói mới.
 4. Sáu repo game + game-kit làm phiếu 20261113-04 (logo); khi website game phục vụ logo ⇒ đổi `SOURCES` sang URL.
