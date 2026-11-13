@@ -98,5 +98,6 @@
     "eslint-plugin-jsx-a11y": {
       "eslint": "$eslint"
     }
-  }
+  },
+  "license": "Apache-2.0"
 }
