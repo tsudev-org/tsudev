@@ -5,7 +5,7 @@
     "description": "Small, honest open-source tools for Windows, Linux, macOS and Android - Vietnamese-first, installable with one command.",
     "blog": "https://tsudev.com"
   },
-  "discussions": ["lotus-share", "tsudev-files"],
+  "discussions": ["lotus-share", "tsufiles"],
   "repos": {
     "tsudev": {
       "description": "tsudev.com - app directory, one-command installers (winget, Scoop, Homebrew, APT/DNF) and docs for the tsudev ecosystem · Trang chủ hệ sinh thái tsudev",
@@ -33,7 +33,7 @@
         "vietnamese"
       ]
     },
-    "tsudev-files": {
+    "tsufiles": {
       "description": "Offline drag-and-drop file converter for 260+ formats - files never leave your computer. Fork of Filee (MIT) · Chuyển đổi tệp ngoại tuyến",
       "homepage": "https://files.tsudev.com",
       "topics": [
