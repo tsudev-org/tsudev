@@ -265,7 +265,12 @@ export type EcoGame = {
    */
   pkg?: string;
   pkgArch?: string;
-  /** Như `EcoApp.tint` - game chưa có logo riêng. */
+  /**
+   * Logo riêng của game (WebP vuông trên tsudev.com) - như `EcoApp.logo`. Sinh bằng
+   * `packages/brand/build-eco-icons.js` từ logo chủ dự án giao (13/11/2026).
+   */
+  logo?: string;
+  /** Như `EcoApp.tint` - nền ô khi chưa có `logo`. */
   tint: readonly [string, string];
   /** Đường vẽ SVG 24x24, nét 1.6 - cùng ngữ pháp với `EcoApp.icon`. */
   icon: string;
@@ -367,13 +372,6 @@ export function dnfCommand(pkg: string): string {
   return `sudo curl -fsSLo /etc/yum.repos.d/tsudev.repo ${PKG_REPO.url}/rpm/tsudev.repo && sudo dnf install ${pkg}`;
 }
 
-/** Lệnh winget cài MỘT LƯỢT mọi app đã chọn (chỉ app có gói winget). */
-export function wingetCommand(apps: EcoApp[]): string {
-  const ids = apps.map((a) => a.winget).filter((x): x is string => Boolean(x));
-  if (ids.length === 0) return '';
-  return ids.map((id) => `winget install --id ${id} -e --accept-package-agreements`).join(' ; ');
-}
-
 /** Các kênh gói một sản phẩm có thể có - dùng chung cho app và trò chơi. */
 export type Installable = Partial<Pick<EcoApp, 'winget' | 'scoop' | 'brew' | 'pkg'>>;
 
@@ -393,4 +391,112 @@ export function installCommands(app: Installable): { channel: string; cmd: strin
     out.push({ channel: 'DNF', cmd: dnfCommand(app.pkg) });
   }
   return out;
+}
+
+/**
+ * Hệ điều hành đích của lệnh cài GỘP (khay "Đã chọn N" ở /apps). Mỗi đích một shell
+ * và một nhóm kênh - lệnh winget KHÔNG BAO GIỜ nằm chung dòng với apt/brew, vì người
+ * dùng chép cả dòng vào một terminal duy nhất.
+ */
+export type InstallTarget = 'windows' | 'macos' | 'debian' | 'fedora';
+
+export const INSTALL_TARGETS: {
+  id: InstallTarget;
+  label: string;
+  /** Shell mà lệnh gộp được viết cho - hiện cạnh lệnh. */
+  shell: string;
+  icon: 'windows' | 'apple' | 'linux';
+}[] = [
+  { id: 'windows', label: 'Windows', shell: 'PowerShell', icon: 'windows' },
+  { id: 'macos', label: 'macOS', shell: 'Terminal (zsh/bash)', icon: 'apple' },
+  { id: 'debian', label: 'Ubuntu / Debian', shell: 'bash', icon: 'linux' },
+  { id: 'fedora', label: 'Fedora / RHEL', shell: 'bash', icon: 'linux' },
+];
+
+export type InstallPlan = {
+  /** MỘT dòng lệnh cho đúng shell của đích; '' khi không sản phẩm nào cài được. */
+  cmd: string;
+  /** Từng bước (đã gộp) - để hiện dạng nhiều dòng dễ đọc. `cmd` = các bước nối lại. */
+  steps: string[];
+  /** Sản phẩm có trong lệnh, kèm kênh đã chọn cho nó. */
+  covered: { name: string; channel: string }[];
+  /** Sản phẩm KHÔNG có kênh dòng lệnh nào trên đích này. */
+  missing: string[];
+};
+
+type Named = Installable & { name: string };
+
+/**
+ * Lệnh cài GỘP mọi sản phẩm đã chọn cho MỘT hệ điều hành:
+ *   - mỗi sản phẩm lấy kênh ưu tiên nhất có trên đích (Windows: winget rồi Scoop);
+ *   - lệnh thêm nguồn (bucket, kho APT/RPM) chỉ xuất hiện MỘT lần;
+ *   - trình quản lý gói nhận nhiều gói trong một lệnh (`scoop install a b`,
+ *     `brew install --cask a b`, `apt install a b`) - winget thì mỗi gói một lệnh vì
+ *     `winget install` chỉ nhận một gói trên các bản Windows 10 còn phổ biến;
+ *   - nối bằng đúng toán tử của shell: PowerShell 5.1 không có `&&` nên dùng `;`,
+ *     bash dùng `&&` để dừng ngay khi một bước lỗi (không cài tiếp trên kho chưa thêm).
+ */
+export function installPlan(items: Named[], target: InstallTarget): InstallPlan {
+  const covered: InstallPlan['covered'] = [];
+  const missing: string[] = [];
+  const steps: string[] = [];
+
+  if (target === 'windows') {
+    const winget = items.filter((i) => i.winget);
+    const scoop = items.filter((i) => !i.winget && i.scoop);
+    for (const i of winget) {
+      steps.push(
+        `winget install --id ${i.winget} -e --accept-package-agreements --accept-source-agreements`
+      );
+      covered.push({ name: i.name, channel: 'winget' });
+    }
+    if (scoop.length) {
+      steps.push('scoop bucket add tsudev https://github.com/tsudev-org/scoop-bucket');
+      steps.push(`scoop install ${scoop.map((i) => `tsudev/${i.scoop}`).join(' ')}`);
+      for (const i of scoop) covered.push({ name: i.name, channel: 'Scoop' });
+    }
+    for (const i of items) if (!i.winget && !i.scoop) missing.push(i.name);
+    return { cmd: steps.join('; '), steps, covered, missing };
+  }
+
+  if (target === 'macos') {
+    const brew = items.filter((i) => i.brew);
+    if (brew.length) {
+      steps.push(`brew install --cask ${brew.map((i) => `tsudev-org/tap/${i.brew}`).join(' ')}`);
+      for (const i of brew) covered.push({ name: i.name, channel: 'Homebrew' });
+    }
+    for (const i of items) if (!i.brew) missing.push(i.name);
+    return { cmd: steps.join(' && '), steps, covered, missing };
+  }
+
+  const pkgs = items.filter((i) => i.pkg);
+  for (const i of items) if (!i.pkg) missing.push(i.name);
+  if (pkgs.length) {
+    const names = pkgs.map((i) => i.pkg).join(' ');
+    if (target === 'debian') {
+      steps.push(
+        `curl -fsSL ${PKG_REPO.keyring} | sudo tee /usr/share/keyrings/tsudev.gpg >/dev/null`,
+        `echo "deb [signed-by=/usr/share/keyrings/tsudev.gpg] ${PKG_REPO.url}/apt stable main" | sudo tee /etc/apt/sources.list.d/tsudev.list >/dev/null`,
+        'sudo apt update',
+        `sudo apt install -y ${names}`
+      );
+    } else {
+      steps.push(
+        `sudo curl -fsSLo /etc/yum.repos.d/tsudev.repo ${PKG_REPO.url}/rpm/tsudev.repo`,
+        `sudo dnf install -y ${names}`
+      );
+    }
+    const ch = target === 'debian' ? 'APT' : 'DNF';
+    for (const i of pkgs) covered.push({ name: i.name, channel: ch });
+  }
+  return { cmd: steps.join(' && '), steps, covered, missing };
+}
+
+/** Đoán hệ điều hành của người xem từ User-Agent - CHỈ để chọn sẵn tab, người dùng đổi được. */
+export function guessInstallTarget(ua: string): InstallTarget {
+  if (/Windows/i.test(ua)) return 'windows';
+  if (/Mac OS X|Macintosh/i.test(ua) && !/iPhone|iPad/i.test(ua)) return 'macos';
+  if (/Fedora|Red Hat|CentOS|Rocky|Alma/i.test(ua)) return 'fedora';
+  if (/Linux|X11/i.test(ua) && !/Android/i.test(ua)) return 'debian';
+  return 'windows';
 }

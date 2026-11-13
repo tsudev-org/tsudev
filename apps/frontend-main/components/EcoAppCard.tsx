@@ -1,8 +1,11 @@
 import React from 'react';
-import { Icon, Badge, ECO_PLATFORM_LABEL, ECO_CATEGORY_LABEL } from '@tsudev/ui';
-import type { EcoApp, IconName } from '@tsudev/ui';
+import { Icon, Badge, ECO_CATEGORY_LABEL } from '@tsudev/ui';
+import type { EcoApp } from '@tsudev/ui';
 import EcoIcon from './EcoIcon';
 import InstallCommands from './InstallCommands';
+import ExternalArrow from './ExternalArrow';
+import SelectCircle, { toggleOnCardClick } from './SelectCircle';
+import PlatformRow from './PlatformRow';
 
 /**
  * Thẻ một app của hệ sinh thái (danh bạ /apps và khối trang chủ).
@@ -12,7 +15,12 @@ import InstallCommands from './InstallCommands';
  * `window.opener`). Nhãn đọc màn hình nói rõ "mở tab mới", vì mũi tên ↗ chỉ là
  * dấu hiệu thị giác.
  *
- * `selectable` bật ô chọn kiểu winstall: chọn nhiều app rồi lấy MỘT lệnh winget.
+ * `selectable` bật ô chọn TRÒN kiểu winstall: chọn nhiều app rồi lấy MỘT lệnh cài gộp
+ * theo hệ điều hành (khay ở /apps). Bấm vào vùng trống của thẻ cũng chọn/bỏ chọn.
+ *
+ * Bố cục thống nhất mọi thẻ sản phẩm (app lẫn trò chơi): đầu thẻ → mô tả → lệnh cài →
+ * nút → hàng biểu tượng nền tảng ở ĐÁY thẻ (chủ dự án yêu cầu 13/11/2026), nên các thẻ
+ * cùng hàng lưới có hàng nền tảng thẳng hàng nhau.
  */
 type Props = {
   app: EcoApp;
@@ -21,21 +29,18 @@ type Props = {
   onToggle?: (id: string) => void;
 };
 
-const PLATFORM_ICON: Record<EcoApp['platforms'][number], IconName> = {
-  windows: 'windows',
-  android: 'android',
-  apple: 'apple',
-  linux: 'linux',
-};
-
 const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' } as const;
 
 export default function EcoAppCard({ app, selectable, selected, onToggle }: Props) {
   return (
+    // Bấm chuột vào vùng trống chỉ là lối tắt; bàn phím dùng ô chọn tròn (jsx-a11y).
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
     <article
-      className={`tsu-glow-card flex min-w-0 flex-col rounded-lg border bg-surface p-5 ${
-        selected ? 'border-primary' : 'border-line'
-      }`}
+      onClick={selectable ? (e) => toggleOnCardClick(e, () => onToggle?.(app.id)) : undefined}
+      data-selected={selectable ? Boolean(selected) : undefined}
+      className={`tsu-glow-card flex min-w-0 flex-col rounded-lg border bg-surface p-5 transition-colors ${
+        selectable ? 'cursor-pointer' : ''
+      } ${selected ? 'border-primary ring-1 ring-primary' : 'border-line'}`}
     >
       <div className="flex items-start gap-4">
         <EcoIcon name={app.name} logo={app.logo} tint={app.tint} icon={app.icon} />
@@ -47,32 +52,20 @@ export default function EcoAppCard({ app, selectable, selected, onToggle }: Prop
           </div>
         </div>
         {selectable && (
-          <label className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md hover:bg-subtle">
-            <input
-              type="checkbox"
-              className="h-4 w-4 accent-(--primary)"
-              checked={Boolean(selected)}
-              onChange={() => onToggle?.(app.id)}
-              aria-label={`Chọn ${app.name} để cài cùng lúc`}
-            />
-          </label>
+          <SelectCircle
+            checked={Boolean(selected)}
+            onChange={() => onToggle?.(app.id)}
+            label={`Chọn ${app.name} để cài cùng lúc`}
+          />
         )}
       </div>
 
-      <p className="mt-3 flex-1 text-sm text-fg-secondary">{app.tagline}</p>
-      {app.basedOn && <p className="mt-1.5 text-xs text-fg-muted">Dựa trên {app.basedOn}</p>}
-
-      <ul className="mt-4 flex flex-wrap gap-2" aria-label="Nền tảng hỗ trợ">
-        {app.platforms.map((p) => (
-          <li
-            key={p}
-            className="inline-flex items-center gap-1.5 rounded-md border border-line px-2 py-1 text-xs text-fg-secondary"
-          >
-            <Icon name={PLATFORM_ICON[p]} size={14} />
-            {ECO_PLATFORM_LABEL[p]}
-          </li>
-        ))}
-      </ul>
+      {/* Mô tả + ghi công giãn CHUNG (flex-1): ghi công đi liền mô tả, phần trống dồn xuống
+          dưới để nút và hàng nền tảng các thẻ cùng hàng thẳng nhau. */}
+      <div className="mt-3 flex-1">
+        <p className="text-sm text-fg-secondary">{app.tagline}</p>
+        {app.basedOn && <p className="mt-1.5 text-xs text-fg-muted">Dựa trên {app.basedOn}</p>}
+      </div>
 
       <InstallCommands
         name={app.name}
@@ -85,11 +78,11 @@ export default function EcoAppCard({ app, selectable, selected, onToggle }: Prop
           <a
             href={app.website}
             {...NEW_TAB}
-            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-primary-hover bg-primary px-3 text-sm font-medium text-on-primary transition-colors hover:bg-primary-hover"
+            className="group inline-flex h-8 items-center gap-1.5 rounded-md border border-primary-hover bg-primary px-3 text-sm font-medium text-on-primary transition-colors hover:bg-primary-hover"
           >
             <Icon name="globe" size={16} />
             Trang sản phẩm
-            <span aria-hidden="true">↗</span>
+            <ExternalArrow />
             <span className="sr-only"> (mở tab mới)</span>
           </a>
         )}
@@ -97,7 +90,7 @@ export default function EcoAppCard({ app, selectable, selected, onToggle }: Prop
           <a
             href={app.releases}
             {...NEW_TAB}
-            className={`inline-flex h-8 items-center gap-1.5 rounded-md border px-3 text-sm font-medium transition-colors ${
+            className={`group inline-flex h-8 items-center gap-1.5 rounded-md border px-3 text-sm font-medium transition-colors ${
               app.website
                 ? 'border-line-strong bg-surface text-fg hover:border-line-control hover:bg-hovered'
                 : 'border-primary-hover bg-primary text-on-primary hover:bg-primary-hover'
@@ -105,11 +98,13 @@ export default function EcoAppCard({ app, selectable, selected, onToggle }: Prop
           >
             <Icon name="download" size={16} />
             Tải bản mới nhất
-            <span aria-hidden="true">↗</span>
+            <ExternalArrow />
             <span className="sr-only"> (mở tab mới)</span>
           </a>
         )}
       </div>
+
+      <PlatformRow platforms={app.platforms} />
     </article>
   );
 }

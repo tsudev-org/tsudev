@@ -1,4 +1,12 @@
-import { ECOSYSTEM_APPS, ECO_GAMES, PKG_REPO, installCommands } from '../src/lib/ecosystem';
+import {
+  ECOSYSTEM_APPS,
+  ECO_GAMES,
+  PKG_REPO,
+  installCommands,
+  installPlan,
+  guessInstallTarget,
+  INSTALL_TARGETS,
+} from '../src/lib/ecosystem';
 
 describe('lệnh cài từ kho APT/RPM pkg.tsudev.com', () => {
   const lotus = ECOSYSTEM_APPS.find((a) => a.id === 'lotus');
@@ -89,7 +97,7 @@ describe('biểu tượng phân biệt được từng sản phẩm (13/11/2026)
   });
 
   it('logo khai trong dữ liệu có tệp thật trong public/ (nếu không: ảnh vỡ trên production)', () => {
-    for (const a of ECOSYSTEM_APPS.filter((x) => x.logo)) {
+    for (const a of all.filter((x) => x.logo)) {
       expect(a.logo).toMatch(/^\/eco\/[a-z0-9-]+\.webp$/);
       expect([a.id, existsSync(join(PUBLIC, a.logo!))]).toEqual([a.id, true]);
     }
@@ -134,5 +142,69 @@ describe('gói APT/RPM suy từ catalog.json của kho, không gõ tay (phiếu 
 
   it('Lotus Share có cả x86-64 và ARM64 theo catalog', () => {
     expect(ECOSYSTEM_APPS.find((a) => a.id === 'lotus')?.pkgArch).toBe('Linux x86-64 · ARM64');
+  });
+});
+
+describe('lệnh cài GỘP theo hệ điều hành (khay chọn nhiều ở /apps, 13/11/2026)', () => {
+  const a = { name: 'A', winget: 'tsudev.A', scoop: 'a', brew: 'a', pkg: 'tsudev-a' };
+  const b = { name: 'B', scoop: 'b', pkg: 'tsudev-b' };
+  const c = { name: 'C', brew: 'c' };
+  const d = { name: 'D' };
+
+  it('Windows: winget ưu tiên, Scoop cho phần còn lại, bucket thêm MỘT lần, nối bằng ; (PowerShell 5.1)', () => {
+    const p = installPlan([a, b, d], 'windows');
+    expect(p.cmd).toBe(
+      'winget install --id tsudev.A -e --accept-package-agreements --accept-source-agreements; ' +
+        'scoop bucket add tsudev https://github.com/tsudev-org/scoop-bucket; scoop install tsudev/b'
+    );
+    expect(p.covered).toEqual([
+      { name: 'A', channel: 'winget' },
+      { name: 'B', channel: 'Scoop' },
+    ]);
+    expect(p.missing).toEqual(['D']);
+    expect(p.cmd).not.toMatch(/&&|apt|brew|dnf/);
+  });
+
+  it('scoop install nhận nhiều gói trong MỘT lệnh', () => {
+    expect(installPlan([b, { name: 'E', scoop: 'e' }], 'windows').cmd).toMatch(
+      /scoop install tsudev\/b tsudev\/e$/
+    );
+  });
+
+  it('macOS: một lệnh brew cho mọi cask, không lẫn winget/apt', () => {
+    const p = installPlan([a, c, b], 'macos');
+    expect(p.cmd).toBe('brew install --cask tsudev-org/tap/a tsudev-org/tap/c');
+    expect(p.missing).toEqual(['B']);
+  });
+
+  it('Debian: thêm kho một lần (signed-by), apt install mọi gói, nối bằng &&', () => {
+    const p = installPlan([a, b, c], 'debian');
+    expect(p.cmd.match(/sources\.list\.d/g)).toHaveLength(1);
+    expect(p.cmd).toMatch(/&& sudo apt update && sudo apt install -y tsudev-a tsudev-b$/);
+    expect(p.cmd).not.toMatch(/apt-key|winget|brew/);
+    expect(p.missing).toEqual(['C']);
+  });
+
+  it('Fedora: tệp .repo một lần, dnf install mọi gói', () => {
+    expect(installPlan([a, b], 'fedora').cmd).toBe(
+      `sudo curl -fsSLo /etc/yum.repos.d/tsudev.repo ${PKG_REPO.url}/rpm/tsudev.repo && sudo dnf install -y tsudev-a tsudev-b`
+    );
+  });
+
+  it('không sản phẩm nào có kênh cho đích ⇒ lệnh rỗng', () => {
+    for (const t of INSTALL_TARGETS) expect(installPlan([d], t.id).cmd).toBe('');
+  });
+
+  it('dữ liệu thật: lệnh gộp của mọi đích không chứa chuỗi undefined', () => {
+    const all = [...ECOSYSTEM_APPS, ...ECO_GAMES];
+    for (const t of INSTALL_TARGETS) expect(installPlan(all, t.id).cmd).not.toMatch(/undefined/);
+  });
+
+  it('đoán hệ điều hành từ User-Agent', () => {
+    expect(guessInstallTarget('Mozilla/5.0 (Windows NT 10.0; Win64; x64)')).toBe('windows');
+    expect(guessInstallTarget('Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5)')).toBe('macos');
+    expect(guessInstallTarget('Mozilla/5.0 (X11; Fedora; Linux x86_64)')).toBe('fedora');
+    expect(guessInstallTarget('Mozilla/5.0 (X11; Linux x86_64)')).toBe('debian');
+    expect(guessInstallTarget('Mozilla/5.0 (Linux; Android 14)')).toBe('windows');
   });
 });

@@ -17,9 +17,14 @@ type Props = {
   tint: readonly [string, string];
   icon: string;
   size?: number;
+  /**
+   * Logo là Ô NỀN ĐẶC bo góc (sáu trò chơi - `mark-tile` ở build-eco-icons.js): thêm viền
+   * hairline để ô tối không chìm vào nền Tối và ô trắng không chìm vào nền Sáng.
+   */
+  tile?: boolean;
 };
 
-export default function EcoIcon({ name, logo, tint, icon, size = 48 }: Props) {
+export default function EcoIcon({ name, logo, tint, icon, size = 48, tile }: Props) {
   if (logo) {
     return (
       <img
@@ -29,7 +34,7 @@ export default function EcoIcon({ name, logo, tint, icon, size = 48 }: Props) {
         height={size}
         loading="lazy"
         decoding="async"
-        className="shrink-0 object-contain"
+        className={`shrink-0 object-contain ${tile ? 'rounded-[22%] ring-1 ring-line' : ''}`}
         style={{ width: size, height: size }}
         data-eco-logo={name}
       />
