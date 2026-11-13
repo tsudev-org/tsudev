@@ -29,6 +29,11 @@ dùng chung: `/`, `/apps`, `/blog`, `/docs`, `/login`, `/signup`, `/forgot-passw
 - Ảnh full-page KHÔNG kích hoạt hiệu ứng hiện-khi-cuộn: trang chủ trông có khoảng trống ~800px nhưng không phải lỗi.
   Công cụ quét cuộn hết trang trước khi chụp.
 - E2E `smoke.spec.js` / `upload.spec.js` nhận diện "đã đăng nhập" bằng `header button[aria-controls="tsu-user-menu"]`.
+- 🪤 **E2E chập chờn ở TEST ĐẦU TIÊN của lượt chạy**: #253 (chỉ đổi markdown) đỏ 2 lần, mỗi lần một test KHÁC nhau
+  nhưng luôn ở vị trí #1 (`release-security` rồi `react-hooks-7 accounts`), 21/22 còn lại xanh; lần chạy thứ ba xanh.
+  Giống `0598c12` trên main. Nghi: trang admin biên dịch nguội trên `next dev` vượt timeout 5s của `expect`. Chưa sửa -
+  việc của qa-test: thêm bước làm ấm (warm-up) các trang admin trong `globalSetup` hoặc tăng `expect.timeout` cho test
+  đầu. Trước đó: `gh run rerun <id> --failed`, đừng sửa mã theo một lần đỏ.
 - `SiteFooter.tsx` thuộc cổng Bảo vệ bản quyền ⇒ tách PR footer riêng để header ship trước.
 
 ## 3. Việc còn lại
@@ -39,3 +44,4 @@ dùng chung: `/`, `/apps`, `/blog`, `/docs`, `/login`, `/signup`, `/forgot-passw
    Sau đó làm theo "Thứ tự làm" cuối tài liệu đó (bắt đầu A4-A6 + A8).
 3. Thu kết quả phiếu 20261113-07 từ 14 repo.
 4. Việc cũ phiếu 20261113-06 mục 3.3-3.5 vẫn mở.
+5. qa-test: sửa E2E chập chờn ở test đầu tiên (mục 2).
