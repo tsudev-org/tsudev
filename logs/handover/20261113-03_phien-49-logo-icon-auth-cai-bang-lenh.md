@@ -105,3 +105,18 @@ liệu đó vào `ecosystem.ts` ⇒ đổi tên/kênh ở repo app không tự l
   `DATABASE_URL`/`DIRECT_URL`). Các lần nghiệm thu trước của phiên này kiểm `/docs`, `/blog` bằng mã 200 - đúng cái bẫy
   "200 không chứng minh có nội dung" của CLAUDE.md.
 - Sau đó: `tsudev-contact` vào Scoop (#233), `tsudev-files` vào APT/RPM (#234) - `npm run pkg:catalog`; Worker `6ca9e280`.
+
+## 8. Bản quyền, giấy phép, nhãn hiệu + cổng bảo vệ (13/11/2026, chủ dự án ủy quyền chọn phương án)
+
+- PR #238: `LICENSE` Apache-2.0 (nguyên văn), `NOTICE`, `TRADEMARKS.md`, `docs/ban-quyen.md`, `AGENTS.md` B.1b. Cổng
+  `Bảo vệ bản quyền` (`pull_request_target`, mã từ main, không checkout PR) - ĐÃ là check bắt buộc thứ 14 của `main`.
+  Thử thật: PR #239 đỏ đúng lý do, đòi `nguyentrangtinhsu` duyệt commit đầu.
+- Người duyệt = `nguyentrangtinhsu` (chủ dự án chọn), team `tsudev-org/chu-so-huu`, quyền push trên MỌI repo công khai.
+  🪤 GitHub tự thêm NGƯỜI TẠO team vào team: `tsudev-tsudev` (agent) đã bị thêm và đã GỠ - kiểm lại nếu tạo team mới.
+  Lời mời vào org CHỜ chủ dự án chấp nhận.
+- 🪤 Job "skipped" trùng tên required check được GitHub tính là ĐẠT: workflow cổng chỉ có `pull_request_target`, test
+  ở workflow riêng; cả `.github/workflows/` là đường dẫn bảo vệ (chặn workflow mới giả tên check).
+- PR #239 (CODEOWNERS → team) CHỜ chủ dự án: hướng dẫn trong bình luận PR (một lần duy nhất phải tạm tắt "Require
+  review from Code Owners" vì code owner cũ là tài khoản agent).
+- Repo khác: phiếu `~/projects/logs/handover/20261113-03_yeu-cau-ban-quyen-nhan-hieu-toan-he.md`; đã nhắn
+  linux-packages-19 (scoop-bucket, homebrew-tap chưa có giấy phép).
