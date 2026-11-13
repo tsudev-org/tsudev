@@ -1,0 +1,113 @@
+{
+  "_ghi_chu": "Metadata GitHub của mọi repo công khai tsudev-org - NGUỒN DUY NHẤT. Sửa ở đây rồi `npm run he-sinh-thai:metadata -- --apply`; `--check` (mặc định) báo lệch. Mô tả: tiếng Anh trước (người đánh giá + tìm kiếm GitHub), tiếng Việt sau dấu ' · '. topics: chữ thường, nối bằng '-', tối đa 20. Script CHỈ THÊM topics, không xoá topic repo tự đặt.",
+  "org": {
+    "name": "tsudev",
+    "description": "Small, honest open-source tools for Windows, Linux, macOS and Android - Vietnamese-first, installable with one command.",
+    "blog": "https://tsudev.com"
+  },
+  "discussions": ["lotus-share", "tsudev-files"],
+  "repos": {
+    "tsudev": {
+      "description": "tsudev.com - app directory, one-command installers (winget, Scoop, Homebrew, APT/DNF) and docs for the tsudev ecosystem · Trang chủ hệ sinh thái tsudev",
+      "homepage": "https://tsudev.com",
+      "topics": [
+        "nextjs",
+        "cloudflare-workers",
+        "software-distribution",
+        "package-manager",
+        "vietnamese",
+        "open-source-ecosystem"
+      ]
+    },
+    "lotus-share": {
+      "description": "Share files and messages between phones and computers on the same Wi-Fi - no Internet, end-to-end encrypted. Fork of LocalSend · Gửi tệp trong mạng LAN",
+      "homepage": "https://lotus.tsudev.com",
+      "topics": [
+        "file-sharing",
+        "localsend",
+        "lan",
+        "airdrop-alternative",
+        "flutter",
+        "cross-platform",
+        "end-to-end-encryption",
+        "vietnamese"
+      ]
+    },
+    "tsudev-files": {
+      "description": "Offline drag-and-drop file converter for 260+ formats - files never leave your computer. Fork of Filee (MIT) · Chuyển đổi tệp ngoại tuyến",
+      "homepage": "https://files.tsudev.com",
+      "topics": [
+        "file-converter",
+        "offline",
+        "privacy",
+        "image-converter",
+        "video-converter",
+        "document-converter",
+        "cross-platform",
+        "vietnamese"
+      ]
+    },
+    "tsudev-trafficmonitor": {
+      "description": "Network speed, CPU and RAM monitor on the Windows taskbar - Vietnamese, security-hardened edition of TrafficMonitor · Theo dõi mạng trên thanh tác vụ",
+      "homepage": "https://trafficmonitor.tsudev.com",
+      "topics": [
+        "windows",
+        "taskbar",
+        "network-monitor",
+        "system-monitor",
+        "trafficmonitor",
+        "vietnamese"
+      ]
+    },
+    "tsudev-cwico": {
+      "description": "Deep Windows cleanup: find and remove leftover software safely, with a restore point before every run · Dọn sâu và gỡ phần mềm thừa trên Windows",
+      "homepage": "https://cwico.tsudev.com",
+      "topics": ["windows", "uninstaller", "cleanup", "tauri", "rust", "vietnamese"]
+    },
+    "tsudev-swico": {
+      "description": "Check Windows and Office licensing and collect hardware inventory with one .exe - data never leaves the machine · Kiểm tra bản quyền và cấu hình máy",
+      "homepage": "https://swico.tsudev.com",
+      "topics": [
+        "windows",
+        "office",
+        "license-checker",
+        "hardware-inventory",
+        "dotnet",
+        "vietnamese"
+      ]
+    },
+    "tsudev-contact": {
+      "description": "Convert CSV contact lists to vCard (.vcf) for phones, with page-by-page preview · Chuyển danh bạ CSV sang vCard",
+      "homepage": "https://contact.tsudev.com",
+      "topics": ["vcard", "csv", "contacts", "converter", "pyside6", "vietnamese"]
+    },
+    "tsudev-standards": {
+      "description": "Shared engineering standards, design tokens and agent protocol for every tsudev repository · Bộ quy ước chung của hệ sinh thái",
+      "homepage": "https://tsudev.com",
+      "topics": ["engineering-standards", "design-tokens", "conventions", "ai-agents"]
+    },
+    "linux-packages": {
+      "description": "Signed APT/RPM repository for tsudev apps at pkg.tsudev.com, built from GitHub Releases · Kho APT/RPM ký GPG",
+      "homepage": "https://pkg.tsudev.com",
+      "topics": [
+        "apt-repository",
+        "rpm-repository",
+        "debian",
+        "fedora",
+        "ubuntu",
+        "gpg",
+        "cloudflare-r2"
+      ]
+    },
+    "scoop-bucket": {
+      "description": "Official Scoop bucket for tsudev apps on Windows · Bucket Scoop chính thức của tsudev",
+      "homepage": "https://tsudev.com/apps#cai-bang-lenh",
+      "topics": ["scoop", "scoop-bucket", "windows", "package-manager"]
+    },
+    "homebrew-tap": {
+      "description": "Official Homebrew tap for tsudev apps on macOS · Homebrew tap chính thức của tsudev",
+      "homepage": "https://tsudev.com/apps#cai-bang-lenh",
+      "topics": ["homebrew", "homebrew-tap", "macos", "package-manager"]
+    }
+  }
+}
