@@ -120,4 +120,4 @@ Commit theo [Conventional Commits](https://www.conventionalcommits.org/).
 
 Mã nguồn: [Apache License 2.0](LICENSE) - bản sao và bản sửa đổi phải giữ nguyên [`NOTICE`](NOTICE) và mọi thông báo
 bản quyền. Tên **tsudev**, logo và tên sản phẩm là nhãn hiệu, không nằm trong giấy phép:
-[`TRADEMARKS.md`](TRADEMARKS.md). Copyright 2026 tsudev.
+[`TRADEMARKS.md`](TRADEMARKS.md).
