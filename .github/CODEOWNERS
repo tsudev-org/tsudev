@@ -1,8 +1,30 @@
-# Kênh ủng hộ (số tài khoản, mã QR) và cổng kiểm của trang /ung-ho: chỉ chủ dự án duyệt - chống tráo
-# tài khoản nhận tiền (phiếu 20261112-01 mục 3.4). Ruleset của main nên bật "Require review from Code Owners".
-/apps/frontend-main/data/ung-ho.json @tsudev-tsudev
-/apps/frontend-main/lib/ungHo.ts @tsudev-tsudev
-/apps/frontend-main/test/ungHo.test.ts @tsudev-tsudev
-/apps/frontend-main/public/ung-ho/ @tsudev-tsudev
-/.github/FUNDING.yml @tsudev-tsudev
-/.github/CODEOWNERS @tsudev-tsudev
+# Code owner của mọi nội dung sở hữu tsudev = team `tsudev-org/chu-so-huu` (CHỈ tài khoản nguyentrangtinhsu - không
+# phiên Agent AI nào đăng nhập). Branch protection `main` bật "Require review from Code Owners", nên GitHub chặn merge
+# ở tầng máy chủ cho tới khi chủ sở hữu duyệt - lớp thứ hai bên cạnh check `Bảo vệ bản quyền` (docs/ban-quyen.md).
+# Giữ danh sách này KHỚP `config/ban-quyen.json` > `duong_dan_bao_ve`.
+
+# Giấy phép, ghi công, nhãn hiệu
+/LICENSE @tsudev-org/chu-so-huu
+/NOTICE @tsudev-org/chu-so-huu
+/TRADEMARKS.md @tsudev-org/chu-so-huu
+
+# Cơ chế bảo vệ và CI (kể cả workflow mới - chặn check giả mạo tên)
+/config/ban-quyen.json @tsudev-org/chu-so-huu
+/scripts/bao-ve-ban-quyen.mjs @tsudev-org/chu-so-huu
+/.github/workflows/ @tsudev-org/chu-so-huu
+/.github/CODEOWNERS @tsudev-org/chu-so-huu
+
+# Nhận diện, mô tả sở hữu, chuỗi cung ứng cài đặt
+/packages/brand/source/ @tsudev-org/chu-so-huu
+/apps/frontend-main/public/brand/ @tsudev-org/chu-so-huu
+/apps/frontend-main/public/install.sh @tsudev-org/chu-so-huu
+/apps/frontend-main/public/install.ps1 @tsudev-org/chu-so-huu
+/packages/ui/src/components/SiteFooter.tsx @tsudev-org/chu-so-huu
+/scripts/he-sinh-thai/metadata.json @tsudev-org/chu-so-huu
+
+# Kênh ủng hộ - chống tráo tài khoản nhận tiền (phiếu 20261112-01 mục 3.4)
+/apps/frontend-main/data/ung-ho.json @tsudev-org/chu-so-huu
+/apps/frontend-main/lib/ungHo.ts @tsudev-org/chu-so-huu
+/apps/frontend-main/test/ungHo.test.ts @tsudev-org/chu-so-huu
+/apps/frontend-main/public/ung-ho/ @tsudev-org/chu-so-huu
+/.github/FUNDING.yml @tsudev-org/chu-so-huu
