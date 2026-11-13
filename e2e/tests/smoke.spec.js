@@ -78,7 +78,13 @@ test('JWKS ký bản phát hành công khai ở đường chuẩn', async ({ pag
 test('đăng nhập dev hoạt động', async ({ page }) => {
   await signIn(page);
   await page.goto(MAIN, { waitUntil: 'networkidle' });
-  await expect(page.locator('header button:has-text("Đăng xuất")')).toBeVisible({ timeout: 10000 });
+  await expect(page.locator('header button[aria-controls="tsu-user-menu"]')).toBeVisible({
+    timeout: 10000,
+  });
+  // Menu tài khoản (13/11/2026): bấm avatar/tên mới thấy "Hồ sơ tài khoản" + "Đăng xuất".
+  await page.locator('header button[aria-controls="tsu-user-menu"]').click();
+  await expect(page.locator('#tsu-user-menu a:has-text("Hồ sơ tài khoản")')).toBeVisible();
+  await expect(page.locator('#tsu-user-menu button:has-text("Đăng xuất")')).toBeVisible();
 });
 
 // alice không bật 2FA: đăng nhập phải xong ở bước MỘT, không bị đòi mã. Canh
@@ -87,7 +93,9 @@ test('alice (không TOTP) đăng nhập một bước', async ({ page }) => {
   await submitPassword(page, MAIN, 'alice');
   await expect(page.locator(TOTP_INPUT)).toHaveCount(0);
   await page.goto(MAIN, { waitUntil: 'networkidle' });
-  await expect(page.locator('header button:has-text("Đăng xuất")')).toBeVisible({ timeout: 10000 });
+  await expect(page.locator('header button[aria-controls="tsu-user-menu"]')).toBeVisible({
+    timeout: 10000,
+  });
 });
 
 // tsudev là OWNER và có TOTP đã xác nhận (seed dev). Mật khẩu đúng mà thiếu mã
@@ -103,7 +111,7 @@ test('tsudev: mật khẩu đúng mà thiếu mã TOTP thì không có phiên', 
   expect(body?.user ?? null).toBeNull();
 
   await page.goto(MAIN, { waitUntil: 'networkidle' });
-  await expect(page.locator('header button:has-text("Đăng xuất")')).toHaveCount(0);
+  await expect(page.locator('header button[aria-controls="tsu-user-menu"]')).toHaveCount(0);
 });
 
 test('khu vực quản trị mở được sau khi đăng nhập bằng tsudev', async ({ page }) => {
