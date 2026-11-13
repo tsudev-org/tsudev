@@ -60,5 +60,8 @@ thực, có nhật ký kiểm toán - đó là "văn bản ủy quyền" có th�
 - Repo `tsudev`: đủ 3 lớp + cơ chế (13/11/2026).
 - Repo khác trong hệ: phiếu `~/projects/logs/handover/20261113-03_yeu-cau-ban-quyen-nhan-hieu-toan-he.md` (NOTICE +
   liên kết TRADEMARKS + chép cổng này).
-- `.github/CODEOWNERS` vẫn ghi `@tsudev-tsudev` (tài khoản agent) cho dữ liệu ủng hộ - nên đổi sang
-  `@tsudev-org/chu-so-huu`; việc đó tự nó cần chủ sở hữu thao tác (mục 3 phiếu bàn giao phiên 49).
+- `.github/CODEOWNERS` → team `@tsudev-org/chu-so-huu` (PR #239, 13/11/2026): lớp thứ hai do GitHub tự thi hành,
+  khớp danh sách `duong_dan_bao_ve`. Nghiệm thu: PR thử #241 xoá dòng `Copyright` ở README (tệp KHÔNG thuộc danh sách)
+  ⇒ cổng đỏ, PR `BLOCKED` - đã đóng.
+- Phê duyệt vẫn còn hiệu lực sau `gh pr update-branch` khi phần thay đổi của PR không đổi (GitHub giữ phê duyệt khi chỉ
+  kéo thêm commit từ `main`); đẩy commit MỚI vào PR thì phải duyệt lại.
