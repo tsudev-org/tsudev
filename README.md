@@ -103,10 +103,9 @@ Không có lệnh `test` ở gốc - test chạy theo từng service.
 
 ## Đóng góp
 
-`main` **không** có branch protection - repo Public từ 21/08/2026 nên GitHub
-Free đã cho phép, nhưng chưa ai bật. Lớp chắn duy nhất là hook client `.husky/pre-push`, tự cài khi
-`npm install`. Làm việc trên nhánh feature rồi mở PR; thật sự cần vượt thì
-`ALLOW_MAIN_FORCE=1 git push`.
+`main` có branch protection: mọi thay đổi đi qua PR, cập nhật theo `main` và qua đủ check bắt buộc (gồm `Bảo vệ bản
+quyền` - xem [`docs/ban-quyen.md`](docs/ban-quyen.md)). Hook `.husky/pre-push` (tự cài khi `npm install`) chặn sớm
+hơn ở máy. Quy tắc đóng góp chung của tổ chức: [tsudev-org/.github](https://github.com/tsudev-org/.github).
 
 Trước khi commit:
 
@@ -116,3 +115,9 @@ npm --workspace services/<tên đã sửa> test
 ```
 
 Commit theo [Conventional Commits](https://www.conventionalcommits.org/).
+
+## Giấy phép và nhãn hiệu
+
+Mã nguồn: [Apache License 2.0](LICENSE) - bản sao và bản sửa đổi phải giữ nguyên [`NOTICE`](NOTICE) và mọi thông báo
+bản quyền. Tên **tsudev**, logo và tên sản phẩm là nhãn hiệu, không nằm trong giấy phép:
+[`TRADEMARKS.md`](TRADEMARKS.md). Copyright 2026 tsudev.
