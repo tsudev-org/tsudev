@@ -96,6 +96,10 @@ describe('biểu tượng phân biệt được từng sản phẩm (13/11/2026)
     }
   });
 
+  it('sáu trò chơi đều có logo riêng (chủ dự án giao 13/11/2026)', () => {
+    expect(ECO_GAMES.map((g) => g.logo)).toEqual(ECO_GAMES.map((g) => `/eco/game-${g.id}.webp`));
+  });
+
   it('logo khai trong dữ liệu có tệp thật trong public/ (nếu không: ảnh vỡ trên production)', () => {
     for (const a of all.filter((x) => x.logo)) {
       expect(a.logo).toMatch(/^\/eco\/[a-z0-9-]+\.webp$/);
