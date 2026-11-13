@@ -120,3 +120,15 @@ liệu đó vào `ecosystem.ts` ⇒ đổi tên/kênh ở repo app không tự l
   review from Code Owners" vì code owner cũ là tài khoản agent).
 - Repo khác: phiếu `~/projects/logs/handover/20261113-03_yeu-cau-ban-quyen-nhan-hieu-toan-he.md`; đã nhắn
   linux-packages-19 (scoop-bucket, homebrew-tap chưa có giấy phép).
+
+## 9. Kết thúc phiên 49 - việc còn lại cho phiên 50
+
+- Bảo vệ bản quyền repo tsudev: XONG + nghiệm thu (PR thử #241 xoá `Copyright` ⇒ đỏ, BLOCKED). CODEOWNERS → team (#239).
+- scoop-bucket / homebrew-tap: ruleset chặn force-push + xoá `main` ĐÃ BẬT (27177033 / 27177034). Còn CHỜ CHỦ DỰ ÁN:
+  1. Duyệt scoop-bucket#6 (bảo vệ `.github/workflows/`), scoop-bucket#7 + homebrew-tap#4 (bot đẩy bằng deploy key).
+  2. Chạy `bash ~/projects/logs/bat-bao-ve-scoop-homebrew.sh` (tạo deploy key + ngoại lệ - agent bị bộ phân loại chặn).
+  3. Phiên 50 kiểm: lượt bot xanh, push thẳng `main` bằng tài khoản khác bị từ chối.
+- Đề xuất cho chủ dự án (không bắt buộc): xác minh tên miền `tsudev.com` cho org (huy hiệu Verified - miễn phí, cần bản
+  ghi DNS TXT trên Cloudflare); Social accounts chỉ liên kết tài khoản CHÍNH THỨC đang hoạt động.
+- Phiếu toàn hệ còn mở: 20261113-01 (phủ kênh cài + ký mã), 20261113-02 (kế hoạch uy tín), 20261113-03 (bản quyền các repo
+  còn lại) ở `~/projects/logs/handover/`.

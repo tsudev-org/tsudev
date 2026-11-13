@@ -1,6 +1,14 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
-> **Phiên 50 BẮT ĐẦU Ở ĐÂY** (cuối phiên 49, 13/11/2026). Phiếu:
+> **Phiên 50 BẮT ĐẦU Ở ĐÂY** (cuối phiên 49 - cập nhật lần cuối 13/11/2026 chiều). Đọc phiếu
+> [`20261113-03`](handover/20261113-03_phien-49-logo-icon-auth-cai-bang-lenh.md) mục 8-9 TRƯỚC.
+>
+> ⛔ Repo có cổng **`Bảo vệ bản quyền`** (check bắt buộc) + CODEOWNERS → team `chu-so-huu` (`nguyentrangtinhsu`): PR chạm
+> giấy phép / NOTICE / logo / chân trang / ủng hộ / script cài / `.github/workflows/`, hoặc XOÁ dòng `Copyright`, cần chủ
+> sở hữu duyệt - agent DỪNG và báo, không vượt (`AGENTS.md` B.1b, `docs/ban-quyen.md`).
+> 📊 Uy tín hệ sinh thái: `npm run he-sinh-thai:tin-hieu` mỗi tuần; kế hoạch `~/projects/logs/handover/20261113-02_ke-hoach-uy-tin-he-sinh-thai.md`.
+>
+> (bản trước:) Phiếu:
 > [`20261113-03`](handover/20261113-03_phien-49-logo-icon-auth-cai-bang-lenh.md).
 >
 > ✅ Logo `logo-tsudev.png` (logo/favicon/OG, nguyên vẹn, xoá nền) · hết chớp "Đăng nhập" · `/projects` trống → 307 `/apps`
