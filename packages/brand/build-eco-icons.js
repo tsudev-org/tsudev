@@ -3,7 +3,8 @@
 /**
  * Lấy LOGO THẬT của từng app trong hệ sinh thái về tsudev.com.
  *
- *   node packages/brand/build-eco-icons.js
+ *   node packages/brand/build-eco-icons.js            # mọi sản phẩm
+ *   node packages/brand/build-eco-icons.js game-nuicam3d  # chỉ vài id
  *
  * Vì sao tự lưu chứ không nhúng thẳng URL của website app: CSP `img-src` của
  * tsudev.com chỉ cho 'self' (và nên giữ vậy - một site con hỏng/bị chiếm không
@@ -25,9 +26,14 @@
  *                như biểu tượng ứng dụng. KHÔNG xoá nền: nét trắng sẽ mất trên nền Sáng;
  *   - 'no-white': xoá nền TRẮNG bằng flood fill từ mép ảnh (lòng logo khép kín giữ
  *                nguyên), làm mềm biên + khử nhân với trắng, cắt sát rồi đặt vào khung vuông.
- *
- * Sáu trò chơi chưa có logo riêng (favicon là cú dùng chung) - thẻ của chúng vẽ ô
- * màu riêng (`tint` trong packages/ui/src/lib/ecosystem.ts).
+ *   - 'mark-tile': logo dạng "biểu tượng + chữ" trên nền đặc (sáu trò chơi, chủ dự án giao
+ *                13/11/2026). Tìm khung bao của BIỂU TƯỢNG trong vùng `region` (tỉ lệ
+ *                [x0, y0, x1, y1] của ảnh - loại dòng chữ tên game, không đọc được ở 48px,
+ *                và dấu ✦ của công cụ tạo ảnh ở góc), cắt sát rồi đặt giữa ô vuông nền đặc
+ *                cùng màu nền gốc (đệm 14% mỗi cạnh), bo góc 22% như biểu tượng ứng dụng.
+ *                KHÔNG xoá nền: nét trắng (Xin Chào Núi Cấm, Luyện Gõ Phím) biến mất trên
+ *                nền Sáng, chim đen (Chú Chim Vỗ Cánh) biến mất trên nền Tối - ô nền đặc
+ *                là cách DUY NHẤT để cả sáu đọc được ở cả hai chế độ.
  *
  * Chạy lại khi một app đổi logo - script in SHA-256 của tệp nguồn để ghi vào nhật
  * ký phiên.
@@ -57,6 +63,38 @@ const SOURCES = {
   cwico: { src: 'https://cwico.tsudev.com/brand/logo-cwico.png' },
   swico: { src: 'https://swico.tsudev.com/brand/logo-swico.png' },
   contact: { src: 'https://contact.tsudev.com/brand/logo-contact.png' },
+  // Sáu trò chơi: logo chủ dự án giao 13/11/2026, CHƯA lên website game (phiếu
+  // 20261113-04 gửi sáu repo). Khi website game phục vụ logo mới, đổi sang URL như trên.
+  'game-xin-chao-nui-cam': {
+    src: 'source/eco/game-xin-chao-nui-cam.png',
+    mode: 'mark-tile',
+    region: [0.04, 0.06, 0.96, 0.585],
+  },
+  'game-chu-chim-vo-canh': {
+    src: 'source/eco/game-chu-chim-vo-canh.png',
+    mode: 'mark-tile',
+    region: [0.03, 0.03, 0.88, 0.88],
+  },
+  'game-lat-manh-ghep': {
+    src: 'source/eco/game-lat-manh-ghep.png',
+    mode: 'mark-tile',
+    region: [0.3, 0.08, 0.7, 0.64],
+  },
+  'game-noi-hinh-giong-nhau': {
+    src: 'source/eco/game-noi-hinh-giong-nhau.png',
+    mode: 'mark-tile',
+    region: [0.2, 0.08, 0.8, 0.9],
+  },
+  'game-luyen-go-phim': {
+    src: 'source/eco/game-luyen-go-phim.png',
+    mode: 'mark-tile',
+    region: [0.03, 0.03, 0.97, 0.88],
+  },
+  'game-nuicam3d': {
+    src: 'source/eco/game-nuicam3d.png',
+    mode: 'mark-tile',
+    region: [0.12, 0.08, 0.88, 0.585],
+  },
 };
 
 /** Ô app: cắt vuông chính giữa rồi bo góc (mặt nạ SVG), cạnh ra = SIZE * 4 để thu nhỏ mượt. */
@@ -82,6 +120,61 @@ async function tile(buf) {
     .composite([{ input: mask, blend: 'dest-in' }])
     .png()
     .toBuffer();
+}
+
+/**
+ * Ô biểu tượng từ logo "biểu tượng + chữ" trên nền đặc - xem mode 'mark-tile' ở đầu tệp.
+ * Nền = trung vị 4 góc ảnh; điểm thuộc biểu tượng = lệch khỏi nền > 60 (tổng 3 kênh).
+ */
+async function markTile(buf, region) {
+  const { data, info } = await sharp(buf).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width: W, height: H } = info;
+  const at = (x, y) => {
+    const i = (y * W + x) * 3;
+    return [data[i], data[i + 1], data[i + 2]];
+  };
+  const corners = [at(2, 2), at(W - 3, 2), at(2, H - 3), at(W - 3, H - 3)];
+  const bg = [0, 1, 2].map((c) => corners.map((p) => p[c]).sort((a, b) => a - b)[1]);
+  const [rx0, ry0, rx1, ry1] = region;
+  let x0 = W,
+    y0 = H,
+    x1 = -1,
+    y1 = -1;
+  for (let y = Math.floor(ry0 * H); y < Math.ceil(ry1 * H); y++) {
+    for (let x = Math.floor(rx0 * W); x < Math.ceil(rx1 * W); x++) {
+      const p = at(x, y);
+      if (Math.abs(p[0] - bg[0]) + Math.abs(p[1] - bg[1]) + Math.abs(p[2] - bg[2]) > 60) {
+        if (x < x0) x0 = x;
+        if (x > x1) x1 = x;
+        if (y < y0) y0 = y;
+        if (y > y1) y1 = y;
+      }
+    }
+  }
+  if (x1 < 0) throw new Error('mark-tile: không thấy biểu tượng trong vùng đã khai');
+  // Cắt SÁT biểu tượng rồi đặt giữa một ô nền đặc cùng màu nền gốc. Không cắt ô vuông
+  // thẳng từ ảnh gốc: biểu tượng bề ngang lớn (Xin Chào Núi Cấm) kéo ô vuông lấn xuống
+  // dòng chữ tên game bên dưới.
+  const w = x1 - x0 + 1;
+  const h = y1 - y0 + 1;
+  const side = Math.round(Math.max(w, h) / (1 - 2 * 0.14));
+  const mark = await sharp(buf)
+    .removeAlpha()
+    .extract({ left: x0, top: y0, width: w, height: h })
+    .png()
+    .toBuffer();
+  const ext = await sharp({
+    create: {
+      width: side,
+      height: side,
+      channels: 3,
+      background: { r: bg[0], g: bg[1], b: bg[2] },
+    },
+  })
+    .composite([{ input: mark, left: Math.round((side - w) / 2), top: Math.round((side - h) / 2) }])
+    .png()
+    .toBuffer();
+  return tile(ext);
 }
 
 /** Xoá nền trắng nối liền mép ảnh; giữ mọi mảng trắng nằm TRONG logo. */
@@ -149,10 +242,19 @@ async function load(src) {
 
 async function main() {
   fs.mkdirSync(OUT, { recursive: true });
-  for (const [id, { src: from, mode = 'as-is' }] of Object.entries(SOURCES)) {
+  const only = process.argv.slice(2);
+  for (const [id, { src: from, mode = 'as-is', region }] of Object.entries(SOURCES)) {
+    if (only.length && !only.includes(id)) continue;
     const raw = await load(from);
     const sha = crypto.createHash('sha256').update(raw).digest('hex');
-    const src = mode === 'tile' ? await tile(raw) : mode === 'no-white' ? await noWhite(raw) : raw;
+    const src =
+      mode === 'tile'
+        ? await tile(raw)
+        : mode === 'no-white'
+          ? await noWhite(raw)
+          : mode === 'mark-tile'
+            ? await markTile(raw, region)
+            : raw;
     const out = await sharp(src)
       .resize(SIZE, SIZE, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
       .webp({ quality: 90, effort: 6 })

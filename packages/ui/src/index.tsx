@@ -26,8 +26,10 @@ import {
   ECO_GAMES,
   ECO_PLATFORM_LABEL,
   ECO_CATEGORY_LABEL,
-  wingetCommand,
   installCommands,
+  installPlan,
+  guessInstallTarget,
+  INSTALL_TARGETS,
   PKG_REPO,
 } from './lib/ecosystem';
 
@@ -37,8 +39,10 @@ export {
   ECO_GAMES,
   ECO_PLATFORM_LABEL,
   ECO_CATEGORY_LABEL,
-  wingetCommand,
   installCommands,
+  installPlan,
+  guessInstallTarget,
+  INSTALL_TARGETS,
   PKG_REPO,
   SiteHeader,
   SiteFooter,
@@ -74,7 +78,15 @@ export default Layout;
 // xuất chúng thì nơi dùng buộc phải viết `string` rồi đụng vào union bên trong -
 // đúng thứ đã xảy ra với `tone` của Badge ở trang quản trị dự án.
 export type { BadgeTone } from './components/Badge';
-export type { EcoApp, EcoGame, EcoPlatform, EcoCategory, Installable } from './lib/ecosystem';
+export type {
+  EcoApp,
+  EcoGame,
+  EcoPlatform,
+  EcoCategory,
+  Installable,
+  InstallTarget,
+  InstallPlan,
+} from './lib/ecosystem';
 export { AUTH_HINT_KEY, saveAuthHint } from './lib/authHint';
 export type { AuthHint } from './lib/authHint';
 export type { ButtonSize, ButtonVariant } from './components/Button';

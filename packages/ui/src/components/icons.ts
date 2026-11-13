@@ -78,6 +78,9 @@ export const ICONS = {
   'chevron-left': { role: 'nav', d: 'M15 5l-7 7 7 7' },
   'arrow-right': { role: 'nav', d: 'M4 12h15M13 6l6 6-6 6' },
   'arrow-left': { role: 'nav', d: 'M20 12H5M11 6l-6 6 6 6' },
+  // Mũi tên chéo lên-phải: nút mở trang ở tab mới (thay ký tự ↗ - ký tự đó vẽ theo
+  // phông, lệch cỡ và lệch nét so với icon đi cạnh).
+  'arrow-up-right': { role: 'nav', d: 'M7 17 17 7M8.5 7H17v8.5' },
   'arrow-up': { role: 'nav', d: 'M12 20V5M6 11l6-6 6 6' },
   doc: { role: 'nav', d: 'M6 3h7l5 5v13H6zM13 3v5h5M9 12.5h6M9 16.5h6' },
   menu: { role: 'nav', d: 'M4 6.5h16M4 12h16M4 17.5h16' },
