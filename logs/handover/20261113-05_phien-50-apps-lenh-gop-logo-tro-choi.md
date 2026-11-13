@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261113-05
 - **Phiên**: tsudev-80 (phiên 50), 13/11/2026
-- **Trạng thái**: HOÀN THÀNH phần agent làm được - PR #245 CHỜ CHỦ SỞ HỮU DUYỆT (mục 3)
+- **Trạng thái**: ĐÓNG - #245 duyệt, merge, deploy ở phiên 51 (phiếu 20261113-06)
 
 ## 1. Đã làm
 

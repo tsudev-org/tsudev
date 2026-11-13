@@ -1,5 +1,12 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 52 BẮT ĐẦU Ở ĐÂY** (cuối phiên 51, 13/11/2026). Phiếu:
+> [`20261113-06`](handover/20261113-06_phien-51-merge-245-tsufiles.md).
+>
+> ✅ #245 (logo 6 trò chơi + chân trang di động) merge + deploy `d27dba3f`; #248 tên hiển thị TsuFiles, deploy
+> `14f17871` - nghiệm thu production. Bot scoop/homebrew qua deploy key: success.
+> ⏳ #247 `metadata.json` khoá repo `tsufiles`: CHỜ `nguyentrangtinhsu` duyệt, rồi Re-run cổng + merge.
+
 > **Phiên 51 BẮT ĐẦU Ở ĐÂY** (cuối phiên 50, 13/11/2026). Phiếu:
 > [`20261113-05`](handover/20261113-05_phien-50-apps-lenh-gop-logo-tro-choi.md).
 >
