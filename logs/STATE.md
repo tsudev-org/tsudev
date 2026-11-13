@@ -1,5 +1,13 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 51 BẮT ĐẦU Ở ĐÂY** (cuối phiên 50, 13/11/2026). Phiếu:
+> [`20261113-05`](handover/20261113-05_phien-50-apps-lenh-gop-logo-tro-choi.md).
+>
+> ✅ #244 (Worker `090c840f`): /apps lệnh cài gộp theo hệ điều hành, ô chọn tròn, chọn bằng vùng trống, hàng nền tảng ở
+> đáy thẻ, thanh lọc dính sát header - nghiệm thu production.
+> ⏳ #245 logo 6 trò chơi + chân trang di động một hàng: CHỜ `nguyentrangtinhsu` duyệt (cổng Bảo vệ bản quyền).
+> 📨 Phiếu 20261113-04 (logo riêng) ở 6 repo game + tsudev-game-kit. 🪤 `tsudev-files` → `tsufiles` (13/11).
+
 > **Phiên 50 BẮT ĐẦU Ở ĐÂY** (cuối phiên 49 - cập nhật lần cuối 13/11/2026 chiều). Đọc phiếu
 > [`20261113-03`](handover/20261113-03_phien-49-logo-icon-auth-cai-bang-lenh.md) mục 8-9 TRƯỚC.
 >
