@@ -1,0 +1,27 @@
+name: Tự kiểm cổng bản quyền
+
+# Test của scripts/bao-ve-ban-quyen.mjs - TÁCH khỏi workflow cổng để không sinh job "skipped" trùng tên
+# với check bắt buộc `Bảo vệ bản quyền` (skipped = đạt).
+on:
+  pull_request:
+    paths:
+      - 'scripts/bao-ve-ban-quyen*'
+      - 'config/ban-quyen.json'
+      - '.github/workflows/bao-ve-ban-quyen*'
+
+permissions:
+  contents: read
+
+jobs:
+  tu-kiem:
+    name: Tự kiểm cổng bản quyền
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+      - run: node --test scripts/bao-ve-ban-quyen.test.mjs

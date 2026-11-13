@@ -32,7 +32,10 @@ tsudev-cwico (MIT - Filee gốc là MIT), tsudev-trafficmonitor (Anti-996 của 
    chỉ đọc. Sửa cổng/cấu hình cũng là "chạm đường dẫn bảo vệ" ⇒ cổng CŨ đòi phê duyệt.
 3. **Tách danh tính**: người duyệt = `nguyentrangtinhsu` (team `tsudev-org/chu-so-huu`), tài khoản KHÔNG phiên agent nào
    đăng nhập. Các phiên agent dùng `tsudev-tsudev` - GitHub cấm tự duyệt PR của mình nên agent không thể tự cho qua.
-4. **Branch protection** `main`: `enforce_admins` bật (admin cũng không merge vượt check), `strict`.
+4. **Toàn bộ `.github/workflows/` là đường dẫn bảo vệ**: một PR thêm workflow mới có job đặt tên `Bảo vệ bản quyền`
+   luôn xanh (giả check) cũng bị cổng thật đòi phê duyệt. Workflow cổng chỉ có `pull_request_target` - một job
+   "skipped" trùng tên được GitHub tính là đạt, nên test của cổng nằm ở workflow riêng.
+5. **Branch protection** `main`: `enforce_admins` bật (admin cũng không merge vượt check), `strict`.
 
 Vì sao không dùng "mã xác nhận ngẫu nhiên": chuỗi mã phải lưu ở nơi agent đọc được (tệp, biến môi trường, chat) thì
 agent cũng đọc và gõ lại được - đó là bảo mật hình thức. Phê duyệt GitHub gắn với tài khoản có 2FA, do máy chủ GitHub xác

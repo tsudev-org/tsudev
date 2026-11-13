@@ -17,6 +17,14 @@ test('sửa tệp được bảo vệ ⇒ cần phê duyệt', () => {
   );
 });
 
+test('THÊM workflow mới (có thể giả mạo tên check) ⇒ cần phê duyệt', () => {
+  assert.equal(
+    findIssues([{ filename: '.github/workflows/gia-mao.yml', status: 'added', patch: '+name: x' }])
+      .length,
+    1
+  );
+});
+
 test('đổi tên tệp được bảo vệ (previous_filename) vẫn bị bắt', () => {
   assert.equal(
     findIssues([{ filename: 'LICENSE.old', previous_filename: 'LICENSE', status: 'renamed' }])
