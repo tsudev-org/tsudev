@@ -210,7 +210,12 @@ export default function AdminContent() {
         <a href="/admin" className="text-sm text-link hover:underline">
           ← Quản trị
         </a>
-        <SectionHeading className="mt-3" eyebrow="Kiểm duyệt" title="Bài viết & tài liệu" />
+        <SectionHeading
+          headingAs="h1"
+          className="mt-3"
+          eyebrow="Kiểm duyệt"
+          title="Bài viết & tài liệu"
+        />
         <p className="-mt-3 mb-6 text-sm text-fg-muted max-w-3xl">
           Ẩn hàng loạt nội dung trùng lặp hoặc kém chất lượng - nhất là nội dung do Toà soạn AI (đã
           gỡ) sinh ra. Ẩn là xoá mềm: khôi phục được ở thẻ “Đã ẩn”, và mọi thao tác được ghi vào

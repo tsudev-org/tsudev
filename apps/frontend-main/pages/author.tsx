@@ -344,6 +344,7 @@ export default function AuthorEditor() {
       <Seo title="Soạn bài" path="/author" noindex />
       <div className="max-w-4xl mx-auto px-4 py-10">
         <SectionHeading
+          headingAs="h1"
           eyebrow="Tác giả"
           title={tab === 'docs' ? 'Tài liệu của site' : 'Bài viết của tôi'}
           action={
