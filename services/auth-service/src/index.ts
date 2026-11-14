@@ -29,6 +29,12 @@ import { parsePaging, pageMeta, ROLES } from '@tsudev/types'
 import type { Role } from '@tsudev/types'
 import { createRateLimit, identityKey, largePageRateLimit } from '@tsudev/ratelimit'
 import { postgresRateLimitStore } from './rateLimitStore'
+import {
+  assertTurnstileConfig,
+  LOGIN_TURNSTILE_AFTER,
+  turnstileBlocks,
+  verifyTurnstile,
+} from './turnstile'
 import { createHash, randomInt } from 'crypto'
 
 import {
@@ -71,6 +77,7 @@ import {
 import {
   accountIsLocked,
   callerIp,
+  ipFailures,
   ipIsThrottled,
   callerCountry,
   noteAccountFailure,
@@ -205,6 +212,18 @@ async function stepUpIfTotp(
   return has ? requireStepUp(req, res, user) : true
 }
 
+/** IP người gọi cho siteverify (BFF đặt X-Forwarded-For từ CF-Connecting-IP). */
+const turnstileIp = (req: Request): string | null =>
+  callerIp(req.headers as Record<string, unknown>, req.ip || '') || null
+
+/** P1.7: kiểm token Turnstile ở `req.body.turnstileToken`. Đã ghi 400 khi chặn. */
+async function passTurnstile(req: Request, res: Response): Promise<boolean> {
+  const r = await verifyTurnstile(req.body?.turnstileToken, turnstileIp(req))
+  if (!turnstileBlocks(r)) return true
+  res.status(400).json({ error: 'turnstile_failed' })
+  return false
+}
+
 /** Tên đăng nhập: chữ, số, gạch dưới, gạch ngang, chấm. Không phân biệt hoa thường. */
 const USERNAME_RE = /^[a-z0-9](?:[a-z0-9._-]{1,30})[a-z0-9]$/
 /** Kiểm email ở mức "có đúng một @ và hai bên không rỗng" - phần còn lại do việc gửi thư tự chứng minh. */
@@ -216,6 +235,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@.]+\.[^\s@]+$/
 app.post(
   '/api/identity/register',
   asyncHandler(async (req, res) => {
+    if (!(await passTurnstile(req, res))) return
     const username = str(req.body?.username, 40).trim().toLowerCase()
     const email = str(req.body?.email, 200).trim().toLowerCase()
     const password = str(req.body?.password, 400)
@@ -300,6 +320,21 @@ app.post(
     const user = await prisma.user.findFirst({
       where: { OR: [{ username: identifier }, { email: identifier }] },
     })
+
+    // P1.7: sau LOGIN_TURNSTILE_AFTER lần sai liên tiếp của tài khoản, HOẶC của IP
+    // trong cửa sổ throttle, phải qua Turnstile. Tính cả IP để tên đăng nhập
+    // KHÔNG tồn tại cũng bị đòi - nếu không thì "có đòi Turnstile hay không" là
+    // một kênh dò tài khoản. Khi Turnstile chưa cấu hình, verifyTurnstile bỏ qua.
+    if (
+      (user?.failedLoginCount ?? 0) >= LOGIN_TURNSTILE_AFTER ||
+      (await ipFailures(ip)) >= LOGIN_TURNSTILE_AFTER
+    ) {
+      const t = await verifyTurnstile(req.body?.turnstileToken, turnstileIp(req))
+      if (turnstileBlocks(t)) {
+        await burnTiming(password)
+        return res.status(401).json({ error: 'turnstile_required' })
+      }
+    }
 
     // Không có tài khoản: vẫn đốt thời gian bằng một lần verify thật. Trả lời
     // trong 1ms ở nhánh này và ~50ms ở nhánh kia là một kênh liệt kê tài khoản.
@@ -594,6 +629,8 @@ app.post(
     // Phản hồi GIỐNG NHAU dù email có tồn tại hay không, kể cả khi bị chặn tần
     // suất. Đây là điểm dò tài khoản kinh điển.
     const generic = { ok: true }
+    // Turnstile TRƯỚC mọi thứ: token sai ⇒ 400 ở MỌI email, nên không lộ tồn tại.
+    if (!(await passTurnstile(req, res))) return
     if (await ipIsThrottled(ip)) return res.json(generic)
     await recordAttempt(ip, false)
 
@@ -2550,6 +2587,8 @@ app.use(onError)
  * tài sản.
  */
 export async function init(): Promise<void> {
+  // P1.7: ném khi TURNSTILE_REQUIRED=1 mà thiếu khoá - CỐ Ý chặn khởi động.
+  assertTurnstileConfig()
   // Thiếu ở production = mọi liên kết trong thư đều hỏng, và hỏng ở một nơi
   // không quan sát được. Chết ồn ào lúc khởi động thay vì âm thầm lúc chạy -
   // cùng khuôn với khoá ký bản phát hành của content-service.
