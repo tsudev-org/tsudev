@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261110-01
 - **Phiên**: 46 - PR #211 (merge `f05b0be`), frontend deploy Workers version `9e94665b-feb6-40a0-92a2-646b2bf1c07c`
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG - #211 deploy + nghiệm thu; danh bạ app theo dõi ở packages/ui/src/lib/ecosystem.ts (đối soát phiên 53, 14/11/2026)
 
 ## 1. Đã làm
 

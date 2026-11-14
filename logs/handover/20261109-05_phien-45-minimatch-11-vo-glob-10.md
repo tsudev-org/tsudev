@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261109-05
 - **Từ**: phiên 45 (09/11/2026) - **Đến**: phiên 46 + chủ dự án
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG - minimatch + glob xong PR #220; mục còn lại không gấp đã ghi ở §4 (đối soát phiên 53, 14/11/2026)
 - **Thay phiếu**: [`20261109-04`](20261109-04_phien-44-quy-uoc-v3.2.0-va-dong-bo.md) (HOÀN THÀNH; việc còn lại chuyển
   sang đây) và §2 phiếu [`20261109-02`](20261109-02_phien-43-xoa-nhanh-va-sua-moc-minimatch.md) (HOÀN THÀNH; §2 đó
   **SAI** ở chỗ chỉ override minimatch - đọc §2 phiếu này thay thế).
