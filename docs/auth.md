@@ -220,6 +220,25 @@ hứa thu số điện thoại khi schema không có trường đó, và ngượ
 
 Đây là nhận định vận hành, không phải ý kiến pháp lý chính thức.
 
+## 7. Chống bot - Cloudflare Turnstile (P1.7)
+
+Widget ở `/signup`, `/forgot-password`, và `/login` khi tài khoản HOẶC IP đã sai từ 3 lần trong cửa sổ throttle
+(tính cả IP để tên đăng nhập không tồn tại cũng bị đòi - nếu không thì "có đòi Turnstile hay không" là kênh dò tài
+khoản). Token đi trong thân request (`turnstileToken`); auth-service kiểm bằng siteverify (`src/turnstile.ts`).
+
+| Trạng thái                          | Hành vi                                                                                                                |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Có `TURNSTILE_SECRET_KEY`           | Kiểm thật. Token sai/thiếu ⇒ 400 `turnstile_failed` (đăng ký, quên mật khẩu) hoặc 401 `turnstile_required` (đăng nhập) |
+| Thiếu khoá                          | Bỏ qua kiểm; production log lỗi mỗi lần khởi động                                                                      |
+| Thiếu khoá + `TURNSTILE_REQUIRED=1` | Từ chối khởi động                                                                                                      |
+| siteverify không trả lời            | Cho qua kèm log (fail-open, cùng lý do HIBP D7)                                                                        |
+
+Bật: tạo widget ở dashboard Cloudflare (Turnstile, tên miền `tsudev.com`) ⇒ đặt `TURNSTILE_SECRET_KEY` ở Render VÀ
+`TURNSTILE_SITE_KEY` (công khai) ở Worker (`wrangler.jsonc` vars hoặc dashboard). Site key đọc LÚC CHẠY qua
+`GET /api/turnstile-site-key`, không phải `NEXT_PUBLIC_*`, nên không phải dựng lại. CSP đã mở
+`challenges.cloudflare.com` ở `script-src` và `frame-src` (`test/csp.test.ts` canh). Chạy ổn rồi đặt
+`TURNSTILE_REQUIRED=1`.
+
 ## Biến môi trường
 
 | Biến                       | Bắt buộc ở production | Ghi chú                                     |
