@@ -36,6 +36,9 @@
   nếu không test báo lỗi kiểu/hồi quy ma (dist cũ của `@tsudev/ratelimit`).
 - Cloudflare tự chèn script `challenge-platform` ở MỌI site trong zone; site có CSP nonce thì Cloudflare gắn nonce,
   site tĩnh `script-src 'self'` thì lỗi console - xem kế hoạch tổng 4.9.
+- 🪤 **Mẫu chập chờn mới - `fonts:check` trong job Lint & format**: "thiếu JetBrains Mono nét 400 subset latin
+  trong CSS của Google" ở #263 (chỉ đổi markdown), cùng lệnh ở máy dev ra `24 tệp khớp nguồn`. Đó là phản hồi
+  nhất thời của fonts.googleapis.com. Gặp ⇒ chạy `npm run fonts:check` ở máy; khớp thì `gh run rerun <id> --failed`.
 - `logSecurity` nay trả Promise không reject - `await` nó ở nơi dùng sự kiện làm bộ đếm.
 
 ## 3. Việc còn lại (theo thứ tự)
