@@ -122,6 +122,7 @@ export default function SecurityPage() {
     return (
       <Layout active="/settings">
         <Seo title="Bảo mật" path="/settings/security" noindex />
+        <h1 className="sr-only">Bảo mật tài khoản</h1>
         <p className="text-sm text-fg-muted">Đang tải…</p>
       </Layout>
     );
@@ -132,6 +133,7 @@ export default function SecurityPage() {
       <Layout active="/settings">
         <Seo title="Bảo mật" path="/settings/security" noindex />
         <div className="mx-auto max-w-md">
+          <h1 className="mb-4 text-xl font-semibold text-fg">Bảo mật tài khoản</h1>
           <Notice kind="error">Bạn cần đăng nhập để mở trang này.</Notice>
           <Button as="a" href="/login?callbackUrl=/settings/security" className="mt-4 w-full">
             Đăng nhập

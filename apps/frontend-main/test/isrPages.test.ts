@@ -36,6 +36,15 @@ describe('trang đọc công khai là ISR', () => {
     expect(src).toMatch(/export\s+async\s+function\s+getStaticProps/);
   });
 
+  // HTML ISR có thể cũ hàng giờ; trình duyệt hydrate với giờ HIỆN TẠI. Chữ phụ thuộc
+  // đồng hồ (Date.now(), "x ngày trước") lệch hai bên ⇒ React #418 - đã đo trên
+  // production 14/11/2026 ở /blog. Ngày hiển thị phải là ngày tuyệt đối (lib/format).
+  test.each(ISR_PAGES)('%s không render chữ phụ thuộc đồng hồ (Date.now/"trước")', (p) => {
+    const src = read(p);
+    expect(src).not.toMatch(/Date\.now\(\)/);
+    expect(src).not.toMatch(/(phút|giờ|ngày) trước/);
+  });
+
   test.each(ISR_PAGES)('%s đi qua keepStaleOnFailure - lỗi không ghi đè bản cache tốt', (p) => {
     // Trả props `failed: true` mà không ném thì Next CACHE LUÔN trang lỗi, và nó
     // sống tới lượt dựng lại sau - đúng thứ cache ở biên sinh ra để chặn.

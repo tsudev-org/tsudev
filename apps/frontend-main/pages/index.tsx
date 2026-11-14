@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDateVN } from '../lib/format';
 import { useRecoverBuildPlaceholder } from '../lib/useRecoverBuildPlaceholder';
 import Seo from '../components/Seo';
 import DownloadSection from '../components/DownloadSection';
@@ -64,13 +65,13 @@ const FEATURES: { title: string; desc: string; href: string; icon: IconName }[] 
   },
 ];
 
-function timeAgo(date: string | Date | null | undefined): string {
-  if (!date) return '';
-  const s = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-  if (s < 3600) return `${Math.max(1, Math.floor(s / 60))} phút trước`;
-  if (s < 86400) return `${Math.floor(s / 3600)} giờ trước`;
-  return `${Math.floor(s / 86400)} ngày trước`;
-}
+/**
+ * Ngày HIỂN THỊ dạng tuyệt đối (DD/MM/YYYY, giờ Việt Nam), KHÔNG dạng thời gian tương đối:
+ * trang này là ISR - HTML dựng sẵn có thể cũ hàng giờ, trình duyệt hydrate lại với
+ * giờ hiện tại, qua mốc ngày là hai bên ra chữ khác nhau ⇒ React #418 (đo trên
+ * production 14/11/2026). `test/isrPages.test.ts` canh mẫu này.
+ */
+const shownDate = (d: string | Date | null | undefined): string => (d ? formatDateVN(d) : '');
 
 type HomeProps = {
   posts: Post[];
@@ -325,7 +326,7 @@ export default function Home({
                     <Avatar name={p.author?.displayName || 'tsudev'} size={22} />
                     <span>{p.author?.displayName || 'tsudev'}</span>
                     <span>·</span>
-                    <span>{timeAgo(p.createdAt)}</span>
+                    <span>{shownDate(p.createdAt)}</span>
                   </div>
                 </Card>
               ))}
