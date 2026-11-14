@@ -5,7 +5,10 @@
 >
 > ✅ #251 (Worker `8a1da656`): avatar + menu "Hồ sơ tài khoản / Đăng xuất" ở header; sửa tiêu đề lặp + h1 thiếu.
 > ⏳ #252 cột "Tài khoản" ở chân trang theo phiên ("Bảo mật tài khoản"): CHỜ `nguyentrangtinhsu` duyệt.
-> 🎯 Chủ dự án chốt `docs/de-xuat-bao-mat-cms-cai-bang-lenh.md` (bảo mật 8 tầng, CMS "Viết bài", cài bằng lệnh).
+> ✅ 14/11: phương án ĐÃ CHỐT (D1-D9) - làm theo `docs/de-xuat-bao-mat-cms-cai-bang-lenh.md`: **P0** (#252, E2E chập
+> chờn, đối soát phiếu tồn) → **P1** bảo mật tài khoản → **P2** CMS + Góp ý → **P3** cài bằng lệnh → **P4** OIDC → **P5**.
+> KHÔNG hỏi lại chủ dự án các quyết định đã chốt; việc 👤/⛔ thì ghi lại và làm tiếp việc khác.
+> 🗺️ Kế hoạch tổng toàn hệ: `~/projects/logs/handover/20261114-01_ke-hoach-tong-he-sinh-thai.md` (bản sao ở 16 repo).
 > 📨 Phiếu 20261113-07 (rà quét giao diện) ở 14 repo; công cụ `~/projects/logs/tools/quet-giao-dien.cjs`.
 
 > **Phiên 52 BẮT ĐẦU Ở ĐÂY** (cuối phiên 51, 13/11/2026). Phiếu:

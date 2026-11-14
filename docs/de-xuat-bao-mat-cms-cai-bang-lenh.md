@@ -1,106 +1,121 @@
-# Đề xuất thảo luận - Bảo mật tài khoản toàn hệ, CMS "Viết bài", cài mọi app bằng lệnh
+# Kế hoạch thực thi - Bảo mật tài khoản toàn hệ, CMS "Viết bài", cài mọi app bằng lệnh
 
-- **Phiên**: 52, 13/11/2026 - theo yêu cầu chủ dự án
-- **Trạng thái**: CHỜ CHỦ DỰ ÁN CHỐT các quyết định đánh dấu 🎯. Chưa có mã nào cho ba hạng mục này.
-- **Nguồn tham chiếu đã đọc (chỉ đọc)**: `~/projects/ubnd/20261027-SPEC-SEC-2026-V2-nen-tang-bao-mat-chong-xam-nhap-ubnd.md`
-  (8 tầng bảo mật), `~/projects/ubnd/backend/src/modules/cms/` + `frontend-quantri/src/pages/cms/` (CMS quantri),
-  `docs/security-plan.md` (G1-G12), `packages/ui/src/lib/ecosystem.ts` (kênh cài).
+- **Phiên lập**: 52 (13/11/2026), **chốt phương án**: 14/11/2026 - chủ dự án giao agent tự chọn phương án chuyên
+  nghiệp và hiện đại nhất. Mọi mục 🎯 cũ đã CHỐT ở bảng "Quyết định" dưới đây; phiên sau làm theo, KHÔNG hỏi lại.
+- **Kế hoạch tổng của toàn hệ sinh thái** (các repo khác + phiếu tồn): `~/projects/logs/handover/20261114-01_ke-hoach-tong-he-sinh-thai.md`.
+- **Nguồn tham chiếu (chỉ đọc)**: `~/projects/ubnd/20261027-SPEC-SEC-2026-V2-nen-tang-bao-mat-chong-xam-nhap-ubnd.md`
+  (8 tầng), `~/projects/ubnd/backend/src/modules/cms/` + `frontend-quantri/src/pages/cms/` (CMS quantri),
+  `docs/security-plan.md` (G1-G12), `.standards/docs/RICH_TEXT_EDITOR.md`, `.standards/docs/DATA_TABLE.md`.
 
-Vì sao là đề xuất mà chưa là mã: cả ba hạng mục đều đổi schema DB (migration lên Neon TRƯỚC khi merge), thêm biến môi
-trường production, hoặc chạm vùng bảo vệ bản quyền (`public/install.*`). Làm sai thứ tự là site trống (sự cố 05/11).
+## Quyết định (CHỐT 14/11/2026)
 
----
+| #   | Câu hỏi                        | Chốt                                                                                                                                                          | Vì sao (và đã bác gì)                                                                                                                                                              |
+| --- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Tài khoản chung `*.tsudev.com` | **tsudev.com làm nhà cung cấp OpenID Connect**, thư viện `oidc-provider` (panva, có chứng nhận OpenID) chạy trong auth-service. Chỉ Authorization Code + PKCE | Chuẩn mở, mỗi site con giữ phiên riêng, thu hồi tập trung. BÁC cookie `Domain=.tsudev.com` (một site con bị XSS = lộ phiên mọi site) và tự viết OIDC (sai một chi tiết là lỗ hổng) |
+| D2  | Kênh "phản ánh kiến nghị"      | **CÓ** - "Góp ý & báo lỗi ứng dụng", BẮT đăng nhập + Turnstile + giới hạn tần suất; trả lời công khai; nội dung người gửi được duyệt trước khi hiện           | Biến /apps thành kênh hỗ trợ thật; ẩn danh = rác + rủi ro nội dung                                                                                                                 |
+| D3  | Trình soạn thảo CMS            | **Tiptap 3** (⭐ của RICH_TEXT_EDITOR.md) + extension Markdown chính thức; **`contentMd` vẫn là nguồn sự thật duy nhất**                                      | Không phải chuyển dữ liệu cũ; render/ISR/tìm kiếm giữ nguyên. BÁC lưu song song JSON + Markdown (hai nguồn sự thật lệch nhau im lặng). Ghi ADR                                     |
+| D4  | Cài nhiều app một lệnh         | **CÓ** - `install.ps1`/`install.sh` nhận nhiều tên gói, mỗi gói đi qua trình quản lý gói chính thức (winget/Scoop/Homebrew/APT/DNF), không tải nhị phân trần  | Một nguồn sự thật (catalog); chữ ký do trình quản lý gói kiểm. Tệp ở vùng bảo vệ ⇒ PR + chủ sở hữu duyệt                                                                           |
+| D5  | Ký mã Windows                  | **SignPath Foundation** (miễn phí cho mã nguồn mở), ký trong GitHub Actions                                                                                   | Hết SmartScreen; khoá không rời HSM. Chủ dự án tự nộp đơn (agent chuẩn bị hồ sơ + workflow)                                                                                        |
+| D6  | La bàn (Android, độc quyền)    | **Giữ nguyên**: APK có chữ ký + trang sản phẩm; khai ngoại lệ có lý do trong cổng C4                                                                          | Không có kênh lệnh hợp lý cho APK độc quyền                                                                                                                                        |
+| D7  | Kiểm mật khẩu lộ               | HIBP k-anonymity (chỉ gửi 5 ký tự đầu SHA-1), **fail-open có log** khi HIBP không trả lời                                                                     | Mất mạng tới HIBP không được chặn đăng ký; log cho biết tỉ lệ bỏ qua                                                                                                               |
+| D8  | Bộ đếm tần suất (G9)           | **Bảng Postgres** `RateLimitBucket`, upsert nguyên tử theo cửa sổ cố định                                                                                     | 0đ, không thêm dịch vụ; sống qua khởi động lại và nhiều bản chạy. BÁC Redis/Upstash (thêm phụ thuộc + hạn mức)                                                                     |
+| D9  | Chống bot                      | **Cloudflare Turnstile** ở đăng ký, quên mật khẩu, góp ý, và đăng nhập sau 3 lần sai                                                                          | Miễn phí, không theo dõi người dùng như reCAPTCHA                                                                                                                                  |
 
-## A. Bảo mật tài khoản - đối chiếu 8 tầng của SPEC-SEC-2026-V2 (ubnd)
+## Giai đoạn và thứ tự
 
-| Tầng (ubnd)                 | tsudev.com hiện có                                                            | Khoảng trống → đề xuất                                                                                                                                                                                          |
-| --------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 3.1 Edge: WAF, DDoS, bot    | Cloudflare Workers (DDoS mặc định)                                            | **A1** WAF Managed Rules (gói free) + 1 rate-limit rule cho `/api/auth/*`; **Turnstile** ở đăng ký / quên mật khẩu                                                                                              |
-| 3.2 HTTP headers            | CSP có hash script, cookie `__Secure-` httpOnly                               | **A2** test quét nguồn cho HSTS preload, COOP/CORP, Permissions-Policy                                                                                                                                          |
-| 3.3 Client                  | Không lưu token ở localStorage (authHint chỉ để vẽ)                           | Đạt                                                                                                                                                                                                             |
-| 3.4 Gateway + tần suất      | Giới hạn theo IP `CF-Connecting-IP`; bộ đếm trong RAM (**G9**)                | **A3** chuyển bộ đếm vào Postgres (bảng có TTL) - không cần dịch vụ mới, 0đ                                                                                                                                     |
-| 3.5 Danh tính + phân quyền  | Argon2id, TOTP + mã dự phòng, passkey, step-up, `sessionVersion`, RBAC đọc DB | **A4** ép 2FA từ AUTHOR (nay chỉ ADMIN); **A5** step-up khi đổi email / mật khẩu / tắt 2FA; **A6** kiểm mật khẩu lộ (HIBP k-anonymity, chỉ gửi 5 ký tự đầu SHA-1); **A7** email cảnh báo đăng nhập thiết bị mới |
-| 3.6 Kiểm soát nội dung      | Markdown lọc, đường ghi `requireAdmin` / `requireAuthor`                      | Đi cùng CMS (mục B): duyệt bài, nhật ký sửa                                                                                                                                                                     |
-| 3.7 Hạ tầng, chuỗi cung ứng | gitleaks, CodeQL, npm audit, zizmor, trivy, Dependabot, 13 check bắt buộc     | **G10** dev deps; SAST Semgrep (giai đoạn 3)                                                                                                                                                                    |
-| 3.8 Dữ liệu + mã hoá        | TOTP mã hoá, nhật ký chỉ-thêm có `prevHash`                                   | **G11** sao lưu khoá ký ngoại tuyến; **G12** dump DB mã hoá bằng `age`                                                                                                                                          |
+Mỗi dòng ≈ một PR. ⛔ = chạm vùng bảo vệ, cần chủ sở hữu duyệt trên GitHub. 👤 = chỉ chủ dự án làm được.
 
-**A8 - Trung tâm bảo mật tài khoản** (`/settings/security`, lối vào: menu avatar + cột footer "Bảo mật tài khoản"):
-hiện trang có Passkey / TOTP / Phiên / Hoạt động / Vùng nguy hiểm. Đề xuất thêm ở đầu trang một **thẻ "Mức an toàn"**
-tính từ dữ liệu thật (đã xác minh email, có 2FA, có passkey, có mã dự phòng còn lại, mật khẩu không nằm trong danh
-sách lộ) với từng việc còn thiếu là một nút làm ngay. Không phải điểm số trang trí: mỗi mục đọc từ DB qua auth-service.
+### P0 - Dọn nền (phiên 53, mở đầu)
 
-**🎯 A9 - Tài khoản chung cho `*.tsudev.com`** (quyết định kiến trúc lớn nhất):
+1. #252 (footer "Bảo mật tài khoản"): chủ sở hữu duyệt ⇒ `gh run rerun` cổng Bảo vệ bản quyền ⇒
+   `gh pr update-branch 252` ⇒ merge ⇒ deploy ⇒ ảnh footer khi đã đăng nhập.
+2. qa-test: sửa E2E chập chờn ở test đầu tiên - `globalSetup` gọi trước (warm-up) các trang admin/author trên
+   `next dev` rồi mới chạy test. Nghiệm thu: 3 lượt CI liên tiếp xanh không rerun.
+3. Đối soát phiếu tồn của repo này (danh sách ở kế hoạch tổng mục 2): mỗi phiếu ⇒ kiểm mã/production ⇒ đổi dòng
+   Trạng thái thành `ĐÓNG - <lý do/PR>` hoặc chuyển việc thật còn lại vào kế hoạch này. Phiếu Toà soạn/Con dấu ⇒
+   `ĐÓNG - tính năng đã gỡ (29/10, 04/11/2026)`.
 
-| Phương án                                              | Ưu                                                             | Nhược                                                                      |
-| ------------------------------------------------------ | -------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| (1) tsudev.com làm **nhà cung cấp OIDC** (khuyến nghị) | Chuẩn mở; mỗi site con chỉ giữ phiên của nó; thu hồi tập trung | Phải viết endpoint `/authorize`, `/token`, JWKS (đã có hạ tầng ký Ed25519) |
-| (2) Cookie phiên `Domain=.tsudev.com`                  | Nhanh                                                          | MỘT site con bị XSS hay bị chiếm subdomain = lộ phiên của MỌI site. Bác    |
-| (3) Mỗi site tự quản tài khoản                         | Độc lập                                                        | Trái `ECOSYSTEM_IDENTITY.md` ("dùng chung một tài khoản")                  |
+### P1 - Bảo mật tài khoản (1-2 phiên)
 
-Hiện các site `*.tsudev.com` là trang tĩnh, không đăng nhập ⇒ A9 chỉ cần khi một site con có tính năng cá nhân hoá.
+| #    | Việc                                                                                                                                                                                                                                                         | Vùng                                 | Nghiệm thu                                                    |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ | ------------------------------------------------------------- |
+| P1.1 | **Thẻ "Mức an toàn"** đầu `/settings/security`: `POST /api/identity/security/posture` trả từng mục (email xác minh, TOTP, passkey, mã dự phòng còn lại, mật khẩu không lộ theo lần kiểm gần nhất); mỗi mục thiếu là một nút làm ngay. Mở `ALLOWED` của proxy | backend-api, frontend-web            | test route + test proxy; ảnh 390/1280                         |
+| P1.2 | **Ép 2FA từ AUTHOR** (nay chỉ ADMIN): mở rộng nhánh `MFA_REQUIRED` cho đường ghi của content-service + trang `/author`. Seed: `bob` có TOTP (cập nhật E2E `upload.spec.js`)                                                                                  | backend-api, data-schema (seed), qa  | AUTHOR không TOTP ⇒ 403 `MFA_REQUIRED` + trang hướng dẫn      |
+| P1.3 | **Step-up** (`requireStepUp`) cho: đổi email, đổi mật khẩu, tắt TOTP, xoá passkey, tạo lại mã dự phòng                                                                                                                                                       | backend-api, frontend-web            | thiếu step-up ⇒ 401 `STEP_UP_REQUIRED` (test từng route)      |
+| P1.4 | **Mật khẩu lộ (D7)** khi đăng ký / đặt lại / đổi mật khẩu; lưu `passwordCheckedAt` + `passwordBreached` cho P1.1                                                                                                                                             | backend-api, data-schema (migration) | mock HIBP: lộ ⇒ 400 nói rõ lý do; HIBP lỗi ⇒ cho qua + log    |
+| P1.5 | **Cảnh báo đăng nhập thiết bị mới** qua `mailer.ts`: khoá thiết bị = họ trình duyệt + hệ điều hành + quốc gia (`CF-IPCountry`), lưu dạng băm; email có nút "Không phải tôi" ⇒ thu hồi mọi phiên (`sessionVersion++`)                                         | backend-api                          | thiết bị cũ không gửi; thiết bị mới gửi đúng một lần          |
+| P1.6 | **Bộ đếm tần suất Postgres (D8)**: bảng `RateLimitBucket(key, windowStart, count)` + dọn bản ghi hết hạn trong cron đã có                                                                                                                                    | data-schema, backend-api             | 20 yêu cầu đồng thời ⇒ đúng ngưỡng; khởi động lại không reset |
+| P1.7 | **Turnstile (D9)**: widget ở signup / forgot-password / login sau 3 lần sai; kiểm token ở auth-service (`TURNSTILE_SECRET_KEY`); thiếu khoá ở production ⇒ từ chối khởi động (như `RELEASE_SIGNING_KEY`)                                                     | frontend-web, backend-api, infra     | CSP thêm `challenges.cloudflare.com`; test quét nguồn CSP     |
+| P1.8 | **Header HTTP**: đo `curl -sI https://tsudev.com` rồi bổ sung phần còn thiếu trong `COOP same-origin`, `CORP same-site`, `Permissions-Policy` tối thiểu, HSTS `preload`; test quét nguồn canh                                                                | frontend-web                         | test + curl                                                   |
+| P1.9 | **G12**: script sao lưu DB mã hoá bằng `age` (khoá công khai trong repo, khoá riêng chủ dự án giữ). **G11**: hướng dẫn sao lưu khoá ký ngoại tuyến                                                                                                           | infra                                | giải mã thử thành công một bản dump                           |
 
-## B. Tái cấu trúc "Viết bài" thành CMS - theo khuôn quantri (ubnd)
+👤 Chủ dự án: tạo widget Turnstile (hoặc cấp token API có quyền Turnstile) + đặt `TURNSTILE_SECRET_KEY` ở Render; bật
+WAF Managed Rules (gói free) + 1 rate-limit rule cho `/api/auth/*` ở dashboard Cloudflare; đặt `VIRUSTOTAL_API_KEY`,
+`RELEASE_INTEGRITY_TOKEN` (G4, G5 - còn treo từ 06/11).
 
-Hiện trạng `/author` (707 dòng, một trang): một form dài (tiêu đề, slug, tóm tắt, thẻ, giờ đăng, ảnh bìa, SEO,
-Markdown, nguồn) ở TRÊN danh sách bài; trạng thái chỉ có `published` true/false (+ hẹn giờ). Không duyệt, không lịch sử
-sửa, không chuyên mục, không thống kê.
+### P2 - CMS "Viết bài" theo khuôn quantri (2-3 phiên)
 
-Khuôn của ubnd (`/cms/*`): danh sách bài (`PostsPage`) tách khỏi trình soạn (`PostEditorPage`), chuyên mục
-(`CategoriesPage`), từ khoá (`TuKhoaPage`), tác giả (`TacGiaPage`), thống kê (`ThongKePage`), phản ánh (`PhanAnhPage`);
-API `PATCH /posts/:id/status`, `PATCH /posts/:id/ghim`, `public/lien-quan`, `public/luot-trang`.
+Thứ tự bắt buộc: migration lên Neon TRƯỚC (kèm `pg_dump` 18), merge SAU. Giữ cột `published` thêm một bản phát hành
+để đọc ngược, rồi mới gỡ.
 
-Đề xuất cấu trúc cho tsudev (đường dẫn theo `docs/url-convention.md`):
+| #    | Việc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| P2.1 | **Schema**: enum `PostStatus {DRAFT PENDING SCHEDULED PUBLISHED ARCHIVED}` + `Post.status` (backfill từ `published`/`publishedAt`), `PostRevision` (chỉ-thêm: postId, contentMd, title, editorId, createdAt), `Category` (slug, tên, thứ tự), `Post.categoryId`, `Post.pinnedAt`, `Post.reviewNote`, `PostViewDaily(postId, day, count)`                                                                                                                                                                     |
+| P2.2 | **API content-service** dưới `/api/author/*` và `/api/admin/*`, tự gọi `requireAuthor`/`requireModerator`: danh sách có lọc + phân trang; máy trạng thái DRAFT→PENDING→(PUBLISHED \| SCHEDULED \| DRAFT kèm lý do)→ARCHIVED; AUTHOR chỉ gửi duyệt, MODERATOR+ đăng/duyệt/ghim; mỗi lần lưu ghi `PostRevision`; mỗi chuyển trạng thái ghi nhật ký. Đường đọc công khai: `status=PUBLISHED AND publishedAt<=now()`. Tiền tố mới phải vào bảng của `backend-bundle`                                             |
+| P2.3 | **Trang**: `/author` tổng quan (đếm theo trạng thái, lượt xem 7/30 ngày) · `/author/posts` bảng chuẩn DATA_TABLE (tìm tiếng Việt bỏ dấu, lọc trạng thái/chuyên mục/thẻ, URL giữ bộ lọc) · `/author/posts/new` + `/author/posts/[id]` hai cột: trái Tiptap (D3) + xem trước, phải hộp Xuất bản / Chuyên mục / Thẻ / Ảnh bìa / SEO + xem trước thẻ chia sẻ / Nguồn; tự lưu nháp mỗi 10 giây; cảnh báo khi rời trang · `/author/posts/[id]/history` so sánh + khôi phục · `/admin/content` thành hàng chờ duyệt |
+| P2.4 | `/admin/categories`, gộp thẻ trùng; ADR chọn Tiptap (`docs/adr/`); kiểm gõ tiếng Việt thủ công với 2 bộ gõ (ghi kết quả vào ADR)                                                                                                                                                                                                                                                                                                                                                                             |
+| P2.5 | **Góp ý & báo lỗi (D2)**: model `Feedback(appId, kind BUG\|IDEA, title, body, status RECEIVED\|IN_PROGRESS\|DONE\|REJECTED, reply, userId, approvedAt)`; trang `/apps/[id]/gop-y` (đối chiếu `docs/url-convention.md`), `/admin/feedback`; Turnstile + P1.6                                                                                                                                                                                                                                                  |
 
-| Trang                         | Nội dung                                                                                                                                                                                                                                                                   |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/author` → **Tổng quan**     | Bài của tôi theo trạng thái (Nháp · Chờ duyệt · Đã lên lịch · Đã đăng · Lưu trữ), lượt xem 7/30 ngày                                                                                                                                                                       |
-| `/author/posts`               | Bảng bản ghi chuẩn `DATA_TABLE.md`: tìm tiếng Việt bỏ dấu, lọc trạng thái/chuyên mục/thẻ, chọn số dòng, URL giữ bộ lọc                                                                                                                                                     |
-| `/author/posts/new`, `/:id`   | Hai cột: TRÁI trình soạn (theo `.standards/docs/RICH_TEXT_EDITOR.md`) + xem trước; PHẢI hộp **Xuất bản** (trạng thái, hẹn giờ, nút Gửi duyệt/Đăng), Chuyên mục, Thẻ, Ảnh bìa, SEO + xem trước thẻ chia sẻ, Nguồn. Tự lưu nháp mỗi 10 giây; cảnh báo rời trang khi chưa lưu |
-| `/author/posts/:id/history`   | Lịch sử phiên bản, so sánh, khôi phục                                                                                                                                                                                                                                      |
-| `/admin/content` (đã có)      | Hàng chờ duyệt cho MODERATOR+: duyệt / trả về kèm lý do / ghim                                                                                                                                                                                                             |
-| `/author/categories`, `/tags` | Quản lý chuyên mục, gộp thẻ trùng (ADMIN)                                                                                                                                                                                                                                  |
+Nghiệm thu P2: unit cho máy trạng thái (mọi cạnh cấm ⇒ 409); E2E: AUTHOR viết → gửi duyệt → MODERATOR duyệt → bài hiện
+trên `/blog` sau revalidate; ISR vẫn 200 khi tắt backend; công cụ quét giao diện ra OK trên các trang mới.
 
-Dữ liệu (data-schema, migration MỚI, `db:migrate` lên Neon trước merge):
-`Post.status` enum `DRAFT | PENDING | SCHEDULED | PUBLISHED | ARCHIVED` (giữ `published` để đọc ngược trong một bản phát
-hành rồi gỡ), bảng `PostRevision` (chỉ-thêm), `Category`, `Post.pinnedAt`, `Post.reviewNote`, đếm lượt xem gộp theo ngày.
-Quy tắc quyền: AUTHOR chỉ gửi duyệt; MODERATOR+ mới đăng thẳng / duyệt; mọi chuyển trạng thái ghi nhật ký.
+### P3 - Cài mọi app bằng lệnh (toàn hệ)
 
-**🎯 B-phản ánh**: "phản ánh kiến nghị" của ubnd là kênh công dân gửi vấn đề cho chính quyền. Bản tương ứng cho tsudev là
-**"Góp ý & báo lỗi ứng dụng"** (người dùng gửi lỗi/đề xuất cho từng app, có trạng thái tiếp nhận → đang xử lý → xong,
-trả lời công khai). Cần chốt: có làm không, và ẩn danh hay bắt đăng nhập (khuyến nghị: bắt đăng nhập + Turnstile).
+| #   | Việc                                                                                                                                                                                                     | Ở đâu                               |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| C1  | winget cho TsuFiles, Lotus Share, tsudev-contact (+ theo dõi PR winget-pkgs #477193 của trafficmonitor): bước `komac` trong workflow phát hành. 👤 secret `WINGET_TOKEN` (PAT `public_repo`) ở từng repo | từng repo app (phiếu 20261113-01)   |
+| C2  | ⛔ `install.ps1` / `install.sh` nhiều gói (D4) + sha256 mới; khay /apps thêm tab "Một lệnh tsudev"                                                                                                       | tsudev `apps/frontend-main/public/` |
+| C3  | 👤 nộp đơn SignPath Foundation cho tsudev-org; agent chuẩn bị bước `signpath` trong workflow phát hành từng app Windows sau khi được duyệt                                                               | chủ dự án, rồi từng repo            |
+| C4  | **Cổng CI** `test/installChannels.test.ts`: mọi app trong `ECOSYSTEM_APPS` có ≥1 kênh lệnh cho hệ điều hành chính; ngoại lệ khai tường minh kèm lý do (La bàn - D6; trò chơi web)                        | tsudev                              |
+| C5  | Mỗi website `*.tsudev.com` hiện khối "Cài bằng lệnh" sinh LÚC BUILD từ `pkg.tsudev.com/catalog.json` (không gọi lúc chạy, không chép tay)                                                                | từng repo app (phiếu 20261114-02)   |
+| C6  | Khi tag `v2.4.1-vn.*` của tsufiles ra: `npm run pkg:catalog` ⇒ lệnh trỏ gói mới                                                                                                                          | tsudev                              |
 
-## C. Mọi phần mềm cài được bằng lệnh
+### P4 - Đăng nhập chung OIDC (D1) - sau P1
 
-Ma trận kênh hiện tại (production /apps, 13/11/2026):
+auth-service gắn `oidc-provider` dưới `/oidc/*` (thêm tiền tố vào bảng `backend-bundle`): discovery, authorize, token,
+userinfo, JWKS - **khoá ký ES256 RIÊNG**, không dùng chung khoá ký bản phát hành. Client đăng ký trong DB
+(`OAuthClient`: redirect URI khớp tuyệt đối, chỉ `code` + PKCE S256, không implicit, không client secret cho SPA);
+màn hình đồng ý ở `/oauth/consent`; refresh token xoay vòng + phát hiện dùng lại; thu hồi khi `sessionVersion` đổi. Site
+con đầu tiên tích hợp khi có nhu cầu cá nhân hoá. Nghiệm thu: bộ test conformance "Basic RP" của OpenID chạy local đạt.
 
-| App                   | winget         | Scoop | Homebrew | APT/DNF | Ghi chú                                 |
-| --------------------- | -------------- | ----- | -------- | ------- | --------------------------------------- |
-| tsudev-trafficmonitor | chờ PR #477193 | ✅    | -        | -       | Windows                                 |
-| cwico                 | ✅             | -     | -        | -       | Windows                                 |
-| tsudev SWICO          | ✅             | ✅    | -        | -       | Windows                                 |
-| TsuFiles              | -              | ✅    | ✅       | ✅      | tên gói giữ `tsudev-files`              |
-| Lotus Share           | -              | ✅    | ✅       | ✅      | Android không có kênh lệnh              |
-| tsudev-contact        | -              | ✅    | -        | -       | Windows                                 |
-| La bàn                | -              | -     | -        | -       | Android, độc quyền                      |
-| 6 trò chơi            | -              | -     | -        | -       | chơi trên web; tệp cài: phương án A chờ |
+### P5 - Giao diện toàn hệ
 
-Đề xuất theo thứ tự giá trị:
+Thu kết quả phiếu 20261113-07 từ 14 repo; mỗi site chạy `~/projects/logs/tools/quet-giao-dien.cjs` ra `OK` trên
+production. Sau #252: mẫu footer "Tài khoản" là chuẩn; mở đề xuất đưa mẫu header/footer vào `tsudev-standards`
+(`ECOSYSTEM_IDENTITY.md`) theo `.standards/docs/SYNC.md`.
 
-1. **C1** winget cho TsuFiles, Lotus Share, tsudev-contact, trafficmonitor - mỗi repo thêm bước `komac` trong workflow
-   phát hành (phiếu toàn hệ 20261113-01 đã gửi).
-2. **🎯 C2** `install.sh` / `install.ps1` nhận NHIỀU gói một lượt: `irm tsudev.com/install.ps1 | iex; tsudev-install
-cwico swico` - tệp nằm ở vùng bảo vệ, cần chủ dự án duyệt PR. Kèm sha256 công bố (đã có).
-3. **🎯 C3** Ký mã Windows (SignPath Foundation, miễn phí cho mã nguồn mở) - chủ dự án đăng ký; hết cảnh báo SmartScreen.
-4. **C4** Cổng CI "mọi app có ít nhất một kênh lệnh trên hệ điều hành chính của nó" chạy trên `ecosystem.ts` + catalog -
-   app mới thiếu kênh thì đỏ, không phải nhớ.
-5. **C5** Mọi website `*.tsudev.com` hiện khối "Cài bằng lệnh" đọc cùng `pkg.tsudev.com/catalog.json` (không chép tay).
-6. **🎯 C6** La bàn (Android, độc quyền): không có kênh lệnh hợp lý; đề xuất chỉ phát APK có chữ ký + (tuỳ) F-Droid
-   không nhận vì độc quyền ⇒ giữ nguyên.
+## Đối chiếu 8 tầng SPEC-SEC-2026-V2 (ubnd) ⇒ việc ở trên
 
-## Thứ tự làm đề xuất (sau khi chốt 🎯)
+| Tầng ubnd             | Hiện có ở tsudev.com                                                  | Việc                                          |
+| --------------------- | --------------------------------------------------------------------- | --------------------------------------------- |
+| 3.1 Edge              | Cloudflare (DDoS mặc định)                                            | P1.7 + 👤 WAF                                 |
+| 3.2 HTTP headers      | CSP có hash, HSTS, cookie `__Secure-` httpOnly                        | P1.8                                          |
+| 3.3 Client            | Không giữ token ở localStorage                                        | Đạt                                           |
+| 3.4 Gateway, tần suất | Giới hạn theo IP `CF-Connecting-IP`, bộ đếm trong RAM                 | P1.6                                          |
+| 3.5 Danh tính         | Argon2id, TOTP, passkey, step-up, `sessionVersion`, RBAC đọc DB       | P1.1-P1.5, P4                                 |
+| 3.6 Nội dung          | Markdown lọc, đường ghi gác quyền                                     | P2 (duyệt, lịch sử)                           |
+| 3.7 Chuỗi cung ứng    | gitleaks, CodeQL, audit, zizmor, trivy, Dependabot, 13 check bắt buộc | G10 + Semgrep (giai đoạn 3 của security-plan) |
+| 3.8 Dữ liệu           | TOTP mã hoá, nhật ký chỉ-thêm `prevHash`                              | P1.9                                          |
 
-1. A4-A6 + A8 (không đổi schema lớn, rủi ro thấp, giá trị bảo mật cao nhất) - 1 phiên.
-2. B giai đoạn 1: schema + `/author/posts` + trình soạn hai cột + trạng thái/duyệt - 2 phiên.
-3. C1 + C4 (phiếu cho từng repo) song song; C2 khi chủ dự án duyệt.
-4. A1 (cấu hình Cloudflare - chủ dự án hoặc agent có token Zone), A3, G11-G12.
-5. B giai đoạn 2 (lịch sử, thống kê, góp ý) và A9 khi có site con cần đăng nhập.
+## Ma trận kênh cài (đo 13/11/2026)
+
+| App                   | winget      | Scoop | Homebrew | APT/DNF | Đích sau P3                                                            |
+| --------------------- | ----------- | ----- | -------- | ------- | ---------------------------------------------------------------------- |
+| tsudev-trafficmonitor | chờ #477193 | ✅    | -        | -       | + winget                                                               |
+| cwico                 | ✅          | -     | -        | -       | + Scoop                                                                |
+| tsudev SWICO          | ✅          | ✅    | -        | -       | đủ                                                                     |
+| TsuFiles              | -           | ✅    | ✅       | ✅      | + winget                                                               |
+| Lotus Share           | -           | ✅    | ✅       | ✅      | + winget                                                               |
+| tsudev-contact        | -           | ✅    | -        | -       | + winget                                                               |
+| La bàn                | -           | -     | -        | -       | ngoại lệ D6                                                            |
+| 6 trò chơi            | -           | -     | -        | -       | chơi trên web; tệp cài theo phương án A khi repo game có bản phát hành |
