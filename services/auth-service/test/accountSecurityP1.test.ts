@@ -4,6 +4,9 @@
 //        tạo lại mã dự phòng thiếu step-up ⇒ 401 STEP_UP_REQUIRED; tài khoản
 //        CHƯA có TOTP vẫn làm được bằng mật khẩu hiện tại (không tự khoá mình).
 //   P1.5 `revoke-sessions`: token SESSION_REVOKE dùng MỘT lần ⇒ sessionVersion++.
+// Giữ tệp là MODULE: không có dòng này thì hằng của tệp đụng tên với stepUp.test.ts.
+export {}
+
 process.env.NODE_ENV = 'test'
 process.env.INTERNAL_IDENTITY_SECRET = 'khoa-test-du-dai-cho-hmac-256-bit!!'
 process.env.TOTP_ENCRYPTION_KEY = 'khoa-ma-hoa-totp-du-dai-cho-test-0123456789'

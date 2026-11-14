@@ -21,7 +21,7 @@ test('đủ bộ header bảo mật cho mọi đường dẫn', async () => {
   expect(h['cross-origin-opener-policy']).toBe('same-origin');
   expect(h['cross-origin-resource-policy']).toBe('same-site');
   expect(h['strict-transport-security']).toMatch(/max-age=(\d+); includeSubDomains; preload/);
-  const maxAge = Number(/max-age=(\d+)/.exec(h['strict-transport-security'])?.[1]);
+  const maxAge = Number(/max-age=(\d+)/.exec(h['strict-transport-security'] ?? '')?.[1]);
   // preload đòi tối thiểu 1 năm (hstspreload.org).
   expect(maxAge).toBeGreaterThanOrEqual(31536000);
 });
