@@ -48,11 +48,15 @@ before(async () => {
       data: { username: USER, email: `${USER}@tsudev.local`, emailVerifiedAt: new Date() },
     })
   ).id;
-  await prisma.oAuthClient.create({ data: { id: CLIENT, name: 'Site thử', redirectUris: [REDIRECT] } });
+  await prisma.oAuthClient.create({
+    data: { id: CLIENT, name: 'Site thử', redirectUris: [REDIRECT] },
+  });
 });
 
 after(async () => {
-  await prisma.oidcPayload.deleteMany({ where: { payload: { path: ['accountId'], equals: userId } } });
+  await prisma.oidcPayload.deleteMany({
+    where: { payload: { path: ['accountId'], equals: userId } },
+  });
   await prisma.oAuthClient.deleteMany({ where: { id: CLIENT } });
   await prisma.user.deleteMany({ where: { id: userId } });
   await prisma.$disconnect();
@@ -99,7 +103,11 @@ async function authorize() {
   const auth = `Bearer ${await signIdentity({ sub: USER }, process.env.INTERNAL_IDENTITY_SECRET)}`;
   const fin = await fetch(`${base}/api/identity/oidc/interaction/finish`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: auth, 'x-oidc-cookie': jar.join('; ') },
+    headers: {
+      'content-type': 'application/json',
+      authorization: auth,
+      'x-oidc-cookie': jar.join('; '),
+    },
     body: JSON.stringify({ allow: true }),
   });
   assert.equal(fin.status, 200, await fin.clone().text());
@@ -164,7 +172,12 @@ test('redirect_uri lệch (dù cùng tiền tố) ⇒ 400 tại chỗ, KHÔNG ch
 
 test('trọn luồng: mã + PKCE ⇒ id_token đúng sub; sai verifier ⇒ invalid_grant', async () => {
   const { code, verifier } = await authorize();
-  const bad = await tokenReq({ grant_type: 'authorization_code', code, redirect_uri: REDIRECT, code_verifier: 'x'.repeat(43) });
+  const bad = await tokenReq({
+    grant_type: 'authorization_code',
+    code,
+    redirect_uri: REDIRECT,
+    code_verifier: 'x'.repeat(43),
+  });
   assert.equal(bad.status, 400);
 
   const again = await authorize();
@@ -185,7 +198,12 @@ test('trọn luồng: mã + PKCE ⇒ id_token đúng sub; sai verifier ⇒ inval
 test('refresh token xoay vòng; dùng lại token cũ ⇒ thu hồi cả grant', async () => {
   const { code, verifier } = await authorize();
   const first = await (
-    await tokenReq({ grant_type: 'authorization_code', code, redirect_uri: REDIRECT, code_verifier: verifier })
+    await tokenReq({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: REDIRECT,
+      code_verifier: verifier,
+    })
   ).json();
   const r1 = await tokenReq({ grant_type: 'refresh_token', refresh_token: first.refresh_token });
   assert.equal(r1.status, 200);
@@ -194,14 +212,22 @@ test('refresh token xoay vòng; dùng lại token cũ ⇒ thu hồi cả grant',
 
   const reuse = await tokenReq({ grant_type: 'refresh_token', refresh_token: first.refresh_token });
   assert.equal(reuse.status, 400);
-  const after = await tokenReq({ grant_type: 'refresh_token', refresh_token: second.refresh_token });
+  const after = await tokenReq({
+    grant_type: 'refresh_token',
+    refresh_token: second.refresh_token,
+  });
   assert.equal(after.status, 400, 'grant phải bị thu hồi sau khi phát hiện dùng lại');
 });
 
 test('đổi sessionVersion ⇒ refresh token chết (trigger Postgres)', async () => {
   const { code, verifier } = await authorize();
   const t = await (
-    await tokenReq({ grant_type: 'authorization_code', code, redirect_uri: REDIRECT, code_verifier: verifier })
+    await tokenReq({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: REDIRECT,
+      code_verifier: verifier,
+    })
   ).json();
   await prisma.user.update({ where: { id: userId }, data: { sessionVersion: { increment: 1 } } });
   const r = await tokenReq({ grant_type: 'refresh_token', refresh_token: t.refresh_token });
