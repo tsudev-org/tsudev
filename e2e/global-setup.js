@@ -1,3 +1,4 @@
+const { chromium } = require('@playwright/test');
 const { loadTopology, publicUrl } = require('../scripts/topology/load');
 
 // Làm ấm `next dev` TRƯỚC test đầu tiên.
@@ -8,10 +9,12 @@ const { loadTopology, publicUrl } = require('../scripts/topology/load');
 // `release-security`, lần 2 `react-hooks-7 accounts`), 21/22 test còn lại xanh, và
 // chạy lại thì qua. Test sau không gặp vì trang đã biên dịch xong.
 //
-// Cách làm: gọi GET trần (không đăng nhập) mọi trang/route bộ test sẽ mở. Không
-// cần phiên: Next biên dịch trang (cả bản server lẫn bản trình duyệt) khi có yêu
-// cầu HTML, kể cả khi trang đó rồi chuyển hướng về /login. KHÔNG đăng nhập ở đây
-// vì mã TOTP vừa dùng có thể bị từ chối là dùng lại ở test đầu tiên.
+// Cách làm: MỞ BẰNG TRÌNH DUYỆT THẬT (không đăng nhập) mọi trang bộ test sẽ mở.
+// ⚠️ `fetch` trần KHÔNG đủ - đã đo ở #256: mỗi trang admin trả HTML trong ~150ms
+// vì Turbopack chỉ dựng phần server; bundle trình duyệt chỉ biên dịch khi trình
+// duyệt xin chunk, mà lỗi cũ chính là heading vẽ phía client không kịp hiện.
+// Không cần phiên: trang chưa đăng nhập vẫn nạp đủ chunk của chính nó. KHÔNG
+// đăng nhập ở đây vì mã TOTP vừa dùng có thể bị từ chối là dùng lại ở test đầu.
 //
 // Webserver của Playwright đã lên trước globalSetup, nên URL đã sống. Một trang
 // làm ấm hỏng KHÔNG làm đỏ cả lượt - test thật sẽ nói lỗi rõ hơn; chỉ ghi log.
@@ -37,17 +40,13 @@ const PATHS = [
   '/api/auth/providers',
 ];
 
-const warm = async (path) => {
+const warm = async (page, path) => {
   const started = Date.now();
   try {
-    const res = await fetch(`${MAIN}${path}`, {
-      redirect: 'manual',
-      signal: AbortSignal.timeout(120 * 1000),
-    });
-    await res.arrayBuffer();
-    return `${path} ${res.status} ${Date.now() - started}ms`;
+    const res = await page.goto(`${MAIN}${path}`, { waitUntil: 'load', timeout: 120 * 1000 });
+    return `${path} ${res ? res.status() : '-'} ${Date.now() - started}ms`;
   } catch (err) {
-    return `${path} LỖI ${err.message}`;
+    return `${path} LỖI ${err.message.split('\n')[0]}`;
   }
 };
 
@@ -56,7 +55,10 @@ module.exports = async () => {
   const started = Date.now();
   // Tuần tự: `next dev` biên dịch song song thì từng trang còn chậm hơn, và
   // chính việc tranh CPU là thứ làm test đầu vượt timeout.
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ ignoreHTTPSErrors: true });
   const lines = [];
-  for (const path of PATHS) lines.push(await warm(path));
+  for (const path of PATHS) lines.push(await warm(page, path));
+  await browser.close();
   console.log(`[làm ấm] ${Date.now() - started}ms\n  ${lines.join('\n  ')}`);
 };
