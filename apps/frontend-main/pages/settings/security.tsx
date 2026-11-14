@@ -11,6 +11,8 @@ import { Notice } from '../../components/AuthShell';
 import { formatDateVN } from '../../lib/format';
 import { SecurityEventList, type SecurityEvent } from '../../components/SecurityEventList';
 import { useLoader } from '../../lib/useLoader';
+import { useStepUp } from '../../components/StepUpDialog';
+import { SecurityPosture, type Posture } from '../../components/SecurityPosture';
 
 /**
  * Bảo mật tài khoản: bật 2FA và quản lý passkey.
@@ -28,11 +30,23 @@ const post = async (path: string, body?: unknown) => {
     body: JSON.stringify(body ?? {}),
   });
   const data = await res.json().catch(() => ({}));
-  return { ok: res.ok, data } as { ok: boolean; data: Record<string, unknown> };
+  return { ok: res.ok, status: res.status, data } as {
+    ok: boolean;
+    status: number;
+    data: Record<string, unknown>;
+  };
 };
 
-const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <section className="rounded-lg border border-line bg-surface p-5 sm:p-6">
+const Section = ({
+  title,
+  id,
+  children,
+}: {
+  title: string;
+  id?: string;
+  children: React.ReactNode;
+}) => (
+  <section id={id} className="scroll-mt-24 rounded-lg border border-line bg-surface p-5 sm:p-6">
     <h2 className="text-base font-semibold text-fg">{title}</h2>
     <div className="mt-4">{children}</div>
   </section>
@@ -42,6 +56,9 @@ export default function SecurityPage() {
   const { status, update } = useSession();
   const [msg, setMsg] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null);
   const [revoking, setRevoking] = useState(false);
+  const stepUp = useStepUp();
+  // P1.1: "Mức an toàn" - sự kiện thô từ auth-service; null = chưa nạp xong.
+  const [posture, setPosture] = useState<Posture | null>(null);
 
   // --- 2FA ---
   const [setupUri, setSetupUri] = useState('');
@@ -88,6 +105,13 @@ export default function SecurityPage() {
     [page, pageSize, paging.ready]
   );
 
+  const refreshPosture = useCallback(async (signal?: AbortSignal) => {
+    const { ok, data } = await post('security/posture');
+    if (signal?.aborted) return;
+    if (ok) setPosture(data as unknown as Posture);
+  }, []);
+
+  useLoader(refreshPosture, status === 'authenticated');
   useLoader(refreshKeys, status === 'authenticated');
   useLoader(refreshEvents, status === 'authenticated');
 
@@ -140,11 +164,17 @@ export default function SecurityPage() {
     setCode('');
     setMsg({ kind: 'ok', text: 'Đã bật xác thực hai bước.' });
     refreshEvents();
+    refreshPosture();
   };
 
   const disableTotp = async () => {
-    const { ok } = await post('totp/disable', { password: disablePw });
+    const r = await stepUp.run('Tắt xác thực hai bước', (token) =>
+      post('totp/disable', { password: disablePw, stepUp: token })
+    );
+    if (!r) return;
+    const { ok } = r;
     setDisablePw('');
+    if (ok) refreshPosture();
     setMsg(
       ok
         ? { kind: 'ok', text: 'Đã tắt xác thực hai bước.' }
@@ -180,9 +210,31 @@ export default function SecurityPage() {
   };
 
   const removePasskey = async (id: string) => {
-    await post('passkey/delete', { id });
+    const r = await stepUp.run('Xoá passkey', (token) =>
+      post('passkey/delete', { id, stepUp: token })
+    );
+    if (!r) return;
     refreshKeys();
     refreshEvents();
+    refreshPosture();
+  };
+
+  // P1.3: tạo lại mã dự phòng - bộ cũ hết hiệu lực ngay; luôn đòi step-up.
+  const regenerateBackupCodes = async () => {
+    if (!confirm('Tạo bộ mã dự phòng mới? Mọi mã cũ (kể cả mã chưa dùng) hết hiệu lực ngay.'))
+      return;
+    const r = await stepUp.run('Tạo lại mã dự phòng', (token) =>
+      post('totp/backup-codes', { stepUp: token })
+    );
+    if (!r) return;
+    if (!r.ok) {
+      setMsg({ kind: 'error', text: 'Không tạo được mã mới. Hãy thử lại.' });
+      return;
+    }
+    setBackupCodes((r.data.backupCodes as string[]) || []);
+    setMsg({ kind: 'ok', text: 'Đã tạo bộ mã dự phòng mới.' });
+    refreshEvents();
+    refreshPosture();
   };
 
   const revokeAll = async () => {
@@ -270,7 +322,12 @@ export default function SecurityPage() {
         )}
 
         <div className="mt-6 flex flex-col gap-5">
-          <Section title="Passkey">
+          <SecurityPosture
+            posture={posture}
+            onEnableTotp={startTotp}
+            onRegenerateBackupCodes={regenerateBackupCodes}
+          />
+          <Section title="Passkey" id="passkey">
             {keys.length === 0 ? (
               <p className="text-sm text-fg-muted">Chưa có passkey nào.</p>
             ) : (
@@ -352,6 +409,16 @@ export default function SecurityPage() {
                 <Button variant="secondary" className="mt-4" onClick={startTotp}>
                   Bật xác thực hai bước
                 </Button>
+                {posture?.totp && (
+                  <div className="mt-6 border-t border-line pt-4">
+                    <p className="text-sm text-fg-muted">
+                      Còn {posture.backupCodesRemaining ?? 0} mã dự phòng chưa dùng.
+                    </p>
+                    <Button variant="secondary" className="mt-2" onClick={regenerateBackupCodes}>
+                      Tạo lại mã dự phòng
+                    </Button>
+                  </div>
+                )}
                 <div className="mt-6 border-t border-line pt-4">
                   <p className="text-sm text-fg-muted">Đã bật rồi và muốn tắt?</p>
                   <div className="mt-2 flex items-end gap-2">
@@ -450,6 +517,7 @@ export default function SecurityPage() {
           </section>
         </div>
       </div>
+      {stepUp.dialog}
     </Layout>
   );
 }

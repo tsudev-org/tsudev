@@ -36,6 +36,8 @@ const PATHS = [
   '/settings/profile',
   '/settings/security',
   '/author',
+  '/author/posts/new',
+  '/admin/review',
 ];
 
 // Route proxy BFF mà trang gọi SAU khi đăng nhập - mỗi tệp `pages/api/*` cũng

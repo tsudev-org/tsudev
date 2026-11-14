@@ -36,6 +36,13 @@ import {
 } from './objectStore'
 import { createHash, randomBytes, timingSafeEqual } from 'crypto'
 import { buildDocSearch, buildPostSearch, buildSnippet, viNormalizeText } from '@tsudev/search'
+import {
+  editedStatus,
+  effectiveStatus,
+  initialStatus,
+  statusFields,
+  transition,
+} from './postWorkflow'
 
 type Notifier = { alert: (payload: Record<string, unknown>) => Promise<void> }
 
@@ -226,6 +233,8 @@ const publicPostCard = (p: PostWithAuthor) => ({
   coverImageUrl: p.coverImageUrl,
   publishedAt: p.publishedAt ?? p.createdAt,
   createdAt: p.createdAt,
+  pinned: Boolean(p.pinnedAt),
+  categoryId: p.categoryId,
   author: authorCard(p.author),
 })
 const publicPostDetail = (p: PostWithAuthor) => ({
@@ -257,10 +266,21 @@ app.get(
     const now = new Date()
     const take = Math.min(qInt(req.query.limit, 20), 50)
     const tag = qStr(req.query.tag)?.trim()
+    // P2: lọc theo chuyên mục (slug).
+    const category = qStr(req.query.category)?.trim()
     const posts = await prisma.post.findMany({
-      where: tag ? { ...publicPostWhere(now), tags: { has: tag } } : publicPostWhere(now),
-      // Xếp theo ngày HIỂN THỊ (publishedAt), fallback createdAt cho dữ liệu cũ.
-      orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
+      where: {
+        ...publicPostWhere(now),
+        ...(tag ? { tags: { has: tag } } : {}),
+        ...(category ? { category: { slug: category } } : {}),
+      },
+      // Bài GHIM lên đầu (P2, MODERATOR+ ghim), rồi theo ngày HIỂN THỊ (publishedAt),
+      // fallback createdAt cho dữ liệu cũ.
+      orderBy: [
+        { pinnedAt: { sort: 'desc', nulls: 'last' } },
+        { publishedAt: 'desc' },
+        { createdAt: 'desc' },
+      ],
       take,
       include: { author: true },
     })
@@ -341,6 +361,18 @@ const RANK_CAP = 500
 // thời proxy `apps/frontend-main/pages/api/search.ts` và BẢNG TIỀN TỐ của
 // `services/backend-bundle` - mà tiền tố mới không nằm trong bảng thì route 404 ở
 // production trong khi chạy service riêng vẫn sống, KHÔNG có gì báo lỗi.
+/**
+ * P2.1 chuyên mục, công khai. Khai TRƯỚC `/api/posts/:slug` - nếu không,
+ * "categories" bị hiểu là slug của một bài (cùng lý do với /api/posts/search).
+ */
+app.get(
+  '/api/posts/categories',
+  asyncHandler(async (_req, res) => {
+    const rows = await prisma.category.findMany({ orderBy: [{ position: 'asc' }, { name: 'asc' }] })
+    res.json(rows.map((c) => ({ id: c.id, slug: c.slug, name: c.name, position: c.position })))
+  })
+)
+
 app.get(
   '/api/posts/search',
   // Trần nay là 200 (mốc chuẩn cao nhất) thay vì 100, và giới hạn tần suất mốc
@@ -649,6 +681,24 @@ async function requireAdmin(req: Request, res: Response): Promise<User | null> {
   }
   // Ép 2FA (G6): ADMIN chưa có TOTP đã xác nhận ⇒ 403
   // MFA_REQUIRED (passkey KHÔNG tính - xem hasConfirmedTotp); lỗi DB ⇒ 503. Kiểm ở @tsudev/auth, dùng chung với requireOwner.
+  if (!(await requireSecondFactor(user, res))) return null
+  return user
+}
+
+/**
+ * P2.2: như requireAdmin nhưng ngưỡng MODERATOR - duyệt bài, ghim, chuyên mục.
+ * Cùng cổng 2FA: người duyệt bị chiếm tài khoản là trang công khai bị đăng hộ.
+ */
+async function requireModerator(req: Request, res: Response): Promise<User | null> {
+  const user = await lookupUser(req)
+  if (!user) {
+    res.status(401).json({ error: 'Bạn cần đăng nhập' })
+    return null
+  }
+  if (!hasAtLeastRole(user.role, 'MODERATOR')) {
+    res.status(403).json({ error: 'Yêu cầu quyền kiểm duyệt' })
+    return null
+  }
   if (!(await requireSecondFactor(user, res))) return null
   return user
 }
@@ -1975,6 +2025,11 @@ async function requireVerifiedAuthor(req: Request, res: Response): Promise<User 
     res.status(403).json({ error: 'email_unverified' })
     return null
   }
+  // P1.2: từ AUTHOR trở lên, đường GHI đòi TOTP đã xác nhận (trước 14/11/2026 chỉ
+  // ADMIN). Một tài khoản đăng bài bị chiếm bằng mật khẩu lộ là trang công khai
+  // của tsudev.com bị viết hộ. Đường ĐỌC (xem nháp của mình) không chặn - để trang
+  // /author vẫn mở được và chỉ đường bật 2FA. 403 `MFA_REQUIRED`, lỗi DB ⇒ 503.
+  if (!(await requireSecondFactor(me, res))) return null
   return me
 }
 
@@ -2130,6 +2185,10 @@ const authorPostCard = (p: Post) => ({
   contentMd: p.contentMd,
   tags: p.tags,
   published: p.published,
+  status: effectiveStatus(p),
+  reviewNote: p.reviewNote,
+  categoryId: p.categoryId,
+  pinned: Boolean(p.pinnedAt),
   publishedAt: p.publishedAt,
   references: p.references ?? [],
   coverImageUrl: p.coverImageUrl,
@@ -2137,6 +2196,84 @@ const authorPostCard = (p: Post) => ({
   createdAt: p.createdAt,
   updatedAt: p.updatedAt,
 })
+
+const isModerator = (u: User): boolean => hasAtLeastRole(u.role, 'MODERATOR')
+
+const POST_STATUSES = ['DRAFT', 'PENDING', 'SCHEDULED', 'PUBLISHED', 'ARCHIVED'] as const
+type PostStatusName = (typeof POST_STATUSES)[number]
+const asStatus = (v: unknown): PostStatusName | null =>
+  (POST_STATUSES as readonly string[]).includes(String(v)) ? (v as PostStatusName) : null
+
+/**
+ * Bộ lọc danh sách bài cho trang quản lý (DATA_TABLE.md): trạng thái, chuyên mục,
+ * thẻ, tìm tiếng Việt BỎ DẤU trên cột chỉ mục đã chuẩn hoá lúc ghi.
+ */
+function postListFilter(q: Request['query']): Prisma.PostWhereInput {
+  const where: Prisma.PostWhereInput = { deletedAt: null }
+  const st = asStatus(qStr(q.status))
+  if (st) where.status = st
+  const cat = qStr(q.category)?.trim()
+  if (cat) where.categoryId = cat
+  const tag = qStr(q.tag)?.trim()
+  if (tag) where.tags = { has: tag }
+  const text = viNormalizeText(String(qStr(q.q) ?? '').slice(0, 200)).trim()
+  if (text) {
+    where.OR = [{ searchTitleNorm: { contains: text } }, { searchBodyNorm: { contains: text } }]
+  }
+  return where
+}
+
+/** Đếm theo trạng thái cho thẻ tổng quan /author và các tab lọc. */
+async function statusCounts(base: Prisma.PostWhereInput): Promise<Record<PostStatusName, number>> {
+  const rows = await prisma.post.groupBy({ by: ['status'], where: base, _count: { _all: true } })
+  const out = Object.fromEntries(POST_STATUSES.map((s) => [s, 0])) as Record<PostStatusName, number>
+  for (const r of rows) out[r.status as PostStatusName] = r._count._all
+  return out
+}
+
+/**
+ * Ghi MỘT lần chuyển trạng thái: cột status + published (qua statusFields) + nhật ký.
+ * Một giao dịch: không bao giờ có bài đổi trạng thái mà nhật ký không có dòng.
+ */
+async function applyStatus(
+  post: Post,
+  to: PostStatusName,
+  actorId: string,
+  note: string | null,
+  extra: Prisma.PostUpdateInput = {}
+): Promise<Post> {
+  const [saved] = await prisma.$transaction([
+    prisma.post.update({ where: { id: post.id }, data: { ...statusFields(to), ...extra } }),
+    prisma.postStatusEvent.create({
+      data: { postId: post.id, from: post.status, to, actorId, note },
+    }),
+  ])
+  return saved
+}
+
+/** Ghi một bản lịch sử nội dung (CHỈ-THÊM). */
+const recordRevision = (postId: string, title: string, contentMd: string, editorId: string) =>
+  prisma.postRevision.create({ data: { postId, title, contentMd, editorId } })
+
+/**
+ * Tương thích trang soạn cũ: thân request mang `published` (bool) thay vì gọi
+ * /transition. Ánh xạ sang hành động đúng quyền - AUTHOR bật "công bố" là GỬI DUYỆT.
+ */
+function legacyPublishedAction(
+  published: boolean,
+  current: PostStatusName,
+  moderator: boolean
+): string | null {
+  if (published) {
+    if (current === 'DRAFT') return moderator ? 'publish' : 'submit'
+    if (current === 'PENDING' && moderator) return 'approve'
+    if (current === 'ARCHIVED') return 'restore'
+    return null
+  }
+  if (current === 'PUBLISHED' || current === 'SCHEDULED') return 'archive'
+  if (current === 'PENDING') return 'withdraw'
+  return null
+}
 
 /** Bài còn sống của CHÍNH tác giả (gồm bản chưa công bố). Không lộ bài đã xoá. */
 app.get(
@@ -2148,9 +2285,10 @@ app.get(
   asyncHandler(async (req, res) => {
     const me = await requireAuthor(req, res)
     if (!me) return
-    const where = { authorId: me.id, deletedAt: null }
+    const own: Prisma.PostWhereInput = { authorId: me.id, deletedAt: null }
+    const where: Prisma.PostWhereInput = { ...postListFilter(req.query), authorId: me.id }
     const paging = parsePaging(req.query)
-    const [total, posts] = await Promise.all([
+    const [total, posts, counts] = await Promise.all([
       prisma.post.count({ where }),
       prisma.post.findMany({
         where,
@@ -2158,8 +2296,9 @@ app.get(
         skip: paging.skip,
         take: paging.take,
       }),
+      statusCounts(own),
     ])
-    res.json({ data: posts.map(authorPostCard), meta: pageMeta(total, paging) })
+    res.json({ data: posts.map(authorPostCard), meta: pageMeta(total, paging), counts })
   })
 )
 
@@ -2176,6 +2315,18 @@ app.post(
     const clash = await prisma.post.findUnique({ where: { slug: data.slug } })
     if (clash) return res.status(409).json({ error: `slug "${data.slug}" đã tồn tại` })
 
+    // P2: trạng thái lúc tạo. `status` mới; `published` (trang soạn cũ) ánh xạ:
+    // true ⇒ MODERATOR đăng thẳng / AUTHOR gửi duyệt; false hoặc bỏ trống ⇒ DRAFT.
+    const moderator = isModerator(me)
+    const requested =
+      req.body?.status ??
+      (data.published === true ? (moderator ? 'PUBLISHED' : 'PENDING') : undefined)
+    const publishedAt = data.publishedAt ?? new Date()
+    const init = initialStatus(requested, moderator, publishedAt)
+    if (!init.ok) return res.status(400).json({ error: init.error })
+    const categoryId = await readCategoryId(req.body?.categoryId)
+    if (categoryId === false) return res.status(400).json({ error: 'categoryId không tồn tại' })
+
     // Cột chỉ mục tìm kiếm tính SẴN lúc ghi (SEARCH_AND_FILTER §4). Một nguồn.
     const search = buildPostSearch({
       title: data.title,
@@ -2190,9 +2341,10 @@ app.post(
         contentMd: data.contentMd,
         excerpt: data.excerpt ?? null,
         tags: data.tags ?? [],
-        published: data.published ?? true,
-        // Không khai ⇒ đăng ngay (ngày hiển thị = lúc tạo); khai tương lai = lên lịch.
-        publishedAt: data.publishedAt ?? new Date(),
+        ...statusFields(init.status),
+        ...(categoryId ? { categoryId } : {}),
+        // Không khai ⇒ ngày hiển thị = lúc tạo; khai tương lai = lên lịch khi được duyệt.
+        publishedAt,
         references: (data.references ?? []) as unknown as Prisma.InputJsonValue,
         coverImageUrl: data.coverImageUrl ?? null,
         metaDescription: data.metaDescription ?? null,
@@ -2201,6 +2353,14 @@ app.post(
         authoredByAgentId: null,
       },
     })
+    await prisma.$transaction([
+      prisma.postRevision.create({
+        data: { postId: post.id, title: post.title, contentMd: post.contentMd, editorId: me.id },
+      }),
+      prisma.postStatusEvent.create({
+        data: { postId: post.id, from: null, to: init.status, actorId: me.id, note: 'tạo bài' },
+      }),
+    ])
     res.status(201).json(authorPostCard(post))
   })
 )
@@ -2245,23 +2405,55 @@ app.patch(
       if (clash) return res.status(409).json({ error: `slug "${data.slug}" đã tồn tại` })
     }
 
+    const moderator = isModerator(me)
+    const categoryId =
+      req.body?.categoryId !== undefined ? await readCategoryId(req.body.categoryId) : undefined
+    if (categoryId === false) return res.status(400).json({ error: 'categoryId không tồn tại' })
+
+    // `published` KHÔNG còn ghi thẳng (cột suy ra) - ánh xạ sang chuyển trạng thái.
+    const { references, published, ...rest } = data
+    const contentChanged =
+      (data.title !== undefined && data.title !== current.title) ||
+      (data.contentMd !== undefined && data.contentMd !== current.contentMd)
+
     // Tính lại chỉ mục từ giá trị SAU khi trộn (patch có thể chỉ đổi một phần).
-    const { references, ...rest } = data
     const search = buildPostSearch({
       title: data.title ?? current.title,
       excerpt: data.excerpt !== undefined ? data.excerpt : current.excerpt,
       contentMd: data.contentMd ?? current.contentMd,
     })
-    const post = await prisma.post.update({
+    let post = await prisma.post.update({
       where: { id: current.id },
       data: {
         ...rest,
+        ...(categoryId !== undefined ? { categoryId } : {}),
         ...(references !== undefined
           ? { references: references as unknown as Prisma.InputJsonValue }
           : {}),
         ...search,
       },
     })
+    if (contentChanged) {
+      await recordRevision(post.id, post.title, post.contentMd, me.id)
+      // Tác giả sửa bài đang công khai ⇒ gỡ chờ duyệt lại (postWorkflow.editedStatus).
+      const next = editedStatus(current.status, moderator)
+      if (next !== current.status) {
+        post = await applyStatus(post, next, me.id, 'sửa nội dung bài đã đăng - chờ duyệt lại')
+      }
+    }
+    if (published !== undefined) {
+      const action = legacyPublishedAction(published, effectiveStatus(post), moderator)
+      if (action) {
+        const t = transition({
+          action,
+          from: post.status,
+          moderator,
+          owner: true,
+          publishedAt: post.publishedAt,
+        })
+        if (t.ok) post = await applyStatus(post, t.to, me.id, null)
+      }
+    }
     res.json(authorPostCard(post))
   })
 )
@@ -2276,6 +2468,127 @@ app.delete(
     if (!current) return res.status(404).json({ error: 'Không tìm thấy bài của bạn' })
     await prisma.post.update({ where: { id: current.id }, data: { deletedAt: new Date() } })
     res.json({ ok: true, softDeleted: true })
+  })
+)
+
+/**
+ * Chuyên mục gửi lên: chuỗi rỗng/null ⇒ bỏ chuyên mục (null); id lạ ⇒ false
+ * (người gọi trả 400); undefined ⇒ không khai.
+ */
+async function readCategoryId(raw: unknown): Promise<string | null | false | undefined> {
+  if (raw === undefined) return undefined
+  if (raw === null || raw === '') return null
+  const id = String(raw).slice(0, 60)
+  const found = await prisma.category.findUnique({ where: { id }, select: { id: true } })
+  return found ? found.id : false
+}
+
+/** Chuyên mục cho trang soạn - cùng dữ liệu với /api/posts/categories, qua proxy author/*. */
+app.get(
+  '/api/author/categories',
+  asyncHandler(async (req, res) => {
+    if (!(await requireAuthor(req, res))) return
+    const rows = await prisma.category.findMany({ orderBy: [{ position: 'asc' }, { name: 'asc' }] })
+    res.json(rows.map((c) => ({ id: c.id, slug: c.slug, name: c.name, position: c.position })))
+  })
+)
+
+/** P2.2: chuyển trạng thái bài CỦA CHÍNH MÌNH (gửi duyệt, rút, lưu trữ, khôi phục). */
+app.post(
+  '/api/author/posts/:slug/transition',
+  asyncHandler(async (req, res) => {
+    const me = await requireVerifiedAuthor(req, res)
+    if (!me) return
+    const current = await findOwnPost(req.params.slug, me.id)
+    if (!current) return res.status(404).json({ error: 'Không tìm thấy bài của bạn' })
+    const t = transition({
+      action: String(req.body?.action ?? ''),
+      from: effectiveStatus(current),
+      moderator: isModerator(me),
+      owner: true,
+      publishedAt: current.publishedAt,
+      note: req.body?.note,
+    })
+    if (!t.ok) return res.status(t.status).json({ error: t.error })
+    const post = await applyStatus(current, t.to, me.id, t.note, { reviewNote: null })
+    res.json(authorPostCard(post))
+  })
+)
+
+/** P2.2: lịch sử nội dung của bài (mới nhất trước), không kèm thân để danh sách nhẹ. */
+app.get(
+  '/api/author/posts/:slug/revisions',
+  asyncHandler(async (req, res) => {
+    const me = await requireAuthor(req, res)
+    if (!me) return
+    const post = await findOwnPost(req.params.slug, me.id)
+    if (!post) return res.status(404).json({ error: 'Không tìm thấy bài của bạn' })
+    const paging = parsePaging(req.query)
+    const where = { postId: post.id }
+    const [total, rows] = await Promise.all([
+      prisma.postRevision.count({ where }),
+      prisma.postRevision.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: paging.skip,
+        take: paging.take,
+        select: { id: true, title: true, editorId: true, createdAt: true, contentMd: true },
+      }),
+    ])
+    res.json({
+      data: rows.map((r) => ({ ...r, contentMd: undefined, length: r.contentMd.length })),
+      meta: pageMeta(total, paging),
+    })
+  })
+)
+
+/** Một bản lịch sử đầy đủ - để so sánh với bản hiện tại ở trang. */
+app.get(
+  '/api/author/posts/:slug/revisions/:id',
+  asyncHandler(async (req, res) => {
+    const me = await requireAuthor(req, res)
+    if (!me) return
+    const post = await findOwnPost(req.params.slug, me.id)
+    if (!post) return res.status(404).json({ error: 'Không tìm thấy bài của bạn' })
+    const rev = await prisma.postRevision.findFirst({
+      where: { id: String(req.params.id), postId: post.id },
+    })
+    if (!rev) return res.status(404).json({ error: 'Không có bản lịch sử này' })
+    res.json(rev)
+  })
+)
+
+/**
+ * Khôi phục một bản lịch sử: chép tiêu đề + nội dung về bài, GHI THÊM một bản mới
+ * (lịch sử chỉ-thêm - khôi phục cũng là một lần sửa), và theo đúng luật sửa bài
+ * đã đăng (tác giả ⇒ chờ duyệt lại).
+ */
+app.post(
+  '/api/author/posts/:slug/revisions/:id/restore',
+  asyncHandler(async (req, res) => {
+    const me = await requireVerifiedAuthor(req, res)
+    if (!me) return
+    const current = await findOwnPost(req.params.slug, me.id)
+    if (!current) return res.status(404).json({ error: 'Không tìm thấy bài của bạn' })
+    const rev = await prisma.postRevision.findFirst({
+      where: { id: String(req.params.id), postId: current.id },
+    })
+    if (!rev) return res.status(404).json({ error: 'Không có bản lịch sử này' })
+    const search = buildPostSearch({
+      title: rev.title,
+      excerpt: current.excerpt,
+      contentMd: rev.contentMd,
+    })
+    let post = await prisma.post.update({
+      where: { id: current.id },
+      data: { title: rev.title, contentMd: rev.contentMd, ...search },
+    })
+    await recordRevision(post.id, post.title, post.contentMd, me.id)
+    const next = editedStatus(current.status, isModerator(me))
+    if (next !== current.status) {
+      post = await applyStatus(post, next, me.id, `khôi phục bản ${rev.id} - chờ duyệt lại`)
+    }
+    res.json(authorPostCard(post))
   })
 )
 
@@ -2535,6 +2848,154 @@ const MODERATION_BATCH_MAX = 200
 type ModerationKind = 'post' | 'doc'
 const moderationKind = (v: unknown): ModerationKind | null =>
   v === 'post' || v === 'doc' ? v : null
+
+// ---------------- Kiểm duyệt bài viết (P2.2) ----------------
+//
+// Hàng chờ duyệt và mọi thao tác của người kiểm duyệt lên bài BẤT KỲ. Tác giả tự
+// thao tác bài của mình ở /api/author/posts/:slug/transition.
+
+/** Danh sách bài mọi tác giả - mặc định hàng chờ duyệt (PENDING), cũ nhất trước. */
+app.get(
+  '/api/admin/posts',
+  largePageRateLimit({
+    name: 'admin/posts page_size lớn',
+    identify: (req) => req.user?.preferred_username || req.user?.sub,
+  }),
+  asyncHandler(async (req, res) => {
+    if (!(await requireModerator(req, res))) return
+    const query = { ...req.query, status: req.query.status ?? 'PENDING' }
+    const where = postListFilter(query)
+    const paging = parsePaging(req.query)
+    const [total, posts, counts] = await Promise.all([
+      prisma.post.count({ where }),
+      prisma.post.findMany({
+        where,
+        orderBy: { updatedAt: where.status === 'PENDING' ? 'asc' : 'desc' },
+        skip: paging.skip,
+        take: paging.take,
+        include: { author: true },
+      }),
+      statusCounts({ deletedAt: null }),
+    ])
+    res.json({
+      data: posts.map((p) => ({ ...authorPostCard(p), author: authorCard(p.author) })),
+      meta: pageMeta(total, paging),
+      counts,
+    })
+  })
+)
+
+/** Duyệt / trả về (kèm lý do) / đăng / lưu trữ / khôi phục bài bất kỳ. */
+app.post(
+  '/api/admin/posts/:id/transition',
+  asyncHandler(async (req, res) => {
+    const me = await requireModerator(req, res)
+    if (!me) return
+    const current = await prisma.post.findFirst({
+      where: { id: String(req.params.id), deletedAt: null },
+    })
+    if (!current) return res.status(404).json({ error: 'Không tìm thấy bài' })
+    const action = String(req.body?.action ?? '')
+    const t = transition({
+      action,
+      from: effectiveStatus(current),
+      moderator: true,
+      owner: current.authorId === me.id,
+      publishedAt: current.publishedAt,
+      note: req.body?.note,
+    })
+    if (!t.ok) return res.status(t.status).json({ error: t.error })
+    // Lý do trả về hiện cho tác giả ở trang sửa bài; mọi hành động khác xoá nó.
+    const post = await applyStatus(current, t.to, me.id, t.note, {
+      reviewNote: action === 'reject' ? t.note : null,
+    })
+    res.json(authorPostCard(post))
+  })
+)
+
+/** Ghim / bỏ ghim lên đầu /blog. Chỉ bài đang công khai mới ghim được. */
+app.post(
+  '/api/admin/posts/:id/pin',
+  asyncHandler(async (req, res) => {
+    const me = await requireModerator(req, res)
+    if (!me) return
+    const current = await prisma.post.findFirst({
+      where: { id: String(req.params.id), deletedAt: null },
+    })
+    if (!current) return res.status(404).json({ error: 'Không tìm thấy bài' })
+    const pin = Boolean(req.body?.pinned)
+    if (pin && effectiveStatus(current) !== 'PUBLISHED') {
+      return res.status(409).json({ error: 'Chỉ ghim được bài đang công khai' })
+    }
+    const post = await prisma.post.update({
+      where: { id: current.id },
+      data: { pinnedAt: pin ? new Date() : null },
+    })
+    res.json(authorPostCard(post))
+  })
+)
+
+// Chuyên mục (P2.4): CRUD cho MODERATOR+. Xoá chuyên mục KHÔNG xoá bài - bài về
+// "không chuyên mục" (onDelete: SetNull).
+const readCategoryBody = (
+  b: Record<string, unknown>
+): { ok: true; slug: string; name: string; position: number } | { ok: false; error: string } => {
+  const name = String(b.name ?? '')
+    .trim()
+    .slice(0, 80)
+  if (!name) return { ok: false, error: 'Thiếu tên chuyên mục' }
+  const slug =
+    String(b.slug ?? '')
+      .trim()
+      .toLowerCase() || slugify(name)
+  if (!SLUG_RE.test(slug)) return { ok: false, error: 'slug chuyên mục không hợp lệ' }
+  const position = Number.isFinite(Number(b.position)) ? Math.trunc(Number(b.position)) : 0
+  return { ok: true, slug, name, position }
+}
+
+app.post(
+  '/api/admin/categories',
+  asyncHandler(async (req, res) => {
+    if (!(await requireModerator(req, res))) return
+    const c = readCategoryBody((req.body ?? {}) as Record<string, unknown>)
+    if (!c.ok) return res.status(400).json({ error: c.error })
+    const clash = await prisma.category.findUnique({ where: { slug: c.slug } })
+    if (clash) return res.status(409).json({ error: `slug "${c.slug}" đã tồn tại` })
+    const row = await prisma.category.create({
+      data: { slug: c.slug, name: c.name, position: c.position },
+    })
+    res.status(201).json(row)
+  })
+)
+
+app.patch(
+  '/api/admin/categories/:id',
+  asyncHandler(async (req, res) => {
+    if (!(await requireModerator(req, res))) return
+    const cur = await prisma.category.findUnique({ where: { id: String(req.params.id) } })
+    if (!cur) return res.status(404).json({ error: 'Không có chuyên mục này' })
+    const c = readCategoryBody({ ...cur, ...((req.body ?? {}) as Record<string, unknown>) })
+    if (!c.ok) return res.status(400).json({ error: c.error })
+    if (c.slug !== cur.slug && (await prisma.category.findUnique({ where: { slug: c.slug } }))) {
+      return res.status(409).json({ error: `slug "${c.slug}" đã tồn tại` })
+    }
+    const row = await prisma.category.update({
+      where: { id: cur.id },
+      data: { slug: c.slug, name: c.name, position: c.position },
+    })
+    res.json(row)
+  })
+)
+
+app.delete(
+  '/api/admin/categories/:id',
+  asyncHandler(async (req, res) => {
+    if (!(await requireModerator(req, res))) return
+    const gone = await prisma.category.deleteMany({ where: { id: String(req.params.id) } })
+    if (!gone.count) return res.status(404).json({ error: 'Không có chuyên mục này' })
+    res.json({ ok: true })
+  })
+)
 
 app.get(
   '/api/admin/content',

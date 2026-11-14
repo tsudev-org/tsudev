@@ -254,9 +254,15 @@ export function emailChangedNoticeHtml(displayName: string, newEmail: string): s
  * để chủ tài khoản THẬT phát hiện kẻ chiếm, nên nó phải nói rõ phải làm gì.
  * `context` là mô tả thiết bị/thời điểm nếu có.
  */
-export function securityAlertHtml(displayName: string, title: string, context?: string): string {
+export function securityAlertHtml(
+  displayName: string,
+  title: string,
+  context?: string,
+  notMeUrl?: string
+): string {
   return `<p>Chào ${esc(displayName)},</p>
 <p>${esc(title)} trên tài khoản tsudev của bạn.</p>
 ${context ? `<p style="color:#555">${esc(context)}</p>` : ''}
+${notMeUrl ? `<p><a href="${esc(notMeUrl)}" style="display:inline-block;padding:10px 16px;background:#7c3aed;color:#fff;border-radius:6px;text-decoration:none">Không phải tôi - đăng xuất mọi thiết bị</a></p>` : ''}
 <p>Nếu KHÔNG phải bạn thực hiện, tài khoản của bạn có thể đã bị xâm nhập: hãy <a href="https://tsudev.com/forgot-password">đặt lại mật khẩu</a> ngay (thao tác này đăng xuất mọi thiết bị) và kiểm tra mục Bảo mật.</p>`
 }

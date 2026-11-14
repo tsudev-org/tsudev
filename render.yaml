@@ -98,6 +98,10 @@ services:
       # thiếu khoá là từ chối khởi động.
       - key: TURNSTILE_SECRET_KEY
         sync: false
+      # P4 OIDC: JWK EC P-256 RIÊNG TƯ (ES256) - KHÁC khoá ký bản phát hành. Thiếu ⇒ /oidc
+      # trả 503 (không chặn khởi động). Sinh: docs/auth.md §8. Sao lưu như RELEASE_SIGNING_KEY.
+      - key: OIDC_SIGNING_JWK
+        sync: false
       # Kênh báo động của `packages/observability/notify.js`. KHAI Ở ĐÂY nhưng
       # `sync: false` - blueprint nói rằng hai biến này TỒN TẠI, không giữ giá trị.
       #

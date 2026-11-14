@@ -13,6 +13,10 @@ delete process.env.INTERNAL_API_TOKEN
 
 const request = require('supertest')
 const { prisma } = require('@tsudev/db')
+
+// P1.2 (14/11/2026): đường GHI của tác giả đòi TOTP đã xác nhận - tài khoản test
+// mang sẵn một TOTP để test ở đây vẫn đo đúng thứ nó định đo.
+const TOTP_ON = { secretEnc: 'test', confirmedAt: new Date() }
 const { signIdentity } = require('@tsudev/identity-token')
 const search = require('@tsudev/search')
 const { app } = require('../src/index')
@@ -28,12 +32,19 @@ let authorId: string
 beforeAll(async () => {
   const u = await prisma.user.upsert({
     where: { username: AUTHOR },
-    update: { role: 'AUTHOR', emailVerifiedAt: new Date() },
+    update: {
+      totp: { upsert: { create: TOTP_ON, update: TOTP_ON } },
+      // MODERATOR: tệp này đo trường nâng cao + hiện công khai, không đo luồng duyệt
+      // (P2 - tác giả thường chỉ gửi duyệt, xem postWorkflow.test.ts / author.test.ts).
+      role: 'MODERATOR',
+      emailVerifiedAt: new Date(),
+    },
     create: {
+      totp: { create: TOTP_ON },
       username: AUTHOR,
       email: `${AUTHOR}@tsudev.local`,
       displayName: AUTHOR,
-      role: 'AUTHOR',
+      role: 'MODERATOR',
       emailVerifiedAt: new Date(),
     },
   })
@@ -91,6 +102,7 @@ describe('content-service - đăng bài với trường nâng cao', () => {
       .post('/api/author/posts')
       .set(auth)
       .send({
+        status: 'PUBLISHED',
         slug: slugPast,
         title: `Bài tương tác ${stamp}`,
         contentMd: 'Nội dung nói về tương tác và kiến trúc.',
@@ -116,6 +128,7 @@ describe('content-service - đăng bài với trường nâng cao', () => {
       .post('/api/author/posts')
       .set(auth)
       .send({
+        status: 'PUBLISHED',
         slug: `bai-xau-${stamp}`,
         title: 'Bài URL xấu',
         contentMd: 'nội dung đủ dài để không bị chặn',
@@ -136,6 +149,7 @@ describe('content-service - đăng bài với trường nâng cao', () => {
       .post('/api/author/posts')
       .set(auth)
       .send({
+        status: 'PUBLISHED',
         slug: slugFuture,
         title: `Bài hẹn giờ ${stamp}`,
         contentMd: 'nội dung hẹn giờ đủ dài',

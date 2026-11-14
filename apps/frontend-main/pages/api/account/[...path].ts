@@ -34,6 +34,8 @@ const ALLOWED = new Set([
   // (useradmin/security tự kiểm OWNER ở auth-service).
   'security/events',
   'security/revoke-all',
+  // P1.1 thẻ "Mức an toàn" của /settings/security.
+  'security/posture',
   'useradmin/security',
   // Vòng đời tài khoản tự phục vụ (đòi mật khẩu).
   'account/deactivate',
@@ -41,6 +43,8 @@ const ALLOWED = new Set([
   'totp/setup',
   'totp/confirm',
   'totp/disable',
+  // P1.3: tạo lại mã dự phòng (đòi step-up ở auth-service).
+  'totp/backup-codes',
   // Xác thực lại (step-up, G7): đổi mã TOTP lấy token 5 phút cho thao tác nguy
   // hiểm ở /admin/release-security. Token đi tiếp trong THÂN request tới content.
   'step-up',
