@@ -1,5 +1,13 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 54 BẮT ĐẦU Ở ĐÂY** (cuối phiên 53, 14/11/2026). Phiếu:
+> [`20261114-02`](handover/20261114-02_phien-53-p0-p1-bao-mat-tai-khoan.md).
+>
+> ✅ P0: #256 E2E làm ấm (3 lượt xanh liền), 21 phiếu tồn ĐÓNG. ⏳ P1 code xong ở #257 - CHỜ chủ dự án đưa migration
+> lên Neon (agent không có URL; lệnh ở kế hoạch tổng mục 4.8). KHÔNG merge #257 trước đó (Render tự deploy `main`).
+> PR không cần migration: #258 Turnstile, #259 sao lưu age, #260 C4, #262 verifyCode. ⛔ #252, #261.
+> 🧭 Kế tiếp: P2 CMS (sau P1). Cloudflare chèn script ở 6 site con ⇒ việc 👤 cấp zone (kế hoạch tổng 4.9).
+
 > **Phiên 53 BẮT ĐẦU Ở ĐÂY** (cuối phiên 52, 13/11/2026). Phiếu:
 > [`20261113-08`](handover/20261113-08_phien-52-menu-tai-khoan-ra-quet-giao-dien.md).
 >

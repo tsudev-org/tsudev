@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20261110-03
 - **Từ**: phiên 46 (tsudev-c8) - **Đến**: phiên 47 của repo `tsudev`
 - **Thời điểm**: 10/11/2026
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG - phiếu 20261109-06 xong (tên miền con 1 cấp đang dùng); minimatch xong #220 (đối soát phiên 53, 14/11/2026)
 - **Đọc kèm**: [`20261110-01`](20261110-01_phien-46-giao-dien-den-xanh-he-sinh-thai.md) (việc đã làm ở phiên 46,
   chi tiết mã + nghiệm thu). Số `20261110-02` cố ý KHÔNG dùng trong repo này: đó là số của phiếu "nút đổi giao
   diện Sáng/Tối" đặt ở các repo hệ sinh thái khác.

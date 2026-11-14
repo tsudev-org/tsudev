@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20260826-05
 - **Từ**: phiên 28 (điều phối `backend-api` → `frontend-web` → `qa-test` → `infra-deploy`) - **Đến**: chủ dự án
 - **Thời điểm**: 19:45 26/08/2026
-- **Trạng thái**: MỞ - **hai việc chỉ chủ dự án làm được, xem §2**
+- **Trạng thái**: ĐÓNG - Toà soạn đã gỡ 29/10/2026, Con dấu đã gỡ 04/11/2026 (đối soát phiên 53, 14/11/2026)
 - **Nhánh git**: `fix/newsroom-duyet-dang` (tách từ `main` = `b6b64cc`)
 
 ## 1. Ba triệu chứng, ba nguyên nhân khác nhau
