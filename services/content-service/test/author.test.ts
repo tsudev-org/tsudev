@@ -126,7 +126,9 @@ describe('tạo bài', () => {
       .send({ title: TITLE_A1, contentMd: 'Nội dung.' })
     expect(res.status).toBe(201)
     expect(res.body.slug).toBe(SLUG_A1)
-    expect(res.body.published).toBe(true)
+    // P2 (14/11/2026): tác giả tạo bài ⇒ BẢN NHÁP, phải gửi duyệt (cmsWorkflow.test.ts).
+    expect(res.body.status).toBe('DRAFT')
+    expect(res.body.published).toBe(false)
   })
 
   test('authorId không cướp được qua body - tác giả do phiên quyết định', async () => {

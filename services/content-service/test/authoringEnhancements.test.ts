@@ -34,7 +34,9 @@ beforeAll(async () => {
     where: { username: AUTHOR },
     update: {
       totp: { upsert: { create: TOTP_ON, update: TOTP_ON } },
-      role: 'AUTHOR',
+      // MODERATOR: tệp này đo trường nâng cao + hiện công khai, không đo luồng duyệt
+      // (P2 - tác giả thường chỉ gửi duyệt, xem postWorkflow.test.ts / author.test.ts).
+      role: 'MODERATOR',
       emailVerifiedAt: new Date(),
     },
     create: {
@@ -42,7 +44,7 @@ beforeAll(async () => {
       username: AUTHOR,
       email: `${AUTHOR}@tsudev.local`,
       displayName: AUTHOR,
-      role: 'AUTHOR',
+      role: 'MODERATOR',
       emailVerifiedAt: new Date(),
     },
   })
@@ -100,6 +102,7 @@ describe('content-service - đăng bài với trường nâng cao', () => {
       .post('/api/author/posts')
       .set(auth)
       .send({
+        status: 'PUBLISHED',
         slug: slugPast,
         title: `Bài tương tác ${stamp}`,
         contentMd: 'Nội dung nói về tương tác và kiến trúc.',
@@ -125,6 +128,7 @@ describe('content-service - đăng bài với trường nâng cao', () => {
       .post('/api/author/posts')
       .set(auth)
       .send({
+        status: 'PUBLISHED',
         slug: `bai-xau-${stamp}`,
         title: 'Bài URL xấu',
         contentMd: 'nội dung đủ dài để không bị chặn',
@@ -145,6 +149,7 @@ describe('content-service - đăng bài với trường nâng cao', () => {
       .post('/api/author/posts')
       .set(auth)
       .send({
+        status: 'PUBLISHED',
         slug: slugFuture,
         title: `Bài hẹn giờ ${stamp}`,
         contentMd: 'nội dung hẹn giờ đủ dài',

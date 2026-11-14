@@ -102,7 +102,7 @@ model User {
   authTokens     AuthToken[]
   securityEvents SecurityEvent[]
 
-  emailAliases           EmailAlias[]
+  emailAliases EmailAlias[]
 
   /// Trang quản trị lọc và sắp theo ba trục này. Không có chỉ mục thì mỗi lần
   /// lọc là một lượt quét toàn bảng.
@@ -363,17 +363,31 @@ model SecurityEvent {
 // Content: Blog & Docs
 // ---------------------------------------------------------------------------
 model Post {
-  id        String   @id @default(cuid())
-  slug      String   @unique
-  title     String
-  excerpt   String?
-  contentMd String
-  tags      String[] @default([])
-  published Boolean  @default(true)
-  authorId  String?
-  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String            @id @default(cuid())
+  slug         String            @unique
+  title        String
+  excerpt      String?
+  contentMd    String
+  tags         String[]          @default([])
+  published    Boolean           @default(true)
+  /// P2 CMS: máy trạng thái DRAFT → PENDING → (PUBLISHED | SCHEDULED | DRAFT kèm lý do) → ARCHIVED.
+  /// `published` là cột SUY RA từ đây (PUBLISHED/SCHEDULED ⇒ true), ghi qua MỘT hàm
+  /// (`statusFields` ở content-service) - mọi đường đọc công khai cũ (`published AND
+  /// publishedAt <= now()`) vì thế vẫn đúng nghĩa. Gỡ `published` sau một bản phát hành.
+  status       PostStatus        @default(DRAFT)
+  authorId     String?
+  author       User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  categoryId   String?
+  category     Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  /// Ghim lên đầu /blog (MODERATOR+). NULL = không ghim.
+  pinnedAt     DateTime?
+  /// Lý do trả về DRAFT của người duyệt - tác giả đọc ở trang sửa bài.
+  reviewNote   String?
+  revisions    PostRevision[]
+  statusEvents PostStatusEvent[]
+  viewsDaily   PostViewDaily[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 
   /// --- Xuất bản & lên lịch ---
   /// NGÀY HIỂN THỊ, do tác giả sửa được. `createdAt` giữ nguyên làm dấu vết audit
@@ -408,12 +422,72 @@ model Post {
 
   @@index([published, createdAt])
   @@index([published, publishedAt])
+  @@index([status, updatedAt])
+  @@index([categoryId])
   @@index([deletedAt])
   @@index([tags], type: Gin)
   // Index trigram trên cột đã chuẩn hoá - so khớp không dấu/gần đúng không quét
   // toàn bảng. `map` khớp tên index dựng tay trong migration để Prisma không báo lệch.
   @@index([searchTitleNorm(ops: raw("gin_trgm_ops"))], type: Gin, map: "Post_searchTitleNorm_trgm_idx")
   @@index([searchBodyNorm(ops: raw("gin_trgm_ops"))], type: Gin, map: "Post_searchBodyNorm_trgm_idx")
+}
+
+enum PostStatus {
+  DRAFT
+  PENDING
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+/// Chuyên mục blog (P2.1). Khác `tags`: một bài thuộc ĐÚNG MỘT chuyên mục, chuyên mục
+/// có thứ tự và hiện ở điều hướng; thẻ là nhãn tự do, nhiều.
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  posts     Post[]
+}
+
+/// Lịch sử nội dung CHỈ-THÊM: mỗi lần lưu bài ghi một dòng (tiêu đề + Markdown đầy đủ).
+/// `contentMd` của Post vẫn là nguồn sự thật duy nhất (D3); bảng này để so sánh/khôi phục.
+model PostRevision {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  title     String
+  contentMd String
+  editorId  String?
+  createdAt DateTime @default(now())
+
+  @@index([postId, createdAt])
+}
+
+/// Nhật ký chuyển trạng thái (ai, từ đâu, sang đâu, lý do) - CHỈ-THÊM.
+model PostStatusEvent {
+  id        String      @id @default(cuid())
+  postId    String
+  post      Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  from      PostStatus?
+  to        PostStatus
+  actorId   String?
+  note      String?
+  createdAt DateTime    @default(now())
+
+  @@index([postId, createdAt])
+}
+
+/// Lượt xem theo ngày (giờ Việt Nam) - đếm gộp, không lưu người xem.
+model PostViewDaily {
+  postId String
+  post   Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  day    DateTime @db.Date
+  count  Int      @default(0)
+
+  @@id([postId, day])
+  @@index([day])
 }
 
 model Doc {
