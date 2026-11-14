@@ -19,6 +19,10 @@ delete process.env.INTERNAL_API_TOKEN
 
 const request = require('supertest')
 const { prisma } = require('@tsudev/db')
+
+// P1.2 (14/11/2026): đường GHI của tác giả đòi TOTP đã xác nhận - tài khoản test
+// mang sẵn một TOTP để test ở đây vẫn đo đúng thứ nó định đo.
+const TOTP_ON = { secretEnc: 'test', confirmedAt: new Date() }
 const { signIdentity } = require('@tsudev/identity-token')
 const { app } = require('../src/index')
 
@@ -44,8 +48,14 @@ let a2Id: string
 const mkUser = (username: string, role: string) =>
   prisma.user.upsert({
     where: { username },
-    update: { role },
-    create: { username, email: `${username}@tsudev.local`, displayName: username, role },
+    update: { totp: { upsert: { create: TOTP_ON, update: TOTP_ON } }, role },
+    create: {
+      totp: { create: TOTP_ON },
+      username,
+      email: `${username}@tsudev.local`,
+      displayName: username,
+      role,
+    },
   })
 
 beforeAll(async () => {
@@ -79,6 +89,32 @@ describe('cổng vai trò', () => {
       .get('/api/author/posts')
       .set(await asUser(MEM))
     expect(res.status).toBe(403)
+  })
+
+  test('P1.2: AUTHOR chưa có TOTP ⇒ ĐỌC được, GHI bị 403 MFA_REQUIRED', async () => {
+    const NOTOTP = `test-author-nototp-${stamp}`
+    await prisma.user.create({
+      data: {
+        username: NOTOTP,
+        email: `${NOTOTP}@tsudev.local`,
+        role: 'AUTHOR',
+        emailVerifiedAt: new Date(),
+      },
+    })
+    try {
+      const read = await request(app)
+        .get('/api/author/posts')
+        .set(await asUser(NOTOTP))
+      expect(read.status).toBe(200)
+      const write = await request(app)
+        .post('/api/author/posts')
+        .set(await asUser(NOTOTP))
+        .send({ title: `Không được ghi ${stamp}`, contentMd: 'x' })
+      expect(write.status).toBe(403)
+      expect(write.body.code).toBe('MFA_REQUIRED')
+    } finally {
+      await prisma.user.deleteMany({ where: { username: NOTOTP } })
+    }
   })
 })
 

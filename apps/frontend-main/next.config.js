@@ -75,6 +75,15 @@ const nextConfig = {
             key: 'Strict-Transport-Security',
             value: 'max-age=63072000; includeSubDomains; preload',
           },
+          // P1.8 (14/11/2026): cách ly cửa sổ. Trang khác mở tsudev.com bằng
+          // window.open KHÔNG giữ được tham chiếu `window.opener` tới nó (chặn
+          // tabnabbing và rò trạng thái qua XS-Leaks). Đăng nhập OAuth đi bằng
+          // chuyển hướng toàn trang, không bằng cửa sổ bật - nên không vỡ gì.
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+          // Tài nguyên của tsudev.com chỉ được NHÚNG bởi chính hệ *.tsudev.com
+          // (logo, ảnh đại diện ở các site con). Site ngoài nhúng thì trình duyệt
+          // chặn - không ai dựng lại được giao diện tsudev bằng tài nguyên thật.
+          { key: 'Cross-Origin-Resource-Policy', value: 'same-site' },
           // CSP (Content-Security-Policy) đặt ở `proxy.ts` chứ không ở đây -
           // nó cần nonce mỗi request. Xem chú thích đầu proxy.ts.
         ],

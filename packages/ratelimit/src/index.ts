@@ -37,6 +37,20 @@ import type { NextFunction, Request, RequestHandler, Response } from 'express';
 type Bucket = { windowStart: number; count: number; prevCount: number };
 
 /**
+ * Kho đếm LƯU BỀN (G9, D8) - tuỳ chọn. Có `store` thì giới hạn chạy theo cửa sổ
+ * CỐ ĐỊNH: `hit` tăng bộ đếm của (khoá, đầu cửa sổ) một cách NGUYÊN TỬ và trả về
+ * giá trị SAU khi tăng. Kho ở RAM không sống qua khởi động lại và nhân ngưỡng
+ * theo số bản chạy; kho này thì có.
+ *
+ * Kho hỏng (DB mất kết nối) ⇒ FAIL-OPEN có log: một bộ giới hạn làm sập đăng
+ * nhập khi DB chập chờn là tự gây ra đúng thứ nó định chặn. Lớp chặn thứ hai
+ * (khoá tài khoản theo `failedLoginCount`, throttle `LoginAttempt`) vẫn đứng.
+ */
+export type RateLimitStore = {
+  hit(key: string, windowStart: Date): Promise<number>;
+};
+
+/**
  * Giới hạn số mục nhớ.
  *
  * Không có nó thì chính bộ giới hạn trở thành lỗ hổng: kẻ tấn công gửi request
@@ -68,11 +82,39 @@ export function createRateLimit(opts: {
    * khỏi mốc 200.
    */
   when?: (req: Request) => boolean;
+  /** Kho lưu bền - xem `RateLimitStore`. Không truyền ⇒ đếm trong RAM. */
+  store?: RateLimitStore;
 }): RequestHandler {
   const buckets = new Map<string, Bucket>();
+  const store = opts.store;
 
   return function rateLimit(req: Request, res: Response, next: NextFunction) {
     if (opts.when && !opts.when(req)) return next();
+
+    if (store) {
+      const now = Date.now();
+      const start = Math.floor(now / opts.windowMs) * opts.windowMs;
+      const key = `${opts.name}:${opts.keyOf ? opts.keyOf(req) : callerIp(req)}`;
+      store.hit(key, new Date(start)).then(
+        (count) => {
+          if (count > opts.max) {
+            const retryAfter = Math.ceil((start + opts.windowMs - now) / 1000);
+            res.setHeader('Retry-After', String(Math.max(1, retryAfter)));
+            res.status(429).json({ error: 'Quá nhiều yêu cầu, thử lại sau' });
+            return;
+          }
+          next();
+        },
+        (err: unknown) => {
+          console.error(
+            `[ratelimit] ${opts.name}: kho lưu bền hỏng, CHO QUA:`,
+            err instanceof Error ? err.message : err
+          );
+          next();
+        }
+      );
+      return;
+    }
 
     const now = Date.now();
     const key = opts.keyOf ? opts.keyOf(req) : callerIp(req);

@@ -17,6 +17,7 @@ import { prisma } from '@tsudev/db'
 import type { Prisma } from '@prisma/client'
 import {
   createAuthMiddleware,
+  hasConfirmedTotp,
   internalTokenMatches,
   issueStepUp,
   lookupUser,
@@ -27,6 +28,7 @@ import {
 import { parsePaging, pageMeta, ROLES } from '@tsudev/types'
 import type { Role } from '@tsudev/types'
 import { createRateLimit, identityKey, largePageRateLimit } from '@tsudev/ratelimit'
+import { postgresRateLimitStore } from './rateLimitStore'
 import { createHash, randomInt } from 'crypto'
 
 import {
@@ -34,7 +36,8 @@ import {
   hashPassword,
   verifyPassword,
   burnTiming,
-  isPasswordBreached,
+  breachStamp,
+  checkPasswordBreach,
 } from './password'
 import {
   issueToken,
@@ -139,10 +142,13 @@ const SENSITIVE = [
   '/api/identity/register',
   '/api/identity/verify-email',
   '/api/identity/reset-password',
+  '/api/identity/revoke-sessions',
   '/api/identity/confirm-email-change',
   '/api/identity/password/change',
   '/api/identity/totp/confirm',
   '/api/identity/totp/disable',
+  '/api/identity/totp/backup-codes',
+  '/api/identity/passkey/delete',
   '/api/identity/step-up',
   '/api/identity/verify/code/confirm',
   '/api/identity/verify/code/send',
@@ -156,6 +162,10 @@ app.use(
     windowMs: 60_000,
     max: Number(process.env.RATE_LIMIT_SENSITIVE_MAX) || 10,
     keyOf: identityKeyOrIp,
+    // LƯU BỀN (G9/D8): đây là tầng kẻ tấn công thắng bằng số lần thử - khởi động
+    // lại tiến trình không được phép trả lại cho chúng 10 lượt mới. Tầng chung ở
+    // trên vẫn ở RAM: nó đếm MỌI request, ghi DB cho từng cái là thành nguồn tải.
+    store: process.env.RATE_LIMIT_STORE === 'memory' ? undefined : postgresRateLimitStore,
   })
 )
 
@@ -166,6 +176,34 @@ const asyncHandler =
   }
 
 const str = (v: unknown, max = 400): string => (typeof v === 'string' ? v.slice(0, max) : '')
+
+/**
+ * P1.3 - step-up cho thao tác đổi "chìa khoá" của chính tài khoản (đổi email, đổi
+ * mật khẩu, tắt TOTP, xoá passkey, tạo lại mã dự phòng).
+ *
+ * CHỈ đòi khi tài khoản ĐÃ có TOTP xác nhận. Lý do (chốt 14/11/2026): token step-up
+ * chỉ phát được bằng mã TOTP (POST /step-up), nên đòi nó ở tài khoản chưa có TOTP
+ * là khoá họ khỏi chính việc đổi mật khẩu. Tài khoản chưa có TOTP vẫn bị đòi MẬT
+ * KHẨU HIỆN TẠI ở từng route - kẻ cầm cookie phiên bị đánh cắp không qua được.
+ * Tài khoản có TOTP thì thêm một lớp: cookie + mật khẩu lộ vẫn chưa đủ.
+ *
+ * Lỗi DB khi tra TOTP ⇒ 503, FAIL CLOSED.
+ */
+async function stepUpIfTotp(
+  req: Request,
+  res: Response,
+  user: { id: string; sessionVersion: number }
+): Promise<boolean> {
+  let has: boolean
+  try {
+    has = await hasConfirmedTotp(user.id)
+  } catch (e) {
+    console.error('[auth] stepUpIfTotp lỗi:', e instanceof Error ? e.message : e)
+    res.status(503).json({ error: 'Không kiểm tra được xác thực hai lớp' })
+    return false
+  }
+  return has ? requireStepUp(req, res, user) : true
+}
 
 /** Tên đăng nhập: chữ, số, gạch dưới, gạch ngang, chấm. Không phân biệt hoa thường. */
 const USERNAME_RE = /^[a-z0-9](?:[a-z0-9._-]{1,30})[a-z0-9]$/
@@ -191,8 +229,8 @@ app.post(
     }
     const pwProblem = checkPasswordPolicy(password)
     if (pwProblem) return res.status(400).json({ error: 'weak_password', detail: pwProblem })
-    if (await isPasswordBreached(password))
-      return res.status(400).json({ error: 'weak_password', detail: 'breached' })
+    const breach = await checkPasswordBreach(password)
+    if (breach) return res.status(400).json({ error: 'weak_password', detail: 'breached' })
 
     // Tên đăng nhập bị chiếm thì PHẢI nói thẳng - người dùng cần chọn tên khác,
     // và tên đăng nhập vốn công khai trên site nên không có gì để giấu.
@@ -220,6 +258,7 @@ app.post(
         email,
         displayName,
         passwordHash: await hashPassword(password),
+        ...breachStamp(breach),
         role: 'MEMBER',
       },
       select: { id: true, displayName: true },
@@ -321,6 +360,7 @@ app.post(
 
     await recordAttempt(ip, true)
     await recordLogin(user, req, 'password')
+    recheckBreachOnLogin(user, password)
     pruneAttempts().catch(() => {
       /* dọn rác hỏng không được làm hỏng đăng nhập */
     })
@@ -526,6 +566,25 @@ app.post(
 // ---------------------------------------------------------------------------
 // Quên / đặt lại mật khẩu
 // ---------------------------------------------------------------------------
+/**
+ * P1.5 - công khai: "Không phải tôi" từ thư cảnh báo thiết bị mới. Token
+ * SESSION_REVOKE dùng một lần ⇒ `sessionVersion++` (mọi phiên, kể cả của kẻ vừa
+ * đăng nhập, mất hiệu lực). Không cần phiên: người bấm có thể đang ở máy khác.
+ * Không lộ gì: token sai/hết hạn/đã dùng đều ra cùng một 400.
+ */
+app.post(
+  '/api/identity/revoke-sessions',
+  asyncHandler(async (req, res) => {
+    const userId = await consumeToken(str(req.body?.token, 200), 'SESSION_REVOKE')
+    if (!userId) return res.status(400).json({ error: 'invalid_token' })
+    await prisma.user.update({ where: { id: userId }, data: { sessionVersion: { increment: 1 } } })
+    logSecurity(userId, 'sessions_revoked', req, {
+      note: 'nút "Không phải tôi" trong thư cảnh báo',
+    })
+    return res.json({ ok: true })
+  })
+)
+
 app.post(
   '/api/identity/request-password-reset',
   asyncHandler(async (req, res) => {
@@ -562,8 +621,8 @@ app.post(
     const password = str(req.body?.password, 400)
     const pwProblem = checkPasswordPolicy(password)
     if (pwProblem) return res.status(400).json({ error: 'weak_password', detail: pwProblem })
-    if (await isPasswordBreached(password))
-      return res.status(400).json({ error: 'weak_password', detail: 'breached' })
+    const breach = await checkPasswordBreach(password)
+    if (breach) return res.status(400).json({ error: 'weak_password', detail: 'breached' })
 
     const userId = await consumeToken(str(req.body?.token, 200), 'PASSWORD_RESET')
     if (!userId) return res.status(400).json({ error: 'invalid_token' })
@@ -578,6 +637,7 @@ app.post(
       where: { id: userId },
       data: {
         passwordHash: await hashPassword(password),
+        ...breachStamp(breach),
         sessionVersion: { increment: 1 },
         failedLoginCount: 0,
         lockedUntil: null,
@@ -900,6 +960,7 @@ app.post(
   asyncHandler(async (req, res) => {
     const user = await lookupUser(req)
     if (!user) return res.status(401).json({ error: 'unauthenticated' })
+    if (!(await stepUpIfTotp(req, res, user))) return
 
     // Đổi email đòi mật khẩu hiện tại: cookie phiên bị đánh cắp không đủ để chiếm
     // đường khôi phục tài khoản. Cùng khuôn với totp/disable.
@@ -1002,6 +1063,35 @@ app.post(
 )
 
 /**
+ * P1.3: tạo lại mã dự phòng (mã cũ hết hiệu lực ngay). Đòi step-up - TOTP đã bật
+ * là điều kiện của route nên `stepUpIfTotp` ở đây luôn đòi token.
+ */
+app.post(
+  '/api/identity/totp/backup-codes',
+  asyncHandler(async (req, res) => {
+    const user = await lookupUser(req)
+    if (!user) return res.status(401).json({ error: 'unauthenticated' })
+    const row = await prisma.totpCredential.findUnique({ where: { userId: user.id } })
+    if (!row?.confirmedAt) return res.status(409).json({ error: 'totp_not_enabled' })
+    if (!(await stepUpIfTotp(req, res, user))) return
+
+    const codes = generateBackupCodes()
+    await prisma.$transaction([
+      prisma.backupCode.deleteMany({ where: { userId: user.id } }),
+      prisma.backupCode.createMany({
+        data: codes.map((c) => ({
+          userId: user.id,
+          codeHash: createHash('sha256').update(c).digest('hex'),
+        })),
+      }),
+    ])
+    logSecurity(user.id, 'backup_codes_regenerated', req)
+    sendAlert(user, 'Bộ mã dự phòng 2FA vừa được tạo lại - bộ cũ đã hết hiệu lực')
+    return res.json({ ok: true, backupCodes: codes })
+  })
+)
+
+/**
  * XÁC THỰC LẠI (step-up, G7): đổi một mã TOTP đúng lấy token sống 5 phút cho
  * thao tác nguy hiểm ở service khác (thu hồi/khôi phục/ký lại bản phát hành).
  *
@@ -1035,6 +1125,7 @@ app.post(
   asyncHandler(async (req, res) => {
     const user = await lookupUser(req)
     if (!user) return res.status(401).json({ error: 'unauthenticated' })
+    if (!(await stepUpIfTotp(req, res, user))) return
 
     const password = str(req.body?.password, 400)
     if (!user.passwordHash || !(await verifyPassword(user.passwordHash, password))) {
@@ -1166,6 +1257,7 @@ app.post(
   asyncHandler(async (req, res) => {
     const user = await lookupUser(req)
     if (!user) return res.status(401).json({ error: 'unauthenticated' })
+    if (!(await stepUpIfTotp(req, res, user))) return
     // deleteMany có ràng buộc userId: một id của người khác sẽ xoá 0 dòng thay
     // vì xoá khoá của họ. `delete` theo id trần là lỗ tham chiếu trực tiếp.
     const gone = await prisma.webAuthnCredential.deleteMany({
@@ -1281,6 +1373,7 @@ app.post(
   asyncHandler(async (req, res) => {
     const user = await lookupUser(req)
     if (!user) return res.status(401).json({ error: 'unauthenticated' })
+    if (!(await stepUpIfTotp(req, res, user))) return
 
     const current = str(req.body?.currentPassword, 400)
     const next = str(req.body?.newPassword, 400)
@@ -1297,13 +1390,14 @@ app.post(
 
     const problem = checkPasswordPolicy(next)
     if (problem) return res.status(400).json({ error: 'weak_password', detail: problem })
-    if (await isPasswordBreached(next))
-      return res.status(400).json({ error: 'weak_password', detail: 'breached' })
+    const breach = await checkPasswordBreach(next)
+    if (breach) return res.status(400).json({ error: 'weak_password', detail: 'breached' })
 
     const saved = await prisma.user.update({
       where: { id: user.id },
       data: {
         passwordHash: await hashPassword(next),
+        ...breachStamp(breach),
         sessionVersion: { increment: 1 },
         failedLoginCount: 0,
         lockedUntil: null,
@@ -1465,12 +1559,13 @@ function logSecurity(
 function sendAlert(
   user: { email: string; displayName: string | null; username: string },
   title: string,
-  context?: string
+  context?: string,
+  notMeUrl?: string
 ): void {
   sendMail(
     user.email,
     `Cảnh báo bảo mật: ${title}`,
-    securityAlertHtml(user.displayName || user.username, title, context),
+    securityAlertHtml(user.displayName || user.username, title, context, notMeUrl),
     'security_alert'
   ).catch((e) => console.error('[auth] sendAlert hỏng:', e instanceof Error ? e.message : e))
 }
@@ -1505,10 +1600,16 @@ async function alertIfNewDevice(
     const where = [cur.ip ? `IP: ${cur.ip}` : null, cur.country ? `Quốc gia: ${cur.country}` : null]
       .filter(Boolean)
       .join(' · ')
+    // P1.5: nút "Không phải tôi" - token dùng một lần, 7 ngày. Trang đích CHỈ
+    // tiêu thụ token khi người dùng BẤM nút (POST), không phải khi mở liên kết:
+    // trình quét thư tự mở mọi liên kết, và một GET tự thu hồi phiên sẽ đăng xuất
+    // chính chủ ở mỗi lần đăng nhập máy mới.
+    const revoke = await issueToken(user.id, 'SESSION_REVOKE')
     sendAlert(
       user,
       'Có đăng nhập mới từ thiết bị hoặc vị trí chưa từng thấy',
-      [deviceLabel(cur.userAgent), where].filter(Boolean).join(' · ')
+      [deviceLabel(cur.userAgent), where].filter(Boolean).join(' · '),
+      `${siteUrl()}/revoke-sessions?token=${revoke.raw}`
     )
     // Ghi lại chính lượt cảnh báo này. Hai công dụng, và cái thứ hai mới là lý do
     // chính: nó đưa thiết bị vừa báo vào tập "đã thấy", nên một thiết bị mới chỉ
@@ -1517,6 +1618,31 @@ async function alertIfNewDevice(
   } catch (e) {
     console.error('[auth] alertIfNewDevice hỏng:', e instanceof Error ? e.message : e)
   }
+}
+
+/**
+ * P1.4: đối chiếu lại mật khẩu với HIBP lúc đăng nhập bằng mật khẩu, khi lần kiểm
+ * trước đã quá 30 ngày (hoặc chưa từng). Đây là chỗ DUY NHẤT thấy được mật khẩu
+ * của tài khoản cũ - mật khẩu đặt trước khi có kiểm HIBP, hoặc lộ SAU khi đặt.
+ *
+ * Fire-and-forget: KHÔNG chặn đăng nhập (lộ thì thẻ "Mức an toàn" nhắc đổi), và
+ * HIBP không trả lời thì không ghi gì - lần sau thử lại.
+ */
+const BREACH_RECHECK_MS = 30 * 24 * 60 * 60 * 1000
+function recheckBreachOnLogin(
+  user: { id: string; passwordCheckedAt?: Date | null },
+  password: string
+): void {
+  const last = user.passwordCheckedAt?.getTime() ?? 0
+  if (Date.now() - last < BREACH_RECHECK_MS) return
+  checkPasswordBreach(password)
+    .then((r) => {
+      if (r === null) return
+      return prisma.user.update({ where: { id: user.id }, data: breachStamp(r) }).then(() => {
+        if (r) console.warn(`[auth] mật khẩu của ${user.id} nằm trong kho rò rỉ HIBP`)
+      })
+    })
+    .catch((e) => console.error('[auth] kiểm lại HIBP hỏng:', e instanceof Error ? e.message : e))
 }
 
 /**
@@ -1618,6 +1744,40 @@ const SECURITY_EVENT_SELECT = {
   note: true,
   createdAt: true,
 } as const
+
+/**
+ * P1.1 - "Mức an toàn" của chính tài khoản: SỰ KIỆN THÔ, không phải chữ hiển thị
+ * (nhãn, nút "làm ngay" nằm ở trang). Mỗi mục là một thứ đo được trong DB, không
+ * suy đoán: `password.breached` chỉ có nghĩa khi `checkedAt` khác null - HIBP
+ * không trả lời thì không có kết luận, và trang phải nói "chưa rõ".
+ */
+app.post(
+  '/api/identity/security/posture',
+  asyncHandler(async (req, res) => {
+    const user = await lookupUser(req)
+    if (!user) return res.status(401).json({ error: 'unauthenticated' })
+    const [totp, passkeys, backupLeft] = await Promise.all([
+      prisma.totpCredential.findUnique({
+        where: { userId: user.id },
+        select: { confirmedAt: true },
+      }),
+      prisma.webAuthnCredential.count({ where: { userId: user.id } }),
+      prisma.backupCode.count({ where: { userId: user.id, usedAt: null } }),
+    ])
+    const totpOn = Boolean(totp?.confirmedAt)
+    return res.json({
+      emailVerified: Boolean(user.emailVerifiedAt),
+      totp: totpOn,
+      passkeys,
+      backupCodesRemaining: totpOn ? backupLeft : null,
+      password: {
+        set: Boolean(user.passwordHash),
+        checkedAt: user.passwordCheckedAt ? user.passwordCheckedAt.toISOString() : null,
+        breached: user.passwordCheckedAt ? user.passwordBreached : null,
+      },
+    })
+  })
+)
 
 /** Chính chủ: đăng xuất khỏi MỌI thiết bị. Tăng sessionVersion - mọi token đã
  *  phát (kể cả phiên đang gọi) mất hiệu lực. Client phải làm mới phiên sau đó. */
@@ -1958,8 +2118,8 @@ app.post(
     if (!isAssignableRole(role)) return res.status(400).json({ error: 'invalid_role' })
     const pwProblem = checkPasswordPolicy(password)
     if (pwProblem) return res.status(400).json({ error: 'weak_password', detail: pwProblem })
-    if (await isPasswordBreached(password))
-      return res.status(400).json({ error: 'weak_password', detail: 'breached' })
+    const breach = await checkPasswordBreach(password)
+    if (breach) return res.status(400).json({ error: 'weak_password', detail: 'breached' })
 
     // Công cụ quản trị nội bộ: nói thẳng khi trùng. Khác form đăng ký công khai
     // (nơi trùng email bị giấu để không thành máy dò tài khoản) - ở đây chỉ OWNER
@@ -1977,6 +2137,7 @@ app.post(
         email,
         displayName,
         passwordHash: await hashPassword(password),
+        ...breachStamp(breach),
         role,
         emailVerifiedAt: new Date(),
       },

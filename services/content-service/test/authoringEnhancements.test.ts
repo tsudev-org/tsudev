@@ -13,6 +13,10 @@ delete process.env.INTERNAL_API_TOKEN
 
 const request = require('supertest')
 const { prisma } = require('@tsudev/db')
+
+// P1.2 (14/11/2026): đường GHI của tác giả đòi TOTP đã xác nhận - tài khoản test
+// mang sẵn một TOTP để test ở đây vẫn đo đúng thứ nó định đo.
+const TOTP_ON = { secretEnc: 'test', confirmedAt: new Date() }
 const { signIdentity } = require('@tsudev/identity-token')
 const search = require('@tsudev/search')
 const { app } = require('../src/index')
@@ -28,8 +32,13 @@ let authorId: string
 beforeAll(async () => {
   const u = await prisma.user.upsert({
     where: { username: AUTHOR },
-    update: { role: 'AUTHOR', emailVerifiedAt: new Date() },
+    update: {
+      totp: { upsert: { create: TOTP_ON, update: TOTP_ON } },
+      role: 'AUTHOR',
+      emailVerifiedAt: new Date(),
+    },
     create: {
+      totp: { create: TOTP_ON },
       username: AUTHOR,
       email: `${AUTHOR}@tsudev.local`,
       displayName: AUTHOR,

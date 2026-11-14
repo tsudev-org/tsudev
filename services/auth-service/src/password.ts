@@ -98,12 +98,47 @@ const defaultFetchRange: RangeFetcher = async (prefix5) => {
   try {
     // `Add-Padding` làm mọi phản hồi có kích thước tương tự - chống suy đoán qua
     // độ dài lưu lượng.
-    const res = await fetch(`${HIBP_RANGE_URL}${prefix5}`, { headers: { 'Add-Padding': 'true' } })
-    if (!res.ok) return null
+    const res = await fetch(`${HIBP_RANGE_URL}${prefix5}`, {
+      headers: { 'Add-Padding': 'true' },
+      signal: AbortSignal.timeout(4000),
+    })
+    if (!res.ok) {
+      console.warn(`[auth] HIBP trả ${res.status} - bỏ qua kiểm mật khẩu lộ (fail-open, D7)`)
+      return null
+    }
     return await res.text()
-  } catch {
+  } catch (e) {
+    // D7: fail-open CÓ LOG - đếm dòng này trong log là ra tỉ lệ bỏ qua.
+    console.warn(
+      '[auth] HIBP không trả lời - bỏ qua kiểm mật khẩu lộ (fail-open, D7):',
+      e instanceof Error ? e.message : e
+    )
     return null
   }
+}
+
+/**
+ * Như `isPasswordBreached` nhưng giữ được câu trả lời THỨ BA: `null` = HIBP không
+ * trả lời, KHÔNG BIẾT. Nơi lưu kết quả (`User.passwordCheckedAt`, thẻ "Mức an
+ * toàn") phải phân biệt "đã kiểm, sạch" với "chưa kiểm được" - gộp hai thứ đó là
+ * để fail-open giả làm một lời xác nhận an toàn.
+ */
+export async function checkPasswordBreach(
+  pw: string,
+  fetchRange: RangeFetcher = defaultFetchRange
+): Promise<boolean | null> {
+  const sha1 = sha1Upper(pw)
+  const body = await fetchRange(sha1.slice(0, 5))
+  if (body == null) return null
+  return breachCountFromRange(sha1, body) > 0
+}
+
+/** Trường ghi kèm mật khẩu mới: chỉ ghi khi HIBP thật sự trả lời. */
+export function breachStamp(result: boolean | null): {
+  passwordCheckedAt?: Date
+  passwordBreached?: boolean
+} {
+  return result === null ? {} : { passwordCheckedAt: new Date(), passwordBreached: result }
 }
 
 /**
@@ -119,10 +154,7 @@ export async function isPasswordBreached(
   pw: string,
   fetchRange: RangeFetcher = defaultFetchRange
 ): Promise<boolean> {
-  const sha1 = sha1Upper(pw)
-  const body = await fetchRange(sha1.slice(0, 5))
-  if (body == null) return false
-  return breachCountFromRange(sha1, body) > 0
+  return (await checkPasswordBreach(pw, fetchRange)) === true
 }
 
 /**

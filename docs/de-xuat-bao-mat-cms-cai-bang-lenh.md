@@ -49,6 +49,27 @@ Mỗi dòng ≈ một PR. ⛔ = chạm vùng bảo vệ, cần chủ sở hữu 
 | P1.8 | **Header HTTP**: đo `curl -sI https://tsudev.com` rồi bổ sung phần còn thiếu trong `COOP same-origin`, `CORP same-site`, `Permissions-Policy` tối thiểu, HSTS `preload`; test quét nguồn canh                                                                | frontend-web                         | test + curl                                                   |
 | P1.9 | **G12**: script sao lưu DB mã hoá bằng `age` (khoá công khai trong repo, khoá riêng chủ dự án giữ). **G11**: hướng dẫn sao lưu khoá ký ngoại tuyến                                                                                                           | infra                                | giải mã thử thành công một bản dump                           |
 
+**Lựa chọn kỹ thuật phát sinh khi làm P1 (phiên 53, 14/11/2026)** - đo hiện trạng trước: HIBP (đăng ký/đặt
+lại/đổi), cảnh báo thiết bị mới (`device.ts`) và step-up (`/step-up`, dùng ở useradmin) ĐÃ CÓ từ phiên 36; P1 chỉ
+làm phần còn thiếu.
+
+- P1.3: step-up CHỈ đòi khi tài khoản ĐÃ có TOTP xác nhận. Token step-up chỉ phát được bằng mã TOTP, đòi nó ở
+  tài khoản chưa có TOTP là khoá họ khỏi đổi mật khẩu; các route đó vẫn đòi mật khẩu hiện tại. Thêm route
+  `totp/backup-codes` (tạo lại mã dự phòng - trước đây không có).
+- P1.4: `checkPasswordBreach` ba trạng thái (`null` = HIBP không trả lời); chỉ ghi `passwordCheckedAt` khi có
+  câu trả lời thật. Kiểm lại lúc đăng nhập mật khẩu nếu lần kiểm trước > 30 ngày (chỗ duy nhất thấy được mật
+  khẩu của tài khoản cũ). HIBP timeout 4 giây.
+- P1.5: nút "Không phải tôi" trỏ `/revoke-sessions?token=` - trang CHỈ thu hồi khi người dùng BẤM (POST), không
+  khi mở liên kết (trình quét thư mở trước mọi liên kết). Bác: GET tự thu hồi.
+- P1.6: bộ đếm Postgres CHỈ cho tầng NHẠY CẢM (mật khẩu, mã 6 số, token, đăng ký). Tầng chung đếm mọi request
+  vẫn ở RAM - ghi DB mỗi request là thành nguồn tải và giữ Neon thức. Kho hỏng ⇒ fail-open có log. Dọn rác ở
+  đường ghi (lượt đầu mỗi cửa sổ), không cron. `RATE_LIMIT_STORE=memory` để tắt khi cần.
+- P1.7: thiếu `TURNSTILE_SECRET_KEY` ở production KHÔNG làm backend từ chối khởi động cho tới khi chủ dự án
+  đặt khoá (từ chối ngay hôm nay = sập site vì việc 👤 chưa làm); thay vào đó log lỗi mỗi lần khởi động. Bật
+  cứng bằng `TURNSTILE_REQUIRED=1` sau khi đặt khoá.
+- P1.8: đo 14/11 - HSTS preload, nosniff, DENY, Referrer, Permissions-Policy đã có; thêm COOP `same-origin` +
+  CORP `same-site`.
+
 👤 Chủ dự án: tạo widget Turnstile (hoặc cấp token API có quyền Turnstile) + đặt `TURNSTILE_SECRET_KEY` ở Render; bật
 WAF Managed Rules (gói free) + 1 rate-limit rule cho `/api/auth/*` ở dashboard Cloudflare; đặt `VIRUSTOTAL_API_KEY`,
 `RELEASE_INTEGRITY_TOKEN` (G4, G5 - còn treo từ 06/11).

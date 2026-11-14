@@ -1975,6 +1975,11 @@ async function requireVerifiedAuthor(req: Request, res: Response): Promise<User 
     res.status(403).json({ error: 'email_unverified' })
     return null
   }
+  // P1.2: từ AUTHOR trở lên, đường GHI đòi TOTP đã xác nhận (trước 14/11/2026 chỉ
+  // ADMIN). Một tài khoản đăng bài bị chiếm bằng mật khẩu lộ là trang công khai
+  // của tsudev.com bị viết hộ. Đường ĐỌC (xem nháp của mình) không chặn - để trang
+  // /author vẫn mở được và chỉ đường bật 2FA. 403 `MFA_REQUIRED`, lỗi DB ⇒ 503.
+  if (!(await requireSecondFactor(me, res))) return null
   return me
 }
 
