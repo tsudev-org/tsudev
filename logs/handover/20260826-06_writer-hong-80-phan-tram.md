@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20260826-06
 - **Từ**: phiên 28 (`backend-api` + `qa-test`) - **Đến**: chủ dự án / phiên 29
 - **Thời điểm**: 21:45 26/08/2026
-- **Trạng thái**: MỞ - chờ phát hành và một phép đo sau phát hành
+- **Trạng thái**: ĐÓNG - writer thuộc Toà soạn - Toà soạn đã gỡ 29/10/2026, Con dấu đã gỡ 04/11/2026 (đối soát phiên 53, 14/11/2026)
 - **Nhánh git**: `fix/newsroom-writer-chan-doan` (tách từ `main` = `e0c3c90`, không migration)
 
 ## 1. Việc đã làm xong

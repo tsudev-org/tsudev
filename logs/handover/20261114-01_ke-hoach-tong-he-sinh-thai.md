@@ -60,3 +60,24 @@ thái. Mỗi repo: kiểm từng phiếu với mã + production ⇒ ĐÓNG kèm 
 4. Nộp đơn SignPath Foundation cho `tsudev-org` (D5).
 5. PAT `WINGET_TOKEN` (`public_repo`) đặt làm secret ở các repo app cần winget.
 6. Giữ khoá riêng `age` cho bản sao lưu DB (P1.9) và bản sao khoá ký ngoại tuyến (G11).
+7. (chuyển từ phiếu tsudev 20261106-02, chưa có xác nhận đã làm) T18 xoá fork `tsudev-tsudev/winget-pkgs` và
+   `mieubathuong/mieubathuong`; T20 thu hồi PAT GitHub lộ trong `xanuicam/ubnd`; T21 dismiss các cảnh báo CodeQL
+   báo nhầm (#6, #43, #52, #56-#59).
+8. (phiên 53 tsudev, 14/11/2026) **DATABASE_URL Neon cho agent**: máy dev không có URL production, `neonctl` hay
+   Render CLI - migration P1 (#257, chỉ THÊM) không lên Neon được, nên #257 chưa merge (Render tự deploy `main`,
+   `migrationGate` sẽ làm cả site trống). Chủ dự án chạy trong phiên tsudev:
+   `! cd ~/projects/tsudev && read -rsp 'URL Neon: ' U && echo && /usr/lib/postgresql/18/bin/pg_dump --format=custom --no-owner --dbname="$U" -f ~/tsudev-backups/truoc-p1-$(date +%Y%m%d).dump && DATABASE_URL="$U" npm run db:migrate`
+   (hoặc cho agent một cách đọc URL lâu dài, ví dụ tệp `~/.config/tsudev/neon-url` quyền 600).
+9. (phiên 53) **Cloudflare zone `tsudev.com` - tắt Bot Fight Mode / JavaScript Detections, hoặc chấp nhận**: quét
+   production 14/11 cho thấy 6 site con (trafficmonitor, cwico, swico, files, lotus, contact) cùng lỗi console
+   "inline script vi phạm CSP `script-src 'self'`". Script đó do Cloudflare TỰ CHÈN ở tầng biên
+   (`/cdn-cgi/challenge-platform`), không phải mã của repo nào - tsudev.com không dính vì CSP có nonce mà Cloudflare
+   gắn vào script của nó. Site tĩnh không phát nonce được ⇒ chỉ có hai đường: tắt tính năng ở dashboard (Security →
+   Bots) hoặc chấp nhận lỗi console (script bị chặn, chỉ mất tín hiệu chống bot). Phiếu 20261113-07 của 6 repo KHÔNG
+   cần sửa mã cho lỗi này.
+10. (phiên 53) `age` chưa cài trên máy dev (agent bị chặn cài binary): `sudo apt install age`, tạo cặp khoá, thêm khoá
+    công khai vào `infrastructure/sao-luu/age-recipients.txt` (#259), diễn tập `bash scripts/sao-luu-db.sh --kiem`.
+11. (phiên 53) Turnstile (#258): tạo widget cho `tsudev.com`, đặt `TURNSTILE_SECRET_KEY` ở Render + `TURNSTILE_SITE_KEY`
+    ở Worker; chạy ổn rồi đặt `TURNSTILE_REQUIRED=1` (`docs/auth.md` §7).
+12. (phiên 53) Duyệt ⛔: #252 (chân trang), #261 (C2 install nhiều gói). GitGuardian báo 2 chuỗi fixture test ở #257
+    (mật khẩu test, đã allowlist trong gitleaks) - đánh dấu "test credential" trên dashboard GitGuardian.

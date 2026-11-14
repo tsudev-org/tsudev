@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261106-02
 - **Từ**: phiên 36 (05-06/11/2026) - **Đến**: phiên 37 + chủ dự án
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG - chuyển org xong 09/11; Express 5 xong; minimatch xong #220; T18/T20/T21 chuyển kế hoạch tổng mục 4 (đối soát phiên 53, 14/11/2026)
 - **Thay phiếu**: [`20261105-06`](20261105-06_ket-phien-36-icon-a4.md) - ĐÃ ĐÓNG. (Phiếu nháp `20261106-01` ở PR #150 không merge - nội dung đã gộp vào đây.)
 
 ## 0. Trạng thái (đo, không suy)

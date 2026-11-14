@@ -1,5 +1,14 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 54 BẮT ĐẦU Ở ĐÂY** (cuối phiên 53, 14/11/2026). Phiếu:
+> [`20261114-02`](handover/20261114-02_phien-53-p0-p1-bao-mat-tai-khoan.md) mục 3.
+>
+> ✅ Merge + production: #256 E2E làm ấm, #258 Turnstile (Worker `83c2dcce`), #259 sao lưu age, #260 cổng C4, #262
+> gốc verifyCode chập chờn. 21 phiếu tồn ĐÓNG.
+> ⏳ Code xong, CHỜ chủ dự án đưa 3 migration lên Neon (agent không có URL - kế hoạch tổng 4.8): #257 P1 bảo mật tài
+> khoản, #264 P2 CMS (Tiptap 3), #265 P4 OIDC (xếp chồng: #265 chứa cả hai). KHÔNG merge trước khi migrate.
+> ⛔ #252, #261. 📨 tsudev-standards#52 (đề xuất mẫu menu/chân trang/khối Cài bằng lệnh).
+
 > **Phiên 53 BẮT ĐẦU Ở ĐÂY** (cuối phiên 52, 13/11/2026). Phiếu:
 > [`20261113-08`](handover/20261113-08_phien-52-menu-tai-khoan-ra-quet-giao-dien.md).
 >

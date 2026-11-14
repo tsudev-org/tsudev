@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20260822-03
 - **Từ**: phiên 17 (22/08/2026) - **Đến**: các phiên/agent sau
 - **Thời điểm**: 18:45 22/08/2026
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG - Phase A ship phiên 18; B1 xong (Next 16.4.5, Express 5.2.1); trust-service thuộc Con dấu - Toà soạn đã gỡ 29/10/2026, Con dấu đã gỡ 04/11/2026 (đối soát phiên 53, 14/11/2026)
 
 > Hàng đợi việc cho các phiên sau. Phase A (A1·A2·A3) đã XONG trong phiên 17
 > nhưng CHƯA phát hành. Còn B1 (đợt major, cần chủ dự án mở) + C1 (tuỳ chọn) +
