@@ -2,7 +2,33 @@
 
 - **Mã phiếu**: 20261114-02
 - **Phiên**: phiên 53, 14/11/2026
-- **Trạng thái**: MỞ - P1, P2, P4 code xong + test xanh ở PR; CẢ BA chờ migration Neon (👤 mục 4.8 kế hoạch tổng)
+- **Trạng thái**: ĐÓNG phần code (P0-P5 của tsudev) - còn lại chỉ việc 👤/⛔ ở mục 0
+
+## 0. Kết thúc phiên 53 (14/11/2026, tối)
+
+Chủ dự án đưa 3 migration lên Neon (30/30). Sau đó:
+
+| Việc                                                                                                                        | PR                   | Production                       |
+| --------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------------------- |
+| P1 + P2 + P4 (gồm #257, #264)                                                                                               | #265 merge `11fc581` | Render deploy; Worker `e7da5649` |
+| React #418 ở trang ISR (thời gian tương đối tính lúc dựng), h1 /settings khi chưa đăng nhập, glob 14.0.3, TOCTOU CodeQL #99 | #266 merge `c6ab65c` | Worker `32054f3c`                |
+
+Nghiệm thu: COOP `same-origin` + CORP `same-site` có trên tsudev.com; `/oidc/.well-known/openid-configuration`
+qua Worker trả 503 `thiếu OIDC_SIGNING_JWK` (đúng thiết kế); `/blog` còn đúng 1 bài như trước (điền ngược trạng
+thái không làm mất bài); quét giao diện 7 trang × 4 tổ hợp = 28/28 OK; bundle Worker 6970→6971 KiB sau glob 14
+(minify vẫn chạy). GitHub: 0 cảnh báo code scanning/Dependabot/secret scanning mở (6 rate-limit báo nhầm + Scorecard
+#76 deepmerge chưa có bản vá: dismiss kèm lý do).
+
+🪤 **Override npm**: giá trị đích PHẢI nằm trong dải khoá (`"glob@>=9 <=14.0.3": "14.0.3"`). Dải `<14` → 14.0.3 thì
+npm 11 vẫn sinh lock, nhưng `npm ci` của npm 10 (CI) báo "Missing glob@13/10 from lock file". Thử trước bằng
+`npm ci --dry-run --ignore-scripts` (npm 10 cục bộ). KHÔNG sinh lock bằng npm 10: nó bỏ override và xoá 50 `libc`.
+
+🪤 Đo deploy backend: `/api/*` của backend đòi `x-internal-token` với truy cập trực tiếp ⇒ luôn 401; đo bằng `/oidc`
+(cũ 404, mới 503) hoặc `/health`.
+
+**Việc 👤/⛔ còn lại**: `OIDC_SIGNING_JWK` (Render), Turnstile (widget + 2 khoá), `age` + khoá sao lưu, chọn tắt
+Bot Fight Mode/JS Detections cho zone, duyệt ⛔ #252 #261, đánh dấu 2 sự cố GitGuardian là mật khẩu test, T18/T20,
+kiểm gõ tiếng Việt 2 bộ gõ. C6 chờ `linux-packages` dựng lại kho (catalog vẫn 2.4.0-vn.1 lúc 14/11 tối).
 
 ## 1. Đã làm
 
