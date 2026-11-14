@@ -2483,6 +2483,16 @@ async function readCategoryId(raw: unknown): Promise<string | null | false | und
   return found ? found.id : false
 }
 
+/** Chuyên mục cho trang soạn - cùng dữ liệu với /api/posts/categories, qua proxy author/*. */
+app.get(
+  '/api/author/categories',
+  asyncHandler(async (req, res) => {
+    if (!(await requireAuthor(req, res))) return
+    const rows = await prisma.category.findMany({ orderBy: [{ position: 'asc' }, { name: 'asc' }] })
+    res.json(rows.map((c) => ({ id: c.id, slug: c.slug, name: c.name, position: c.position })))
+  })
+)
+
 /** P2.2: chuyển trạng thái bài CỦA CHÍNH MÌNH (gửi duyệt, rút, lưu trữ, khôi phục). */
 app.post(
   '/api/author/posts/:slug/transition',

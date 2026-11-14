@@ -87,6 +87,22 @@ Thứ tự bắt buộc: migration lên Neon TRƯỚC (kèm `pg_dump` 18), merge
 | P2.4 | `/admin/categories`, gộp thẻ trùng; ADR chọn Tiptap (`docs/adr/`); kiểm gõ tiếng Việt thủ công với 2 bộ gõ (ghi kết quả vào ADR)                                                                                                                                                                                                                                                                                                                                                                             |
 | P2.5 | **Góp ý & báo lỗi (D2)**: model `Feedback(appId, kind BUG\|IDEA, title, body, status RECEIVED\|IN_PROGRESS\|DONE\|REJECTED, reply, userId, approvedAt)`; trang `/apps/[id]/gop-y` (đối chiếu `docs/url-convention.md`), `/admin/feedback`; Turnstile + P1.6                                                                                                                                                                                                                                                  |
 
+**Lựa chọn kỹ thuật phát sinh khi làm P2 (phiên 53)**:
+
+- `published` GIỮ làm cột suy ra từ `status` (`statusFields` ở `postWorkflow.ts` là chỗ DUY NHẤT ghi nó) - 52 chỗ
+  đọc công khai cũ giữ đúng nghĩa mà không sửa. SCHEDULED quá giờ = PUBLISHED suy lúc đọc (`effectiveStatus`),
+  không cron.
+- Tác giả sửa tiêu đề/nội dung bài đang công khai ⇒ về PENDING (chặn "được duyệt rồi tráo nội dung"; không có bản
+  nháp tách riêng vì D3). Trang soạn chỉ TỰ LƯU bản nháp, bài đã đăng chỉ lưu khi bấm.
+- Trang soạn cũ gửi `published` vẫn chạy: ánh xạ sang chuyển trạng thái đúng quyền (AUTHOR ⇒ gửi duyệt).
+- Route kiểm duyệt nằm dưới `/api/admin/*` nhưng ngưỡng MODERATOR, khai TƯỜNG MINH ở `MODERATOR_ROUTES` của
+  `test/adminMfaGate.test.ts` (route admin mới mặc định vẫn bị đòi ADMIN).
+- **Lượt xem (`PostViewDaily`)**: bảng có, CHƯA ghi. Ghi DB mỗi lượt xem trang công khai giữ Neon thức liên tục
+  (hạn mức giờ tính toán gói free, `docs/free-tier.md`). Bật khi có cách gộp (đếm ở Worker/KV rồi đẩy theo lô);
+  thẻ tổng quan /author chưa có số lượt xem.
+- Trang mới: `/author/posts/[slug]` (`new` = bài mới), `/author/posts/[slug]/history`, `/admin/review`. Giữ
+  `/author` cũ làm danh sách (thêm nhãn trạng thái + nút "Viết bài mới"); bảng DATA_TABLE đầy đủ là bước sau.
+
 Nghiệm thu P2: unit cho máy trạng thái (mọi cạnh cấm ⇒ 409); E2E: AUTHOR viết → gửi duyệt → MODERATOR duyệt → bài hiện
 trên `/blog` sau revalidate; ISR vẫn 200 khi tắt backend; công cụ quét giao diện ra OK trên các trang mới.
 
