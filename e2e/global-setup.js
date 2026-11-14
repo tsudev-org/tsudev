@@ -36,8 +36,21 @@ const PATHS = [
   '/settings/profile',
   '/settings/security',
   '/author',
+];
+
+// Route proxy BFF mà trang gọi SAU khi đăng nhập - mỗi tệp `pages/api/*` cũng
+// biên dịch nguội ở lần gọi đầu. Gọi trần (chưa đăng nhập) chỉ cần nó dựng
+// xong; 401/404/405 đều được.
+const API = [
   '/api/auth/session',
   '/api/auth/providers',
+  '/api/auth/csrf',
+  '/api/account/session',
+  '/api/content/projects',
+  '/api/identity/health',
+  '/api/storage/health',
+  '/api/search?q=a',
+  '/api/releases/jwks',
 ];
 
 const warm = async (page, path) => {
@@ -59,6 +72,13 @@ module.exports = async () => {
   const page = await browser.newPage({ ignoreHTTPSErrors: true });
   const lines = [];
   for (const path of PATHS) lines.push(await warm(page, path));
+  for (const path of API) {
+    const started = Date.now();
+    const res = await page.request.get(`${MAIN}${path}`, { timeout: 120 * 1000 }).catch((e) => e);
+    lines.push(
+      `${path} ${res.status ? res.status() : `LỖI ${res.message}`} ${Date.now() - started}ms`
+    );
+  }
   await browser.close();
   console.log(`[làm ấm] ${Date.now() - started}ms\n  ${lines.join('\n  ')}`);
 };
