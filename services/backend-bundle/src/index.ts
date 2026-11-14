@@ -64,7 +64,9 @@ const SERVICES = [
     // '/api/identity', KHÔNG phải '/api/auth': '/api/auth/*' là vùng của
     // NextAuth ở apps/frontend-main. Hai thứ trùng tên nằm ở hai tầng khác nhau
     // là cách chắc chắn để một ngày nào đó gọi nhầm tầng.
-    prefixes: ['/api/identity'],
+    // '/oidc' (P4): nhà cung cấp OpenID Connect - giao thức công khai cho site con,
+    // ngoài '/api' nên không qua cổng INTERNAL_API_TOKEN. Thiếu ở đây ⇒ 404 ở production.
+    prefixes: ['/api/identity', '/oidc'],
   },
 ]
 

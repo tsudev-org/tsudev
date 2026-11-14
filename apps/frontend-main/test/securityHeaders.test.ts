@@ -1,6 +1,9 @@
 // P1.8: header bảo mật đặt ở next.config.js `headers()`. Test quét CẤU HÌNH chứ
 // không gọi HTTP: dev/E2E chạy http://localhost nên không bộ test nào thấy được
 // header như production (CLAUDE.md, bài học "lỗi chỉ tồn tại trên HTTPS").
+// Giữ tệp là MODULE: thiếu dòng này thì `config` đụng tên với tệp test khác (TS2451).
+export {};
+
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const config = require('../next.config.js');
 

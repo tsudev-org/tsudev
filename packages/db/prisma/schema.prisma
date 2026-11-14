@@ -792,3 +792,36 @@ model ProjectRelease {
   @@index([deletedAt])
   @@index([securityState])
 }
+
+/// P4 OIDC (quyết định D1): trạng thái của `oidc-provider` (phiên, grant, mã ủy
+/// quyền, refresh token, interaction...) - adapter ở auth-service/src/oidc.ts.
+/// Một bảng cho mọi loại, khoá (type, id), đúng hình dạng adapter của thư viện.
+model OidcPayload {
+  type       String
+  id         String
+  payload    Json
+  grantId    String?
+  userCode   String?
+  uid        String?
+  expiresAt  DateTime?
+  consumedAt DateTime?
+
+  @@id([type, id])
+  @@index([grantId])
+  @@index([uid])
+  @@index([expiresAt])
+}
+
+/// Site con đăng ký đăng nhập bằng tài khoản tsudev (P4). Chỉ client CÔNG KHAI:
+/// Authorization Code + PKCE S256, không client secret, redirect URI khớp TUYỆT ĐỐI.
+/// Tạo bằng seed/OWNER - không có đường tự đăng ký (dynamic registration TẮT).
+model OAuthClient {
+  id                     String    @id
+  name                   String
+  redirectUris           String[]
+  postLogoutRedirectUris String[]  @default([])
+  /// Phạm vi được phép xin, ngoài `openid`.
+  scopes                 String[]  @default(["profile", "email"])
+  createdAt              DateTime  @default(now())
+  disabledAt             DateTime?
+}

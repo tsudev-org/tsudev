@@ -42,7 +42,21 @@ const nextConfig = {
   },
 
   async rewrites() {
-    return [{ source: '/.well-known/tsudev-release-jwks.json', destination: '/api/releases/jwks' }];
+    return {
+      // P4 OIDC: nút "Cho phép/Từ chối" của trang đồng ý gửi tới đường DƯỚI
+      // `/oidc/interaction/<uid>` để trình duyệt kèm cookie `_interaction` (provider gắn
+      // nó đúng đường dẫn đó). Phải đứng TRƯỚC luật `/oidc/:path*` bên dưới.
+      beforeFiles: [
+        { source: '/oidc/interaction/:uid/confirm', destination: '/api/oidc-consent?uid=:uid' },
+      ],
+      afterFiles: [
+        { source: '/.well-known/tsudev-release-jwks.json', destination: '/api/releases/jwks' },
+        // issuer https://tsudev.com/oidc → route proxy (đọc địa chỉ service lúc chạy).
+        // afterFiles: trang `/oidc/interaction/[uid]` có thật nên KHÔNG bị luật này nuốt.
+        { source: '/oidc/:path*', destination: '/api/oidc/:path*' },
+      ],
+      fallback: [],
+    };
   },
 
   // Header bảo mật cho MỌI phản hồi.

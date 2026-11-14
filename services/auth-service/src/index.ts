@@ -29,6 +29,7 @@ import { parsePaging, pageMeta, ROLES } from '@tsudev/types'
 import type { Role } from '@tsudev/types'
 import { createRateLimit, identityKey, largePageRateLimit } from '@tsudev/ratelimit'
 import { postgresRateLimitStore } from './rateLimitStore'
+import { initOidc, interactionDetails, interactionFinish, oidcHandler } from './oidc'
 import {
   assertTurnstileConfig,
   LOGIN_TURNSTILE_AFTER,
@@ -87,6 +88,10 @@ import {
 } from './throttle'
 
 export const app = express()
+// P4 OIDC: gắn TRƯỚC bộ parse body - provider (Koa) tự đọc thân request ở token
+// endpoint; express.json đọc trước là provider nhận luồng rỗng. Ngoài `/api` nên
+// không qua cổng INTERNAL_API_TOKEN: đây là giao thức công khai cho site con.
+app.use('/oidc', oidcHandler)
 app.use(express.json({ limit: '64kb' }))
 app.disable('x-powered-by')
 
@@ -778,6 +783,7 @@ app.use('/api/identity/email', auth)
 app.use('/api/identity/security', auth)
 // Vòng đời tài khoản (vô hiệu hoá / hẹn xoá).
 app.use('/api/identity/account', auth)
+app.use('/api/identity/oidc', auth)
 
 /** Số ngày ân hạn trước khi tài khoản hẹn-xoá bị purge vĩnh viễn. */
 const ACCOUNT_DELETION_GRACE_MS = 30 * 24 * 60 * 60 * 1000
@@ -1036,6 +1042,42 @@ app.post(
       'email_change_confirm'
     )
     return res.json({ ok: true })
+  })
+)
+
+// ---------------------------------------------------------------------------
+// P4 OIDC - trang đồng ý ở tsudev.com gọi qua BFF. BFF chuyển cookie `_interaction`
+// của trình duyệt trong `x-oidc-cookie` (provider ký nó - không giả được) và khẳng
+// định danh tính người đang đăng nhập; service tra lại User từ DB.
+// ---------------------------------------------------------------------------
+app.post(
+  '/api/identity/oidc/interaction',
+  asyncHandler(async (req, res) => {
+    const user = await lookupUser(req)
+    if (!user) return res.status(401).json({ error: 'unauthenticated' })
+    try {
+      const d = await interactionDetails(req, res)
+      if (!d) return res.status(503).json({ error: 'oidc_disabled' })
+      return res.json(d)
+    } catch {
+      return res.status(400).json({ error: 'interaction_invalid' })
+    }
+  })
+)
+
+app.post(
+  '/api/identity/oidc/interaction/finish',
+  asyncHandler(async (req, res) => {
+    const user = await lookupUser(req)
+    if (!user) return res.status(401).json({ error: 'unauthenticated' })
+    try {
+      const redirectTo = await interactionFinish(req, res, user.id, req.body?.allow === true)
+      if (!redirectTo) return res.status(503).json({ error: 'oidc_disabled' })
+      logSecurity(user.id, req.body?.allow === true ? 'oidc_consent' : 'oidc_denied', req)
+      return res.json({ redirectTo })
+    } catch {
+      return res.status(400).json({ error: 'interaction_invalid' })
+    }
   })
 )
 
@@ -2589,6 +2631,8 @@ app.use(onError)
 export async function init(): Promise<void> {
   // P1.7: ném khi TURNSTILE_REQUIRED=1 mà thiếu khoá - CỐ Ý chặn khởi động.
   assertTurnstileConfig()
+  // P4: thiếu khoá ký ⇒ OIDC tắt (503) kèm log, không chặn khởi động - xem oidc.ts.
+  await initOidc()
   // Thiếu ở production = mọi liên kết trong thư đều hỏng, và hỏng ở một nơi
   // không quan sát được. Chết ồn ào lúc khởi động thay vì âm thầm lúc chạy -
   // cùng khuôn với khoá ký bản phát hành của content-service.

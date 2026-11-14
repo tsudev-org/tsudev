@@ -239,6 +239,43 @@ Bật: tạo widget ở dashboard Cloudflare (Turnstile, tên miền `tsudev.com
 `challenges.cloudflare.com` ở `script-src` và `frame-src` (`test/csp.test.ts` canh). Chạy ổn rồi đặt
 `TURNSTILE_REQUIRED=1`.
 
+## 8. Đăng nhập chung cho site con - OpenID Connect (P4, D1)
+
+tsudev.com là nhà cung cấp OIDC, issuer `https://tsudev.com/oidc` (discovery:
+`/oidc/.well-known/openid-configuration`). Thư viện `oidc-provider` 9 trong auth-service (`src/oidc.ts`); Worker
+chuyển `/oidc/*` qua route proxy `pages/api/oidc/[...path].ts` (rewrite NỘI BỘ - không bao giờ rewrite ra URL ngoài
+trong `next.config.js`, `test/oidcRewrites.test.ts` canh). Trang đồng ý: `pages/oidc/interaction/[uid].tsx`.
+
+| Bất biến                                                                                | Canh ở                                |
+| --------------------------------------------------------------------------------------- | ------------------------------------- |
+| Chỉ Authorization Code + PKCE S256; không implicit/password/đăng ký động                | `test/oidc.node.test.mjs`             |
+| Client công khai (không secret), redirect URI khớp tuyệt đối, đọc từ bảng `OAuthClient` | như trên                              |
+| Refresh token xoay vòng; dùng lại token đã xoay ⇒ thu hồi cả grant                      | như trên                              |
+| Đổi `sessionVersion` ⇒ mọi trạng thái OIDC của người đó bị xoá (trigger Postgres)       | như trên + migration `20261114140000` |
+| Khoá ký ES256 riêng `OIDC_SIGNING_JWK`; thiếu ⇒ `/oidc` trả 503, KHÔNG chặn khởi động   | `src/oidc.ts`                         |
+
+`oidc-provider` là ESM thuần nên test chạy bằng `node --test` trên `dist/` (Jest không nạp được `import()` động);
+`npm --workspace services/auth-service test` chạy cả hai.
+
+**Bật ở production (👤)**:
+
+```bash
+node -e "const {generateKeyPairSync,randomUUID}=require('crypto');const k=generateKeyPairSync('ec',{namedCurve:'P-256'}).privateKey.export({format:'jwk'});console.log(JSON.stringify({...k,kid:randomUUID()}))"
+```
+
+Dán kết quả vào `OIDC_SIGNING_JWK` ở Render (và sao lưu mã hoá như `infrastructure/sao-luu/README.md` mục G11).
+
+**Đăng ký một site con** (chưa có giao diện - chèn thẳng bảng, chỉ OWNER làm):
+
+```sql
+INSERT INTO "OAuthClient" (id, name, "redirectUris") VALUES
+  ('files', 'TsuFiles', ARRAY['https://files.tsudev.com/auth/callback']);
+```
+
+Site con dùng thư viện RP có chứng nhận (ví dụ `openid-client`), `code_challenge_method=S256`, không client secret.
+Nghiệm thu đầy đủ bằng bộ conformance của OpenID Foundation (Basic OP) cần một issuer công khai - làm khi bật ở
+production.
+
 ## Biến môi trường
 
 | Biến                       | Bắt buộc ở production | Ghi chú                                     |
