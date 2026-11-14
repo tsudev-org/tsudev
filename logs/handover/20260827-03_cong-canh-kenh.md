@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20260827-03
 - **Từ**: phiên 29 (`backend-api` + `qa-test` + `infra-deploy`) - **Đến**: chủ dự án / phiên 30
 - **Thời điểm**: 18:20 27/08/2026
-- **Trạng thái**: MỞ - code xong, mọi cổng xanh, **một quyết định cần chủ dự án (§5)**
+- **Trạng thái**: ĐÓNG - cổng canh kênh thuộc Toà soạn (newsroom-service) - Toà soạn đã gỡ 29/10/2026, Con dấu đã gỡ 04/11/2026 (đối soát phiên 53, 14/11/2026)
 - **Nhánh git**: `feat/cong-canh-kenh-toa-soan` (tách từ `main` = `3529651`, **KHÔNG migration**)
 
 ## 1. Lỗ hổng cần bịt
