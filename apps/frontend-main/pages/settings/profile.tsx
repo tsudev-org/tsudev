@@ -151,6 +151,7 @@ export default function ProfilePage() {
     return (
       <Layout active="/settings">
         <Seo title="Hồ sơ" path="/settings/profile" noindex />
+        <h1 className="sr-only">Hồ sơ tài khoản</h1>
         <p className="text-sm text-fg-muted">Đang tải…</p>
       </Layout>
     );
@@ -161,6 +162,7 @@ export default function ProfilePage() {
       <Layout active="/settings">
         <Seo title="Hồ sơ" path="/settings/profile" noindex />
         <div className="mx-auto max-w-md">
+          <h1 className="mb-4 text-xl font-semibold text-fg">Hồ sơ tài khoản</h1>
           <Notice kind="error">Bạn cần đăng nhập để mở trang này.</Notice>
           <Button as="a" href="/login?callbackUrl=/settings/profile" className="mt-4 w-full">
             Đăng nhập

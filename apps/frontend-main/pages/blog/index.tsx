@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDateVN } from '../../lib/format';
 import { useRecoverBuildPlaceholder } from '../../lib/useRecoverBuildPlaceholder';
 import Seo from '../../components/Seo';
 import { Layout, Card, Badge, Avatar, Button, Icon, EmptyState } from '@tsudev/ui';
@@ -7,12 +8,13 @@ import { api } from '../../lib/api';
 import type { Post } from '../../lib/types';
 import { keepStaleOnFailure } from '../../lib/isr';
 
-function timeAgo(d: string | Date): string {
-  if (!d) return '';
-  const s = Math.floor((Date.now() - new Date(d).getTime()) / 1000);
-  if (s < 86400) return `${Math.max(1, Math.floor(s / 3600))} giờ trước`;
-  return `${Math.floor(s / 86400)} ngày trước`;
-}
+/**
+ * Ngày HIỂN THỊ dạng tuyệt đối (DD/MM/YYYY, giờ Việt Nam), KHÔNG dạng thời gian tương đối:
+ * trang này là ISR - HTML dựng sẵn có thể cũ hàng giờ, trình duyệt hydrate lại với
+ * giờ hiện tại, qua mốc ngày là hai bên ra chữ khác nhau ⇒ React #418 (đo trên
+ * production 14/11/2026). `test/isrPages.test.ts` canh mẫu này.
+ */
+const shownDate = (d: string | Date | null | undefined): string => (d ? formatDateVN(d) : '');
 
 type BlogIndexProps = { posts: Post[]; failed: boolean };
 
@@ -22,7 +24,7 @@ export default function BlogIndex({ posts, failed }: BlogIndexProps) {
   const byline = (p: Post) => (
     <div className="mt-4 flex items-center gap-2 text-xs text-fg-muted">
       <Avatar name={p.author?.displayName || 'tsudev'} size={22} />
-      {p.author?.displayName || 'tsudev'} · {timeAgo(p.publishedAt || p.createdAt)}
+      {p.author?.displayName || 'tsudev'} · {shownDate(p.publishedAt || p.createdAt)}
     </div>
   );
   const tags = (p: Post, n = 3) =>
