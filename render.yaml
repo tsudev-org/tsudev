@@ -92,6 +92,12 @@ services:
         sync: false
       - key: VIRUSTOTAL_API_KEY
         sync: false
+      # P1.7 Turnstile (chống bot đăng ký/quên mật khẩu/đăng nhập sau 3 lần sai).
+      # Thiếu ⇒ BỎ QUA kiểm + log lỗi lúc khởi động. Đặt kèm site key ở Worker
+      # (TURNSTILE_SITE_KEY); sau khi chạy ổn thì đặt TURNSTILE_REQUIRED=1 để
+      # thiếu khoá là từ chối khởi động.
+      - key: TURNSTILE_SECRET_KEY
+        sync: false
       # Kênh báo động của `packages/observability/notify.js`. KHAI Ở ĐÂY nhưng
       # `sync: false` - blueprint nói rằng hai biến này TỒN TẠI, không giữ giá trị.
       #
