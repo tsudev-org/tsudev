@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261113-08
 - **Phiên**: phiên 52, 13/11/2026
-- **Trạng thái**: MỞ - #252 chờ chủ sở hữu duyệt; ba hạng mục lớn chờ chủ dự án chốt (mục 3)
+- **Trạng thái**: MỞ - #252 chờ chủ sở hữu duyệt; phương án ba hạng mục lớn ĐÃ CHỐT 14/11 (mục 3.2) - phiên 53 làm theo kế hoạch
 
 ## 1. Đã làm
 
@@ -40,8 +40,11 @@ dùng chung: `/`, `/apps`, `/blog`, `/docs`, `/login`, `/signup`, `/forgot-passw
 
 1. #252: chủ sở hữu duyệt ⇒ `gh run rerun <id lượt cuối của Bảo vệ bản quyền>` ⇒ `gh pr update-branch 252` nếu cần ⇒
    merge ⇒ deploy ⇒ nghiệm thu bằng ảnh footer khi đã đăng nhập.
-2. 🎯 Chủ dự án chốt các mục 🎯 trong `docs/de-xuat-bao-mat-cms-cai-bang-lenh.md` (A9 OIDC, B-phản ánh, C2, C3, C6).
-   Sau đó làm theo "Thứ tự làm" cuối tài liệu đó (bắt đầu A4-A6 + A8).
+2. ✅ 14/11/2026 chủ dự án giao agent tự chọn phương án. ĐÃ CHỐT D1-D9 và chia giai đoạn P0-P5 trong
+   `docs/de-xuat-bao-mat-cms-cai-bang-lenh.md` (OIDC bằng `oidc-provider`, Góp ý & báo lỗi có, Tiptap 3 giữ
+   `contentMd`, install nhiều gói, SignPath, bộ đếm tần suất Postgres, Turnstile, HIBP fail-open). Phiên 53 bắt đầu
+   ở **P0**, rồi P1. Kế hoạch tổng toàn hệ: `~/projects/logs/handover/20261114-01_ke-hoach-tong-he-sinh-thai.md`
+   (đã đặt bản sao ở 16 repo); phiếu C5 `20261114-02` ở 6 repo app.
 3. Thu kết quả phiếu 20261113-07 từ 14 repo.
 4. Việc cũ phiếu 20261113-06 mục 3.3-3.5 vẫn mở.
 5. qa-test: sửa E2E chập chờn ở test đầu tiên (mục 2).
