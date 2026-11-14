@@ -41,6 +41,18 @@ describe('install.sh / install.ps1', () => {
     expect(body).not.toMatch(/\bsource\b|^\s*\.\s/m);
   });
 
+  test('C2: nhiều gói - kiểm MỌI tên trước khi thêm kho / cài (không cài dở một nửa)', () => {
+    const body = code(sh, /^\s*#/);
+    const check = body.indexOf('in_catalog "$pkg" "$CATALOG_PKG"');
+    const add = body.indexOf('install_apt "$@"');
+    expect(check).toBeGreaterThan(-1);
+    expect(add).toBeGreaterThan(check);
+    expect(body).toContain('$SUDO apt-get install -y "$@"');
+    // install.ps1: lập kế hoạch cho cả danh sách rồi mới chạy vòng cài.
+    expect(ps).toContain('ValueFromRemainingArguments = $true');
+    expect(ps.indexOf('$plan = foreach')).toBeLessThan(ps.indexOf('foreach ($item in $plan)'));
+  });
+
   test('install.ps1 không có `exit` (đóng cửa sổ người dùng) và không Invoke-Expression', () => {
     const body = code(ps, /^\s*#/);
     expect(body).not.toMatch(/\bexit\b/i);

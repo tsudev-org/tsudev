@@ -274,11 +274,12 @@ export default function AppsPage() {
             <dl className="mt-2 grid gap-2 text-xs md:grid-cols-[max-content_1fr] md:gap-x-4">
               <dt className="text-fg-secondary">Linux, macOS</dt>
               <dd className="min-w-0 break-all font-mono text-fg">
-                curl -fsSL https://tsudev.com/install.sh | sh -s -- &lt;tên-gói&gt;
+                curl -fsSL https://tsudev.com/install.sh | sh -s -- &lt;tên-gói&gt; [tên-gói …]
               </dd>
               <dt className="text-fg-secondary">Windows</dt>
               <dd className="min-w-0 break-all font-mono text-fg">
                 &amp; ([scriptblock]::Create((irm https://tsudev.com/install.ps1))) &lt;tên-gói&gt;
+                [tên-gói …]
               </dd>
             </dl>
             <p className="mt-2 text-xs text-fg-muted">
