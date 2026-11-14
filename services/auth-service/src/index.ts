@@ -27,6 +27,12 @@ import {
 import { parsePaging, pageMeta, ROLES } from '@tsudev/types'
 import type { Role } from '@tsudev/types'
 import { createRateLimit, identityKey, largePageRateLimit } from '@tsudev/ratelimit'
+import {
+  assertTurnstileConfig,
+  LOGIN_TURNSTILE_AFTER,
+  turnstileBlocks,
+  verifyTurnstile,
+} from './turnstile'
 import { createHash, randomInt } from 'crypto'
 
 import {
@@ -68,6 +74,7 @@ import {
 import {
   accountIsLocked,
   callerIp,
+  ipFailures,
   ipIsThrottled,
   callerCountry,
   noteAccountFailure,
@@ -167,6 +174,18 @@ const asyncHandler =
 
 const str = (v: unknown, max = 400): string => (typeof v === 'string' ? v.slice(0, max) : '')
 
+/** IP người gọi cho siteverify (BFF đặt X-Forwarded-For từ CF-Connecting-IP). */
+const turnstileIp = (req: Request): string | null =>
+  callerIp(req.headers as Record<string, unknown>, req.ip || '') || null
+
+/** P1.7: kiểm token Turnstile ở `req.body.turnstileToken`. Đã ghi 400 khi chặn. */
+async function passTurnstile(req: Request, res: Response): Promise<boolean> {
+  const r = await verifyTurnstile(req.body?.turnstileToken, turnstileIp(req))
+  if (!turnstileBlocks(r)) return true
+  res.status(400).json({ error: 'turnstile_failed' })
+  return false
+}
+
 /** Tên đăng nhập: chữ, số, gạch dưới, gạch ngang, chấm. Không phân biệt hoa thường. */
 const USERNAME_RE = /^[a-z0-9](?:[a-z0-9._-]{1,30})[a-z0-9]$/
 /** Kiểm email ở mức "có đúng một @ và hai bên không rỗng" - phần còn lại do việc gửi thư tự chứng minh. */
@@ -178,6 +197,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@.]+\.[^\s@]+$/
 app.post(
   '/api/identity/register',
   asyncHandler(async (req, res) => {
+    if (!(await passTurnstile(req, res))) return
     const username = str(req.body?.username, 40).trim().toLowerCase()
     const email = str(req.body?.email, 200).trim().toLowerCase()
     const password = str(req.body?.password, 400)
@@ -261,6 +281,21 @@ app.post(
     const user = await prisma.user.findFirst({
       where: { OR: [{ username: identifier }, { email: identifier }] },
     })
+
+    // P1.7: sau LOGIN_TURNSTILE_AFTER lần sai liên tiếp của tài khoản, HOẶC của IP
+    // trong cửa sổ throttle, phải qua Turnstile. Tính cả IP để tên đăng nhập
+    // KHÔNG tồn tại cũng bị đòi - nếu không thì "có đòi Turnstile hay không" là
+    // một kênh dò tài khoản. Khi Turnstile chưa cấu hình, verifyTurnstile bỏ qua.
+    if (
+      (user?.failedLoginCount ?? 0) >= LOGIN_TURNSTILE_AFTER ||
+      (await ipFailures(ip)) >= LOGIN_TURNSTILE_AFTER
+    ) {
+      const t = await verifyTurnstile(req.body?.turnstileToken, turnstileIp(req))
+      if (turnstileBlocks(t)) {
+        await burnTiming(password)
+        return res.status(401).json({ error: 'turnstile_required' })
+      }
+    }
 
     // Không có tài khoản: vẫn đốt thời gian bằng một lần verify thật. Trả lời
     // trong 1ms ở nhánh này và ~50ms ở nhánh kia là một kênh liệt kê tài khoản.
@@ -535,6 +570,8 @@ app.post(
     // Phản hồi GIỐNG NHAU dù email có tồn tại hay không, kể cả khi bị chặn tần
     // suất. Đây là điểm dò tài khoản kinh điển.
     const generic = { ok: true }
+    // Turnstile TRƯỚC mọi thứ: token sai ⇒ 400 ở MỌI email, nên không lộ tồn tại.
+    if (!(await passTurnstile(req, res))) return
     if (await ipIsThrottled(ip)) return res.json(generic)
     await recordAttempt(ip, false)
 
@@ -850,7 +887,8 @@ app.post(
       verifyCodeHtml(user.displayName || user.username, code.raw, VERIFY_CODE_TTL_MIN),
       'verify_code'
     )
-    logSecurity(user.id, 'verify_code_sent', req)
+    // AWAIT: dòng này là bộ đếm của trần ngày, không chỉ là nhật ký - xem logSecurity.
+    await logSecurity(user.id, 'verify_code_sent', req)
     return res.json({
       ok: true,
       expiresAt: code.expiresAt,
@@ -1422,38 +1460,46 @@ const SECURITY_EVENT_RETENTION_MS = 90 * 24 * 60 * 60 * 1000
  * Ghi một sự kiện bảo mật cho tài khoản. FIRE-AND-FORGET: ghi log hỏng KHÔNG
  * được làm hỏng thao tác đã thành công (đăng nhập, đổi mật khẩu...). `actor` khác
  * chủ ⇒ hành động do admin thực hiện lên tài khoản người khác.
+ *
+ * Trả Promise (KHÔNG BAO GIỜ reject) cho nơi dùng sự kiện làm BỘ ĐẾM và phải
+ * `await` nó: `verify/code/send` đếm `verify_code_sent` cho trần ngày - không đợi
+ * thì lượt gửi kế tiếp đếm trước khi dòng này kịp ghi, và gửi dồn dập lọt quá trần
+ * (đã thấy ở CI: `verifyCode.test.ts` "quá trần ngày" ra 200, phiếu 20261106-05).
  */
 function logSecurity(
   userId: string,
   type: string,
   req: Request,
   opts: { actor?: { id: string; displayName: string | null; username: string }; note?: string } = {}
-): void {
+): Promise<void> {
   const ip = callerIp(req.headers as Record<string, unknown>, req.ip || '')
   const country = callerCountry(req.headers as Record<string, unknown>)
   const userAgent = str(req.get('user-agent') || '', 400)
-  prisma.securityEvent
-    .create({
-      data: {
-        userId,
-        type,
-        ip: ip || null,
-        country,
-        userAgent: userAgent || null,
-        actorId: opts.actor ? opts.actor.id : null,
-        actorName: opts.actor ? opts.actor.displayName || opts.actor.username : null,
-        note: opts.note || null,
-      },
-    })
-    // Prune ngay của CHÍNH tài khoản này: nhật ký cũ hơn 90 ngày bị xoá. Giữ ở
-    // đường ghi (bounded theo user, dùng index [userId, createdAt]) thay vì một
-    // cron riêng - Render free không có chỗ chạy cron thường trực.
-    .then(() =>
-      prisma.securityEvent.deleteMany({
-        where: { userId, createdAt: { lt: new Date(Date.now() - SECURITY_EVENT_RETENTION_MS) } },
+  return (
+    prisma.securityEvent
+      .create({
+        data: {
+          userId,
+          type,
+          ip: ip || null,
+          country,
+          userAgent: userAgent || null,
+          actorId: opts.actor ? opts.actor.id : null,
+          actorName: opts.actor ? opts.actor.displayName || opts.actor.username : null,
+          note: opts.note || null,
+        },
       })
-    )
-    .catch((e) => console.error('[auth] logSecurity hỏng:', e instanceof Error ? e.message : e))
+      // Prune ngay của CHÍNH tài khoản này: nhật ký cũ hơn 90 ngày bị xoá. Giữ ở
+      // đường ghi (bounded theo user, dùng index [userId, createdAt]) thay vì một
+      // cron riêng - Render free không có chỗ chạy cron thường trực.
+      .then(() =>
+        prisma.securityEvent.deleteMany({
+          where: { userId, createdAt: { lt: new Date(Date.now() - SECURITY_EVENT_RETENTION_MS) } },
+        })
+      )
+      .then(() => undefined)
+      .catch((e) => console.error('[auth] logSecurity hỏng:', e instanceof Error ? e.message : e))
+  )
 }
 
 /**
@@ -2389,6 +2435,8 @@ app.use(onError)
  * tài sản.
  */
 export async function init(): Promise<void> {
+  // P1.7: ném khi TURNSTILE_REQUIRED=1 mà thiếu khoá - CỐ Ý chặn khởi động.
+  assertTurnstileConfig()
   // Thiếu ở production = mọi liên kết trong thư đều hỏng, và hỏng ở một nơi
   // không quan sát được. Chết ồn ào lúc khởi động thay vì âm thầm lúc chạy -
   // cùng khuôn với khoá ký bản phát hành của content-service.

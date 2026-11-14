@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Input } from '@tsudev/ui';
 
+import { Turnstile } from '../components/Turnstile';
 import { AuthShell, Notice } from '../components/AuthShell';
 
 /**
@@ -22,11 +23,14 @@ const ERROR_TEXT: Record<string, string> = {
   invalid_email: 'Địa chỉ email không hợp lệ.',
   weak_password: `Mật khẩu phải dài ít nhất ${MIN_PASSWORD_LEN} ký tự và không nằm trong danh sách mật khẩu phổ biến.`,
   username_taken: 'Tên đăng nhập này đã có người dùng.',
+  turnstile_failed:
+    'Chưa qua được bước kiểm tra chống bot. Hãy đợi ô kiểm tra hiện dấu xác nhận rồi thử lại.',
 };
 
 export default function SignupPage() {
   const [form, setForm] = useState({ username: '', email: '', displayName: '', password: '' });
   const [busy, setBusy] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState('');
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
 
@@ -45,7 +49,7 @@ export default function SignupPage() {
       const res = await fetch('/api/identity/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, turnstileToken }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -145,6 +149,7 @@ export default function SignupPage() {
             một chuỗi ký tự đặc biệt.
           </p>
         </div>
+        <Turnstile onToken={setTurnstileToken} />
         <Button type="submit" disabled={busy} className="w-full">
           {busy ? 'Đang tạo…' : 'Tạo tài khoản'}
         </Button>
