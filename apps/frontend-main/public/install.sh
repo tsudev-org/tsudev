@@ -1,13 +1,14 @@
 #!/bin/sh
 # Cài ứng dụng tsudev bằng một lệnh (Linux, macOS).
 #
-#   curl -fsSL https://tsudev.com/install.sh | sh -s -- <tên-gói>
+#   curl -fsSL https://tsudev.com/install.sh | sh -s -- <tên-gói> [tên-gói ...]
 #   curl -fsSL https://tsudev.com/install.sh | sh -s -- --list
 #
 # Kiểm trước khi chạy: https://tsudev.com/install.sh.sha256 (SHA-256 của chính tệp này).
 #
 # Script CHỈ làm ba việc (tsudev-standards PACKAGING.md mục 6):
-#   1. kiểm tên gói và tra nó trong catalog.json của kho (gói phải ĐÃ có, đã được cài thử);
+#   1. kiểm MỌI tên gói và tra chúng trong catalog.json của kho (gói phải ĐÃ có, đã được cài
+#      thử) - một tên sai là dừng TRƯỚC khi đụng vào máy, không cài dở một nửa;
 #   2. thêm nguồn tsudev vào trình quản lý gói có sẵn (apt / dnf / brew) - lệnh thêm nguồn
 #      GHI CỨNG ở đây, KHÔNG chạy lệnh nào tải về; khoá ký được kiểm SHA-256 ghim cứng;
 #   3. gọi trình quản lý gói cài gói - apt/dnf/brew tự kiểm chữ ký và mã băm của gói.
@@ -35,7 +36,7 @@ usage() {
   cat <<'EOF'
 Cài ứng dụng tsudev bằng trình quản lý gói của máy.
 
-  curl -fsSL https://tsudev.com/install.sh | sh -s -- <tên-gói>
+  curl -fsSL https://tsudev.com/install.sh | sh -s -- <tên-gói> [tên-gói ...]
   curl -fsSL https://tsudev.com/install.sh | sh -s -- --list     # liệt kê gói có thể cài
 
 Danh bạ đầy đủ và lệnh cho Windows: https://tsudev.com/apps#cai-bang-lenh
@@ -93,7 +94,7 @@ install_apt() {
   echo "deb [signed-by=/usr/share/keyrings/tsudev.gpg] $PKG_BASE/apt stable main" |
     $SUDO tee /etc/apt/sources.list.d/tsudev.list >/dev/null
   $SUDO apt-get update
-  $SUDO apt-get install -y "$1"
+  $SUDO apt-get install -y "$@"
 }
 
 install_dnf() {
@@ -112,7 +113,7 @@ repo_gpgcheck=1
 gpgkey=$PKG_BASE/tsudev-archive-keyring.asc
 metadata_expire=6h
 EOF
-  $SUDO dnf install -y "$1"
+  $SUDO dnf install -y "$@"
 }
 
 main() {
@@ -131,33 +132,41 @@ main() {
     exit 0
     ;;
   esac
-  pkg="$1"
-  printf '%s' "$pkg" | grep -Eq '^[a-z][a-z0-9-]+$' || die "tên gói không hợp lệ: $pkg"
+  # Trần 20 gói: đủ cho cả danh bạ, chặn một dòng lệnh dán nhầm thành hàng trăm tham số.
+  [ $# -le 20 ] || die "tối đa 20 gói mỗi lần"
+  for pkg in "$@"; do
+    printf '%s' "$pkg" | grep -Eq '^[a-z][a-z0-9-]+$' || die "tên gói không hợp lệ: $pkg"
+  done
   has curl || die "cần curl"
 
   case "$(uname -s)" in
   Linux)
-    in_catalog "$pkg" "$CATALOG_PKG" ||
-      die "gói '$pkg' chưa có trong kho APT/RPM - xem: curl -fsSL https://tsudev.com/install.sh | sh -s -- --list"
+    # Kiểm HẾT trước khi thêm kho: một tên sai không được để lại máy nửa vời.
+    for pkg in "$@"; do
+      in_catalog "$pkg" "$CATALOG_PKG" ||
+        die "gói '$pkg' chưa có trong kho APT/RPM - xem: curl -fsSL https://tsudev.com/install.sh | sh -s -- --list"
+    done
     if has apt-get; then
-      install_apt "$pkg"
+      install_apt "$@"
     elif has dnf; then
-      install_dnf "$pkg"
+      install_dnf "$@"
     else
       die "máy không có apt hoặc dnf - tải bản cài từ trang phát hành GitHub của tsudev-org và kiểm SHA-256 (https://tsudev.com/apps)"
     fi
     ;;
   Darwin)
     has brew || die "cần Homebrew (https://brew.sh) - hoặc tải bản cài từ https://tsudev.com/apps"
-    in_catalog "$pkg" "$CATALOG_BREW" ||
-      die "cask '$pkg' chưa có trong tap tsudev-org/tap - xem: curl -fsSL https://tsudev.com/install.sh | sh -s -- --list"
-    brew install --cask "tsudev-org/tap/$pkg"
+    for pkg in "$@"; do
+      in_catalog "$pkg" "$CATALOG_BREW" ||
+        die "cask '$pkg' chưa có trong tap tsudev-org/tap - xem: curl -fsSL https://tsudev.com/install.sh | sh -s -- --list"
+    done
+    for pkg in "$@"; do brew install --cask "tsudev-org/tap/$pkg"; done
     ;;
   *)
     die "hệ điều hành $(uname -s) chưa hỗ trợ - Windows: & ([scriptblock]::Create((irm https://tsudev.com/install.ps1))) <tên-gói>"
     ;;
   esac
-  say "đã cài $pkg"
+  say "đã cài: $*"
 }
 
 main "$@"
