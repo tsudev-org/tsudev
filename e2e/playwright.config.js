@@ -83,6 +83,8 @@ if (useProxy) servers.push(proxyServer());
 
 module.exports = defineConfig({
   testDir: './tests',
+  // Làm ấm `next dev` để test đầu không trả giá biên dịch nguội - xem tệp.
+  globalSetup: require.resolve('./global-setup.js'),
   timeout: 60 * 1000,
   expect: { timeout: 5000 },
   reporter: process.env.CI ? [['github'], ['list'], ['html', { open: 'never' }]] : [['list']],

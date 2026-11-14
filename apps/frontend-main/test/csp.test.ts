@@ -105,6 +105,17 @@ describe('middleware ép CSP (băm + nonce) ở production', () => {
     expect(dir).not.toContain("'unsafe-inline'");
   });
 
+  test('P1.7 Turnstile: script và iframe CHỈ từ challenges.cloudflare.com', () => {
+    const csp = cspOf(callOnCanonicalHost());
+    expect(scriptSrcOf(csp)).toContain('https://challenges.cloudflare.com');
+    const frame = csp
+      .split(';')
+      .map((d) => d.trim())
+      .find((d) => d.startsWith('frame-src'));
+    // Đúng MỘT nguồn: mở rộng frame-src là mở đường nhúng trang lạ vào tsudev.com.
+    expect(frame).toBe('frame-src https://challenges.cloudflare.com');
+  });
+
   test('băm hard-code trong proxy.ts khớp THEME_SCRIPT (drift-guard)', () => {
     expect(read('proxy.ts')).toContain(independentThemeHash());
   });
