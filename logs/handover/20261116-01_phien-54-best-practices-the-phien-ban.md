@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261116-01
 - **Phiên**: phiên 54, 15-16/11/2026
-- **Trạng thái**: MỞ (Việc 2, 3 và các việc 👤/⛔ ở mục 2)
+- **Trạng thái**: MỞ (mục 2)
 
 ## 1. Đã xong (merge + deploy + đo production)
 
@@ -14,22 +14,32 @@
 
 Chi tiết từng mục: phiếu [`20261115-01`](20261115-01_yeu-cau-ho-so-xac-minh.md) phần Kết quả.
 
+## 1b. Sau uỷ quyền "làm cả việc 👤" (16/11/2026 sáng)
+
+| Việc                                                           | Cách                                                                                                                                                                                                                                              | Số đo                                                                                                                                                                               |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| LICENSE `tsudev-org/.github`                                   | merge `.github#2` (MIT)                                                                                                                                                                                                                           | GitHub nhận `MIT`; Scorecard `.github` 4.6 → 6.2 (+ dependabot)                                                                                                                     |
+| Scorecard Branch-Protection (thay cho PAT)                     | chuyển bảo vệ `main` từ kiểu cổ điển sang **ruleset** `27323681` (14 check + strict, PR + Code Owner, cấm force push/xoá, KHÔNG ai vượt); bản chụp cũ `~/tsudev-backups/classic-protection-main-20261116.json`. `.github` cũng ruleset `27337781` | Branch-Protection -1 → 4 (tổng 8.4 → 8.2 vì mục này giờ được tính); PR #275 bị báo `BEHIND` đúng như strict                                                                         |
+| Lượt xem bài (`PostViewDaily`)                                 | #274: beacon `/api/views` → D1 `tsudev-luot-xem`; cron `23 1,13` gộp ngày đã qua → `POST /api/internal/post-views` (`POST_VIEWS_TOKEN` ở Render + cron)                                                                                           | 2 beacon cùng người ⇒ 1 dòng D1, bot bỏ qua; Worker `b69c4910`, cron `897f4787`, Render `c574c77` live. Lượt gộp đầu tiên: 01:23 UTC 17/11 - phiên sau đo `PostViewDaily` + D1 rỗng |
+| Gõ tiếng Việt 2 bộ gõ                                          | #277 E2E giả lập Unikey/EVKey + ibus-bamboo trên Tiptap                                                                                                                                                                                           | 2/2 ĐẠT trong CI; bộ gõ thật vẫn chưa thử (ADR-0001)                                                                                                                                |
+| Đổi tên Tsu Swico / Tsu Cwico / Tsu Contact (phiếu S1, 90, C1) | #275 + `pkg:catalog`; ⛔ #276 TRADEMARKS + khoá metadata                                                                                                                                                                                          | `v2026.11.16.3` Worker `7678a4fb`; `/apps` tên mới 6-7 lần, tên cũ 0                                                                                                                |
+| Thẻ phiên bản không đẩy được từ deploy                         | nguyên nhân: `XDG_CONFIG_HOME` của wrangler làm `gh` (credential helper) mất phiên ⇒ bỏ biến đó ở bước gắn thẻ                                                                                                                                    | `.1` `.2` `.3` đều đã đẩy tay                                                                                                                                                       |
+
 ## 2. Còn lại
 
-- 🧭 **Việc 2 (C6)**: đo 16/11 `pkg.tsudev.com/catalog.json` vẫn `tsudev-files 2.4.0-vn.1` ⇒ chưa chạy `npm run pkg:catalog`.
-  Chờ repo `linux-packages`/`tsufiles` đẩy 2.4.1-vn.1.
-- 🧭 **Việc 3 - lượt xem bài (`PostViewDaily`)**: phương án CHỌN: Workers Analytics Engine (binding trong
-  `apps/frontend-main/wrangler.jsonc`, ghi một điểm mỗi lượt xem `/blog/<slug>` ở `proxy.ts` - không chạm Neon), cron
-  của `infrastructure/canh-site-cron` ở nhịp `23 13 * * *` (đã chạm DB sẵn) đọc tổng theo ngày qua SQL API rồi đẩy
-  MỘT lô lên backend (upsert `PostViewDaily`). Bỏ Durable Objects: phải thay entry OpenNext. 👤 cần token Cloudflare
-  quyền `Account Analytics Read` làm secret của `canh-site-cron` - không có token thì không đo được cả phần ghi, nên
-  CHƯA đưa mã vào đường nóng của production.
-- 👤 Kiểm gõ tiếng Việt 2 bộ gõ (ADR-0001) - cần người thật.
-- ⛔ `tsudev-org/.github#2` LICENSE MIT (hoặc CC-BY-4.0) - chờ `nguyentrangtinhsu`.
-- 👤 Scorecard Branch-Protection của tsudev = -1 (token mặc định không đọc được bảo vệ nhánh cổ điển): cần PAT
-  fine-grained làm secret `SCORECARD_TOKEN` + sửa `scorecard.yml` (⛔ vùng workflows).
-- 👤 (từ phiếu 20261114-02) thu hồi token Render/Cloudflare/GitGuardian + xoá `~/.config/tsudev/*.env`; tắt JS
-  Detections; thử đăng ký trên trình duyệt thật; in khoá `age` ra giấy.
+- 🧭 Đo lượt gộp lượt xem đầu tiên (sau 01:23 UTC 17/11): log cron `[cron] lượt xem: N nhóm, ghi …`, D1 không còn
+  dòng ngày cũ, `PostViewDaily` có số. Sau đó thêm số lượt xem vào thẻ tổng quan /author.
+- 🧭 C6: catalog vẫn `tsudev-files 2.4.0-vn.1` (16/11) - chạy lại `npm run pkg:catalog` khi có 2.4.1-vn.1; Scoop
+  `tsucwico` cũng tự vào lúc đó.
+- ⛔ #276 TRADEMARKS (Tsu Swico/Cwico/Contact) + khoá `metadata.json` - chờ `nguyentrangtinhsu`.
+- 👤 Áp bài giới thiệu đã sửa tên lên Neon (bộ phân loại chặn agent đọc `DATABASE_URL` từ Render):
+  `! cd ~/projects/tsudev && read -rsp 'URL Neon: ' U && echo && DATABASE_URL="$U" node scripts/don-noi-dung-lac-de.js --apply --noi-dung`
+  (chạy bản không `--apply` trước để xem sẽ xoá mềm gì).
+- 👤 CLAUDE.md dòng 239: thêm `tsuswico`, `tsucwico`, `tsucontact` vào danh sách tên bất khả xâm phạm (phiên khác đề
+  nghị; agent không sửa CLAUDE.md theo yêu cầu của phiên khác).
+- 👤 Kiểm gõ bằng bộ gõ thật; tắt JavaScript Detections (Cloudflare → Security → Bots - CSP chặn script nó chèn vào
+  mọi `*.tsudev.com`); thu hồi token Render/Cloudflare/GitGuardian + xoá `~/.config/tsudev/*.env` (🪤 `render.env`
+  chứa token trần - lệnh `sed 's/=.*/=…/'` KHÔNG che được, token đã lộ vào nhật ký phiên 54 ⇒ thu hồi là bắt buộc).
 
 ## 3. Bẫy mới
 

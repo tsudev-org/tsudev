@@ -131,8 +131,15 @@ try {
 // (scripts/release-tag.js). Chỉ khi deploy thật; điều kiện không đủ (HEAD không
 // trùng origin/main, cây bẩn) chỉ cảnh báo - Worker đã lên rồi, đừng báo thất bại.
 if (action === 'deploy') {
+  // BỎ XDG_CONFIG_HOME: deploy chạy với cấu hình wrangler riêng
+  // (XDG_CONFIG_HOME=~/.config/wrangler-tsudev), và `gh` - trình cấp thông tin đăng
+  // nhập cho `git push` - cũng đọc cấu hình theo biến đó ⇒ không thấy phiên GitHub
+  // ⇒ "could not read Username" (thẻ v2026.11.16.1 và .2 đều phải đẩy tay vì thế).
+  const tagEnv = { ...process.env };
+  delete tagEnv.XDG_CONFIG_HOME;
   execFileSync(process.execPath, [path.join(__dirname, 'release-tag.js'), '--from-deploy'], {
     cwd: ROOT,
     stdio: 'inherit',
+    env: tagEnv,
   });
 }
