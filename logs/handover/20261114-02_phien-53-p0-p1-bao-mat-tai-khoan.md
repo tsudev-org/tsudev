@@ -4,6 +4,18 @@
 - **Phiên**: phiên 53, 14/11/2026
 - **Trạng thái**: ĐÓNG phần code (P0-P5 của tsudev) - còn lại chỉ việc 👤/⛔ ở mục 0
 
+## 000. Cập nhật 15/11/2026 tối - sao lưu mã hoá (G11, G12), GitGuardian
+
+- Chủ dự án cài `age`, tạo khoá trên ổ `E:` (ổ 30 GB cắm cố định, KHÔNG phải điện thoại) rồi chép khoá riêng sang điện
+  thoại. Khoá công khai vào `infrastructure/sao-luu/age-recipients.txt` (#269).
+- G12: 2 bản dump mã hoá; giải mã thử KHỚP từng byte với bản gốc, `pg_restore --list` đọc được (68/34 dòng bảng);
+  bản dạng rõ đã `shred`. G11: 6 khoá production đọc từ Render API thẳng vào `age` (không chạm đĩa dạng rõ), giải mã
+  thử đủ 6. Bản mã hoá ở `~/tsudev-backups/` + `E:\tsudev-sao-luu\`. Tệp dạng rõ `oidc-signing.env`,
+  `turnstile.env` đã `shred`.
+- GitGuardian: 12 sự cố repo tsudev ignore sau khi đối chiếu từng tệp; 2 của tsufiles chủ dự án đã ignore.
+- Zone: `fight_mode=false`, `enable_js=true`; agent bị chặn khi tắt `enable_js` - chủ dự án tự quyết (Security → Bots).
+- Chủ dự án thu hồi token Render/Cloudflare/GitGuardian rồi xoá các tệp trong `~/.config/tsudev/`.
+
 ## 00. Cập nhật 15/11/2026 - chủ dự án cấp token tạm (Render, Cloudflare, GitGuardian) + duyệt ⛔
 
 | Việc                                                   | Cách                                                                                                                                                                                                   | Đo trên production                                                                                                                            |
