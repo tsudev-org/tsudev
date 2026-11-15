@@ -66,6 +66,7 @@
 import { doNoiDung, thanhDong } from './demNoiDung';
 import { danhGiaNeon, type NeonProject } from './hanMuc';
 import { dienGiai, goiKiemToanVen } from './kiemToanVen';
+import { gopLuotXem, type D1Like } from './luotXem';
 
 /** Nhịp ĐO NỘI DUNG. Phải TRÙNG NGUYÊN VĂN một phần tử trong `triggers.crons`. */
 const CRON_DEM_NOI_DUNG = '23 1,13 * * *';
@@ -94,6 +95,10 @@ export interface Env {
   RELEASE_INTEGRITY_TOKEN?: string;
   /** Chỉ cần nếu backend bật cổng `/api` bằng INTERNAL_API_TOKEN. */
   INTERNAL_API_TOKEN?: string;
+  /** D1 `tsudev-luot-xem` - lượt xem bài chờ gộp (luotXem.ts). */
+  VIEWS_DB?: D1Like;
+  /** Gác `POST /api/internal/post-views`. PHẢI GIỐNG Render. `npm run secret-views`. */
+  POST_VIEWS_TOKEN?: string;
 }
 
 // `NEWSROOM_TICK_TOKEN` đã bị gỡ khỏi đây 29/10/2026. Nó gác đường `/tick`, và
@@ -248,6 +253,17 @@ async function canhHanMucNeon(env: Env): Promise<void> {
   );
 }
 
+/** Gộp lượt xem bài D1 → Neon - chỉ ở nhịp thưa (route chạm database). */
+async function gopLuotXemBai(env: Env): Promise<void> {
+  const kq = await gopLuotXem(env.VIEWS_DB, env.BACKEND_URL, {
+    views: env.POST_VIEWS_TOKEN,
+    internal: env.INTERNAL_API_TOKEN,
+  });
+  if (!kq.chay) console.error(`[cron] lượt xem: BỎ QUA - ${kq.lyDo}`);
+  else if (!kq.ok) console.error(`[cron] lượt xem: HỎNG - ${kq.lyDo} (dòng còn nằm ở D1)`);
+  else console.log(`[cron] lượt xem: ${kq.dong} nhóm, ghi ${kq.ghi}, bỏ qua ${kq.boQua}`);
+}
+
 /** Lượt kiểm toàn vẹn - chỉ ở nhịp thưa (route chạm database + R2). */
 async function kiemToanVenPhatHanh(env: Env): Promise<void> {
   const kq = await goiKiemToanVen(env.BACKEND_URL, {
@@ -272,7 +288,12 @@ export default {
     // con số tính theo tháng, và nó không chạm database (control plane).
     ctx.waitUntil(
       event.cron === CRON_DEM_NOI_DUNG
-        ? Promise.all([demNoiDung(env), canhHanMucNeon(env), kiemToanVenPhatHanh(env)])
+        ? Promise.all([
+            demNoiDung(env),
+            canhHanMucNeon(env),
+            kiemToanVenPhatHanh(env),
+            gopLuotXemBai(env),
+          ])
         : keepWarm(env)
     );
   },

@@ -1900,6 +1900,76 @@ app.post(
   })
 )
 
+/// LƯỢT XEM BÀI THEO LÔ - chỉ Worker cron `canh-site-cron` gọi, MỘT lần/ngày.
+///
+/// Lượt xem được đếm ở D1 của Cloudflare (`pages/api/views.ts`), KHÔNG ở Neon: ghi
+/// Neon mỗi lượt xem giữ compute thức liên tục và đốt hạn mức 100 CU-giờ
+/// (docs/free-tier.md). Cron gộp các ngày ĐÃ QUA rồi đẩy một lô vào đây.
+///
+/// ĐẶT (không cộng dồn) `count`: một ngày đã qua là đóng, nên gửi lại cùng lô
+/// sau một lần hỏng giữa chừng cho ra đúng số cũ - idempotent. Slug không khớp bài
+/// nào bị bỏ qua (người gửi beacon tự đặt được slug).
+///
+/// Gác bằng bí mật RIÊNG `POST_VIEWS_TOKEN` (header `x-post-views-token`), cùng lý
+/// do với route kiểm toàn vẹn ở trên. Thiếu ⇒ 503, fail closed.
+const VIEWS_TOKEN = process.env.POST_VIEWS_TOKEN || ''
+const NGAY_RE = /^\d{4}-\d{2}-\d{2}$/
+const SLUG_XEM_RE = /^[a-z0-9-]{1,160}$/
+app.post(
+  '/api/internal/post-views',
+  asyncHandler(async (req, res) => {
+    if (!VIEWS_TOKEN) return res.status(503).json({ error: 'POST_VIEWS_TOKEN chưa cấu hình' })
+    const got = req.get('x-post-views-token')
+    const khop =
+      typeof got === 'string' &&
+      got.length > 0 &&
+      timingSafeEqual(
+        createHash('sha256').update(got).digest(),
+        createHash('sha256').update(VIEWS_TOKEN).digest()
+      )
+    if (!khop) return res.status(401).json({ error: 'sai hoặc thiếu x-post-views-token' })
+
+    const items = (req.body as { items?: unknown } | undefined)?.items
+    if (!Array.isArray(items) || items.length > 5000)
+      return res.status(400).json({ error: 'items phải là mảng tối đa 5000 phần tử' })
+    const hopLe: Array<{ slug: string; day: string; count: number }> = []
+    for (const it of items as Array<Record<string, unknown>>) {
+      const { slug, day, count } = it ?? {}
+      if (
+        typeof slug !== 'string' ||
+        !SLUG_XEM_RE.test(slug) ||
+        typeof day !== 'string' ||
+        !NGAY_RE.test(day) ||
+        Number.isNaN(Date.parse(`${day}T00:00:00Z`)) ||
+        !Number.isInteger(count) ||
+        (count as number) < 0 ||
+        (count as number) > 10_000_000
+      )
+        return res.status(400).json({ error: 'phần tử không hợp lệ', item: it })
+      hopLe.push({ slug, day, count: count as number })
+    }
+
+    const posts = await prisma.post.findMany({
+      where: { slug: { in: [...new Set(hopLe.map((i) => i.slug))] } },
+      select: { id: true, slug: true },
+    })
+    const idTheoSlug = new Map(posts.map((p) => [p.slug, p.id]))
+    let ghi = 0
+    for (const it of hopLe) {
+      const postId = idTheoSlug.get(it.slug)
+      if (!postId) continue
+      const day = new Date(`${it.day}T00:00:00Z`)
+      await prisma.postViewDaily.upsert({
+        where: { postId_day: { postId, day } },
+        create: { postId, day, count: it.count },
+        update: { count: it.count },
+      })
+      ghi++
+    }
+    res.json({ nhan: hopLe.length, ghi, boQua: hopLe.length - ghi })
+  })
+)
+
 app.post(
   '/api/admin/projects',
   asyncHandler(async (req, res) => {

@@ -14,6 +14,7 @@ quyết định thì kiểm lại nguồn thay vì tin bảng này.
 | ------------------------------ | ----------------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------- |
 | Cloudflare Workers (site+cron) | 100.000 request/ngày · 10ms CPU mỗi lượt                    | request bị từ chối, không tính tiền                 | -                                               |
 | Cloudflare R2                  | 10 GB-tháng · 1tr Class A · 10tr Class B · egress 0đ        | -                                                   | ảnh và tệp tải lên của site                     |
+| Cloudflare D1                  | 5 GB · 5tr dòng đọc/ngày · **100.000 dòng ghi/ngày**        | ghi bị từ chối ⇒ mất lượt đếm, trang không hỏng     | lượt xem bài chờ gộp (`tsudev-luot-xem`)        |
 | Neon (Postgres)                | 0,5 GB · **100 CU-giờ/tháng** · 5 GB egress · không cần thẻ | **treo compute** tới đầu tháng sau, không tính tiền | cổng hạn mức Neon trong Worker cron (§6.7)      |
 | Render (backend)               | **750 giờ instance/tháng cho CẢ workspace**                 | **tạm dừng mọi service free** tới đầu tháng sau     | đúng MỘT service trong `render.yaml`            |
 | Resend (thư giao dịch)         | 3.000 thư/tháng · 100 thư/ngày · 1 tên miền                 | -                                                   | chỉ dùng cho xác minh email và đặt lại mật khẩu |

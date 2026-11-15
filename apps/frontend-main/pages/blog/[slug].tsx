@@ -11,6 +11,7 @@ import type { Post } from '../../lib/types';
 import { routeParam } from '../../lib/identity';
 import { formatDateVN } from '../../lib/format';
 import { keepStaleOnFailure } from '../../lib/isr';
+import { useGhiLuotXem } from '../../lib/luotXem';
 
 /** Thời gian đọc ước lượng: ~220 từ/phút, tối thiểu 1 phút; bỏ khối code. */
 function readingMinutes(md: string): number {
@@ -32,6 +33,7 @@ type BlogPostProps = {
 
 export default function BlogPost({ post, related, failed, slug, toc }: BlogPostProps) {
   const retrying = useRecoverBuildPlaceholder(failed);
+  useGhiLuotXem(post && !failed ? slug : null);
   // Hai nhánh, không một nhánh. Mã trạng thái tương ứng đã được đặt ở
   // getServerSideProps - xem khối chú thích ở đó.
   if (failed)
