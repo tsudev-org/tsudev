@@ -1,5 +1,14 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 55 BẮT ĐẦU Ở ĐÂY** (cuối phiên 54, 16/11/2026). Phiếu:
+> [`20261116-01`](handover/20261116-01_phien-54-best-practices-the-phien-ban.md) mục 2.
+>
+> ✅ OpenSSF Best Practices **16731 passing 100%**; mỗi deploy gắn thẻ `vYYYY.MM.DD.N` (đầu tiên `v2026.11.16.1`,
+> Worker `12833ec6`); Scorecard tsudev 8.4, thêm cho `tsudev-standards` + `.github`.
+> 🧭 Việc 1: C6 - khi `pkg.tsudev.com/catalog.json` có `tsudev-files` 2.4.1-vn.1 (16/11: vẫn 2.4.0) ⇒ `npm run pkg:catalog`.
+> 🧭 Việc 2: lượt xem bài - phương án Analytics Engine đã chọn (mục 2 phiếu); 👤 token `Account Analytics Read`.
+> ⛔ `.github#2` LICENSE chờ chủ sở hữu. 👤 gõ tiếng Việt 2 bộ gõ; các việc 👤 của phiếu 20261114-02 mục 000.
+
 > **Phiên 54 BẮT ĐẦU Ở ĐÂY** (cuối phiên 53, 15/11/2026 tối). Phiếu:
 > [`20261114-02`](handover/20261114-02_phien-53-p0-p1-bao-mat-tai-khoan.md) mục 000 → 00 → 0.
 >

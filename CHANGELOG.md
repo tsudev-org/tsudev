@@ -14,6 +14,10 @@ Từ 16/11/2026 mỗi lần phát hành production của `main` được gắn t
 <https://github.com/tsudev-org/tsudev/tags>. Mỗi thẻ một dòng dưới đây. _English: every production deployment is
 tagged; the tag message lists the merged pull requests, and each line below summarises one tagged deployment._
 
+- v2026.11.16.1 - 16/11/2026 - Thẻ phiên bản đầu tiên. Gắn thẻ CalVer mỗi lần deploy, CONTRIBUTING.md riêng,
+  mẫu issue song ngữ, tóm tắt tiếng Anh trong README, lint `--max-warnings 0`, hồ sơ OpenSSF Best Practices
+  (dự án 16731, passing 100%). Gồm cả P1 bảo mật tài khoản, P2 CMS, P4 OIDC, Turnstile (#252-#271).
+
 ## Chưa phát hành
 
 - 20/08/2026 - Tái cấu trúc toàn bộ giao diện theo bộ quy ước v1.0.0: ba chế độ
