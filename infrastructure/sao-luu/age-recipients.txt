@@ -1,3 +1,5 @@
 # Khoá CÔNG KHAI age nhận bản sao lưu DB (G12) - một dòng một khoá, dòng bắt đầu bằng age1.
 # Khoá riêng tương ứng do chủ dự án giữ NGOẠI TUYẾN (ít nhất 2 nơi), không bao giờ commit.
 # Thêm khoá: age-keygen -o <ổ ngoài>/tsudev-backup.key ; dán dòng "Public key: age1..." vào đây.
+# Khoá chính, tạo 15/11/2026; khoá riêng ở ổ rời của chủ dự án (+ bản thứ hai cất nơi khác).
+age12dhddfan4cyrahnapgzf8xfsnsmm4vqg8mnu5p7ldea4v8ydvp0snevnaz
