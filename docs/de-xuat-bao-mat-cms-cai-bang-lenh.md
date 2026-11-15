@@ -97,7 +97,8 @@ Thứ tự bắt buộc: migration lên Neon TRƯỚC (kèm `pg_dump` 18), merge
 - Trang soạn cũ gửi `published` vẫn chạy: ánh xạ sang chuyển trạng thái đúng quyền (AUTHOR ⇒ gửi duyệt).
 - Route kiểm duyệt nằm dưới `/api/admin/*` nhưng ngưỡng MODERATOR, khai TƯỜNG MINH ở `MODERATOR_ROUTES` của
   `test/adminMfaGate.test.ts` (route admin mới mặc định vẫn bị đòi ADMIN).
-- **Lượt xem (`PostViewDaily`)**: bảng có, CHƯA ghi. Ghi DB mỗi lượt xem trang công khai giữ Neon thức liên tục
+- **Lượt xem (`PostViewDaily`)**: ĐÃ BẬT 16/11/2026 - beacon `/api/views` ghi D1 `tsudev-luot-xem` (một dòng/ngày/bài/khách,
+  không lưu IP), cron `23 1,13` gộp ngày đã qua thành một lô vào Neon rồi xoá D1. (Ghi chú cũ:) bảng có, CHƯA ghi. Ghi DB mỗi lượt xem trang công khai giữ Neon thức liên tục
   (hạn mức giờ tính toán gói free, `docs/free-tier.md`). Bật khi có cách gộp (đếm ở Worker/KV rồi đẩy theo lô);
   thẻ tổng quan /author chưa có số lượt xem.
 - Trang mới: `/author/posts/[slug]` (`new` = bài mới), `/author/posts/[slug]/history`, `/admin/review`. Giữ
