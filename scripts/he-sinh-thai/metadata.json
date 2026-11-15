@@ -59,7 +59,7 @@
         "vietnamese"
       ]
     },
-    "tsudev-cwico": {
+    "tsucwico": {
       "description": "Deep Windows cleanup: find and remove leftover software safely, with a restore point before every run · Dọn sâu và gỡ phần mềm thừa trên Windows",
       "homepage": "https://cwico.tsudev.com",
       "topics": ["windows", "uninstaller", "cleanup", "tauri", "rust", "vietnamese"]
