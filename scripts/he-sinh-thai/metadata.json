@@ -76,7 +76,7 @@
         "vietnamese"
       ]
     },
-    "tsudev-contact": {
+    "tsucontact": {
       "description": "Convert CSV contact lists to vCard (.vcf) for phones, with page-by-page preview · Chuyển danh bạ CSV sang vCard",
       "homepage": "https://contact.tsudev.com",
       "topics": ["vcard", "csv", "contacts", "converter", "pyside6", "vietnamese"]
