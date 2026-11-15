@@ -1,0 +1,32 @@
+name: Bug report - Báo lỗi
+description: Something on tsudev.com or in this repository does not work. Có gì đó trên tsudev.com không chạy đúng.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        English or Vietnamese is fine. Viết tiếng Việt hay tiếng Anh đều được.
+        Security vulnerabilities: do NOT use this form - see SECURITY.md.
+  - type: input
+    id: url
+    attributes:
+      label: Page or component - Trang hoặc thành phần
+      placeholder: https://tsudev.com/apps
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce - Các bước tái hiện
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual result - Mong đợi và thực tế
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Browser / OS - Trình duyệt / hệ điều hành

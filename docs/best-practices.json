@@ -1,0 +1,267 @@
+{
+  "fields": {
+    "name": "tsudev",
+    "homepage_url": "https://tsudev.com"
+  },
+  "criteria": {
+    "description_good": [
+      "Met",
+      "README.md describes what the website does (app directory, one-command installers, signed downloads, blog, docs, shared accounts), with an English summary: https://github.com/tsudev-org/tsudev/blob/main/README.md"
+    ],
+    "interact": [
+      "Met",
+      "README.md, CONTRIBUTING.md and the issue forms explain how to obtain the source, report bugs, request features and contribute: https://github.com/tsudev-org/tsudev/blob/main/CONTRIBUTING.md"
+    ],
+    "contribution": [
+      "Met",
+      "CONTRIBUTING.md explains the pull request process: https://github.com/tsudev-org/tsudev/blob/main/CONTRIBUTING.md"
+    ],
+    "contribution_requirements": [
+      "Met",
+      "CONTRIBUTING.md lists the requirements: Conventional Commits, tests with every behaviour change, all CI checks green (format, lint with zero warnings, typecheck, tests, CodeQL, gitleaks, npm audit): https://github.com/tsudev-org/tsudev/blob/main/CONTRIBUTING.md"
+    ],
+    "floss_license": [
+      "Met",
+      "Apache License 2.0: https://github.com/tsudev-org/tsudev/blob/main/LICENSE"
+    ],
+    "floss_license_osi": [
+      "Met",
+      "Apache-2.0 is OSI approved; GitHub detects the license as Apache-2.0."
+    ],
+    "license_location": [
+      "Met",
+      "The license is in the standard location LICENSE at the repository root: https://github.com/tsudev-org/tsudev/blob/main/LICENSE"
+    ],
+    "documentation_basics": [
+      "Met",
+      "docs/README.md is the documentation index (architecture, development, testing, deployment, auth, release signing): https://github.com/tsudev-org/tsudev/blob/main/docs/README.md"
+    ],
+    "documentation_interface": [
+      "Met",
+      "The external interfaces are documented: canonical URLs in docs/url-convention.md, auth and roles in docs/auth.md, the signed-release API and JWKS in docs/release-signing.md: https://github.com/tsudev-org/tsudev/blob/main/docs/release-signing.md"
+    ],
+    "sites_https": [
+      "Met",
+      "The project website https://tsudev.com, the repository and downloads all use HTTPS only (HSTS max-age=63072000; includeSubDomains; preload)."
+    ],
+    "discussion": [
+      "Met",
+      "GitHub Issues and pull requests are public, searchable, URL-addressable and open to anyone with a GitHub account: https://github.com/tsudev-org/tsudev/issues"
+    ],
+    "english": [
+      "Met",
+      "README.md has an English summary, CONTRIBUTING.md and SECURITY.md are in English, and the issue forms accept reports in English or Vietnamese: https://github.com/tsudev-org/tsudev/blob/main/CONTRIBUTING.md"
+    ],
+    "maintained": [
+      "Met",
+      "Actively maintained: dozens of merged pull requests in the last month: https://github.com/tsudev-org/tsudev/pulls?q=is%3Apr+is%3Amerged"
+    ],
+    "repo_public": ["Met", "Public git repository on GitHub: https://github.com/tsudev-org/tsudev"],
+    "repo_track": [
+      "Met",
+      "git records who changed what and when; every change goes through a pull request: https://github.com/tsudev-org/tsudev/commits/main"
+    ],
+    "repo_interim": [
+      "Met",
+      "Every change, including work in progress, is pushed to branches and merged into main through pull requests in the public repository: https://github.com/tsudev-org/tsudev/pulls?q=is%3Apr"
+    ],
+    "repo_distributed": ["Met", "git (a distributed version control system) on GitHub."],
+    "version_unique": [
+      "Met",
+      "tsudev.com is deployed continuously. Every production deployment of main gets a unique calendar version tag vYYYY.MM.DD.N, created automatically after the deploy by scripts/release-tag.js: https://github.com/tsudev-org/tsudev/tags"
+    ],
+    "version_semver": [
+      "Met",
+      "Versions use Calendar Versioning (CalVer) YYYY.MM.DD with a micro counter .N for several deployments on the same day, e.g. v2026.11.16.1."
+    ],
+    "version_tags": [
+      "Met",
+      "Each deployment is an annotated git tag on the deployed main commit: https://github.com/tsudev-org/tsudev/tags (script: https://github.com/tsudev-org/tsudev/blob/main/scripts/release-tag.js)"
+    ],
+    "release_notes": [
+      "Met",
+      "Each version has human-readable release notes: the annotated tag message lists every merged pull request since the previous version (shown at https://github.com/tsudev-org/tsudev/releases), and CHANGELOG.md summarises each tagged deployment: https://github.com/tsudev-org/tsudev/blob/main/CHANGELOG.md"
+    ],
+    "release_notes_vulns": [
+      "N/A",
+      "No vulnerability with a CVE or similar public identifier has been fixed in this project. Such fixes would be named in the tag release notes and published as a GitHub Security Advisory (SECURITY.md)."
+    ],
+    "report_process": [
+      "Met",
+      "Bug reports go to GitHub Issues using the bug report form: https://github.com/tsudev-org/tsudev/issues/new/choose"
+    ],
+    "report_tracker": [
+      "Met",
+      "GitHub Issues with bug report and feature request forms: https://github.com/tsudev-org/tsudev/issues"
+    ],
+    "report_responses": [
+      "Met",
+      "No external bug report has been filed so far (the repository became public on 21/08/2026); the maintainer reads every issue and would acknowledge reports within days."
+    ],
+    "enhancement_responses": [
+      "Met",
+      "No external enhancement request has been filed so far; the feature request form routes them to the maintainer, who answers each one."
+    ],
+    "report_archive": [
+      "Met",
+      "GitHub Issues are public and searchable: https://github.com/tsudev-org/tsudev/issues?q=is%3Aissue"
+    ],
+    "vulnerability_report_process": [
+      "Met",
+      "SECURITY.md describes how to report vulnerabilities (English section included): https://github.com/tsudev-org/tsudev/blob/main/.github/SECURITY.md"
+    ],
+    "vulnerability_report_private": [
+      "Met",
+      "GitHub private vulnerability reporting is enabled: https://github.com/tsudev-org/tsudev/security/advisories/new"
+    ],
+    "vulnerability_report_response": [
+      "Met",
+      "No vulnerability report was received in the last 6 months. SECURITY.md commits to a reply within 7 days."
+    ],
+    "build": [
+      "Met",
+      "npm workspaces: npm ci, npm run build:ts (services, compiled with tsc) and the OpenNext build for Cloudflare Workers; the backend Docker image is built and booted in CI: https://github.com/tsudev-org/tsudev/actions/workflows/ci.yml"
+    ],
+    "build_common_tools": [
+      "Met",
+      "Standard tools: npm, the TypeScript compiler, Next.js/OpenNext, Docker, cargo for the small Rust/WASM signing component."
+    ],
+    "build_floss_tools": [
+      "Met",
+      "Node.js, npm, TypeScript, Next.js, OpenNext, Prisma, Docker and Rust are all FLOSS."
+    ],
+    "test": [
+      "Met",
+      "About 90 unit/integration test files (Jest) in services/*/test, apps/frontend-main/test and packages/*/test, Rust tests for the signing component, and Playwright end-to-end tests in e2e/tests: https://github.com/tsudev-org/tsudev/tree/main/services/auth-service/test"
+    ],
+    "test_invocation": [
+      "Met",
+      "Standard invocation per workspace: npm --workspace <workspace> test (documented in CONTRIBUTING.md and docs/testing.md): https://github.com/tsudev-org/tsudev/blob/main/docs/testing.md"
+    ],
+    "test_most": [
+      "Met",
+      "Tests cover authentication (passwords, 2FA, passkeys, sessions, OIDC), authorization, release sealing and Ed25519 signing, storage presigning, the public pages (ISR fallback, CSP, XSS boundary with property-based tests) and end-to-end smoke tests of the main pages."
+    ],
+    "test_continuous_integration": [
+      "Met",
+      "GitHub Actions runs unit tests against a real PostgreSQL, the Rust tests, the backend Docker boot test and Playwright E2E on every pull request and push to main; these checks are required by branch protection: https://github.com/tsudev-org/tsudev/actions/workflows/ci.yml"
+    ],
+    "test_policy": [
+      "Met",
+      "CONTRIBUTING.md: 'A change in behaviour comes with a test in the same pull request ... A bug fix comes with a regression test that fails without the fix': https://github.com/tsudev-org/tsudev/blob/main/CONTRIBUTING.md"
+    ],
+    "tests_are_added": [
+      "Met",
+      "Recent changes add tests with the code, e.g. #265 (OIDC sign-in and account security, 17 test files), #258 (Turnstile), #266 (React #418 on ISR pages), #261 and #260 (install script gate tests): https://github.com/tsudev-org/tsudev/pulls?q=is%3Apr+is%3Amerged"
+    ],
+    "tests_documented_added": [
+      "Met",
+      "The test requirement is written in CONTRIBUTING.md and the pull request template asks how the change was tested: https://github.com/tsudev-org/tsudev/blob/main/.github/pull_request_template.md"
+    ],
+    "warnings": [
+      "Met",
+      "TypeScript strict mode (tsconfig.base.json), ESLint with typescript-eslint and react-hooks rules, Prettier, plus a second type-check with TypeScript 7 in CI: https://github.com/tsudev-org/tsudev/blob/main/tsconfig.base.json"
+    ],
+    "warnings_fixed": [
+      "Met",
+      "ESLint runs with --max-warnings 0 and type errors fail the build, so warnings are fixed before merge (package.json lint script): https://github.com/tsudev-org/tsudev/blob/main/package.json"
+    ],
+    "warnings_strict": [
+      "Met",
+      "TypeScript strict is on for every workspace and the lint gate allows zero warnings."
+    ],
+    "know_secure_design": [
+      "Met",
+      "The maintainer documented the assets, threat model and defence layers (server-side decisions, fail-closed role checks, least privilege, defence in depth): https://github.com/tsudev-org/tsudev/blob/main/docs/security-plan.md"
+    ],
+    "know_common_errors": [
+      "Met",
+      "docs/security-plan.md and docs/auth.md cover the common web errors and their mitigations: XSS (CSP with hashes, sanitized Markdown with property tests), injection (Prisma parameterised queries), credential stuffing (rate limits, breached-password check), session fixation/revocation, header spoofing of client IPs: https://github.com/tsudev-org/tsudev/blob/main/docs/auth.md"
+    ],
+    "crypto_published": [
+      "Met",
+      "Only published algorithms: Argon2id, SHA-256, HMAC, AES-256-GCM, scrypt, Ed25519, ECDSA P-256 (ES256), WebAuthn."
+    ],
+    "crypto_call": [
+      "Met",
+      "No primitives are implemented in the project: it calls Node.js crypto, @node-rs/argon2, the WebAuthn library and the Rust ed25519-dalek crate (compiled to WASM): https://github.com/tsudev-org/tsudev/blob/main/packages/trust-crypto/Cargo.toml"
+    ],
+    "crypto_floss": [
+      "Met",
+      "All cryptographic libraries (Node.js/OpenSSL, @node-rs/argon2, ed25519-dalek, jose/WebAuthn libraries) are FLOSS."
+    ],
+    "crypto_keylength": [
+      "Met",
+      "Ed25519 and ECDSA P-256 (128-bit security), AES-256-GCM, SHA-256; TLS is terminated by Cloudflare with modern key lengths."
+    ],
+    "crypto_working": [
+      "Met",
+      "No broken algorithms are used for security. SHA-1 appears only in two standard-mandated places described under crypto_weaknesses."
+    ],
+    "crypto_weaknesses": [
+      "Met",
+      "No default security mechanism depends on a weakened algorithm. Two SHA-1 uses are mandated by standards and do not rely on collision resistance: HMAC-SHA1 in TOTP (RFC 6238, required by authenticator apps) and the 5-character SHA-1 prefix of the Have I Been Pwned k-anonymity range API used only to detect breached passwords: https://github.com/tsudev-org/tsudev/blob/main/services/auth-service/src/password.ts"
+    ],
+    "crypto_pfs": [
+      "Met",
+      "HTTPS is terminated by Cloudflare with TLS 1.3/1.2 ECDHE key exchange only (TLS 1.0/1.1 refused), which provides perfect forward secrecy."
+    ],
+    "crypto_password_storage": [
+      "Met",
+      "User passwords are stored only as Argon2id hashes with per-password salts (19 MiB memory, 2 iterations, OWASP parameters) via @node-rs/argon2; only auth-service reads the hash: https://github.com/tsudev-org/tsudev/blob/main/services/auth-service/src/password.ts"
+    ],
+    "crypto_random": [
+      "Met",
+      "Keys, tokens, salts, IVs and one-time codes use Node.js crypto.randomBytes/randomInt (CSPRNG); Math.random is not used for security: https://github.com/tsudev-org/tsudev/blob/main/services/auth-service/src/tokens.ts"
+    ],
+    "delivery_mitm": [
+      "Met",
+      "The website and every download are served over HTTPS only with HSTS preload; downloaded release files are additionally verifiable with server-computed SHA-256 and Ed25519 signatures (public keys at /.well-known JWKS)."
+    ],
+    "delivery_unsigned": [
+      "Met",
+      "Hashes and signatures are never retrieved over plain HTTP; release SHA-256 and signatures are served over HTTPS and computed by the server, never supplied by the uploader (docs/release-signing.md)."
+    ],
+    "vulnerabilities_fixed_60_days": [
+      "Met",
+      "No unpatched vulnerability of medium or higher severity: 0 open Dependabot and code scanning alerts, npm audit --omit=dev must show 0 High/Critical in CI. The only known advisory is GHSA-gcqx-w48m-w2h4 (deepmerge, LOW, development-only via Jest, no fixed version yet)."
+    ],
+    "vulnerabilities_critical_fixed": [
+      "Met",
+      "No critical vulnerability is open; security issues found in the project (e.g. client IP spoofing for rate limits, 05/11/2026) were fixed within a day."
+    ],
+    "no_leaked_credentials": [
+      "Met",
+      "No valid credentials in the repository: gitleaks scans the full history on every push and pull request, GitHub secret scanning with push protection is enabled, and production secrets live only in Render/Cloudflare: https://github.com/tsudev-org/tsudev/actions/workflows/security-scan.yml"
+    ],
+    "static_analysis": [
+      "Met",
+      "CodeQL on every push and pull request plus weekly, OpenSSF Scorecard, ESLint and TypeScript strict: https://github.com/tsudev-org/tsudev/actions/workflows/codeql.yml"
+    ],
+    "static_analysis_common_vulnerabilities": [
+      "Met",
+      "CodeQL JavaScript/TypeScript security queries look for XSS, injection, path traversal, SSRF, insecure randomness and similar vulnerabilities."
+    ],
+    "static_analysis_fixed": [
+      "Met",
+      "0 open code scanning alerts; findings (e.g. CodeQL #99 TOCTOU) are fixed or dismissed with a written reason."
+    ],
+    "static_analysis_often": ["Met", "CodeQL runs on every push and pull request."],
+    "dynamic_analysis": [
+      "Met",
+      "Property-based testing with fast-check (thousands of random inputs) of the Markdown XSS boundary runs in CI, plus Playwright end-to-end tests against the running site: https://github.com/tsudev-org/tsudev/blob/main/apps/frontend-main/test/md.property.test.ts"
+    ],
+    "dynamic_analysis_unsafe": [
+      "N/A",
+      "No C/C++ or other memory-unsafe language is shipped. The code is TypeScript plus a small Rust signing component compiled to WebAssembly; its few unsafe FFI entry points run inside the bounds-checked WASM sandbox and are covered by Rust tests in CI."
+    ],
+    "dynamic_analysis_enable_assertions": [
+      "Met",
+      "Tests run with Jest/Playwright assertions and TypeScript runtime checks; the property tests assert the security invariants on every generated input."
+    ],
+    "dynamic_analysis_fixed": [
+      "Met",
+      "No exploitable medium or higher vulnerability has been found by dynamic analysis; findings are fixed and turned into regression tests."
+    ]
+  }
+}

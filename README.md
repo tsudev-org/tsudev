@@ -17,6 +17,20 @@ thái là một, ở `tsudev.com`.
 
 Monorepo npm workspaces. Đặc tả gốc: [`documents-tsudev.md`](documents-tsudev.md).
 
+## English summary
+
+tsudev is the source of [tsudev.com](https://tsudev.com), the home of the tsudev open-source ecosystem: an app
+directory with one-command installers (winget, Scoop, Homebrew, APT/DNF), signed downloads (server-computed SHA-256 +
+Ed25519 signatures), a blog, documentation and the shared account system (passwords hashed with Argon2id, TOTP and
+passkey 2FA, OpenID Connect sign-in for ecosystem apps). Licensed under [Apache-2.0](LICENSE).
+
+- Contributing, tests and versioning: [`CONTRIBUTING.md`](CONTRIBUTING.md) - issues in English are welcome.
+- Security reports: privately, see [`.github/SECURITY.md`](.github/SECURITY.md).
+- Architecture: [`docs/architecture.md`](docs/architecture.md); security design and threat model:
+  [`docs/security-plan.md`](docs/security-plan.md); OpenSSF Best Practices answers:
+  [`docs/best-practices.md`](docs/best-practices.md).
+- Every production deployment is tagged `vYYYY.MM.DD.N`: <https://github.com/tsudev-org/tsudev/tags>.
+
 ## Bắt đầu
 
 ```bash
@@ -30,10 +44,10 @@ Các lần sau chỉ cần `npm run dev:local` (DB đã có sẵn).
 - Mở http://tsudev.localhost:8080 (một cổng vào duy nhất qua
   `scripts/dev-proxy.js`; `*.localhost` tự trỏ loopback, không phải sửa
   `/etc/hosts`). Proxy hỏng: `DEV_PROXY=0 npm run dev:local`.
-- Đăng nhập dev: `tsudev` (ADMIN) · `alice` (MEMBER) · `bob` (VIP), mật khẩu
+- Đăng nhập dev: `tsudev` (ADMIN) · `alice` (MEMBER) · `bob` (AUTHOR), mật khẩu
   `tsudev-dev-2026!`. Do `npm run db:seed:dev` đặt - hash Argon2id thật, đi qua
   ĐÚNG đường mà người dùng thật đi. Không còn "bất kỳ username nào + devpass".
-  `tsudev` = ADMIN (xem `/admin`), `alice` = MEMBER, `bob` = VIP.
+  `tsudev` = ADMIN (xem `/admin`), `alice` = MEMBER, `bob` = AUTHOR.
 
 Không cần Docker cho việc thường ngày. `docker-compose.yml` chỉ dùng khi cần
 MinIO thật.

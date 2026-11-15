@@ -126,3 +126,13 @@ try {
 } finally {
   restore();
 }
+
+// Bản production vừa lên ⇒ gắn thẻ phiên bản `vYYYY.MM.DD.N` cho commit đó
+// (scripts/release-tag.js). Chỉ khi deploy thật; điều kiện không đủ (HEAD không
+// trùng origin/main, cây bẩn) chỉ cảnh báo - Worker đã lên rồi, đừng báo thất bại.
+if (action === 'deploy') {
+  execFileSync(process.execPath, [path.join(__dirname, 'release-tag.js'), '--from-deploy'], {
+    cwd: ROOT,
+    stdio: 'inherit',
+  });
+}
