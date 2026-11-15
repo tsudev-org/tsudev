@@ -64,7 +64,7 @@
       "homepage": "https://cwico.tsudev.com",
       "topics": ["windows", "uninstaller", "cleanup", "tauri", "rust", "vietnamese"]
     },
-    "tsudev-swico": {
+    "tsuswico": {
       "description": "Check Windows and Office licensing and collect hardware inventory with one .exe - data never leaves the machine · Kiểm tra bản quyền và cấu hình máy",
       "homepage": "https://swico.tsudev.com",
       "topics": [

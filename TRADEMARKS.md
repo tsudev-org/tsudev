@@ -3,7 +3,7 @@
 _Tiếng Việt ở cuối trang._
 
 The source code of tsudev projects is open source (see each repository's `LICENSE`). **The brand is not.** The names
-**tsudev**, **Lotus Share**, **cwico**, **tsudev SWICO**, **tsudev-files**, **tsudev-contact**,
+**tsudev**, **Lotus Share**, **cwico**, **Tsu Swico** (formerly **tsudev SWICO**), **tsudev-files**, **tsudev-contact**,
 **tsudev-trafficmonitor**, the tsudev owl logo and every product logo are trademarks of tsudev. Open-source licenses
 cover copyright, not trademarks (Apache-2.0 section 6 says so explicitly).
 
