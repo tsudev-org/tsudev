@@ -1,12 +1,19 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
-> **Phiên 54 BẮT ĐẦU Ở ĐÂY** (cuối phiên 53, 15/11/2026). Phiếu:
-> [`20261114-02`](handover/20261114-02_phien-53-p0-p1-bao-mat-tai-khoan.md) mục 00 và 0.
+> **Phiên 54 BẮT ĐẦU Ở ĐÂY** (cuối phiên 53, 15/11/2026 tối). Phiếu:
+> [`20261114-02`](handover/20261114-02_phien-53-p0-p1-bao-mat-tai-khoan.md) mục 000 → 00 → 0.
 >
-> ✅ P1 + P2 + P4 trên production; OIDC BẬT (`/oidc` 200, ES256), Turnstile BẬT (thiếu token ⇒ 400); #252 #261 #266
-> merge, Worker `62452ce0`; GitHub 0 cảnh báo code scanning/Dependabot/secret scanning.
-> ⏳ Việc đầu: phiếu [`20261115-01`](handover/20261115-01_yeu-cau-ho-so-xac-minh.md) (OpenSSF). Còn 👤: ID zone/Zone Read
-> cho chống bot, API key GitGuardian thật, `sudo apt install age`. C6 chờ linux-packages dựng lại kho.
+> ✅ Production: P1 bảo mật tài khoản, P2 CMS (Tiptap 3), P4 OIDC (BẬT, ES256), Turnstile (BẬT), C2/C4, chân trang
+> "Tài khoản". GitHub 0 cảnh báo mở; GitGuardian sạch. G9 G11 G12 ĐÓNG (sao lưu age đã diễn tập). Worker `62452ce0`.
+> 🧭 Việc 1: phiếu [`20261115-01`](handover/20261115-01_yeu-cau-ho-so-xac-minh.md) - hồ sơ OpenSSF Best Practices +
+> Scorecard (đọc phiếu mẹ `~/projects/logs/handover/20261115-01_*` mục 0 TRƯỚC; chỉ ghi Met khi có bằng chứng; công cụ
+> `~/projects/logs/tools/bestpractices/` dùng chung profile Edge - mỗi lúc MỘT phiên). LICENSE cho `tsudev-org/.github`
+> chạm vùng giấy phép ⇒ PR + chủ sở hữu duyệt.
+> 🧭 Việc 2: C6 - khi `pkg.tsudev.com/catalog.json` có `tsudev-files` 2.4.1-vn.1 (đo 15/11: vẫn 2.4.0) ⇒ `npm run pkg:catalog`.
+> 🧭 Việc 3 (nhỏ): lượt xem bài (`PostViewDaily`) theo lô; kiểm gõ tiếng Việt 2 bộ gõ (ADR-0001) cần người thật.
+> 👤 Còn: thu hồi token Render/Cloudflare/GitGuardian + xoá tệp `~/.config/tsudev/*.env`; tuỳ chọn tắt JS Detections
+> (Cloudflare → Security → Bots - agent bị chặn); thử đăng ký trên trình duyệt thật (Turnstile); in khoá `age` ra giấy.
+> 🪤 Bộ phân loại an toàn CHẶN agent: tải/cài binary, tắt tính năng bảo mật, rút token OAuth của wrangler dùng việc khác.
 
 > **Phiên 53 BẮT ĐẦU Ở ĐÂY** (cuối phiên 52, 13/11/2026). Phiếu:
 > [`20261113-08`](handover/20261113-08_phien-52-menu-tai-khoan-ra-quet-giao-dien.md).
