@@ -145,13 +145,15 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
     },
     {
       id: 'cwico',
-      name: 'cwico',
+      // Tên sản phẩm Tsu Cwico từ 16/11/2026 (repo tsudev-org/tsucwico, phiếu 20261116-90).
+      // GIỮ: id `cwico`, winget `tsudev.cwico`, cwico.tsudev.com, logo.
+      name: 'Tsu Cwico',
       tagline:
         'Rà quét sâu và gỡ phần mềm thừa trên Windows - chặn cứng thành phần hệ thống, tạo điểm khôi phục trước mỗi lần chạy.',
       category: 'system',
       platforms: ['windows'],
       website: 'https://cwico.tsudev.com',
-      releases: 'https://github.com/tsudev-org/tsudev-cwico/releases/latest',
+      releases: 'https://github.com/tsudev-org/tsucwico/releases/latest',
       winget: 'tsudev.cwico',
       openSource: true,
       // Logo riêng do chủ dự án giao 13/11/2026 (packages/brand/source/eco/) - repo cwico
