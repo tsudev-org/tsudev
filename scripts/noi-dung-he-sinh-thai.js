@@ -24,12 +24,12 @@ const DOCS = [
 ## Các ứng dụng
 
 - **tsudev-trafficmonitor** - theo dõi tốc độ mạng, CPU, RAM trên thanh tác vụ (Windows): [trafficmonitor.tsudev.com](https://trafficmonitor.tsudev.com)
-- **cwico** - rà quét sâu và gỡ phần mềm thừa, tạo điểm khôi phục trước mỗi lần chạy (Windows): [cwico.tsudev.com](https://cwico.tsudev.com)
-- **tsudev SWICO** - kiểm tra bản quyền Windows, Office và cấu hình phần cứng (Windows): [swico.tsudev.com](https://swico.tsudev.com)
+- **Tsu Cwico** - rà quét sâu và gỡ phần mềm thừa, tạo điểm khôi phục trước mỗi lần chạy (Windows): [cwico.tsudev.com](https://cwico.tsudev.com)
+- **Tsu Swico** - kiểm tra bản quyền Windows, Office và cấu hình phần cứng (Windows): [swico.tsudev.com](https://swico.tsudev.com)
 - **TsuFiles** - chuyển đổi tệp ngoại tuyến bằng kéo thả (Windows, macOS, Linux): [files.tsudev.com](https://files.tsudev.com)
 - **Lotus Share** - gửi tệp, tin nhắn trong cùng mạng Wi-Fi, mã hoá đầu cuối (Windows, Android, macOS/iOS, Linux): [lotus.tsudev.com](https://lotus.tsudev.com)
 - **La bàn** - la bàn, toạ độ, độ cao, thước thuỷ (Android): [compass.tsudev.com](https://compass.tsudev.com)
-- **tsudev-contact** - chuyển danh bạ CSV sang vCard .vcf (Windows): [contact.tsudev.com](https://contact.tsudev.com)
+- **Tsu Contact** - chuyển danh bạ CSV sang vCard .vcf (Windows): [contact.tsudev.com](https://contact.tsudev.com)
 
 ## Trò chơi
 
@@ -68,8 +68,8 @@ Thay \`<tên-gói>\` bằng \`--list\` (Windows: \`-List\`) để xem gói có t
 
 Có sẵn trong Windows, không cần thêm nguồn:
 
-- **cwico**: \`winget install --id tsudev.cwico -e\`
-- **tsudev SWICO**: \`winget install --id tsudev.SWICO -e\`
+- **Tsu Cwico**: \`winget install --id tsudev.cwico -e\`
+- **Tsu Swico**: \`winget install --id tsudev.SWICO -e\`
 
 \`-e\` (khớp chính xác) đảm bảo winget cài đúng gói có mã đó. Cập nhật: \`winget upgrade --id tsudev.cwico -e\`. Ở [/apps](/apps) có thể đánh dấu nhiều ứng dụng rồi chép một lệnh gộp.
 
@@ -80,7 +80,7 @@ scoop bucket add tsudev https://github.com/tsudev-org/scoop-bucket
 scoop install tsudev/tsudev-trafficmonitor
 \`\`\`
 
-Có trong bucket: tsudev-trafficmonitor, tsudev-swico, tsudev-files, lotus-share. Cập nhật: \`scoop update *\`.
+Có trong bucket: tsudev-trafficmonitor, tsuswico, tsucontact, tsudev-files, lotus-share. Cập nhật: \`scoop update *\`.
 
 ## Homebrew (macOS)
 
