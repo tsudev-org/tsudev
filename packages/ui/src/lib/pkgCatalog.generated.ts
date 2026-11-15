@@ -45,16 +45,16 @@ export const PKG_CATALOG = {
       homepage: 'https://files.tsudev.com',
     },
     {
-      name: 'tsudev-swico',
-      version: '26.8.18.2',
-      arch: ['any'],
-      homepage: 'https://swico.tsudev.com',
-    },
-    {
       name: 'tsudev-trafficmonitor',
       version: '26.11.1202',
       arch: ['32bit', '64bit', 'arm64'],
       homepage: 'https://trafficmonitor.tsudev.com',
+    },
+    {
+      name: 'tsuswico',
+      version: '26.8.18.2',
+      arch: ['any'],
+      homepage: 'https://swico.tsudev.com',
     },
   ],
   brew: [

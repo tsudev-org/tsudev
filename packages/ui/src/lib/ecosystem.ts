@@ -162,13 +162,15 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
     },
     {
       id: 'swico',
-      name: 'tsudev SWICO',
+      // Tên sản phẩm Tsu Swico từ 16/11/2026 (ADR-0001 repo tsudev-org/tsuswico, phiếu 20261116-S1).
+      // GIỮ: id `swico`, winget `tsudev.SWICO`, swico.tsudev.com, lệnh swico.exe.
+      name: 'Tsu Swico',
       tagline:
         'Kiểm tra bản quyền Windows, Office và thu thập cấu hình phần cứng bằng một tệp .exe - dữ liệu không rời khỏi máy.',
       category: 'system',
       platforms: ['windows'],
       website: 'https://swico.tsudev.com',
-      releases: 'https://github.com/tsudev-org/tsudev-swico/releases/latest',
+      releases: 'https://github.com/tsudev-org/tsuswico/releases/latest',
       winget: 'tsudev.SWICO',
       openSource: true,
       logo: '/eco/swico.webp',
