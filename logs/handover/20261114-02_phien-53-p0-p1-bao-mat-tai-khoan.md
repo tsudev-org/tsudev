@@ -4,6 +4,24 @@
 - **Phiên**: phiên 53, 14/11/2026
 - **Trạng thái**: ĐÓNG phần code (P0-P5 của tsudev) - còn lại chỉ việc 👤/⛔ ở mục 0
 
+## 00. Cập nhật 15/11/2026 - chủ dự án cấp token tạm (Render, Cloudflare, GitGuardian) + duyệt ⛔
+
+| Việc                                                   | Cách                                                                                                                                                                                                   | Đo trên production                                                                                                                            |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Khoá ký OIDC ES256                                     | sinh ở `~/.config/tsudev/oidc-signing.env` (600), đặt `OIDC_SIGNING_JWK` qua Render API, deploy `dep-dbsq0jjbc2fs73c89sfg`                                                                             | `/oidc/.well-known/openid-configuration` 200: issuer `https://tsudev.com/oidc`, chỉ `code`, PKCE `S256`, ES256; JWKS `kid` khớp, không lộ `d` |
+| Turnstile                                              | widget `tsudev-tai-khoan` (managed, tsudev.com) qua API; `TURNSTILE_SECRET_KEY` ở Render, `TURNSTILE_SITE_KEY` là secret của Worker (đặt TRƯỚC khi Render nạp khoá bí mật - ngược lại là chặn đăng ký) | quên mật khẩu / đăng ký thiếu token ⇒ 400 `turnstile_failed`; widget vẽ ở /signup (headless bị giữ lại - cần một người thật thử)              |
+| ⛔ #252 chân trang "Tài khoản", #261 install nhiều gói | merge sau khi `nguyentrangtinhsu` duyệt                                                                                                                                                                | Worker `62452ce0`; install.sh/.ps1 trên site trùng băm repo + `.sha256`; quét `/` `/apps` 8/8 OK                                              |
+
+Còn lại:
+
+- Zone Bot Fight Mode / JavaScript Detections: token Cloudflare mới không đọc được zone (thiếu Zone Read) ⇒ cần ID zone
+  hoặc thêm quyền. Ý định: tắt RIÊNG JavaScript Detections, giữ Bot Fight Mode.
+- GitGuardian: giá trị cấp là UUID 36 ký tự (ID token, không phải API key) ⇒ "Invalid API key". 2 sự cố fixture test
+  (`accountSecurityP1.test.ts`, `breachCheck.test.ts`) còn mở và tái báo ở mọi PR có commit trộn `main`.
+- `age`: cài binary bị bộ phân loại an toàn chặn 2 lần ⇒ `sudo apt install age`.
+- Chủ dự án thu hồi token Render/Cloudflare/GitGuardian sau phiên. Turnstile + OIDC KHÔNG phụ thuộc các token đó.
+- **Việc kế tiếp**: phiếu `20261115-01` (hồ sơ OpenSSF Best Practices + Scorecard, từ phiên tsufiles).
+
 ## 0. Kết thúc phiên 53 (14/11/2026, tối)
 
 Chủ dự án đưa 3 migration lên Neon (30/30). Sau đó:
