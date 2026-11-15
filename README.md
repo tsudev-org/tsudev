@@ -3,6 +3,8 @@
 # tsudev
 
 [![CI](https://github.com/tsudev-org/tsudev/actions/workflows/ci.yml/badge.svg)](https://github.com/tsudev-org/tsudev/actions/workflows/ci.yml)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/16731/badge)](https://www.bestpractices.dev/projects/16731)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/tsudev-org/tsudev/badge)](https://scorecard.dev/viewer/?uri=github.com/tsudev-org/tsudev)
 
 Website cá nhân của tsudev để **phát hành file cài đặt của các app tự phát
 triển**: mỗi bản có SHA-256 do máy chủ tính và chữ ký Ed25519 người tải tự kiểm
@@ -28,7 +30,7 @@ passkey 2FA, OpenID Connect sign-in for ecosystem apps). Licensed under [Apache-
 - Security reports: privately, see [`.github/SECURITY.md`](.github/SECURITY.md).
 - Architecture: [`docs/architecture.md`](docs/architecture.md); security design and threat model:
   [`docs/security-plan.md`](docs/security-plan.md); OpenSSF Best Practices answers:
-  [`docs/best-practices.md`](docs/best-practices.md).
+  [`docs/best-practices.md`](docs/best-practices.md) (project [16731](https://www.bestpractices.dev/projects/16731), passing).
 - Every production deployment is tagged `vYYYY.MM.DD.N`: <https://github.com/tsudev-org/tsudev/tags>.
 
 ## Bắt đầu

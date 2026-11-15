@@ -120,7 +120,10 @@ function main() {
   }
   git('tag', '-a', name, '-m', msg);
   try {
-    git('push', 'origin', `refs/tags/${name}`);
+    // stderr hiện ra màn hình: lần đầu (16/11/2026) đẩy hỏng từ trong deploy mà không để lại lý do.
+    execFileSync('git', ['push', 'origin', `refs/tags/${name}`], {
+      stdio: ['ignore', 'inherit', 'inherit'],
+    });
   } catch {
     stop(`đã gắn ${name} ở máy nhưng chưa đẩy được - chạy: git push origin ${name}`);
   }
