@@ -79,3 +79,5 @@ test.each([
 ])('đầu vào xấu ⇒ 400 (%j)', async (body) => {
   expect((await request(app).post(DUONG).set(TOKEN).send(body)).status).toBe(400)
 })
+
+export {}
