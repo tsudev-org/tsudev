@@ -1,0 +1,16 @@
+name: Feature request - Đề xuất tính năng
+description: Suggest an improvement to tsudev.com. Đề xuất cải tiến cho tsudev.com.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem - Vấn đề cần giải quyết
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal - Đề xuất
+    validations:
+      required: true

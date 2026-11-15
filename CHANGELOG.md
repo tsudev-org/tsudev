@@ -7,6 +7,13 @@ tsudev là **website**, không phải app cài đặt, nên nó không mang chu�
 theo khuôn `{YY}.{M}.{DD}{NN}` - khuôn đó chỉ áp cho tool/phần mềm desktop phát
 hành thành file cài. Ở đây mỗi dòng là một đợt thay đổi đáng kể, đánh dấu bằng ngày.
 
+## Bản triển khai (thẻ git)
+
+Từ 16/11/2026 mỗi lần phát hành production của `main` được gắn thẻ CalVer `vYYYY.MM.DD.N` bằng
+`scripts/release-tag.js` (deploy frontend tự gọi). Nội dung thẻ là danh sách PR có trong bản đó:
+<https://github.com/tsudev-org/tsudev/tags>. Mỗi thẻ một dòng dưới đây. _English: every production deployment is
+tagged; the tag message lists the merged pull requests, and each line below summarises one tagged deployment._
+
 ## Chưa phát hành
 
 - 20/08/2026 - Tái cấu trúc toàn bộ giao diện theo bộ quy ước v1.0.0: ba chế độ
