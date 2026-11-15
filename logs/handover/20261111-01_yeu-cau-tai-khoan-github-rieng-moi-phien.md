@@ -4,7 +4,7 @@
 - **Từ**: phiên b4djl1h-cmdb-95 - **Đến**: phiên hiện tại và các phiên sau của `tsudev`
 - **Thời điểm**: 11/11/2026
 - **Ủy quyền**: chủ máy cho phép gửi phiếu này tới mọi phiên trong `~/projects` (chat 11/11/2026).
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG - đã đọc và tuân thủ: không gh auth switch trên cấu hình chung (đối soát phiên 53, 14/11/2026)
 
 Hướng dẫn đầy đủ: `~/projects/logs/handover/20261111-02_huong-dan-tai-khoan-github-moi-phien.md`.
 

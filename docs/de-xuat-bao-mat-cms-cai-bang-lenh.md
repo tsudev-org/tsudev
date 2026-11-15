@@ -49,6 +49,27 @@ Mỗi dòng ≈ một PR. ⛔ = chạm vùng bảo vệ, cần chủ sở hữu 
 | P1.8 | **Header HTTP**: đo `curl -sI https://tsudev.com` rồi bổ sung phần còn thiếu trong `COOP same-origin`, `CORP same-site`, `Permissions-Policy` tối thiểu, HSTS `preload`; test quét nguồn canh                                                                | frontend-web                         | test + curl                                                   |
 | P1.9 | **G12**: script sao lưu DB mã hoá bằng `age` (khoá công khai trong repo, khoá riêng chủ dự án giữ). **G11**: hướng dẫn sao lưu khoá ký ngoại tuyến                                                                                                           | infra                                | giải mã thử thành công một bản dump                           |
 
+**Lựa chọn kỹ thuật phát sinh khi làm P1 (phiên 53, 14/11/2026)** - đo hiện trạng trước: HIBP (đăng ký/đặt
+lại/đổi), cảnh báo thiết bị mới (`device.ts`) và step-up (`/step-up`, dùng ở useradmin) ĐÃ CÓ từ phiên 36; P1 chỉ
+làm phần còn thiếu.
+
+- P1.3: step-up CHỈ đòi khi tài khoản ĐÃ có TOTP xác nhận. Token step-up chỉ phát được bằng mã TOTP, đòi nó ở
+  tài khoản chưa có TOTP là khoá họ khỏi đổi mật khẩu; các route đó vẫn đòi mật khẩu hiện tại. Thêm route
+  `totp/backup-codes` (tạo lại mã dự phòng - trước đây không có).
+- P1.4: `checkPasswordBreach` ba trạng thái (`null` = HIBP không trả lời); chỉ ghi `passwordCheckedAt` khi có
+  câu trả lời thật. Kiểm lại lúc đăng nhập mật khẩu nếu lần kiểm trước > 30 ngày (chỗ duy nhất thấy được mật
+  khẩu của tài khoản cũ). HIBP timeout 4 giây.
+- P1.5: nút "Không phải tôi" trỏ `/revoke-sessions?token=` - trang CHỈ thu hồi khi người dùng BẤM (POST), không
+  khi mở liên kết (trình quét thư mở trước mọi liên kết). Bác: GET tự thu hồi.
+- P1.6: bộ đếm Postgres CHỈ cho tầng NHẠY CẢM (mật khẩu, mã 6 số, token, đăng ký). Tầng chung đếm mọi request
+  vẫn ở RAM - ghi DB mỗi request là thành nguồn tải và giữ Neon thức. Kho hỏng ⇒ fail-open có log. Dọn rác ở
+  đường ghi (lượt đầu mỗi cửa sổ), không cron. `RATE_LIMIT_STORE=memory` để tắt khi cần.
+- P1.7: thiếu `TURNSTILE_SECRET_KEY` ở production KHÔNG làm backend từ chối khởi động cho tới khi chủ dự án
+  đặt khoá (từ chối ngay hôm nay = sập site vì việc 👤 chưa làm); thay vào đó log lỗi mỗi lần khởi động. Bật
+  cứng bằng `TURNSTILE_REQUIRED=1` sau khi đặt khoá.
+- P1.8: đo 14/11 - HSTS preload, nosniff, DENY, Referrer, Permissions-Policy đã có; thêm COOP `same-origin` +
+  CORP `same-site`.
+
 👤 Chủ dự án: tạo widget Turnstile (hoặc cấp token API có quyền Turnstile) + đặt `TURNSTILE_SECRET_KEY` ở Render; bật
 WAF Managed Rules (gói free) + 1 rate-limit rule cho `/api/auth/*` ở dashboard Cloudflare; đặt `VIRUSTOTAL_API_KEY`,
 `RELEASE_INTEGRITY_TOKEN` (G4, G5 - còn treo từ 06/11).
@@ -65,6 +86,22 @@ Thứ tự bắt buộc: migration lên Neon TRƯỚC (kèm `pg_dump` 18), merge
 | P2.3 | **Trang**: `/author` tổng quan (đếm theo trạng thái, lượt xem 7/30 ngày) · `/author/posts` bảng chuẩn DATA_TABLE (tìm tiếng Việt bỏ dấu, lọc trạng thái/chuyên mục/thẻ, URL giữ bộ lọc) · `/author/posts/new` + `/author/posts/[id]` hai cột: trái Tiptap (D3) + xem trước, phải hộp Xuất bản / Chuyên mục / Thẻ / Ảnh bìa / SEO + xem trước thẻ chia sẻ / Nguồn; tự lưu nháp mỗi 10 giây; cảnh báo khi rời trang · `/author/posts/[id]/history` so sánh + khôi phục · `/admin/content` thành hàng chờ duyệt |
 | P2.4 | `/admin/categories`, gộp thẻ trùng; ADR chọn Tiptap (`docs/adr/`); kiểm gõ tiếng Việt thủ công với 2 bộ gõ (ghi kết quả vào ADR)                                                                                                                                                                                                                                                                                                                                                                             |
 | P2.5 | **Góp ý & báo lỗi (D2)**: model `Feedback(appId, kind BUG\|IDEA, title, body, status RECEIVED\|IN_PROGRESS\|DONE\|REJECTED, reply, userId, approvedAt)`; trang `/apps/[id]/gop-y` (đối chiếu `docs/url-convention.md`), `/admin/feedback`; Turnstile + P1.6                                                                                                                                                                                                                                                  |
+
+**Lựa chọn kỹ thuật phát sinh khi làm P2 (phiên 53)**:
+
+- `published` GIỮ làm cột suy ra từ `status` (`statusFields` ở `postWorkflow.ts` là chỗ DUY NHẤT ghi nó) - 52 chỗ
+  đọc công khai cũ giữ đúng nghĩa mà không sửa. SCHEDULED quá giờ = PUBLISHED suy lúc đọc (`effectiveStatus`),
+  không cron.
+- Tác giả sửa tiêu đề/nội dung bài đang công khai ⇒ về PENDING (chặn "được duyệt rồi tráo nội dung"; không có bản
+  nháp tách riêng vì D3). Trang soạn chỉ TỰ LƯU bản nháp, bài đã đăng chỉ lưu khi bấm.
+- Trang soạn cũ gửi `published` vẫn chạy: ánh xạ sang chuyển trạng thái đúng quyền (AUTHOR ⇒ gửi duyệt).
+- Route kiểm duyệt nằm dưới `/api/admin/*` nhưng ngưỡng MODERATOR, khai TƯỜNG MINH ở `MODERATOR_ROUTES` của
+  `test/adminMfaGate.test.ts` (route admin mới mặc định vẫn bị đòi ADMIN).
+- **Lượt xem (`PostViewDaily`)**: bảng có, CHƯA ghi. Ghi DB mỗi lượt xem trang công khai giữ Neon thức liên tục
+  (hạn mức giờ tính toán gói free, `docs/free-tier.md`). Bật khi có cách gộp (đếm ở Worker/KV rồi đẩy theo lô);
+  thẻ tổng quan /author chưa có số lượt xem.
+- Trang mới: `/author/posts/[slug]` (`new` = bài mới), `/author/posts/[slug]/history`, `/admin/review`. Giữ
+  `/author` cũ làm danh sách (thêm nhãn trạng thái + nút "Viết bài mới"); bảng DATA_TABLE đầy đủ là bước sau.
 
 Nghiệm thu P2: unit cho máy trạng thái (mọi cạnh cấm ⇒ 409); E2E: AUTHOR viết → gửi duyệt → MODERATOR duyệt → bài hiện
 trên `/blog` sau revalidate; ISR vẫn 200 khi tắt backend; công cụ quét giao diện ra OK trên các trang mới.

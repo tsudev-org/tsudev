@@ -84,7 +84,14 @@ export const PKG_CATALOG = ${body} as const;
     ...(await prettier.resolveConfig(OUT)),
     filepath: OUT,
   });
-  const cur = fs.existsSync(OUT) ? fs.readFileSync(OUT, 'utf8') : '';
+  // Một lần đọc, bắt ENOENT - không `existsSync` rồi mới đọc: hai bước là khe TOCTOU
+  // (CodeQL js/file-system-race #99), tệp có thể đổi giữa lúc kiểm và lúc đọc.
+  let cur = '';
+  try {
+    cur = fs.readFileSync(OUT, 'utf8');
+  } catch (e) {
+    if (e.code !== 'ENOENT') throw e;
+  }
   const summary = Object.entries(out)
     .map(([k, v]) => `${k}: ${v.map((p) => p.name).join(', ')}`)
     .join(' | ');

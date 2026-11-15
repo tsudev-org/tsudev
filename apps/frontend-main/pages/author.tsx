@@ -11,6 +11,7 @@ import { useRouter } from 'next/router';
 import AuthorDocs from '../components/AuthorDocs';
 import { useUrlPaging, useUrlPagingSync } from '../lib/useUrlPaging';
 import { useLoader } from '../lib/useLoader';
+import { STATUS_LABEL, type PostStatus } from '../lib/postStatus';
 
 type Tab = 'posts' | 'docs';
 const TABS: { id: Tab; label: string; icon: 'edit' | 'book' }[] = [
@@ -28,6 +29,8 @@ interface PostRef {
 interface AuthorPost {
   id: string;
   slug: string;
+  /** P2: trạng thái theo máy trạng thái của content-service. */
+  status: PostStatus;
   title: string;
   excerpt: string | null;
   contentMd: string;
@@ -349,9 +352,10 @@ export default function AuthorEditor() {
           title={tab === 'docs' ? 'Tài liệu của site' : 'Bài viết của tôi'}
           action={
             tab === 'posts' ? (
-              <Badge tone="brand" mono>
-                {posts.length} bài
-              </Badge>
+              <Button as="a" href="/author/posts/new" size="sm">
+                <Icon name="edit" />
+                Viết bài mới
+              </Button>
             ) : undefined
           }
         />
@@ -650,13 +654,10 @@ export default function AuthorEditor() {
                     <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
                       <span className="font-semibold text-fg">{p.title}</span>
                       <span className="font-mono text-xs text-fg-muted">{p.slug}</span>
-                      {!p.published ? (
-                        <Badge tone="warning">Nháp</Badge>
-                      ) : isFuture(p.publishedAt) ? (
-                        <Badge tone="warning">Đã lên lịch</Badge>
-                      ) : (
-                        <Badge tone="success">Đã công bố</Badge>
-                      )}
+                      {/* P2: trạng thái từ máy trạng thái (chờ duyệt, hẹn giờ, lưu trữ...). */}
+                      <Badge tone={STATUS_LABEL[p.status].tone}>
+                        {STATUS_LABEL[p.status].text}
+                      </Badge>
                     </div>
                     {p.excerpt && <p className="text-sm text-fg-muted">{p.excerpt}</p>}
                     <div className="mt-2 flex flex-wrap items-center gap-1.5">
@@ -676,9 +677,12 @@ export default function AuthorEditor() {
                     </div>
                   </div>
                   <div className="flex shrink-0 gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => startEdit(p)}>
+                    <Button size="sm" variant="ghost" as="a" href={`/author/posts/${p.slug}`}>
                       <Icon name="edit" />
                       Sửa
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => startEdit(p)}>
+                      Sửa nhanh
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => remove(p.slug)}>
                       <Icon name="trash" />

@@ -17,6 +17,8 @@ type AuthShellProps = {
   description?: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
+  /** Trang mang token trong URL (thư bảo mật) không được vào chỉ mục tìm kiếm. */
+  noindex?: boolean;
 };
 
 // Cột thương hiệu nói đúng ba cơ chế bảo vệ tài khoản ĐANG chạy (docs/auth.md) -
@@ -28,9 +30,9 @@ const GUARANTEES: [IconName, string, string][] = [
   ['passkey', 'Passkey', 'Đăng nhập bằng vân tay hoặc khoá thiết bị, không cần mật khẩu.'],
 ];
 
-export const AuthShell = ({ title, description, children, footer }: AuthShellProps) => (
+export const AuthShell = ({ title, description, children, footer, noindex }: AuthShellProps) => (
   <Layout active="/login" bare>
-    <Seo title={title} description={description} />
+    <Seo title={title} description={description} noindex={noindex} />
     <div>
       <div className="mx-auto grid max-w-5xl items-center gap-10 px-4 py-12 md:py-16 lg:grid-cols-[1fr_26rem]">
         <div className="hidden lg:block">

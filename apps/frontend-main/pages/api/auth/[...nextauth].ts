@@ -65,7 +65,8 @@ async function verifyWithIdentityService(
   identifier: string,
   password: string,
   totp: string,
-  fwd: Record<string, string>
+  fwd: Record<string, string>,
+  turnstileToken = ''
 ) {
   const res = await fetch(`${IDENTITY}/api/identity/verify-credentials`, {
     method: 'POST',
@@ -76,7 +77,7 @@ async function verifyWithIdentityService(
       // dùng, không phải IP của tiến trình Next. Quốc gia đi cùng đường.
       ...fwd,
     },
-    body: JSON.stringify({ identifier, password, totp }),
+    body: JSON.stringify({ identifier, password, totp, turnstileToken }),
   });
   // Mã lỗi được TRẢ RA NGUYÊN VĂN cho tầng trên, không nuốt thành null: trang
   // /login cần phân biệt "sai mật khẩu" với "cần nhập mã 2FA" để biết hiện ô
@@ -84,7 +85,12 @@ async function verifyWithIdentityService(
   // qua được bước mật khẩu.
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { error?: string };
-    if (body?.error === 'totp_required' || body?.error === 'totp_invalid') {
+    // `turnstile_required` (P1.7) cũng phải lọt ra: trang cần biết để HIỆN widget.
+    if (
+      body?.error === 'totp_required' ||
+      body?.error === 'totp_invalid' ||
+      body?.error === 'turnstile_required'
+    ) {
       throw new Error(body.error);
     }
     return null;
@@ -154,6 +160,7 @@ const providers: Provider[] = [
       identifier: { label: 'Tên đăng nhập hoặc email', type: 'text' },
       password: { label: 'Mật khẩu', type: 'password' },
       totp: { label: 'Mã xác thực hai bước', type: 'text' },
+      turnstileToken: { label: 'Turnstile', type: 'text' },
     },
     async authorize(credentials, req) {
       if (!credentials?.identifier || !credentials?.password) return null;
@@ -161,7 +168,8 @@ const providers: Provider[] = [
         credentials.identifier,
         credentials.password,
         credentials.totp || '',
-        callerHeaders(req as unknown as NextApiRequest)
+        callerHeaders(req as unknown as NextApiRequest),
+        credentials.turnstileToken || ''
       );
       if (!user) return null;
       return {

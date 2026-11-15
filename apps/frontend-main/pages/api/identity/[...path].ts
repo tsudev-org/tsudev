@@ -28,6 +28,9 @@ const ALLOWED = new Set([
   'confirm-email-change',
   'request-password-reset',
   'reset-password',
+  // P1.5 nút "Không phải tôi" trong thư cảnh báo: công khai vì người bấm có thể
+  // đang ở máy chưa đăng nhập; token SESSION_REVOKE dùng một lần là cái gác.
+  'revoke-sessions',
   // Hai bước đăng nhập bằng passkey. Công khai vì người gọi CHƯA có danh tính -
   // đó chính là thứ họ đang cố chứng minh.
   //

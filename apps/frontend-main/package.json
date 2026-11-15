@@ -15,6 +15,11 @@
   },
   "dependencies": {
     "@simplewebauthn/browser": "14.0.0",
+    "@tiptap/extension-image": "3.32.2",
+    "@tiptap/markdown": "3.32.2",
+    "@tiptap/pm": "3.32.2",
+    "@tiptap/react": "3.32.2",
+    "@tiptap/starter-kit": "3.32.2",
     "@tsudev/identity-token": "*",
     "@tsudev/search": "*",
     "@tsudev/types": "*",

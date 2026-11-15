@@ -6,6 +6,7 @@ import { emailGraceRemainingMs } from '@tsudev/types';
 import Seo from '../../components/Seo';
 import { Notice } from '../../components/AuthShell';
 import { useLoader } from '../../lib/useLoader';
+import { useStepUp } from '../../components/StepUpDialog';
 
 /**
  * Hồ sơ của chính mình.
@@ -108,6 +109,7 @@ const MAX_BIO = 500;
 
 export default function ProfilePage() {
   const { status, update } = useSession();
+  const stepUp = useStepUp();
   const [msg, setMsg] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null);
 
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -149,6 +151,7 @@ export default function ProfilePage() {
     return (
       <Layout active="/settings">
         <Seo title="Hồ sơ" path="/settings/profile" noindex />
+        <h1 className="sr-only">Hồ sơ tài khoản</h1>
         <p className="text-sm text-fg-muted">Đang tải…</p>
       </Layout>
     );
@@ -159,6 +162,7 @@ export default function ProfilePage() {
       <Layout active="/settings">
         <Seo title="Hồ sơ" path="/settings/profile" noindex />
         <div className="mx-auto max-w-md">
+          <h1 className="mb-4 text-xl font-semibold text-fg">Hồ sơ tài khoản</h1>
           <Notice kind="error">Bạn cần đăng nhập để mở trang này.</Notice>
           <Button as="a" href="/login?callbackUrl=/settings/profile" className="mt-4 w-full">
             Đăng nhập
@@ -188,12 +192,12 @@ export default function ProfilePage() {
       return;
     }
     setChanging(true);
-    const {
-      ok,
-      status: httpStatus,
-      data,
-    } = await post('password/change', { currentPassword, newPassword });
+    const r = await stepUp.run('Đổi mật khẩu', (token) =>
+      post('password/change', { currentPassword, newPassword, stepUp: token })
+    );
     setChanging(false);
+    if (!r) return;
+    const { ok, status: httpStatus, data } = r;
 
     if (!ok) {
       setMsg({
@@ -297,12 +301,12 @@ export default function ProfilePage() {
 
   const changeEmail = async () => {
     setChangingEmail(true);
-    const {
-      ok,
-      status: httpStatus,
-      data,
-    } = await post('email/change', { newEmail, password: emailPassword });
+    const r = await stepUp.run('Đổi email', (token) =>
+      post('email/change', { newEmail, password: emailPassword, stepUp: token })
+    );
     setChangingEmail(false);
+    if (!r) return;
+    const { ok, status: httpStatus, data } = r;
     if (!ok) {
       const code = String(data.error || '');
       let text = 'Không gửi được yêu cầu. Hãy thử lại.';
@@ -535,6 +539,7 @@ export default function ProfilePage() {
           </Section>
         </div>
       </div>
+      {stepUp.dialog}
     </Layout>
   );
 }

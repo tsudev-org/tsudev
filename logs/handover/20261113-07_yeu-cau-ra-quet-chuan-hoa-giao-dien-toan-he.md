@@ -5,7 +5,7 @@
 - **Gửi**: mọi repo có website / trang `*.tsudev.com` - tsudev-cwico, tsudev-swico, tsudev-contact,
   tsudev-trafficmonitor, tsufiles (`tsudev-files`), lotus-share, linux-packages (trang kho, nếu có),
   6 repo game TsuGameLabs + tsudev-game-kit
-- **Trạng thái**: MỞ - mỗi repo ghi "Đã đọc" + kết quả vào cuối phiếu BẢN SAO trong repo mình
+- **Trạng thái**: ĐÓNG (bản sao tsudev) - quét production 14/11/2026 OK ở 390/1280 × Tối/Sáng (phiên 53)
 
 ## 1. Yêu cầu của chủ dự án
 
@@ -60,3 +60,11 @@ quyền`: PR chạm đường dẫn bảo vệ (thường gồm chân trang) ⇒
 - Công cụ ở mục 2.1 in `OK` cho mọi trang × khổ × chế độ trên PRODUCTION (mã thoát 0), hoặc ghi rõ ngoại lệ có lý do.
 - Ảnh 390px + 1280px trước/sau của trang chủ và một trang con, đính kèm PR.
 - Ghi vào cuối bản sao phiếu này: "Đã đọc" + danh sách lỗi tìm thấy + PR + trạng thái production.
+
+## Đã đọc - tsudev (phiên 53, 14/11/2026)
+
+- `node ~/projects/logs/tools/quet-giao-dien.cjs https://tsudev.com /` ⇒ `OK` ở 390/1280 × Tối/Sáng. Các lỗi tiêu đề lặp
+  và thiếu h1 đã sửa ở #251 (phiếu 20261113-08).
+- Quét kèm 7 site con (chỉ đo, không sửa - việc của từng repo): 6 site cùng một lỗi console CSP do script
+  `challenge-platform` Cloudflare tự chèn ở tầng biên - NGUỒN CHUNG cấp zone, không phải mã repo; ghi ở kế hoạch
+  tổng 20261114-01 mục 4.9. `compass.tsudev.com` quá thời gian 170 giây của công cụ (chưa có kết luận).

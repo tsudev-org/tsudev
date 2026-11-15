@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20260820-05
 - **Từ**: phiên 9 (20/08/2026) - **Đến**: phiên 10
 - **Thời điểm**: 19:35 20/08/2026
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG - phát hành phiên 9 đã xong ở các phiên sau; phần Toà soạn: Toà soạn đã gỡ 29/10/2026, Con dấu đã gỡ 04/11/2026 (đối soát phiên 53, 14/11/2026)
 
 > **Phiếu vào cửa của phiên 10.** [`20260820-04`](20260820-04_ket-phien-8.md) đã
 > đóng - chuỗi phát hành mà nó bàn giao đã chạy xong hai bước rưỡi.

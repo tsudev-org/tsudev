@@ -13,6 +13,13 @@ const { app } = require('../src/index')
 
 const TOKEN = process.env.INTERNAL_API_TOKEN as string
 
+// Tầng nhạy cảm nay đếm trong Postgres (G9) - xô của lượt chạy trước còn đó nếu
+// chạy lại trong cùng phút. Dọn để test không phụ thuộc lượt trước.
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { prisma } = require('@tsudev/db')
+beforeAll(() => prisma.rateLimitBucket.deleteMany({}))
+afterAll(() => prisma.$disconnect())
+
 /**
  * Hai việc canh ở đây, cả hai từng HỞ trước 06/11/2026:
  *

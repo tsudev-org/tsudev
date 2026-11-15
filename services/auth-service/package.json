@@ -6,7 +6,7 @@
     "start": "node dist/index.js",
     "dev": "nodemon -L --watch src --ext ts,json --exec 'tsc -b ../.. && node dist/index.js'",
     "start:prod": "NODE_ENV=production node dist/index.js",
-    "test": "NODE_ENV=test jest --runInBand",
+    "test": "NODE_ENV=test jest --runInBand && node --test test/oidc.node.test.mjs",
     "pretest": "tsc -b ../.."
   },
   "engines": {
@@ -21,6 +21,7 @@
     "@tsudev/types": "*",
     "dotenv": "^18.0.9",
     "express": "^5.2.1",
+    "oidc-provider": "9.13.3",
     "source-map-support": "^0.5.21"
   },
   "devDependencies": {
@@ -31,7 +32,11 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "preset": "ts-jest"
+    "preset": "ts-jest",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "\\.node\\.test\\.mjs$"
+    ]
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts"

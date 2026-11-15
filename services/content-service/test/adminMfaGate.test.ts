@@ -33,7 +33,21 @@ const asUser = async (sub: string, sv?: number) => ({
 type Layer = { route?: { path: string | string[]; methods: Record<string, boolean> } }
 
 /** [METHOD, path] của mọi route dưới /api/admin, đọc từ router của Express. */
-const adminRoutes = (): [string, string][] =>
+/**
+ * Route kiểm duyệt (P2.2, 14/11/2026) CỐ Ý mở cho MODERATOR: duyệt bài, ghim,
+ * chuyên mục. Liệt kê TƯỜNG MINH ở đây - thêm route /api/admin mới mặc định vẫn bị
+ * đòi ngưỡng ADMIN; muốn hạ xuống MODERATOR phải ghi tên nó vào đây.
+ */
+const MODERATOR_ROUTES = new Set([
+  'GET /api/admin/posts',
+  'POST /api/admin/posts/:id/transition',
+  'POST /api/admin/posts/:id/pin',
+  'POST /api/admin/categories',
+  'PATCH /api/admin/categories/:id',
+  'DELETE /api/admin/categories/:id',
+])
+
+const allAdminRoutes = (): [string, string][] =>
   ((app.router?.stack ?? []) as Layer[])
     .filter((l) => l.route)
     .flatMap((l) => {
@@ -42,6 +56,11 @@ const adminRoutes = (): [string, string][] =>
       return paths.flatMap((p) => methods.map((m): [string, string] => [m.toUpperCase(), p]))
     })
     .filter(([, p]) => p === '/api/admin' || p.startsWith('/api/admin/'))
+
+const adminRoutes = (): [string, string][] =>
+  allAdminRoutes().filter(([m, p]) => !MODERATOR_ROUTES.has(`${m} ${p}`))
+const moderatorRoutes = (): [string, string][] =>
+  allAdminRoutes().filter(([m, p]) => MODERATOR_ROUTES.has(`${m} ${p}`))
 
 /** Thay tham số đường dẫn bằng giá trị giả - cổng phải chặn trước khi tra gì. */
 const concrete = (p: string) => p.replace(/:([A-Za-z_]+)/g, 'mfa-gate-khong-ton-tai')
@@ -100,6 +119,25 @@ describe('mọi route /api/admin đi qua cổng ép 2FA', () => {
 
   test.each(adminRoutes())('%s %s: MODERATOR ⇒ 403 cũ, không mã MFA', async (method, p) => {
     const res = await send(method, p, await asUser(MODERATOR))
+    expect(res.status).toBe(403)
+    expect(res.body.code).toBeUndefined()
+  })
+
+  test('mọi route kiểm duyệt khai ở MODERATOR_ROUTES đều có thật (không mồ côi)', () => {
+    expect(moderatorRoutes().length).toBe(MODERATOR_ROUTES.size)
+  })
+
+  test.each(moderatorRoutes())(
+    '%s %s: MODERATOR không 2FA ⇒ 403 MFA_REQUIRED',
+    async (method, p) => {
+      const res = await send(method, p, await asUser(MODERATOR))
+      expect(res.status).toBe(403)
+      expect(res.body.code).toBe('MFA_REQUIRED')
+    }
+  )
+
+  test.each(moderatorRoutes())('%s %s: AUTHOR ⇒ 403 cũ, không mã MFA', async (method, p) => {
+    const res = await send(method, p, await asUser(AUTHOR))
     expect(res.status).toBe(403)
     expect(res.body.code).toBeUndefined()
   })

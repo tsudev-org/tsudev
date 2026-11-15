@@ -8,7 +8,12 @@
 // Không gọi mạng thật: `isPasswordBreached` nhận fetcher tiêm.
 import { createHash } from 'crypto'
 
-import { isPasswordBreached, breachCountFromRange } from '../src/password'
+import {
+  isPasswordBreached,
+  breachCountFromRange,
+  checkPasswordBreach,
+  breachStamp,
+} from '../src/password'
 
 const sha1Upper = (s: string) => createHash('sha1').update(s).digest('hex').toUpperCase()
 
@@ -52,4 +57,27 @@ test('mật khẩu không có trong kho ⇒ false', async () => {
 test('FAIL-OPEN: fetcher trả null ⇒ false (không chặn)', async () => {
   const fetcher = async () => null
   expect(await isPasswordBreached(SAMPLE_ANY, fetcher)).toBe(false)
+})
+
+// P1.4: kết quả được LƯU cho thẻ "Mức an toàn" - "HIBP không trả lời" phải ra
+// null (không biết), KHÔNG được ra false (sạch). Gộp hai thứ là để fail-open giả
+// làm một lời xác nhận an toàn.
+test('checkPasswordBreach: HIBP hỏng ⇒ null, không phải false', async () => {
+  expect(await checkPasswordBreach(SAMPLE_ANY, async () => null)).toBeNull()
+})
+
+test('checkPasswordBreach: sạch ⇒ false, lộ ⇒ true', async () => {
+  expect(
+    await checkPasswordBreach(SAMPLE_CLEAN, async () => 'DEADBEEF00000000000000000000000000A:9')
+  ).toBe(false)
+  const sha1 = sha1Upper(SAMPLE_ANY)
+  expect(await checkPasswordBreach(SAMPLE_ANY, async () => `${sha1.slice(5)}:3`)).toBe(true)
+})
+
+test('breachStamp: null ⇒ KHÔNG ghi trường nào; có kết quả ⇒ ghi cả hai', () => {
+  expect(breachStamp(null)).toEqual({})
+  const clean = breachStamp(false)
+  expect(clean.passwordBreached).toBe(false)
+  expect(clean.passwordCheckedAt).toBeInstanceOf(Date)
+  expect(breachStamp(true).passwordBreached).toBe(true)
 })

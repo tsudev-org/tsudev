@@ -6,6 +6,7 @@ import { startAuthentication } from '@simplewebauthn/browser';
 import { Button, Input, Icon } from '@tsudev/ui';
 
 import { AuthShell, Notice } from '../components/AuthShell';
+import { Turnstile } from '../components/Turnstile';
 import { safeNext } from '../lib/safeNext';
 
 /**
@@ -33,6 +34,8 @@ type LoginProps = {
  * mật khẩu", vì phân biệt được nghĩa là dò được ai có tài khoản ở đây.
  */
 const ERROR_TEXT: Record<string, string> = {
+  turnstile_required:
+    'Chưa qua được bước kiểm tra chống bot. Hãy đợi ô kiểm tra hiện dấu xác nhận rồi thử lại.',
   CredentialsSignin: 'Tên đăng nhập hoặc mật khẩu không đúng.',
   totp_invalid: 'Mã xác thực không đúng hoặc đã hết hạn. Hãy thử mã mới nhất.',
   OAuthAccountNotLinked:
@@ -76,6 +79,9 @@ export default function LoginPage({ oauth }: LoginProps) {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [totp, setTotp] = useState('');
+  // P1.7: hiện widget chống bot khi máy chủ đòi (sau 3 lần sai).
+  const [needTurnstile, setNeedTurnstile] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState('');
   // Ô nhập mã 2FA chỉ hiện SAU khi mật khẩu đã đúng. Hỏi trước là tiết lộ tài
   // khoản nào có bật 2FA cho bất kỳ ai gõ tên đăng nhập vào.
   const [needTotp, setNeedTotp] = useState(false);
@@ -146,7 +152,13 @@ export default function LoginPage({ oauth }: LoginProps) {
     e.preventDefault();
     setBusy(true);
     setError('');
-    const res = await signIn('credentials', { identifier, password, totp, redirect: false });
+    const res = await signIn('credentials', {
+      identifier,
+      password,
+      totp,
+      turnstileToken,
+      redirect: false,
+    });
     setBusy(false);
 
     if (res?.error) {
@@ -155,6 +167,11 @@ export default function LoginPage({ oauth }: LoginProps) {
       if (res.error.includes('totp_required')) {
         setNeedTotp(true);
         setError('');
+        return;
+      }
+      if (res.error.includes('turnstile_required')) {
+        setNeedTurnstile(true);
+        setError(ERROR_TEXT.turnstile_required as string);
         return;
       }
       if (res.error.includes('totp_invalid')) {
@@ -225,6 +242,7 @@ export default function LoginPage({ oauth }: LoginProps) {
             required
           />
         )}
+        {needTurnstile && <Turnstile onToken={setTurnstileToken} />}
         <Button type="submit" disabled={busy} className="w-full">
           {busy ? 'Đang kiểm tra…' : needTotp ? 'Xác nhận' : 'Đăng nhập'}
         </Button>
