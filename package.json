@@ -47,6 +47,7 @@
     "typecheck:ts7": "node scripts/typecheck-ts7.js",
     "build:ts": "tsc -b",
     "build:services": "tsc -b tsconfig.services.json",
+    "db:backup": "bash scripts/sao-luu-db.sh",
     "db:seed:dev": "node scripts/with-env.js node services/auth-service/scripts/seed-dev-users.js",
     "prod:dem-noi-dung": "node scripts/dem-noi-dung-prod.js",
     "r2:cors": "npx wrangler r2 bucket cors set tsudev --file infrastructure/r2/cors.tsudev.json",
@@ -91,7 +92,7 @@
   },
   "overrides": {
     "minimatch@>=7 <11.0.1": "11.0.2",
-    "glob@>=10 <14": "13.0.6",
+    "glob@>=9 <=14.0.3": "14.0.3",
     "eslint-plugin-react": {
       "eslint": "$eslint"
     },

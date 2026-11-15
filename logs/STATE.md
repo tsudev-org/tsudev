@@ -1,5 +1,24 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 54 BẮT ĐẦU Ở ĐÂY** (cuối phiên 53, 14/11/2026 tối). Phiếu:
+> [`20261114-02`](handover/20261114-02_phien-53-p0-p1-bao-mat-tai-khoan.md) mục 0.
+>
+> ✅ 3 migration lên Neon; #265 (P1 bảo mật tài khoản + P2 CMS Tiptap + P4 OIDC) và #266 (React #418, glob 14.0.3)
+> merge + deploy (Worker `32054f3c`), quét production 28/28 OK, GitHub 0 cảnh báo mở.
+> ⏳ Chỉ còn việc 👤/⛔ (phiếu mục 0): OIDC_SIGNING_JWK, Turnstile, age, zone Bot, #252 #261, GitGuardian.
+> ⏳ C6 chờ linux-packages dựng lại kho (tsufiles v2.4.1-vn.1 đã phát hành).
+
+> **Phiên 53 BẮT ĐẦU Ở ĐÂY** (cuối phiên 52, 13/11/2026). Phiếu:
+> [`20261113-08`](handover/20261113-08_phien-52-menu-tai-khoan-ra-quet-giao-dien.md).
+>
+> ✅ #251 (Worker `8a1da656`): avatar + menu "Hồ sơ tài khoản / Đăng xuất" ở header; sửa tiêu đề lặp + h1 thiếu.
+> ⏳ #252 cột "Tài khoản" ở chân trang theo phiên ("Bảo mật tài khoản"): CHỜ `nguyentrangtinhsu` duyệt.
+> ✅ 14/11: phương án ĐÃ CHỐT (D1-D9) - làm theo `docs/de-xuat-bao-mat-cms-cai-bang-lenh.md`: **P0** (#252, E2E chập
+> chờn, đối soát phiếu tồn) → **P1** bảo mật tài khoản → **P2** CMS + Góp ý → **P3** cài bằng lệnh → **P4** OIDC → **P5**.
+> KHÔNG hỏi lại chủ dự án các quyết định đã chốt; việc 👤/⛔ thì ghi lại và làm tiếp việc khác.
+> 🗺️ Kế hoạch tổng toàn hệ: `~/projects/logs/handover/20261114-01_ke-hoach-tong-he-sinh-thai.md` (bản sao ở 16 repo).
+> 📨 Phiếu 20261113-07 (rà quét giao diện) ở 14 repo; công cụ `~/projects/logs/tools/quet-giao-dien.cjs`.
+
 > **Phiên 52 BẮT ĐẦU Ở ĐÂY** (cuối phiên 51, 13/11/2026). Phiếu:
 > [`20261113-06`](handover/20261113-06_phien-51-merge-245-tsufiles.md).
 >

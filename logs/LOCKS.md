@@ -4,7 +4,9 @@
 
 # Sửa xong file → XÓA dòng khóa của mình.
 
-(TRỐNG - phiên 51 đã nhả mọi khoá, 13/11/2026. không còn PR chờ duyệt.)
+(phiên 52: chỉ còn khoá SiteFooter.tsx của PR #252 chờ chủ sở hữu duyệt.)
 
-✅ Phiên 51 xong (13/11/2026). Việc kế tiếp: phiếu
-`logs/handover/20261113-06_phien-51-merge-245-tsufiles.md` mục 3.
+✅ Phiên 52 xong (13/11/2026). Việc kế tiếp: phiếu
+`logs/handover/20261113-08_phien-52-menu-tai-khoan-ra-quet-giao-dien.md` mục 3.
+
+packages/ui/src/components/SiteFooter.tsx | phiên 52 - cột Tài khoản theo phiên | 14:00 13/11/2026

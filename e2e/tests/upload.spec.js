@@ -20,7 +20,9 @@ test('đăng nhập rồi tải tệp lên qua storage-service', async ({ page }
   // "chưa đăng nhập" hiện ra dưới dạng "tải lên hỏng", và chẩn đoán đi sai
   // hướng ngay từ đầu.
   await page.goto(base, { waitUntil: 'networkidle' });
-  await expect(page.locator('header button:has-text("Đăng xuất")')).toBeVisible({ timeout: 10000 });
+  await expect(page.locator('header button[aria-controls="tsu-user-menu"]')).toBeVisible({
+    timeout: 10000,
+  });
 
   const filePath = path.resolve(__dirname, '../test-files/sample.txt');
   await page.locator('input[type=file]').setInputFiles(filePath);

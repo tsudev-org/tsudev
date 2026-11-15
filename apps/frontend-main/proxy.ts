@@ -51,6 +51,8 @@ import type { NextRequest } from 'next/server';
 // ---------------------------------------------------------------------------
 const THEME_SCRIPT_HASH = 'sha256-Uc44BAbW7/IXmN3PsSRw5V6bija+xIcJDxYwDFK4k3w=';
 const CF_INSIGHTS = 'https://static.cloudflareinsights.com';
+// P1.7 Turnstile: script widget + iframe thử thách đều ở origin này.
+const CF_TURNSTILE = 'https://challenges.cloudflare.com';
 
 function newNonce(): string {
   const bytes = new Uint8Array(16);
@@ -63,7 +65,8 @@ function newNonce(): string {
 function buildCsp(nonce: string): string {
   return [
     "default-src 'self'",
-    `script-src 'self' '${THEME_SCRIPT_HASH}' 'nonce-${nonce}' ${CF_INSIGHTS}`,
+    `script-src 'self' '${THEME_SCRIPT_HASH}' 'nonce-${nonce}' ${CF_INSIGHTS} ${CF_TURNSTILE}`,
+    `frame-src ${CF_TURNSTILE}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self' data:",

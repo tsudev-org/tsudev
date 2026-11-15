@@ -27,6 +27,9 @@ const TTL_MS: Record<AuthTokenPurpose, number> = {
   // Đặt lại mật khẩu hẹp: cửa sổ này là cửa sổ chiếm tài khoản nếu hộp thư bị
   // đọc lén.
   PASSWORD_RESET: 60 * 60 * 1000,
+  // "Không phải tôi" (P1.5) RỘNG: thư cảnh báo có thể được đọc muộn, và bấm nút
+  // chỉ làm một việc vô hại với chính chủ - thu hồi mọi phiên.
+  SESSION_REVOKE: 7 * 24 * 60 * 60 * 1000,
   // Đổi email cũng hẹp: đổi địa chỉ là đổi danh tính đăng nhập, sát với đặt lại
   // mật khẩu về mức nhạy cảm.
   EMAIL_CHANGE: 60 * 60 * 1000,

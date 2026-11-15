@@ -68,8 +68,9 @@ const DEV_PASSWORD = process.env.DEV_SEED_PASSWORD || 'tsudev-dev-2026!'
 // vào app authenticator.
 const DEV_TOTP_SECRET = process.env.DEV_SEED_TOTP_SECRET || 'TSUDEVDEVONLYTOTPTSUDEVDEVONLY22'
 
-// Vai trò nhận TOTP: mọi bậc mà cổng quản trị đòi 2FA.
-const TOTP_ROLES = new Set(['ADMIN', 'OWNER'])
+// Vai trò nhận TOTP: mọi bậc mà cổng đòi 2FA - từ 14/11/2026 (P1.2) gồm cả AUTHOR,
+// vì đường GHI bài của tác giả cũng đòi TOTP. alice (MEMBER) vẫn không có.
+const TOTP_ROLES = new Set(['AUTHOR', 'MODERATOR', 'ADMIN', 'OWNER'])
 
 const USERS = [
   // OWNER, KHÔNG phải ADMIN: packages/db/prisma/seed.js đặt tsudev là OWNER và

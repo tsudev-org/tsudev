@@ -29,6 +29,7 @@ export default function ErrorPage({ statusCode }: ErrorPageProps) {
       <Seo title={title} noindex />
       <EmptyState
         kind="failed"
+        headingAs="h1"
         icon={unavailable ? 'clock' : 'warning'}
         title={title}
         explain={

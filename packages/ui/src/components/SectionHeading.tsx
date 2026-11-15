@@ -5,9 +5,17 @@ type SectionHeadingProps = {
   title?: React.ReactNode;
   action?: React.ReactNode;
   className?: string;
+  /** Tiêu đề CHÍNH của trang (trang không có PageHeader) thì truyền `h1`. Mặc định `h2`. */
+  headingAs?: 'h1' | 'h2';
 };
 
-export const SectionHeading = ({ eyebrow, title, action, className = '' }: SectionHeadingProps) => (
+export const SectionHeading = ({
+  eyebrow,
+  title,
+  action,
+  className = '',
+  headingAs: H = 'h2',
+}: SectionHeadingProps) => (
   <div className={`flex items-end justify-between gap-4 mb-6 ${className}`}>
     <div>
       {eyebrow && (
@@ -15,9 +23,9 @@ export const SectionHeading = ({ eyebrow, title, action, className = '' }: Secti
           {eyebrow}
         </div>
       )}
-      <h2 className="text-2xl md:text-3xl font-bold tracking-heading text-fg text-balance">
+      <H className="text-2xl md:text-3xl font-bold tracking-heading text-fg text-balance">
         {title}
-      </h2>
+      </H>
     </div>
     {action && <div className="shrink-0">{action}</div>}
   </div>

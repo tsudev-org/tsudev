@@ -32,12 +32,16 @@ export async function recordAttempt(identifier: string, succeeded: boolean): Pro
 }
 
 /** true = IP này đã vượt ngưỡng và phải bị từ chối ngay, chưa cần chạm mật khẩu. */
-export async function ipIsThrottled(ip: string): Promise<boolean> {
+/** Số lần thử HỎNG của một IP trong cửa sổ `IP_WINDOW_MS`. */
+export async function ipFailures(ip: string): Promise<number> {
   const since = new Date(Date.now() - IP_WINDOW_MS)
-  const failures = await prisma.loginAttempt.count({
+  return prisma.loginAttempt.count({
     where: { identifier: ip, succeeded: false, createdAt: { gte: since } },
   })
-  return failures >= IP_MAX_FAILURES
+}
+
+export async function ipIsThrottled(ip: string): Promise<boolean> {
+  return (await ipFailures(ip)) >= IP_MAX_FAILURES
 }
 
 /**

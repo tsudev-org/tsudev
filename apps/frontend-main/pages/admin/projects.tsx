@@ -268,6 +268,7 @@ export default function AdminProjects() {
       <Seo title="Quản lý dự án" path="/admin/projects" noindex />
       <div className="max-w-5xl mx-auto px-4 py-10">
         <SectionHeading
+          headingAs="h1"
           eyebrow="Quản trị"
           title="Dự án & bản quyền"
           action={

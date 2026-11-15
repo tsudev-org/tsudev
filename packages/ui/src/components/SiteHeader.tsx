@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { Logo } from './Logo';
+import { Avatar } from './Avatar';
 import { hasAtLeastRole } from '@tsudev/types';
 import { saveAuthHint } from '../lib/authHint';
 // tsudev là MỘT site nên href tương đối. Trước đây có hai origin (trang chính và
@@ -141,26 +142,13 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
             </button>
           </form>
           {(session || pending) && (
-            <div className={`flex items-center gap-2${pending ? ' tsu-auth-in' : ''}`}>
-              {/*
-                Tên người dùng là LIÊN KẾT tới trang tài khoản - lối vào duy nhất của
-                /settings/profile và /settings/security trên màn hình rộng. Lúc
-                loading, tên lấy từ gợi ý qua `--tsu-user-name` (.tsu-user-name ở
-                globals.css) nên không nhảy chữ khi phiên về.
-              */}
-              <a
-                href="/settings/profile"
-                className="hidden lg:inline text-sm text-fg-secondary max-w-40 truncate rounded-md px-2 py-1 hover:text-fg transition-colors"
-              >
-                {pending ? <span className="tsu-user-name" /> : userName}
-              </a>
-              <button
-                onClick={logout}
-                className="inline-flex items-center h-8 px-3 rounded-md border border-line-strong bg-surface text-sm font-medium text-fg transition-colors hover:border-line-control hover:bg-hovered"
-              >
-                Đăng xuất
-              </button>
-            </div>
+            <UserMenu
+              pending={pending}
+              name={userName}
+              email={session?.user?.email || ''}
+              image={session?.user?.image || undefined}
+              onLogout={logout}
+            />
           )}
           {(!session || pending) && (
             // Link chứ không phải nút gọi signIn(): /login là trang thật của site,
@@ -231,19 +219,146 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
                 href="/settings/profile"
                 className="block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle"
               >
-                Hồ sơ
+                Hồ sơ tài khoản
               </a>
               <a
                 href="/settings/security"
                 className="block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle"
               >
-                Bảo mật
+                Bảo mật tài khoản
               </a>
             </div>
           )}
         </nav>
       )}
     </header>
+  );
+};
+
+type UserMenuProps = {
+  pending: boolean;
+  name: string;
+  email: string;
+  image?: string;
+  onLogout: () => void;
+};
+
+/**
+ * Avatar + tên tài khoản là MỘT nút mở menu (chủ dự án yêu cầu 13/11/2026): "Hồ sơ
+ * tài khoản" và "Đăng xuất". Trước đó nút "Đăng xuất" nằm trần cạnh tên, bấm nhầm
+ * một lần là mất phiên.
+ *
+ * Mẫu disclosure (nút + aria-expanded + danh sách liên kết), KHÔNG phải role="menu":
+ * role menu đòi điều hướng bằng phím mũi tên và bắt trình đọc màn hình đổi chế độ,
+ * trong khi đây chỉ là hai đích - Tab đi qua là đủ. Đóng khi: Esc (trả focus về nút),
+ * bấm ra ngoài, focus rời khỏi khối.
+ *
+ * Lúc `pending` (phiên chưa về) avatar là vòng tròn trơn và tên lấy từ gợi ý qua CSS
+ * (`.tsu-user-name`) - không biết tên thật thì không chọn được biến thể avatar, và
+ * vẽ sai một biến thể rồi đổi là đúng kiểu nháy mà authHint đi xoá.
+ */
+const UserMenu = ({ pending, name, email, image, onLogout }: UserMenuProps) => {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  const btn = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (box.current && !box.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        btn.current?.focus();
+      }
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const item =
+    'flex w-full items-center gap-2.5 px-3 py-2 rounded-md text-sm text-fg-secondary text-left transition-colors hover:bg-hovered hover:text-fg';
+
+  return (
+    <div
+      ref={box}
+      className={`relative${pending ? ' tsu-auth-in' : ''}`}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOpen(false);
+      }}
+    >
+      <button
+        ref={btn}
+        type="button"
+        aria-haspopup="true"
+        aria-expanded={open}
+        aria-controls="tsu-user-menu"
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-2 h-8 pl-1 pr-2 rounded-full border border-line bg-surface text-sm text-fg-secondary transition-colors hover:border-line-strong hover:text-fg"
+      >
+        {pending ? (
+          <span className="inline-block h-6 w-6 rounded-full bg-subtle ring-1 ring-line-strong" />
+        ) : (
+          <Avatar name={name} src={image} size={24} />
+        )}
+        <span className="hidden lg:inline max-w-36 truncate">
+          {pending ? <span className="tsu-user-name" /> : name}
+        </span>
+        <span className="sr-only lg:hidden">Tài khoản {pending ? '' : name}</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M6 9l6 6 6-6"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      {open && (
+        <div
+          id="tsu-user-menu"
+          className="absolute right-0 mt-2 w-60 rounded-lg border border-line-strong bg-surface p-1.5 shadow-lg z-50"
+        >
+          <div className="flex items-center gap-2.5 px-3 py-2 mb-1 border-b border-line">
+            <Avatar name={name} src={image} size={32} />
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-fg truncate">{name}</p>
+              {email && email !== name && <p className="text-xs text-fg-muted truncate">{email}</p>}
+            </div>
+          </div>
+          <a href="/settings/profile" className={item}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.7" />
+              <path
+                d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+              />
+            </svg>
+            Hồ sơ tài khoản
+          </a>
+          <button type="button" onClick={onLogout} className={item}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M15 4h3a2 2 0 012 2v12a2 2 0 01-2 2h-3M10 17l5-5-5-5M15 12H3"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Đăng xuất
+          </button>
+        </div>
+      )}
+    </div>
   );
 };
 

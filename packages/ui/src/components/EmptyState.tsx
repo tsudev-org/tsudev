@@ -35,6 +35,12 @@ export type EmptyStateProps = {
   explain?: React.ReactNode;
   action?: { label: string; href?: string; onClick?: () => void };
   className?: string;
+  /**
+   * Thẻ của dòng tiêu đề. Mặc định `p` vì EmptyState thường nằm TRONG một trang đã
+   * có h1. Trang mà EmptyState là toàn bộ nội dung (404, _error) truyền `h1` - không
+   * thì trang đó không có tiêu đề nào cho trình đọc màn hình và công cụ tìm kiếm.
+   */
+  headingAs?: 'p' | 'h1' | 'h2';
 };
 
 export const EmptyState = ({
@@ -44,6 +50,7 @@ export const EmptyState = ({
   explain,
   action,
   className = '',
+  headingAs: Heading = 'p',
 }: EmptyStateProps) => {
   const failed = kind === 'failed';
 
@@ -65,9 +72,9 @@ export const EmptyState = ({
         </div>
       )}
 
-      <p className="font-semibold text-fg">
+      <Heading className="font-semibold text-fg">
         {title ?? (failed ? 'Không tải được nội dung' : 'Chưa có nội dung')}
-      </p>
+      </Heading>
 
       <div className="mt-2 text-sm text-fg-secondary max-w-prose mx-auto">
         {failed

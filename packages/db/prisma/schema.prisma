@@ -61,6 +61,13 @@ model User {
   /// Khoá tạm sau quá nhiều lần sai. Khoá theo TÀI KHOẢN, khác với chặn theo IP
   /// ở LoginAttempt - thiếu một trong hai thì kẻ tấn công chỉ cần đổi trục.
   lockedUntil         DateTime?
+  /// Lần gần nhất mật khẩu được đối chiếu kho rò rỉ HIBP (đăng ký, đặt lại, đổi,
+  /// hoặc đăng nhập bằng mật khẩu khi lần kiểm trước đã quá 30 ngày). NULL = chưa
+  /// từng kiểm - thẻ "Mức an toàn" hiện là "chưa rõ", KHÔNG phải "an toàn".
+  passwordCheckedAt   DateTime?
+  /// Kết quả của lần kiểm đó. Chỉ có nghĩa khi `passwordCheckedAt` khác NULL.
+  /// HIBP không trả lời ⇒ KHÔNG ghi gì (fail-open không được giả làm "sạch").
+  passwordBreached    Boolean   @default(false)
   lastLoginAt         DateTime?
 
   /// --- Dấu vết đăng nhập gần nhất, PHI CHUẨN HOÁ có chủ đích ---
@@ -95,7 +102,7 @@ model User {
   authTokens     AuthToken[]
   securityEvents SecurityEvent[]
 
-  emailAliases           EmailAlias[]
+  emailAliases EmailAlias[]
 
   /// Trang quản trị lọc và sắp theo ba trục này. Không có chỉ mục thì mỗi lần
   /// lọc là một lượt quét toàn bảng.
@@ -183,6 +190,9 @@ enum AuthTokenPurpose {
   /// Đổi email: token gửi tới địa chỉ MỚI, tiêu token thì mới thay `User.email`.
   /// Địa chỉ đích nằm ở `AuthToken.newEmail` - xác minh trước, thay sau.
   EMAIL_CHANGE
+  /// Nút "Không phải tôi" trong thư cảnh báo đăng nhập thiết bị mới: bấm ⇒ thu
+  /// hồi MỌI phiên (`sessionVersion++`). Dùng một lần, sống 7 ngày.
+  SESSION_REVOKE
 }
 
 /// Token một lần gửi qua email.
@@ -247,6 +257,23 @@ model LoginAttempt {
 
   @@index([identifier, createdAt])
   @@index([createdAt])
+}
+
+/// Bộ đếm giới hạn tần suất LƯU BỀN (G9, quyết định D8): cửa sổ CỐ ĐỊNH, mỗi
+/// (khoá, đầu cửa sổ) một dòng, tăng bằng một câu upsert nguyên tử. Sống qua khởi
+/// động lại và nhiều bản chạy - bộ đếm trong RAM thì không.
+///
+/// CHỈ dùng cho tầng NHẠY CẢM (mật khẩu, mã 6 số, token, đăng ký) - lưu lượng
+/// thấp. Tầng chung đếm mọi request vẫn ở RAM: ghi DB cho mỗi request là biến
+/// bộ đếm thành nguồn tải và giữ Neon thức (docs/free-tier.md). Cron dọn dòng
+/// có `windowStart` cũ hơn 1 ngày.
+model RateLimitBucket {
+  key         String
+  windowStart DateTime
+  count       Int      @default(0)
+
+  @@id([key, windowStart])
+  @@index([windowStart])
 }
 
 /// Nhật ký sự kiện bảo mật của tài khoản: đăng nhập, đổi mật khẩu/email, bật/tắt
@@ -336,17 +363,31 @@ model SecurityEvent {
 // Content: Blog & Docs
 // ---------------------------------------------------------------------------
 model Post {
-  id        String   @id @default(cuid())
-  slug      String   @unique
-  title     String
-  excerpt   String?
-  contentMd String
-  tags      String[] @default([])
-  published Boolean  @default(true)
-  authorId  String?
-  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String            @id @default(cuid())
+  slug         String            @unique
+  title        String
+  excerpt      String?
+  contentMd    String
+  tags         String[]          @default([])
+  published    Boolean           @default(true)
+  /// P2 CMS: máy trạng thái DRAFT → PENDING → (PUBLISHED | SCHEDULED | DRAFT kèm lý do) → ARCHIVED.
+  /// `published` là cột SUY RA từ đây (PUBLISHED/SCHEDULED ⇒ true), ghi qua MỘT hàm
+  /// (`statusFields` ở content-service) - mọi đường đọc công khai cũ (`published AND
+  /// publishedAt <= now()`) vì thế vẫn đúng nghĩa. Gỡ `published` sau một bản phát hành.
+  status       PostStatus        @default(DRAFT)
+  authorId     String?
+  author       User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  categoryId   String?
+  category     Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  /// Ghim lên đầu /blog (MODERATOR+). NULL = không ghim.
+  pinnedAt     DateTime?
+  /// Lý do trả về DRAFT của người duyệt - tác giả đọc ở trang sửa bài.
+  reviewNote   String?
+  revisions    PostRevision[]
+  statusEvents PostStatusEvent[]
+  viewsDaily   PostViewDaily[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
 
   /// --- Xuất bản & lên lịch ---
   /// NGÀY HIỂN THỊ, do tác giả sửa được. `createdAt` giữ nguyên làm dấu vết audit
@@ -381,12 +422,72 @@ model Post {
 
   @@index([published, createdAt])
   @@index([published, publishedAt])
+  @@index([status, updatedAt])
+  @@index([categoryId])
   @@index([deletedAt])
   @@index([tags], type: Gin)
   // Index trigram trên cột đã chuẩn hoá - so khớp không dấu/gần đúng không quét
   // toàn bảng. `map` khớp tên index dựng tay trong migration để Prisma không báo lệch.
   @@index([searchTitleNorm(ops: raw("gin_trgm_ops"))], type: Gin, map: "Post_searchTitleNorm_trgm_idx")
   @@index([searchBodyNorm(ops: raw("gin_trgm_ops"))], type: Gin, map: "Post_searchBodyNorm_trgm_idx")
+}
+
+enum PostStatus {
+  DRAFT
+  PENDING
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+/// Chuyên mục blog (P2.1). Khác `tags`: một bài thuộc ĐÚNG MỘT chuyên mục, chuyên mục
+/// có thứ tự và hiện ở điều hướng; thẻ là nhãn tự do, nhiều.
+model Category {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  posts     Post[]
+}
+
+/// Lịch sử nội dung CHỈ-THÊM: mỗi lần lưu bài ghi một dòng (tiêu đề + Markdown đầy đủ).
+/// `contentMd` của Post vẫn là nguồn sự thật duy nhất (D3); bảng này để so sánh/khôi phục.
+model PostRevision {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  title     String
+  contentMd String
+  editorId  String?
+  createdAt DateTime @default(now())
+
+  @@index([postId, createdAt])
+}
+
+/// Nhật ký chuyển trạng thái (ai, từ đâu, sang đâu, lý do) - CHỈ-THÊM.
+model PostStatusEvent {
+  id        String      @id @default(cuid())
+  postId    String
+  post      Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  from      PostStatus?
+  to        PostStatus
+  actorId   String?
+  note      String?
+  createdAt DateTime    @default(now())
+
+  @@index([postId, createdAt])
+}
+
+/// Lượt xem theo ngày (giờ Việt Nam) - đếm gộp, không lưu người xem.
+model PostViewDaily {
+  postId String
+  post   Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  day    DateTime @db.Date
+  count  Int      @default(0)
+
+  @@id([postId, day])
+  @@index([day])
 }
 
 model Doc {
@@ -690,4 +791,37 @@ model ProjectRelease {
   @@index([projectId, publishedAt])
   @@index([deletedAt])
   @@index([securityState])
+}
+
+/// P4 OIDC (quyết định D1): trạng thái của `oidc-provider` (phiên, grant, mã ủy
+/// quyền, refresh token, interaction...) - adapter ở auth-service/src/oidc.ts.
+/// Một bảng cho mọi loại, khoá (type, id), đúng hình dạng adapter của thư viện.
+model OidcPayload {
+  type       String
+  id         String
+  payload    Json
+  grantId    String?
+  userCode   String?
+  uid        String?
+  expiresAt  DateTime?
+  consumedAt DateTime?
+
+  @@id([type, id])
+  @@index([grantId])
+  @@index([uid])
+  @@index([expiresAt])
+}
+
+/// Site con đăng ký đăng nhập bằng tài khoản tsudev (P4). Chỉ client CÔNG KHAI:
+/// Authorization Code + PKCE S256, không client secret, redirect URI khớp TUYỆT ĐỐI.
+/// Tạo bằng seed/OWNER - không có đường tự đăng ký (dynamic registration TẮT).
+model OAuthClient {
+  id                     String    @id
+  name                   String
+  redirectUris           String[]
+  postLogoutRedirectUris String[]  @default([])
+  /// Phạm vi được phép xin, ngoài `openid`.
+  scopes                 String[]  @default(["profile", "email"])
+  createdAt              DateTime  @default(now())
+  disabledAt             DateTime?
 }

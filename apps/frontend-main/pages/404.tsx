@@ -13,6 +13,7 @@ export default function NotFoundPage() {
       <Seo title="Không tìm thấy trang" noindex />
       <EmptyState
         icon="search"
+        headingAs="h1"
         title="Không tìm thấy trang"
         explain={
           <>
