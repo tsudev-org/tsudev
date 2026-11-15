@@ -33,8 +33,8 @@ export const PKG_CATALOG = {
       homepage: 'https://lotus.tsudev.com',
     },
     {
-      name: 'tsudev-contact',
-      version: '26.11.1001',
+      name: 'tsucontact',
+      version: '26.11.1601',
       arch: ['any'],
       homepage: 'https://contact.tsudev.com',
     },

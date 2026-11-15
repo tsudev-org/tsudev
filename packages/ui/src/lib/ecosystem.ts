@@ -228,14 +228,16 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
     },
     {
       id: 'contact',
-      name: 'tsudev-contact',
+      // Tên sản phẩm Tsu Contact từ 16/11/2026 (repo tsudev-org/tsucontact, phiếu 20261116-C1).
+      // GIỮ: id `contact`, contact.tsudev.com. Winget `tsudev.TsuContact` chưa phát hành ⇒ chưa khai.
+      name: 'Tsu Contact',
       tagline:
         'Chuyển danh bạ CSV sang vCard (.vcf) để nạp vào điện thoại, có xem trước từng trang.',
       category: 'files',
       platforms: ['windows'],
       // Website lên 10/11/2026 (phiếu 20261110-04 của repo tsudev-contact; đo 200 + <title>).
       website: 'https://contact.tsudev.com',
-      releases: 'https://github.com/tsudev-org/tsudev-contact/releases/latest',
+      releases: 'https://github.com/tsudev-org/tsucontact/releases/latest',
       openSource: true,
       logo: '/eco/contact.webp',
       tint: ['#0284c7', '#0c4a6e'],

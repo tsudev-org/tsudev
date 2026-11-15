@@ -29,7 +29,7 @@ const DOCS = [
 - **TsuFiles** - chuyển đổi tệp ngoại tuyến bằng kéo thả (Windows, macOS, Linux): [files.tsudev.com](https://files.tsudev.com)
 - **Lotus Share** - gửi tệp, tin nhắn trong cùng mạng Wi-Fi, mã hoá đầu cuối (Windows, Android, macOS/iOS, Linux): [lotus.tsudev.com](https://lotus.tsudev.com)
 - **La bàn** - la bàn, toạ độ, độ cao, thước thuỷ (Android): [compass.tsudev.com](https://compass.tsudev.com)
-- **tsudev-contact** - chuyển danh bạ CSV sang vCard .vcf (Windows): [contact.tsudev.com](https://contact.tsudev.com)
+- **Tsu Contact** - chuyển danh bạ CSV sang vCard .vcf (Windows): [contact.tsudev.com](https://contact.tsudev.com)
 
 ## Trò chơi
 
@@ -80,7 +80,7 @@ scoop bucket add tsudev https://github.com/tsudev-org/scoop-bucket
 scoop install tsudev/tsudev-trafficmonitor
 \`\`\`
 
-Có trong bucket: tsudev-trafficmonitor, tsuswico, tsudev-files, lotus-share. Cập nhật: \`scoop update *\`.
+Có trong bucket: tsudev-trafficmonitor, tsuswico, tsucontact, tsudev-files, lotus-share. Cập nhật: \`scoop update *\`.
 
 ## Homebrew (macOS)
 
