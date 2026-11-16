@@ -120,9 +120,9 @@ export default function Home({
             <span aria-hidden="true">→</span>
           </a>
           <h1 className="mt-6 text-4xl md:text-6xl font-semibold tracking-tight text-fg text-balance leading-[1.08] md:leading-(--text-6xl--line-height)">
-            Phần mềm nhỏ, gọn
+            Phần mềm nhỏ
             <br />
-            <span className="tsu-text-gradient">dùng thật mỗi ngày</span>
+            <span className="tsu-text-gradient">để dùng hàng ngày</span>
           </h1>
           <p className="mt-6 mx-auto max-w-2xl text-lg text-fg-secondary text-pretty">
             Hệ sinh thái ứng dụng do tsudev tự phát triển - mở website riêng của từng sản phẩm, cài
