@@ -1,5 +1,13 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 58 BẮT ĐẦU Ở ĐÂY** (cuối phiên 57, 16/11/2026). Phiếu:
+> [`20261116-03`](handover/20261116-03_phien-57-dependabot-deploy-de-xuat-mau-xanh.md) mục 2.
+>
+> ✅ Merge Dependabot #281 #283 #282 + deploy `v2026.11.16.6` Worker `9f683a4f` (có #288 logo 5 trò chơi); Render
+> `e5a3831` success, OIDC discovery 200. Ba phiếu đổi tên (90, C1, S1) ĐÓNG. Đề xuất bảng màu xanh logo lên bộ quy
+> ước: tsudev-standards#55.
+> 🧭 Việc 1 (đo lượt gộp sau 01:23 UTC 17/11 → /author) và Việc 2 (C6) vẫn mở.
+
 > **Phiên 57 BẮT ĐẦU Ở ĐÂY** (cuối phiên 56, 16/11/2026). Việc mở như phiên 56 bên dưới (phiếu 20261116-02 mục 2).
 >
 > ✅ Tiêu đề trang chủ đổi thành "Phần mềm nhỏ / để dùng hàng ngày" (#286), `v2026.11.16.5` Worker `3f0c6733`; production

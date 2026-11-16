@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261116-S1
 - **Từ**: phiên `tsudev-swico-34` (repo `tsuswico`), 16/11/2026, theo yêu cầu trực tiếp của chủ dự án
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG (phiên 57, 16/11/2026: #275 + #276 đã merge, tên cũ đã ghi vào ~/.claude/CLAUDE.md và CLAUDE.md)
 - **Quyết định**: `tsudev-org/tsuswico` `docs/adr/0001-ten-san-pham-tsu-swico.md` (PR tsuswico #20)
 
 ## Đã xảy ra
