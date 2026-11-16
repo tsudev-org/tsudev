@@ -63,33 +63,14 @@ const SOURCES = {
   cwico: { src: 'https://cwico.tsudev.com/brand/logo-cwico.png' },
   swico: { src: 'https://swico.tsudev.com/brand/logo-swico.png' },
   contact: { src: 'https://contact.tsudev.com/brand/logo-contact.png' },
-  // Sáu trò chơi: logo chủ dự án giao 13/11/2026, CHƯA lên website game (phiếu
-  // 20261113-04 gửi sáu repo). Khi website game phục vụ logo mới, đổi sang URL như trên.
-  'game-xin-chao-nui-cam': {
-    src: 'source/eco/game-xin-chao-nui-cam.png',
-    mode: 'mark-tile',
-    region: [0.04, 0.06, 0.96, 0.585],
-  },
-  'game-chu-chim-vo-canh': {
-    src: 'source/eco/game-chu-chim-vo-canh.png',
-    mode: 'mark-tile',
-    region: [0.03, 0.03, 0.88, 0.88],
-  },
-  'game-lat-manh-ghep': {
-    src: 'source/eco/game-lat-manh-ghep.png',
-    mode: 'mark-tile',
-    region: [0.3, 0.08, 0.7, 0.64],
-  },
-  'game-noi-hinh-giong-nhau': {
-    src: 'source/eco/game-noi-hinh-giong-nhau.png',
-    mode: 'mark-tile',
-    region: [0.2, 0.08, 0.8, 0.9],
-  },
-  'game-luyen-go-phim': {
-    src: 'source/eco/game-luyen-go-phim.png',
-    mode: 'mark-tile',
-    region: [0.03, 0.03, 0.97, 0.88],
-  },
+  // Trò chơi: năm game đã phục vụ logo riêng trên website của mình (16/11/2026, phiếu
+  // 20261113-04, sinh bởi tsudev-game-kit/tools/sinh-thuong-hieu.mjs - ô nền đặc bo góc sẵn).
+  // nuicam3d vẫn dùng tệp gốc tới khi website của nó có /brand/mark-512.png.
+  'game-xin-chao-nui-cam': { src: 'https://xin-chao-nui-cam.tsudev.com/brand/mark-512.png' },
+  'game-chu-chim-vo-canh': { src: 'https://chu-chim-vo-canh.tsudev.com/brand/mark-512.png' },
+  'game-lat-manh-ghep': { src: 'https://lat-manh-ghep.tsudev.com/brand/mark-512.png' },
+  'game-noi-hinh-giong-nhau': { src: 'https://noi-hinh-giong-nhau.tsudev.com/brand/mark-512.png' },
+  'game-luyen-go-phim': { src: 'https://luyen-go-phim.tsudev.com/brand/mark-512.png' },
   'game-nuicam3d': {
     src: 'source/eco/game-nuicam3d.png',
     mode: 'mark-tile',

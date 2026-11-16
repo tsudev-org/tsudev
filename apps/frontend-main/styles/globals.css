@@ -407,14 +407,14 @@
      khối, không viền ngang cắt trang - ranh giới giữa các khối là KHOẢNG TRỐNG.
      Dải nền riêng (hero, đầu trang con, footer) chính là các "khung đứt đoạn"
      chủ dự án yêu cầu gỡ.
-   - Xám trung tính cho mọi bề mặt; tím CHỈ ở điểm nhấn (nút chính, liên kết,
+   - Xám trung tính cho mọi bề mặt; xanh logo CHỈ ở điểm nhấn (nút chính, liên kết,
      một quầng sáng tĩnh ở đỉnh trang). Không aurora chuyển động, không ánh trượt.
    - Thẻ: nền bề mặt + viền hairline; rê chuột thì viền đậm lên, nền sáng hơn một
      bậc. Không nhấc, không quầng màu.
    Mọi màu dưới đây trộn từ TOKEN, không mã hex: hai chế độ tự đổi theo bảng. Tên
    lớp `tsu-*` giữ nguyên để nơi gọi không phải đổi - chỉ hình thức đổi. */
 
-/* Quầng tím rất nhẹ CỐ ĐỊNH ở đỉnh khung nhìn, cho mọi trang (Layout). Cố định
+/* Quầng xanh rất nhẹ CỐ ĐỊNH ở đỉnh khung nhìn, cho mọi trang (Layout). Cố định
    nên khi cuộn nó không tạo ra ranh giới nào. */
 .tsu-backdrop {
   position: fixed;
@@ -444,7 +444,7 @@
   -webkit-mask-image: radial-gradient(70% 60% at 50% 0%, #000 20%, transparent 70%);
 }
 
-/* Chữ chuyển sắc tím → tím hồng, tĩnh. Cả hai đầu đạt 4.5:1 trên nền trang
+/* Chữ chuyển sắc xanh lơ → xanh dương (hai sắc của logo), tĩnh. Cả hai đầu đạt 4.5:1 trên nền trang
    (contrast.test.ts canh --primary; --accent đo tay 6.0:1 / 7.2:1). */
 .tsu-text-gradient {
   background: linear-gradient(90deg, var(--primary), var(--accent));
@@ -465,7 +465,7 @@
   background-color: color-mix(in srgb, var(--bg-hover) 55%, var(--bg-surface));
 }
 
-/* Ô biểu tượng (app, tính năng): nền tím rất nhạt + viền tím mờ, glyph mực
+/* Ô biểu tượng (app, tính năng): nền xanh rất nhạt + viền xanh mờ, glyph mực
    --text-link. Glyph và nền ô CHÊNH NHAU ≥4.5:1 ở cả hai chế độ (text-link đã
    được canh trên mọi tầng nền) - trước 10/11/2026 icon mang màu vai trò đứng trên
    nền chuyển sắc cùng tông và gần như biến mất. */
@@ -488,7 +488,7 @@
   box-shadow: none;
 }
 
-/* Chấm "đang sống" - nhịp sáng tím hồng. */
+/* Chấm "đang sống" - nhịp sáng xanh dương. */
 .tsu-live-dot {
   position: relative;
 }

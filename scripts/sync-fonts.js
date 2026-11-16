@@ -87,9 +87,9 @@ const HO_FONT = [
     nets: [400, 500, 600, 700],
   },
   {
-    google: 'JetBrains Mono',
-    css: 'JetBrains Mono',
-    slug: 'jetbrains-mono',
+    google: 'Chivo Mono',
+    css: 'Chivo Mono',
+    slug: 'chivo-mono',
     nets: [400, 500, 600, 700],
   },
 ];
@@ -296,7 +296,7 @@ async function main() {
         '| Họ font | Giấy phép | Vì sao chọn |',
         '| --- | --- | --- |',
         '| Be Vietnam Pro | SIL OFL 1.1 | thiết kế GỐC cho tiếng Việt; tổ hợp hai dấu đúng vị trí |',
-        '| JetBrains Mono | SIL OFL 1.1 | font mono có subset `vietnamese` thật |',
+        '| Chivo Mono | SIL OFL 1.1 | font mono có subset `vietnamese` thật, số 0 trơn (không chấm, không gạch) |',
         '',
         'Cả hai giấy phép CHO PHÉP tự host và nhúng. Thêm họ font mới thì kiểm giấy',
         'phép TRƯỚC khi tải.',

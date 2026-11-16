@@ -60,7 +60,7 @@ describe('màu nền chép ra ngoài tokens.css phải khớp nguồn', () => {
     for (const hex of [light, dark]) expect(src).toContain(`'${hex}'`);
   });
 
-  // Chế độ TỐI là mặc định (đen tuyền + tím, chủ dự án chọn 10/11/2026): `:root` TRẦN
+  // Chế độ TỐI là mặc định (đen tuyền + xanh logo, chủ dự án chọn 16/11/2026): `:root` TRẦN
   // phải mang bảng tối. Đảo lại thì lượt tải đầu tiên của một khách chưa từng chọn
   // gì sẽ hiện chế độ khác, và ba bản sao bên dưới (_document, ThemeToggle,
   // manifest) phải đổi cùng lúc.
