@@ -153,13 +153,14 @@ nguồn là hiện trạng; TSD là đích đến.
   không tồn tại trong artifact ⇒ thân bài Markdown của blog và tài liệu chạy sai
   chiều cao dòng suốt nhiều tháng mà không gì đỏ lên. Cần token dùng chung khác đi
   thì mở đề xuất ở repo `tsudev-standards` theo `.standards/docs/SYNC.md`.
-- **Giao diện: đen tuyền + tím, bố cục kiểu supabase.com; CHỈ Sáng · Tối · Hệ thống** (chủ dự án chốt
+- **Giao diện: đen tuyền + XANH LOGO (16/11/2026, thay tím), bố cục kiểu supabase.com; CHỈ Sáng · Tối · Hệ thống** (chủ dự án chốt
   10/11/2026 cho TOÀN hệ sinh thái - chế độ Ấm đã BỎ, đừng dựng lại; `warm` cũ trong localStorage đọc thành
   `light`). `data-theme` trên `<html>` chỉ là `dark` (mặc định, `:root` trần, nền `#0A0A0A` - KHÔNG `#000`) hoặc
   `light`. Bộ chọn 3 nút nằm ở CHÂN TRANG cạnh `© tsudev` (`ThemeToggle.tsx`), không ở header. Đổi script chống
   nháy ở `_document.tsx` ⇒ cập nhật `THEME_SCRIPT_HASH` trong `proxy.ts` (`test/csp.test.ts` bắt). Bảng màu
   KHÔNG treo vào `prefers-color-scheme`; "Hệ thống" được giải trong JavaScript trước khi vẽ, có test canh.
-  Chữ trên nút tím ở chế độ Tối là MỰC ĐEN (không mã tím nào đạt AA cho cả hai vai) - đừng đổi thành trắng.
+  Chữ trên nút xanh ở chế độ Tối là MỰC ĐEN (xanh lơ logo không đạt AA dưới chữ trắng) - đừng đổi thành trắng.
+  Font mono là Chivo Mono (số 0 trơn - chủ dự án yêu cầu); đừng quay về JetBrains Mono (số 0 có chấm).
   Một nền liền mạch: không dải nền khác màu giữa các khối. Icon trong nút nền đặc ăn màu chữ của nút
   (`.tsu-icon` ở `globals.css`). Danh bạ app hệ sinh thái (website riêng, winget, `icon`):
   `packages/ui/src/lib/ecosystem.ts` → `/apps`. Đừng cắm cứng mã hex: `--on-primary`/`--on-status` đảo theo

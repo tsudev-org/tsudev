@@ -84,18 +84,24 @@ Bộ chuẩn v1.0.0 không có sẵn ba nhóm dưới đây; chúng nằm ở
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `--icon-*` (6 màu)                  | Mã màu theo **nhóm hành động** - mắt nhận ra nhóm trước khi đọc nhãn. Sáu, không hơn: quá bảy màu thì chúng thôi là mã và thành nhiễu.                                  |
 | `--<trạng thái>-ink` / `-tint`      | §5 đòi badge "nền trạng thái nhạt 12% + chữ màu trạng thái đậm", nhưng ở chế độ Sáng cặp đó chỉ đạt ~4.1-4.3:1. `-ink` là sắc đậm hơn cho chữ, `-tint` là nền tính sẵn. |
-| `--accent`, `--glow`, `--grid-line` | Sắc NHẤN tím hồng (huy hiệu "Mới", đầu cuối của chữ chuyển sắc tím) và hai hoạ tiết nền.                                                                                |
+| `--accent`, `--glow`, `--grid-line` | Sắc NHẤN xanh dương chữ "dev" của logo (huy hiệu "Mới", đầu cuối của chữ chuyển sắc xanh) và hai hoạ tiết nền.                                                          |
 
-### Tông thương hiệu đen tuyền + tím, bố cục kiểu Supabase (10/11/2026)
+### Tông thương hiệu đen tuyền + xanh logo, bố cục kiểu Supabase (16/11/2026)
 
 Lịch sử: chàm + cam (05/11) → đen + xanh dương/xanh lá (10/11, phiên 46) → **đen
-tuyền `#0A0A0A` + tím `#A970FF`/`#7C3AED`** (10/11, phiên 47). Giá trị bảng chuẩn
+tuyền `#0A0A0A` + tím `#A970FF`/`#7C3AED`** (10/11, phiên 47) → **đen tuyền `#0A0A0A` + xanh logo
+`#38BDF8`/`#0868C4`, nhấn `#3B9EFF`/`#0E7490`** (16/11, phiên 55 - lấy mẫu từ `logo-tsudev.png`: xanh lơ mạch
+điện ~`#30C8F0`, xanh dương chữ "dev" ~`#1E90FF`). Giá trị bảng chuẩn
 KHÔNG bị sửa: khối `brand` trong `tokens/extensions.tsudev-web.json` ghi đè lúc sinh
 (`colorFor()` trong `scripts/sync-tokens.js`), và script ném lỗi khi khối đó gõ sai
 tên khoá hoặc trùng khoá với khối mở rộng.
 
-Ở chế độ Tối chữ trên nút tím là **mực đen** (`--on-primary: #0A0A0A`): không mã tím
-nào vừa đạt 4.5:1 làm chữ trên nền `#0A0A0A` vừa đạt 4.5:1 dưới chữ trắng.
+Ở chế độ Tối chữ trên nút xanh là **mực đen** (`--on-primary: #0A0A0A`): xanh lơ sáng như logo không
+đạt 4.5:1 dưới chữ trắng.
+
+**Font mono: Chivo Mono** (16/11/2026, thay JetBrains Mono) - chủ dự án yêu cầu số 0 KHÔNG có ký tự bên trong.
+Đo glyph `0` bằng fontTools: JetBrains/IBM Plex/Roboto/Source Code/Geist/Noto Sans Mono đều 3 đường kín (chấm hoặc
+gạch); Chivo Mono 2 đường + có subset `vietnamese`. Be Vietnam Pro (chữ chính) cũng số 0 trơn.
 
 Ngôn ngữ thiết kế (học supabase.com): một nền liền mạch, không dải nền khác màu
 giữa các khối (PageHeader, AuthShell, footer đều trong suốt); thẻ = bề mặt + viền
