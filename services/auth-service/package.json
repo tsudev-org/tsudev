@@ -14,14 +14,14 @@
   },
   "dependencies": {
     "@node-rs/argon2": "2.2.2",
-    "@simplewebauthn/server": "14.0.3",
+    "@simplewebauthn/server": "14.1.0",
     "@tsudev/auth": "*",
     "@tsudev/db": "*",
     "@tsudev/ratelimit": "*",
     "@tsudev/types": "*",
-    "dotenv": "^18.0.9",
+    "dotenv": "^18.0.10",
     "express": "^5.2.1",
-    "oidc-provider": "9.13.3",
+    "oidc-provider": "9.14.0",
     "source-map-support": "^0.5.21"
   },
   "devDependencies": {
