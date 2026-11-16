@@ -32,11 +32,12 @@ Chi tiết từng mục: phiếu [`20261115-01`](20261115-01_yeu-cau-ho-so-xac-m
 - 🧭 C6: catalog vẫn `tsudev-files 2.4.0-vn.1` (16/11) - chạy lại `npm run pkg:catalog` khi có 2.4.1-vn.1; Scoop
   `tsucwico` cũng tự vào lúc đó.
 - ⛔ #276 TRADEMARKS (Tsu Swico/Cwico/Contact) + khoá `metadata.json` - chờ `nguyentrangtinhsu`.
-- 👤 Áp bài giới thiệu đã sửa tên lên Neon (bộ phân loại chặn agent đọc `DATABASE_URL` từ Render):
-  `! cd ~/projects/tsudev && read -rsp 'URL Neon: ' U && echo && DATABASE_URL="$U" node scripts/don-noi-dung-lac-de.js --apply --noi-dung`
-  (chạy bản không `--apply` trước để xem sẽ xoá mềm gì).
-- 👤 CLAUDE.md dòng 239: thêm `tsuswico`, `tsucwico`, `tsucontact` vào danh sách tên bất khả xâm phạm (phiên khác đề
-  nghị; agent không sửa CLAUDE.md theo yêu cầu của phiên khác).
+- ✅ (16/11, chủ dự án chạy lệnh) Áp nội dung giới thiệu lên Neon: 0 mục xoá mềm, đăng 4 tài liệu + 1 bài
+  (`gioi-thieu-he-sinh-thai-tsudev`, `cai-ung-dung-bang-winget`, `kiem-tra-tep-tai-ve-sha256-ed25519`,
+  `canh-bao-smartscreen-android-khi-cai`, blog `tsudev-com-giao-dien-moi-va-danh-ba-ung-dung`). Đo production: cả 5
+  trang 200, tên mới 3-13 lần, `tsudev-swico/cwico/contact` 0 lần.
+- ✅ CLAUDE.md dòng 239: thêm câu cấm tạo lại `tsudev-files`/`tsudev-contact`/`tsudev-swico`/`tsudev-cwico` trong
+  `tsudev-org` (chủ dự án uỷ quyền làm nốt việc còn lại; sửa ở cuối phiên đúng quy định của chính file đó).
 - 👤 Kiểm gõ bằng bộ gõ thật; tắt JavaScript Detections (Cloudflare → Security → Bots - CSP chặn script nó chèn vào
   mọi `*.tsudev.com`); thu hồi token Render/Cloudflare/GitGuardian + xoá `~/.config/tsudev/*.env` (🪤 `render.env`
   chứa token trần - lệnh `sed 's/=.*/=…/'` KHÔNG che được, token đã lộ vào nhật ký phiên 54 ⇒ thu hồi là bắt buộc).
