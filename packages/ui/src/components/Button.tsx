@@ -15,17 +15,17 @@ import React from 'react';
  * đã sáng - nó đẩy nút gần về trắng và làm chữ `on-primary` tụt tương phản.
  * Token thì được canh bởi contrast.test.ts ở cả ba chế độ, bộ lọc thì không.
  */
-// Kiểu supabase.com: nút chính tím đặc + viền cùng sắc sáng hơn một bậc; nút phụ
+// Kiểu supabase.com: nút chính xanh đặc + viền cùng sắc sáng hơn một bậc; nút phụ
 // nền bề mặt + viền mảnh, rê chuột thì viền đậm lên. Icon bên trong nút ĐẶC màu
 // luôn ăn màu chữ của nút (globals.css: `.bg-primary .tsu-icon`) - icon mang màu
-// vai trò (xanh lá, ngọc...) trên nền tím là đúng lỗi "icon lẫn vào nền nút".
+// vai trò (xanh lá, ngọc...) trên nền xanh là đúng lỗi "icon lẫn vào nền nút".
 const VARIANTS = {
   primary:
     'bg-primary text-on-primary border border-primary-hover hover:bg-primary-hover active:bg-primary-active',
   secondary:
     'bg-surface border border-line-strong text-fg hover:bg-hovered hover:border-line-control',
   ghost: 'bg-transparent text-fg-secondary hover:bg-hovered hover:text-fg',
-  // Sắc NHẤN tím hồng của tông thương hiệu. Chữ dùng --on-status vì nền là màu đậm.
+  // Sắc NHẤN xanh dương của tông thương hiệu. Chữ dùng --on-status vì nền là màu đậm.
   teal: 'bg-accent text-on-status hover:opacity-90',
   danger: 'bg-danger text-on-status hover:opacity-90',
 } as const;

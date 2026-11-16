@@ -18,7 +18,7 @@
    ngưỡng WCAG AA. Đổi một mã màu làm tụt tương phản là CI đỏ.
    ============================================================ */
 
-/* Tối - MẶC ĐỊNH (chủ dự án chọn tông đen tuyền + tím tươi 10/11/2026).
+/* Tối - MẶC ĐỊNH (chủ dự án chọn tông đen tuyền + xanh logo 16/11/2026).
    `:root` trần mang bảng này, nên lượt tải đầu tiên của một khách vãng lai luôn là
    Tối dù hệ điều hành của họ đặt gì. Nền #0A0A0A chứ KHÔNG phải #000000:
    đen tuyệt đối bị DESIGN_SYSTEM.md §1 cấm ở mọi chế độ vì độ chói quá gắt khi đọc lâu. */
@@ -29,21 +29,21 @@
   /* Bảng chuẩn hệ sinh thái - .standards/tokens/design-tokens.json > color.dark */
   /* Tông thương hiệu ghi đè 17 khoá - tokens/extensions.tsudev-web.json > brand.dark */
   --bg-base: #0a0a0a;
-  --bg-surface: #111111;
-  --bg-subtle: #171717;
-  --bg-hover: #1f1f1f;
-  --border: #242424;
-  --border-strong: #2e2e2e;
+  --bg-surface: #0f1114;
+  --bg-subtle: #15181d;
+  --bg-hover: #1c2027;
+  --border: #22272f;
+  --border-strong: #2c323c;
   --border-control: #6e6e6e;
   --text-primary: #ededed;
   --text-secondary: #b4b4b4;
   --text-muted: #8f8f8f;
-  --text-link: #c4a1ff;
-  --primary: #a970ff;
-  --primary-hover: #bb8cff;
-  --primary-active: #9a5cf5;
+  --text-link: #7dd3fc;
+  --primary: #38bdf8;
+  --primary-hover: #7dd3fc;
+  --primary-active: #0ea5e9;
   --on-primary: #0a0a0a;
-  --focus-ring: #a970ff;
+  --focus-ring: #38bdf8;
   --success: #4ade80;
   --warning: #fbbf24;
   --danger: #f87171;
@@ -52,15 +52,15 @@
   --overlay: rgba(0, 0, 0, 0.6);
 
   /* Mở rộng riêng của tsudev-web - tokens/extensions.tsudev-web.json > dark */
-  --accent: #e879f9;
-  --glow: rgba(169, 112, 255, 0.16);
-  --glow-alt: rgba(232, 121, 249, 0.07);
+  --accent: #3b9eff;
+  --glow: rgba(56, 189, 248, 0.14);
+  --glow-alt: rgba(30, 144, 255, 0.08);
   --grid-line: rgba(255, 255, 255, 0.04);
-  --icon-nav: #c4a1ff;
+  --icon-nav: #7dd3fc;
   --icon-create: #4ade80;
   --icon-edit: #fbbf24;
   --icon-danger: #f87171;
-  --icon-info: #60a5fa;
+  --icon-info: #a78bfa;
   --icon-trust: #2dd4bf;
   --success-ink: #4ade80;
   --warning-ink: #fbbf24;
@@ -96,12 +96,12 @@
   --text-primary: #0a0a0a;
   --text-secondary: #3f3f46;
   --text-muted: #52525b;
-  --text-link: #6d28d9;
-  --primary: #7c3aed;
-  --primary-hover: #6d28d9;
-  --primary-active: #5b21b6;
+  --text-link: #0757a3;
+  --primary: #0868c4;
+  --primary-hover: #0757a3;
+  --primary-active: #064785;
   --on-primary: #ffffff;
-  --focus-ring: #7c3aed;
+  --focus-ring: #0868c4;
   --success: #15803d;
   --warning: #b45309;
   --danger: #dc2626;
@@ -110,15 +110,15 @@
   --overlay: rgba(10, 10, 10, 0.45);
 
   /* Mở rộng riêng của tsudev-web - tokens/extensions.tsudev-web.json > light */
-  --accent: #a21caf;
-  --glow: rgba(124, 58, 237, 0.1);
-  --glow-alt: rgba(162, 28, 175, 0.06);
+  --accent: #0e7490;
+  --glow: rgba(8, 104, 196, 0.1);
+  --glow-alt: rgba(14, 116, 144, 0.06);
   --grid-line: rgba(10, 10, 10, 0.05);
-  --icon-nav: #6d28d9;
+  --icon-nav: #0757a3;
   --icon-create: #15803d;
   --icon-edit: #7a4d00;
   --icon-danger: #b91c1c;
-  --icon-info: #1d4ed8;
+  --icon-info: #6d28d9;
   --icon-trust: #0f766e;
   --success-ink: #146c37;
   --warning-ink: #7a4d00;
@@ -164,7 +164,7 @@
   --font-family:
     'Be Vietnam Pro', 'Be Vietnam Pro Fallback', 'Segoe UI', 'Roboto', system-ui, -apple-system,
     sans-serif;
-  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Consolas', ui-monospace, monospace;
+  --font-mono: 'Chivo Mono', 'Cascadia Code', 'Consolas', ui-monospace, monospace;
   --fs-xs: 12px;
   --fs-sm: 13px;
   --fs-body-desktop: 14px;

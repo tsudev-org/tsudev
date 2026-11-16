@@ -19,7 +19,7 @@ const DARK_BASE = '#0a0a0a';
  * là một lựa chọn được lưu, không phải một bảng màu, nên chỉ ở đây nó mới hỏi
  * `prefers-color-scheme`. Bản thân tokens.css KHÔNG có @media
  * prefers-color-scheme, và đó là điều kiện để mặc định vẫn là Tối (đen tuyền +
- * tím, chủ dự án chọn 10/11/2026) cho khách vãng lai - xem ghi chú ở đầu ThemeToggle.tsx.
+ * xanh logo, chủ dự án chọn 16/11/2026) cho khách vãng lai - xem ghi chú ở đầu ThemeToggle.tsx.
  *
  * Bọc trong try/catch vì localStorage ném lỗi khi cookie bên thứ ba bị chặn hoặc
  * khi trang chạy trong iframe sandbox. Hỏng ở đây phải là "hiện chế độ tối mặc
