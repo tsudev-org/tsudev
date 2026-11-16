@@ -8,8 +8,10 @@
 > Swico/Cwico/Contact (#275); E2E gõ tiếng Việt giả lập (#277).
 > 🧭 Việc 1: đo lượt gộp lượt xem đầu tiên (sau 01:23 UTC 17/11), rồi đưa số lên /author.
 > 🧭 Việc 2: C6 `pkg:catalog` khi có `tsudev-files` 2.4.1-vn.1.
-> ✅ Nội dung giới thiệu đã áp lên Neon (4 tài liệu + 1 bài, tên mới, tên cũ 0); CLAUDE.md thêm tên cũ trong `tsudev-org`.
-> ⛔ #276 TRADEMARKS. 👤 bộ gõ thật, JS Detections, THU HỒI token Render (đã lộ vào nhật ký phiên 54).
+> ✅ (cập nhật) Nội dung giới thiệu đã áp lên Neon (4 tài liệu + 1 bài, tên mới, tên cũ 0); CLAUDE.md thêm tên cũ
+> trong `tsudev-org` ⇒ hai việc 👤 đó ở dòng dưới đã XONG; còn bộ gõ thật, JS Detections, thu hồi token.
+> ⛔ #276 TRADEMARKS. 👤 áp nội dung giới thiệu lên Neon (lệnh ở phiếu), CLAUDE.md dòng 239, bộ gõ thật, JS Detections,
+> THU HỒI token Render (đã lộ vào nhật ký phiên 54).
 
 > **Phiên 54 BẮT ĐẦU Ở ĐÂY** (cuối phiên 53, 15/11/2026 tối). Phiếu:
 > [`20261114-02`](handover/20261114-02_phien-53-p0-p1-bao-mat-tai-khoan.md) mục 000 → 00 → 0.
