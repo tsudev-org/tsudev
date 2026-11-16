@@ -14,6 +14,7 @@ Từ 16/11/2026 mỗi lần phát hành production của `main` được gắn t
 <https://github.com/tsudev-org/tsudev/tags>. Mỗi thẻ một dòng dưới đây. _English: every production deployment is
 tagged; the tag message lists the merged pull requests, and each line below summarises one tagged deployment._
 
+- v2026.11.16.5 - 16/11/2026 - Tiêu đề trang chủ: "Phần mềm nhỏ để dùng hàng ngày".
 - v2026.11.16.4 - 16/11/2026 - Giao diện đen tuyền + xanh logo (thay tím); font mono Chivo Mono - số 0 không chấm,
   không gạch (#284).
 - v2026.11.16.3 - 16/11/2026 - Đổi tên trên danh bạ /apps: Tsu Swico, Tsu Cwico, Tsu Contact (repo + gói Scoop mới).
