@@ -679,7 +679,9 @@ export default function AdminAccounts() {
                           <Badge tone={ROLE_TONE.OWNER}>{ROLE_LABEL.OWNER}</Badge>
                         ) : (
                           <select
-                            className={inputCls + ' w-auto py-1.5'}
+                            // min-w: ô co theo cột hẹp thì nhãn "Đăng bài"/"Thành viên" bị cắt còn "Đăng b".
+                            className={inputCls + ' w-auto min-w-[8.5rem] py-1.5'}
+                            aria-label={`Vai trò của ${u.username}`}
                             value={u.role}
                             onChange={(e) => changeRole(u, e.target.value)}
                           >
@@ -707,10 +709,10 @@ export default function AdminAccounts() {
                       <td className="px-4 py-3 text-fg-secondary">
                         <OriginCell ip={u.lastLoginIp} country={u.lastLoginCountry} />
                       </td>
-                      <td className="px-4 py-3 text-fg-secondary">
+                      <td className="px-4 py-3 text-fg-secondary whitespace-nowrap">
                         {formatDateTimeVN(u.createdAt)}
                       </td>
-                      <td className="px-4 py-3 text-fg-secondary">
+                      <td className="px-4 py-3 text-fg-secondary whitespace-nowrap">
                         {u.lastLoginAt ? (
                           <>
                             {formatDateTimeVN(u.lastLoginAt)}
@@ -732,7 +734,7 @@ export default function AdminAccounts() {
                         {isOwner ? (
                           <span className="text-fg-muted">-</span>
                         ) : (
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 whitespace-nowrap">
                             <Button variant="secondary" size="sm" onClick={() => revoke(u)}>
                               Thu hồi phiên
                             </Button>
