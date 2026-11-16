@@ -23,7 +23,6 @@ const CHANNELS: Record<Exclude<EcoPlatform, 'android'>, (a: EcoApp) => string[]>
 const EXCEPTIONS: Record<string, string> = {
   compass:
     'D6 - La bàn là app Android độc quyền: APK có chữ ký + trang sản phẩm, không có kênh lệnh',
-  disk: 'Tạm thời - TsuDisk mới phát hành 26.11.1601 (16/11/2026), chưa có gói winget/Scoop (phiếu 20261116-D1)',
 };
 
 const hasAnyChannel = (app: EcoApp) =>

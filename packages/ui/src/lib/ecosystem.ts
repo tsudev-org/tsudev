@@ -181,9 +181,8 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
     },
     {
       id: 'disk',
-      // Sản phẩm mới 16/11/2026 (phiếu 20261116-D1, repo tsudev-org/tsudisk). Chưa có logo riêng (dùng logo
-      // tsudev ⇒ để ô màu + glyph cho khỏi trùng thẻ) và chưa có gói winget/Scoop - ngoại lệ C4 ở
-      // packages/ui/test/installChannels.test.ts, gỡ khi phiếu sau của tsudisk báo có gói.
+      // Sản phẩm mới 16/11/2026 (phiếu 20261116-D1, repo tsudev-org/tsudisk). Gói Scoop `tsudisk` từ 17/11/2026
+      // (phiếu 20261117-D3) - tự lấy từ catalog, không khai tay.
       name: 'TsuDisk',
       tagline:
         'Quản lý phân vùng ổ cứng Windows an toàn: phân tích, lập kế hoạch, mở rộng ổ C: kể cả khi phân vùng Recovery chắn đường.',
