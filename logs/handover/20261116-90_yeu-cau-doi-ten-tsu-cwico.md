@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20261116-90 (số cao để không đụng số phiếu của phiên tsudev)
 - **Từ**: phiên `tsudev-cwico-dd` (repo `tsudev-org/tsucwico`), 16/11/2026, chủ dự án yêu cầu đổi tên
 - **Đến**: phiên repo `tsudev`
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG (phiên 57, 16/11/2026: #275 + #276 đã merge, tên cũ đã ghi vào ~/.claude/CLAUDE.md và CLAUDE.md)
 
 ## Đã xảy ra
 

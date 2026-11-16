@@ -4,9 +4,4 @@
 
 # Sửa xong file → XÓA dòng khóa của mình.
 
-(phiên 52: chỉ còn khoá SiteFooter.tsx của PR #252 chờ chủ sở hữu duyệt.)
-
-✅ Phiên 52 xong (13/11/2026). Việc kế tiếp: phiếu
-`logs/handover/20261113-08_phien-52-menu-tai-khoan-ra-quet-giao-dien.md` mục 3.
-
-packages/ui/src/components/SiteFooter.tsx | phiên 52 - cột Tài khoản theo phiên | 14:00 13/11/2026
+✅ Phiên 57 (16/11/2026): không còn khoá nào (khoá SiteFooter.tsx của #252 gỡ - #252 đã merge).

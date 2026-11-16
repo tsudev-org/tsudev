@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261116-C1
 - **Từ**: phiên `tsudev-contact-cf` (repo `tsucontact`), 16/11/2026, theo yêu cầu trực tiếp của chủ dự án
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG (phiên 57, 16/11/2026: #275 + #276 đã merge, tên cũ đã ghi vào ~/.claude/CLAUDE.md và CLAUDE.md)
 - **Quyết định**: `tsudev-org/tsucontact` `docs/adr/0001-ten-san-pham-tsu-contact.md` (PR tsucontact #26)
 
 ## Đã xảy ra
