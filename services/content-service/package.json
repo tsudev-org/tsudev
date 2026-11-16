@@ -10,15 +10,15 @@
     "search:reindex": "tsc -b ../.. && node dist/scripts/reindex-search.js"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1163.0",
-    "@aws-sdk/s3-request-presigner": "^3.1163.0",
+    "@aws-sdk/client-s3": "^3.1168.0",
+    "@aws-sdk/s3-request-presigner": "^3.1168.0",
     "@tsudev/auth": "*",
     "@tsudev/db": "*",
     "@tsudev/ratelimit": "*",
     "@tsudev/search": "*",
     "@tsudev/trust-crypto": "*",
     "@tsudev/types": "*",
-    "dotenv": "^18.0.9",
+    "dotenv": "^18.0.10",
     "express": "^5.2.1",
     "source-map-support": "^0.5.21"
   },
