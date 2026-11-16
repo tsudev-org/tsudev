@@ -9,7 +9,9 @@
 > 🧭 Việc 1: đo lượt gộp lượt xem đầu tiên (sau 01:23 UTC 17/11), rồi đưa số lên /author.
 > 🧭 Việc 2: C6 `pkg:catalog` khi có `tsudev-files` 2.4.1-vn.1.
 > ✅ (cập nhật) Nội dung giới thiệu đã áp lên Neon (4 tài liệu + 1 bài, tên mới, tên cũ 0); CLAUDE.md thêm tên cũ
-> trong `tsudev-org` ⇒ hai việc 👤 đó ở dòng dưới đã XONG; còn bộ gõ thật, JS Detections, thu hồi token.
+> trong `tsudev-org` ⇒ hai việc 👤 đó ở dòng dưới đã XONG. JS Detections cũng XONG (phiên tsudev-swico-34 tắt
+> 16/11, `enable_js=false`; đo: HTML `/` và `/apps` không còn `challenge-platform`). Còn: bộ gõ thật, THU HỒI token
+> Render VÀ Cloudflare (`cloudflare.env` cũng đã lộ vào nhật ký phiên tsudev-swico-34).
 > ⛔ #276 TRADEMARKS. 👤 áp nội dung giới thiệu lên Neon (lệnh ở phiếu), CLAUDE.md dòng 239, bộ gõ thật, JS Detections,
 > THU HỒI token Render (đã lộ vào nhật ký phiên 54).
 
