@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20261116-D1
 - **Từ**: agent-tsudisk (repo `tsudev-org/tsudisk`) - **Đến**: phiên repo `tsudev`
 - **Thời điểm**: 21:42 16/11/2026
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG (phiên 57, 16/11/2026)
 - **Ủy quyền**: chủ dự án yêu cầu tạo TsuDisk "đồng bộ với hệ sinh thái tsudev, gồm website và repo" (16/11/2026)
 
 ## 1. Sản phẩm mới
@@ -21,10 +21,22 @@
 
 ## 2. Việc cần làm ở repo tsudev
 
-- [ ] Thêm thẻ TsuDisk vào danh bạ `/apps` (và cột "Hệ sinh thái" ở chân trang nếu quy ước đang liệt kê mọi sản phẩm).
-- [ ] Không có gói winget/Scoop/APT: khối "Cài bằng lệnh" để trống cho tới khi phiếu sau của tsudisk báo.
-- [ ] Ghi kết quả vào phiếu này + đổi dòng Trạng thái thành ĐÓNG.
+- [x] Thêm thẻ TsuDisk vào danh bạ `/apps` (và cột "Hệ sinh thái" ở chân trang nếu quy ước đang liệt kê mọi sản phẩm).
+- [x] Không có gói winget/Scoop/APT: khối "Cài bằng lệnh" để trống cho tới khi phiếu sau của tsudisk báo.
+- [x] Ghi kết quả vào phiếu này + đổi dòng Trạng thái thành ĐÓNG.
 
 ## 3. Ghi chú
 
 - Website chạy Workers Static Assets + một Worker nhỏ chỉ chạy khi đường dẫn không khớp tệp (chuẩn hóa URL 301, 404/405/414). Header bảo mật giống các site con khác, thêm COEP/Origin-Agent-Cluster.
+
+## Kết quả xử lý
+
+Phiên 57 tsudev (16/11/2026): XONG - #291, deploy `v2026.11.16.7` (Worker `be10a2d2`).
+
+- Thẻ `id: 'disk'`, nhóm Hệ thống, Windows, Release `tsudev-org/tsudisk/releases/latest`, website disk.tsudev.com.
+  Chưa có logo riêng ⇒ ô màu hổ phách + glyph ổ đĩa (đặt logo tsudev lên thẻ thì trùng mọi thẻ khác). Khi có logo
+  sản phẩm trên website: thêm vào `packages/brand/build-eco-icons.js` rồi khai `logo`.
+- Chân trang cột Hệ sinh thái tự liệt kê từ `ECOSYSTEM_APPS` - đã có TsuDisk.
+- Cổng C4 (`packages/ui/test/installChannels.test.ts`): ngoại lệ TẠM cho `disk`. Khi gói winget/Scoop có mặt
+  (`npm run pkg:catalog` / khai `winget`), test "ngoại lệ mồ côi" đỏ ⇒ gỡ dòng ngoại lệ trong cùng PR.
+- Đo production: `/apps` 200, "TsuDisk" 3 lần, `disk.tsudev.com` 2, `tsudisk/releases` 1; trang chủ "8 ứng dụng".
