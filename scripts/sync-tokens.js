@@ -41,7 +41,7 @@ const ext = JSON.parse(fs.readFileSync(EXT_PATH, 'utf8'));
 const usage = ext.$usage;
 
 /**
- * Lớp tông THƯƠNG HIỆU (nay: đen tuyền + tím, chủ dự án chọn 10/11/2026).
+ * Lớp tông THƯƠNG HIỆU (nay: đen tuyền + xanh logo, chủ dự án chọn 16/11/2026).
  *
  * Đường DUY NHẤT để đổi giá trị của bảng chuẩn - bảng `.standards/` vẫn bất khả
  * xâm phạm, lớp này chỉ thay giá trị lúc SINH. Hai luật, cả hai ném lỗi:
@@ -83,7 +83,7 @@ const MODES = [
     'dark',
     ":root,\n:root[data-theme='dark']",
     'dark',
-    'Tối - MẶC ĐỊNH (chủ dự án chọn tông đen tuyền + tím tươi 10/11/2026).\n   `:root` trần mang bảng này, nên lượt tải đầu tiên của một khách vãng lai luôn là\n   Tối dù hệ điều hành của họ đặt gì. Nền #0A0A0A chứ KHÔNG phải #000000:\n   đen tuyệt đối bị DESIGN_SYSTEM.md §1 cấm ở mọi chế độ vì độ chói quá gắt khi đọc lâu.',
+    'Tối - MẶC ĐỊNH (chủ dự án chọn tông đen tuyền + xanh logo 16/11/2026).\n   `:root` trần mang bảng này, nên lượt tải đầu tiên của một khách vãng lai luôn là\n   Tối dù hệ điều hành của họ đặt gì. Nền #0A0A0A chứ KHÔNG phải #000000:\n   đen tuyệt đối bị DESIGN_SYSTEM.md §1 cấm ở mọi chế độ vì độ chói quá gắt khi đọc lâu.',
   ],
   [
     'light',
