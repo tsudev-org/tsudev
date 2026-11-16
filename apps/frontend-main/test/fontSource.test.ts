@@ -232,7 +232,7 @@ describe('font tự host - cổng canh nguồn', () => {
    */
   test('cả hai họ font đều có subset vietnamese ở mọi nét', () => {
     const tep = readdirSync(FONT_DIR).filter((f) => f.endsWith('.woff2'));
-    for (const slug of ['be-vietnam-pro', 'jetbrains-mono']) {
+    for (const slug of ['be-vietnam-pro', 'chivo-mono']) {
       for (const net of [400, 500, 600, 700]) {
         expect(tep).toContain(`${slug}-${net}-vietnamese.woff2`);
       }

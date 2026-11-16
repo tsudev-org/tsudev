@@ -59,12 +59,12 @@
         "vietnamese"
       ]
     },
-    "tsudev-cwico": {
+    "tsucwico": {
       "description": "Deep Windows cleanup: find and remove leftover software safely, with a restore point before every run · Dọn sâu và gỡ phần mềm thừa trên Windows",
       "homepage": "https://cwico.tsudev.com",
       "topics": ["windows", "uninstaller", "cleanup", "tauri", "rust", "vietnamese"]
     },
-    "tsudev-swico": {
+    "tsuswico": {
       "description": "Check Windows and Office licensing and collect hardware inventory with one .exe - data never leaves the machine · Kiểm tra bản quyền và cấu hình máy",
       "homepage": "https://swico.tsudev.com",
       "topics": [
@@ -76,7 +76,7 @@
         "vietnamese"
       ]
     },
-    "tsudev-contact": {
+    "tsucontact": {
       "description": "Convert CSV contact lists to vCard (.vcf) for phones, with page-by-page preview · Chuyển danh bạ CSV sang vCard",
       "homepage": "https://contact.tsudev.com",
       "topics": ["vcard", "csv", "contacts", "converter", "pyside6", "vietnamese"]
