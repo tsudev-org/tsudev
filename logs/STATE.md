@@ -6,6 +6,8 @@
 > ✅ Merge Dependabot #281 #283 #282 + deploy `v2026.11.16.6` Worker `9f683a4f` (có #288 logo 5 trò chơi); Render
 > `e5a3831` success, OIDC discovery 200. Ba phiếu đổi tên (90, C1, S1) ĐÓNG. Đề xuất bảng màu xanh logo lên bộ quy
 > ước: tsudev-standards#55.
+> ✅ (sau) TsuDisk vào danh bạ (#291, `v2026.11.16.7` Worker `be10a2d2`), phiếu D1 ĐÓNG; ngoại lệ C4 tạm cho `disk`.
+> ⛔ #290 xoá 5 logo gốc trò chơi - chờ `nguyentrangtinhsu` duyệt. Chủ dự án UỶ QUYỀN tự merge/deploy (16/11).
 > 🧭 Việc 1 (đo lượt gộp sau 01:23 UTC 17/11 → /author) và Việc 2 (C6) vẫn mở.
 
 > **Phiên 57 BẮT ĐẦU Ở ĐÂY** (cuối phiên 56, 16/11/2026). Việc mở như phiên 56 bên dưới (phiếu 20261116-02 mục 2).

@@ -14,6 +14,7 @@ Từ 16/11/2026 mỗi lần phát hành production của `main` được gắn t
 <https://github.com/tsudev-org/tsudev/tags>. Mỗi thẻ một dòng dưới đây. _English: every production deployment is
 tagged; the tag message lists the merged pull requests, and each line below summarises one tagged deployment._
 
+- v2026.11.16.7 - 16/11/2026 - Danh bạ /apps thêm TsuDisk - quản lý phân vùng ổ cứng Windows (#291).
 - v2026.11.16.6 - 16/11/2026 - Logo 5 trò chơi lấy từ website game (#288); nâng phụ thuộc Dependabot: Next 16.4.6,
   Tiptap 3.33, oidc-provider 9.14, ảnh Docker node 22 (#281-#283).
 - v2026.11.16.5 - 16/11/2026 - Tiêu đề trang chủ: "Phần mềm nhỏ để dùng hàng ngày".
