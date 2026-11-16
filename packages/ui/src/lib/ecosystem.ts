@@ -180,6 +180,22 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       icon: 'M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6zM8.8 12.2l2.2 2.2 4.4-4.4',
     },
     {
+      id: 'disk',
+      // Sản phẩm mới 16/11/2026 (phiếu 20261116-D1, repo tsudev-org/tsudisk). Chưa có logo riêng (dùng logo
+      // tsudev ⇒ để ô màu + glyph cho khỏi trùng thẻ) và chưa có gói winget/Scoop - ngoại lệ C4 ở
+      // packages/ui/test/installChannels.test.ts, gỡ khi phiếu sau của tsudisk báo có gói.
+      name: 'TsuDisk',
+      tagline:
+        'Quản lý phân vùng ổ cứng Windows an toàn: phân tích, lập kế hoạch, mở rộng ổ C: kể cả khi phân vùng Recovery chắn đường.',
+      category: 'system',
+      platforms: ['windows'],
+      website: 'https://disk.tsudev.com',
+      releases: 'https://github.com/tsudev-org/tsudisk/releases/latest',
+      openSource: true,
+      tint: ['#b45309', '#78350f'],
+      icon: 'M4 13 6 5h12l2 8M4 13h16v6H4zM8 16h5M16.5 16h.01',
+    },
+    {
       id: 'files',
       // Tên sản phẩm TsuFiles từ 12/11/2026 (ADR-0003 repo tsudev-org/tsufiles). Tên gói Scoop/Homebrew/APT
       // GIỮ `tsudev-files` (catalog pkg.tsudev.com) - đừng đổi theo tên hiển thị.
