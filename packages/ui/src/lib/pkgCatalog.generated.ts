@@ -57,6 +57,12 @@ export const PKG_CATALOG = {
       homepage: 'https://trafficmonitor.tsudev.com',
     },
     {
+      name: 'tsudisk',
+      version: '26.11.1602',
+      arch: ['64bit'],
+      homepage: 'https://disk.tsudev.com',
+    },
+    {
       name: 'tsuswico',
       version: '26.8.18.2',
       arch: ['any'],
