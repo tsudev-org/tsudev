@@ -38,6 +38,8 @@ Chi tiết từng mục: phiếu [`20261115-01`](20261115-01_yeu-cau-ho-so-xac-m
   trang 200, tên mới 3-13 lần, `tsudev-swico/cwico/contact` 0 lần.
 - ✅ CLAUDE.md dòng 239: thêm câu cấm tạo lại `tsudev-files`/`tsudev-contact`/`tsudev-swico`/`tsudev-cwico` trong
   `tsudev-org` (chủ dự án uỷ quyền làm nốt việc còn lại; sửa ở cuối phiên đúng quy định của chính file đó).
+- ✅ JS Detections đã TẮT (16/11, phiên tsudev-swico-34, chỉ đổi `enable_js`; `fight_mode` vẫn false). Đo: `/`,
+  `/apps` 200, không còn `challenge-platform`/`__CF$cv$params`. Token `cloudflare.env` cũng lộ ở phiên đó ⇒ thu hồi.
 - 👤 Kiểm gõ bằng bộ gõ thật; tắt JavaScript Detections (Cloudflare → Security → Bots - CSP chặn script nó chèn vào
   mọi `*.tsudev.com`); thu hồi token Render/Cloudflare/GitGuardian + xoá `~/.config/tsudev/*.env` (🪤 `render.env`
   chứa token trần - lệnh `sed 's/=.*/=…/'` KHÔNG che được, token đã lộ vào nhật ký phiên 54 ⇒ thu hồi là bắt buộc).
