@@ -1,13 +1,19 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
 > **Phiên 55 BẮT ĐẦU Ở ĐÂY** (cuối phiên 54, 16/11/2026). Phiếu:
-> [`20261116-01`](handover/20261116-01_phien-54-best-practices-the-phien-ban.md) mục 2.
+> [`20261116-01`](handover/20261116-01_phien-54-best-practices-the-phien-ban.md) mục 1b + 2.
 >
-> ✅ OpenSSF Best Practices **16731 passing 100%**; mỗi deploy gắn thẻ `vYYYY.MM.DD.N` (đầu tiên `v2026.11.16.1`,
-> Worker `12833ec6`); Scorecard tsudev 8.4, thêm cho `tsudev-standards` + `.github`.
-> 🧭 Việc 1: C6 - khi `pkg.tsudev.com/catalog.json` có `tsudev-files` 2.4.1-vn.1 (16/11: vẫn 2.4.0) ⇒ `npm run pkg:catalog`.
-> 🧭 Việc 2: lượt xem bài - phương án Analytics Engine đã chọn (mục 2 phiếu); 👤 token `Account Analytics Read`.
-> ⛔ `.github#2` LICENSE chờ chủ sở hữu. 👤 gõ tiếng Việt 2 bộ gõ; các việc 👤 của phiếu 20261114-02 mục 000.
+> ✅ Best Practices **16731 passing 100%**; thẻ `vYYYY.MM.DD.N` mỗi deploy (mới nhất `v2026.11.16.3`, Worker `7678a4fb`);
+> `main` bảo vệ bằng RULESET (không còn kiểu cổ điển); lượt xem bài D1 → cron → `PostViewDaily` (#274); đổi tên Tsu
+> Swico/Cwico/Contact (#275); E2E gõ tiếng Việt giả lập (#277).
+> 🧭 Việc 1: đo lượt gộp lượt xem đầu tiên (sau 01:23 UTC 17/11), rồi đưa số lên /author.
+> 🧭 Việc 2: C6 `pkg:catalog` khi có `tsudev-files` 2.4.1-vn.1.
+> ✅ (cập nhật) Nội dung giới thiệu đã áp lên Neon (4 tài liệu + 1 bài, tên mới, tên cũ 0); CLAUDE.md thêm tên cũ
+> trong `tsudev-org` ⇒ hai việc 👤 đó ở dòng dưới đã XONG. JS Detections cũng XONG (phiên tsudev-swico-34 tắt
+> 16/11, `enable_js=false`; đo: HTML `/` và `/apps` không còn `challenge-platform`). Còn: bộ gõ thật, THU HỒI token
+> Render VÀ Cloudflare (`cloudflare.env` cũng đã lộ vào nhật ký phiên tsudev-swico-34).
+> ⛔ #276 TRADEMARKS. 👤 áp nội dung giới thiệu lên Neon (lệnh ở phiếu), CLAUDE.md dòng 239, bộ gõ thật, JS Detections,
+> THU HỒI token Render (đã lộ vào nhật ký phiên 54).
 
 > **Phiên 54 BẮT ĐẦU Ở ĐÂY** (cuối phiên 53, 15/11/2026 tối). Phiếu:
 > [`20261114-02`](handover/20261114-02_phien-53-p0-p1-bao-mat-tai-khoan.md) mục 000 → 00 → 0.

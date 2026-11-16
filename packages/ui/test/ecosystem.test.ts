@@ -134,10 +134,14 @@ describe('gói APT/RPM suy từ catalog.json của kho, không gõ tay (phiếu 
     }
   });
 
-  it('kênh Scoop/Homebrew khớp thực tế đã đo (tsudev-trafficmonitor, SWICO, files, Lotus Share)', () => {
+  it('kênh Scoop/Homebrew khớp thực tế đã đo (tsudev-trafficmonitor, Tsu Swico, files, Lotus Share)', () => {
     const by = (id: string) => ECOSYSTEM_APPS.find((a) => a.id === id);
     expect(by('trafficmonitor')?.scoop).toBe('tsudev-trafficmonitor');
-    expect(by('swico')?.scoop).toBe('tsudev-swico');
+    // Tsu Swico (16/11/2026): gói mới `tsuswico`; `tsudev-swico` là gói chuyển tiếp, KHÔNG hiện.
+    expect(by('swico')?.scoop).toBe('tsuswico');
+    expect((PKG_CATALOG.scoop as { name: string }[]).map((p) => p.name)).not.toContain(
+      'tsudev-swico'
+    );
     expect(by('files')?.brew).toBe('tsudev-files');
     expect(by('lotus')?.brew).toBe('lotus-share');
     // Gói chuyển tiếp `tsudev-lotus` (replacedBy) KHÔNG được hiện.

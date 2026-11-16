@@ -19,6 +19,14 @@
   // Bucket R2 của incremental cache (open-next.config.ts). Tên binding CỐ ĐỊNH -
   // OpenNext đọc đúng NEXT_INC_CACHE_R2_BUCKET. Thiếu binding thì mọi trang ISR
   // dựng lại ở MỖI lượt xem, tức quay về đúng bài toán §6 muốn chữa.
+  "d1_databases": [
+    // Lượt xem bài chờ gộp (lib/luotXem.ts, infrastructure/canh-site-cron/d1/luot_xem.sql).
+    {
+      "binding": "VIEWS_DB",
+      "database_name": "tsudev-luot-xem",
+      "database_id": "0155c98b-d692-4051-8d51-45f7fe3462be",
+    },
+  ],
   "r2_buckets": [{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "tsudev-next-cache" }],
   "services": [
     {

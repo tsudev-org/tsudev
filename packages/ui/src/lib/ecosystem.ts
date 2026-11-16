@@ -145,13 +145,15 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
     },
     {
       id: 'cwico',
-      name: 'cwico',
+      // Tên sản phẩm Tsu Cwico từ 16/11/2026 (repo tsudev-org/tsucwico, phiếu 20261116-90).
+      // GIỮ: id `cwico`, winget `tsudev.cwico`, cwico.tsudev.com, logo.
+      name: 'Tsu Cwico',
       tagline:
         'Rà quét sâu và gỡ phần mềm thừa trên Windows - chặn cứng thành phần hệ thống, tạo điểm khôi phục trước mỗi lần chạy.',
       category: 'system',
       platforms: ['windows'],
       website: 'https://cwico.tsudev.com',
-      releases: 'https://github.com/tsudev-org/tsudev-cwico/releases/latest',
+      releases: 'https://github.com/tsudev-org/tsucwico/releases/latest',
       winget: 'tsudev.cwico',
       openSource: true,
       // Logo riêng do chủ dự án giao 13/11/2026 (packages/brand/source/eco/) - repo cwico
@@ -162,13 +164,15 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
     },
     {
       id: 'swico',
-      name: 'tsudev SWICO',
+      // Tên sản phẩm Tsu Swico từ 16/11/2026 (ADR-0001 repo tsudev-org/tsuswico, phiếu 20261116-S1).
+      // GIỮ: id `swico`, winget `tsudev.SWICO`, swico.tsudev.com, lệnh swico.exe.
+      name: 'Tsu Swico',
       tagline:
         'Kiểm tra bản quyền Windows, Office và thu thập cấu hình phần cứng bằng một tệp .exe - dữ liệu không rời khỏi máy.',
       category: 'system',
       platforms: ['windows'],
       website: 'https://swico.tsudev.com',
-      releases: 'https://github.com/tsudev-org/tsudev-swico/releases/latest',
+      releases: 'https://github.com/tsudev-org/tsuswico/releases/latest',
       winget: 'tsudev.SWICO',
       openSource: true,
       logo: '/eco/swico.webp',
@@ -224,14 +228,16 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
     },
     {
       id: 'contact',
-      name: 'tsudev-contact',
+      // Tên sản phẩm Tsu Contact từ 16/11/2026 (repo tsudev-org/tsucontact, phiếu 20261116-C1).
+      // GIỮ: id `contact`, contact.tsudev.com. Winget `tsudev.TsuContact` chưa phát hành ⇒ chưa khai.
+      name: 'Tsu Contact',
       tagline:
         'Chuyển danh bạ CSV sang vCard (.vcf) để nạp vào điện thoại, có xem trước từng trang.',
       category: 'files',
       platforms: ['windows'],
       // Website lên 10/11/2026 (phiếu 20261110-04 của repo tsudev-contact; đo 200 + <title>).
       website: 'https://contact.tsudev.com',
-      releases: 'https://github.com/tsudev-org/tsudev-contact/releases/latest',
+      releases: 'https://github.com/tsudev-org/tsucontact/releases/latest',
       openSource: true,
       logo: '/eco/contact.webp',
       tint: ['#0284c7', '#0c4a6e'],

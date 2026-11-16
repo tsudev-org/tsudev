@@ -28,5 +28,9 @@ công khai, ISR và chỉ mục tìm kiếm bỏ dấu (`searchBodyNorm`) đều
 
 - Render công khai, ISR, tìm kiếm không đổi một dòng.
 - Bảng (mục 4 của chuẩn) chờ extension bảng GFM của Tiptap; tới lúc đó bảng viết bằng cú pháp Markdown trong khối.
-- **Kiểm gõ tiếng Việt thủ công với 2 bộ gõ (Unikey/EVKey trên Windows, ibus-bamboo trên Linux): CHƯA làm** - cần
-  máy có bộ gõ thật. Ghi kết quả vào đây khi làm (tiêu chí nghiệm thu mục 11 của chuẩn).
+- **Gõ tiếng Việt** (tiêu chí mục 11 của chuẩn): 16/11/2026 có E2E `e2e/tests/vi-ime.spec.js` (chạy trong CI, PR #277)
+  GIẢ LẬP hai cơ chế đưa chữ vào ô soạn: kiểu Unikey/EVKey (xoá lùi + chèn lại âm tiết có dấu, Telex
+  `Tieesng Vieejt cos daaus` ⇒ `Tiếng Việt có dấu.`) và kiểu ibus-bamboo (composition/preedit qua CDP
+  `Input.imeSetComposition` ⇒ `tiếng Việt được.`). Cả hai ĐẠT: không mất ký tự, không nhân đôi, gõ tiếp vào đúng
+  cuối. Kiểm bằng bộ gõ THẬT trên máy người: CHƯA làm (máy agent và CI không có bộ gõ; cài binary bị chặn) - ghi kết
+  quả vào đây khi làm.
