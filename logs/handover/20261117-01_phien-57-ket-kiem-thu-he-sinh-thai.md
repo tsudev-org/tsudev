@@ -18,6 +18,8 @@
 | TsuDisk có Scoop - gỡ ngoại lệ C4 (phiếu D3)                                                                                                                                                                                                                                                                                                                                                                                      | #295       | ui 254/254                                                                                                    |
 | Hệ sinh thái: Tsu Contact winget (winget-pkgs#477388 → `tsudev.TsuContact` 26.11.1601); tsuswico#26 (tách tệp, cột số căn phải) + deploy swico; Scoop/Homebrew TsuFiles 2.4.1 (scoop-bucket#13, homebrew-tap#7); linux-packages#28 (`doi-chieu-kenh.mjs`, sửa dựng thử kho bản cũ); scoop-bucket#14 (mô tả tsucwico); lotus-share#47 + deploy; cwico website deploy + STATE (#74); rà quét giao diện lotus/cwico/swico/contact OK | nhiều repo | xem phiếu 20261116-03 + kết quả các phiếu D1-D3                                                               |
 
+| Bổ sung 17/11: OIDC endpoint ở tsudev.com (#297, v.3); Sound Db trên /apps (#298, v.4); logo TsuDisk (#294, v.5); hộp thoại có Huỷ riêng không hiện thêm "Đóng" + nút "Thêm passkey" không gãy dòng (#300, v.6) - kiểm khổ 390 + chế độ Sáng 16 trang OWNER: 0 tràn ngang | #297 #298 #294 #300 | `v2026.11.17.6` Worker `60537a75`; discovery `authorization_endpoint` = https://tsudev.com/oidc/auth |
+
 ## 2. Còn lại
 
 - ✅ (17/11/2026 10:15) **Hạn 02/12 đã xử lý**: chủ dự án cấp `admin:org` cho `gh`, agent tạo Actions event policy
@@ -44,3 +46,9 @@
 - 🪤 GitHub brownout `pull_request_target`: run `startup_failure`, không job, `gh run view` chỉ nói "workflow file
   issue"; lý do thật CHỈ hiện ở mục Annotations khi mở trang run bằng trình duyệt đã đăng nhập.
 - 🪤 Test của app không dịch JSX: hàm muốn test thì đặt ở `lib/*.ts`, không trong `components/*.tsx`.
+- 🪤 Logo SẢN PHẨM ở `apps/frontend-main/public/eco/` + `build-eco-icons.js` KHÔNG thuộc vùng cổng Bảo vệ bản quyền
+  (vùng: `packages/brand/source/`, `public/brand/`, giấy phép, chân trang, ủng hộ, script cài, workflow). PR logo
+  sản phẩm không cần chờ chủ sở hữu.
+- 🪤 Ruleset tsudev `dismiss_stale_reviews_on_push`: giải xung đột / cập nhật nhánh sau khi đã được duyệt ⇒ lượt duyệt
+  bị huỷ. Với PR vùng bảo vệ, cập nhật nhánh TRƯỚC rồi mới xin duyệt.
+- 🪤 Chủ dự án đăng nhập `tsudev-tsudev` (tác giả PR của agent) KHÔNG duyệt được - phải là `nguyentrangtinhsu`.
