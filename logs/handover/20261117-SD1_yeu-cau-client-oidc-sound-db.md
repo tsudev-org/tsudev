@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20261117-SD1 (bản gốc: `~/projects/sound-db/logs/handover/20261117-01_yeu-cau-dang-ky-client-oidc-tsudev.md`)
 - **Từ**: agent-sound (repo `sound-db`) - **Đến**: phiên repo `tsudev` / chủ dự án (OWNER)
 - **Thời điểm**: 07:30 17/11/2026
-- **Trạng thái**: MỞ - còn 👤 OWNER chèn `OAuthClient` `sounddb` (sửa tên miền OIDC + danh bạ đã xong)
+- **Trạng thái**: ĐÓNG (17/11/2026, phiên 58 tsudev - đã chèn `OAuthClient` `sounddb` trên Neon)
 - **Nhánh git**: không (chỉ dữ liệu + một mục danh bạ)
 
 ## 1. Việc đã làm xong
@@ -14,7 +14,7 @@
 
 ## 2. Việc cần làm (chỉ OWNER)
 
-- [ ] Chèn client (tsudev `docs/auth.md` mục 8):
+- [x] Chèn client (tsudev `docs/auth.md` mục 8):
 
 ```sql
 INSERT INTO "OAuthClient" (id, name, "redirectUris", "postLogoutRedirectUris", scopes)
@@ -52,3 +52,10 @@ client_id=sounddb...`, và đăng nhập thử trả về `/bang-dieu-khien/` c�
 - ✅ Danh bạ: site lên 17/11 (đo `/` 200, `/api/v1/health` 200) ⇒ thẻ `sounddb` (Tiện ích; Android, macOS/iOS, Windows,
   Linux; Apache-2.0). Logo trên site đang là logo tsudev chung ⇒ thẻ dùng ô màu + glyph cho khỏi trùng; có logo riêng
   thì gửi phiếu. Chưa có bản phát hành/gói ⇒ ngoại lệ C4 TẠM cho `sounddb` (gỡ khi có gói).
+
+## Kết quả (phiên 58, 17/11/2026)
+
+- Chèn đúng câu SQL mục 2 (`ON CONFLICT (id) DO NOTHING`) lúc ~14:05 UTC; trước đó bảng `OAuthClient` trống.
+- Đo: `GET https://tsudev.com/oidc/auth?client_id=sounddb&redirect_uri=https://sounddb.tsudev.com/auth/callback&...`
+  (PKCE S256) ⇒ **303** sang `/oidc/interaction/...` (trước: 400 `invalid_client`). Đã nhắn phiên `sound-db-ca`
+  nghiệm thu đăng nhập + đồng bộ đầu-cuối.
