@@ -361,7 +361,9 @@ export default function SecurityPage() {
                 placeholder="MacBook cơ quan"
                 className="flex-1"
               />
-              <Button onClick={addPasskey}>Thêm passkey</Button>
+              <Button onClick={addPasskey} className="shrink-0 whitespace-nowrap">
+                Thêm passkey
+              </Button>
             </div>
           </Section>
 

@@ -801,6 +801,7 @@ export default function AdminAccounts() {
         />
       </Card>
       <Modal
+        closeButton={false}
         open={stepUpPrompt !== null}
         onClose={() => setStepUpPrompt(null)}
         title="Xác thực lại"

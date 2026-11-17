@@ -5,6 +5,12 @@ type ModalProps = {
   onClose?: () => void;
   title?: string;
   children?: React.ReactNode;
+  /**
+   * Nút "Đóng" ở chân hộp thoại. Tắt (`false`) khi thân hộp thoại đã có cặp hành động riêng (Huỷ + Xác nhận):
+   * để cả hai thì người dùng thấy HAI nút thoát cạnh nhau ("Huỷ" và "Đóng") - đo ở hộp Xác thực lại 17/11/2026.
+   * Escape và bấm lớp phủ vẫn đóng được.
+   */
+  closeButton?: boolean;
 };
 
 // Hộp thoại. Ba thứ bắt buộc phải có mà bản trước thiếu, và đều chỉ ảnh hưởng
@@ -19,7 +25,7 @@ type ModalProps = {
 // Lớp phủ giữ onClick nhưng đánh aria-hidden: nó là nền trang trí, và đường
 // thoát bằng bàn phím đã có Escape lẫn nút Close - không cần biến nó thành một
 // điểm dừng tab thứ ba.
-export const Modal = ({ open, onClose, title, children }: ModalProps) => {
+export const Modal = ({ open, onClose, title, children, closeButton = true }: ModalProps) => {
   const panelRef = useRef<HTMLDivElement | null>(null);
   // document.activeElement trả Element, không phải HTMLElement - chỉ HTMLElement
   // mới có focus(). Thu hẹp ngay tại chỗ gán thay vì đoán ở chỗ dùng.
@@ -81,16 +87,20 @@ export const Modal = ({ open, onClose, title, children }: ModalProps) => {
         <div className="max-h-[70vh] overflow-y-auto px-sp6 py-sp5 text-sm text-fg-secondary">
           {children}
         </div>
-        {/* Hành động căn PHẢI ở chân hộp thoại (§5). */}
-        <div className="flex justify-end gap-sp2 border-t border-line px-sp6 py-sp4">
-          <button
-            type="button"
-            className="inline-flex h-control items-center rounded-md px-sp4 text-sm font-semibold text-fg-secondary transition-colors duration-fast ease-standard hover:bg-hovered hover:text-fg focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-            onClick={onClose}
-          >
-            Đóng
-          </button>
-        </div>
+        {closeButton && (
+          <>
+            {/* Hành động căn PHẢI ở chân hộp thoại (§5). */}
+            <div className="flex justify-end gap-sp2 border-t border-line px-sp6 py-sp4">
+              <button
+                type="button"
+                className="inline-flex h-control items-center rounded-md px-sp4 text-sm font-semibold text-fg-secondary transition-colors duration-fast ease-standard hover:bg-hovered hover:text-fg focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                onClick={onClose}
+              >
+                Đóng
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

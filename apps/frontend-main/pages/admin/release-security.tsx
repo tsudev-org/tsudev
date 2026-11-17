@@ -561,6 +561,7 @@ export default function ReleaseSecurity() {
       </Card>
 
       <Modal
+        closeButton={false}
         open={dialog !== null && dialog.kind !== 'history'}
         onClose={() => setDialog(null)}
         title={
