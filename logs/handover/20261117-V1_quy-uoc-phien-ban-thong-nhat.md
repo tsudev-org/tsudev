@@ -82,4 +82,10 @@ Tám kiểu đặt thẻ cùng tồn tại, khó so sánh/đối chiếu phiên 
 
 ## 6. Kết quả xử lý (mỗi repo điền vào bản sao của mình)
 
--
+- **tsudev (website) - bước 8, ĐÃ ĐỌC + XONG phần thẻ deploy (17/11/2026, phiên 58)**: `scripts/release-tag.js` gắn
+  `deploy-YYYY.MM.DD.N` (#306); thẻ `v20...` cũ giữ nguyên, vẫn làm mốc ghi chú và đếm N trong ngày (test
+  `apps/frontend-main/test/releaseTag.test.ts`). Thẻ đầu tiên theo khuôn mới: **`deploy-2026.11.17.7`** (Worker
+  `ea6ceb72`). CHANGELOG + `docs/best-practices.json` cập nhật. Còn: phần "danh bạ /apps hiện phiên bản theo khuôn
+  chung" tự đúng khi các app đổi khuôn (lấy từ catalog kho gói); hồ sơ Best Practices 16731 có thể cập nhật câu
+  `version_semver` theo `docs/best-practices.json` ở lần chạy công cụ hồ sơ kế tiếp. Bước 1 (tsudev-standards v3.7.0)
+  CHƯA có - `.standards-version` vẫn v3.6.0.
