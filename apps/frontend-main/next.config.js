@@ -52,8 +52,11 @@ const nextConfig = {
       afterFiles: [
         { source: '/.well-known/tsudev-release-jwks.json', destination: '/api/releases/jwks' },
         // issuer https://tsudev.com/oidc → route proxy (đọc địa chỉ service lúc chạy).
-        // afterFiles: trang `/oidc/interaction/[uid]` có thật nên KHÔNG bị luật này nuốt.
-        { source: '/oidc/:path*', destination: '/api/oidc/:path*' },
+        // 🔴 afterFiles được xét TRƯỚC trang có tham số động (`[uid]`) - chỉ sau trang TĨNH.
+        // Bản `/oidc/:path*` trần nuốt luôn `/oidc/interaction/<uid>` sang provider ⇒ 404
+        // text/plain, mọi client OIDC tắc ở bước đăng nhập (17/11/2026, phiên sound-db).
+        // Nên luật này LOẠI đúng trang đó; `/confirm` đã do luật beforeFiles bắt.
+        { source: '/oidc/:path((?!interaction/[^/]+/?$).*)', destination: '/api/oidc/:path' },
       ],
       fallback: [],
     };
