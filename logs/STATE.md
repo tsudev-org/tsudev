@@ -6,6 +6,8 @@
 > ✅ Best Practices passing: Tsu Contact 16836, Tsu Swico 16837, Tsu Cwico 16838 (+ tsudev 16731, tsufiles 16719).
 > Policy 15243 cho `pull_request_target`. tsudev.com `v2026.11.17.6`. Không giữ khoá, không tác vụ nền.
 > 👤 xuat-ban linux-packages · Neon (sounddb + nội dung) · duyệt PR bằng `nguyentrangtinhsu` · thu `admin:org`.
+> 🔐 An ninh GitHub toàn hệ: phiếu [`20261117-03`](handover/20261117-03_an-ninh-github-toan-he.md) mục 3 (người duyệt DUY NHẤT
+> `nguyentrangtinhsu`; `tsudev-tsudev` + `b4djl1h` là tài khoản agent).
 
 > **Phiên 58 BẮT ĐẦU Ở ĐÂY** (kết phiên 57, 17/11/2026). Phiếu:
 > [`20261117-01`](handover/20261117-01_phien-57-ket-kiem-thu-he-sinh-thai.md) mục 2. ✅ Hạn 02/12 cho
