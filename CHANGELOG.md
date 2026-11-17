@@ -14,6 +14,11 @@ Từ 16/11/2026 mỗi lần phát hành production của `main` được gắn t
 <https://github.com/tsudev-org/tsudev/tags>. Mỗi thẻ một dòng dưới đây. _English: every production deployment is
 tagged; the tag message lists the merged pull requests, and each line below summarises one tagged deployment._
 
+- v2026.11.17.6 - 17/11/2026 - Hộp thoại có nút Huỷ riêng không hiện thêm nút Đóng (#300).
+- v2026.11.17.5 - 17/11/2026 - Logo riêng TsuDisk trên /apps (#294).
+- v2026.11.17.4 - 17/11/2026 - Sound Db trên danh bạ /apps (#298).
+- v2026.11.17.3 - 17/11/2026 - OIDC: discovery công bố endpoint ở tsudev.com thay vì tên miền Render (#297).
+- v2026.11.17.2 - 17/11/2026 - TsuDisk có lệnh cài Scoop (#295).
 - v2026.11.17.1 - 17/11/2026 - Bảo mật tài khoản hết hiện 2FA mâu thuẫn, nhãn tiếng Việt cho mọi sự kiện; bảng tài
   khoản không cắt chữ; tiêu đề tab không lặp tên site; TsuFiles 2.4.1 + Scoop tsucwico trên /apps (#293).
 - v2026.11.16.7 - 16/11/2026 - Danh bạ /apps thêm TsuDisk - quản lý phân vùng ổ cứng Windows (#291).
