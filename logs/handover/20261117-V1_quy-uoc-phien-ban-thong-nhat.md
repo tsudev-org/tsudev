@@ -89,3 +89,5 @@ Tám kiểu đặt thẻ cùng tồn tại, khó so sánh/đối chiếu phiên 
   chung" tự đúng khi các app đổi khuôn (lấy từ catalog kho gói); hồ sơ Best Practices 16731 có thể cập nhật câu
   `version_semver` theo `docs/best-practices.json` ở lần chạy công cụ hồ sơ kế tiếp. Bước 1 (tsudev-standards v3.7.0)
   CHƯA có - `.standards-version` vẫn v3.6.0.
+- **tsudev-standards - bước 1 XONG (17/11/2026, phiên 59)**: v3.7.0 (PR tsudev-standards#56). Repo này chưa sync -
+  làm ở P0 phiếu `~/projects/logs/handover/20261117-P2_ke-hoach-phan-phoi-tin-cay-da-nen-tang.md`.
