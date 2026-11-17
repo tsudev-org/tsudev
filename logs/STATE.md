@@ -1,5 +1,16 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 58 BẮT ĐẦU Ở ĐÂY** (kết phiên 57, 17/11/2026 tối). Đọc theo thứ tự:
+>
+> 1. [`20261117-02`](handover/20261117-02_phien-57-ban-giao-cuoi.md) mục 2 - việc còn lại của phiên 57.
+> 2. [`20261117-03`](handover/20261117-03_an-ninh-github-toan-he.md) - an ninh GitHub: agent nay là Member + Maintain
+>    (cả `tsudev-tsudev`); việc quản trị (ruleset, secret, environment, policy org) nhờ chủ dự án bằng `nguyentrangtinhsu`.
+> 3. [`20261117-V1`](handover/20261117-V1_quy-uoc-phien-ban-thong-nhat.md) - thống nhất phiên bản toàn hệ; bước 1 là
+>    VERSIONING v3 ở tsudev-standards, bước 8 là thẻ deploy `deploy-YYYY.MM.DD.N` của repo này.
+>
+> Tên tài khoản `tsudev-tsudev` GIỮ NGUYÊN (tên `tsudev` thuộc người khác; đổi tên thả `tsudev-tsudev` cho người lạ
+> chiếm ⇒ updater Swico đã cài theo chuyển hướng `tsudev-tsudev/swico` tải bản giả). Không khoá, không tác vụ nền.
+
 > **Phiên 58 BẮT ĐẦU Ở ĐÂY** (kết phiên 57, 17/11/2026). Phiếu:
 > [`20261117-02`](handover/20261117-02_phien-57-ban-giao-cuoi.md) mục 2 (đọc kèm 20261117-01).
 >
