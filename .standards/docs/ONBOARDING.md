@@ -191,10 +191,11 @@ việc dang dở, nhả các khóa mồ côi của phiên trước, rồi tiếp
 
 ```
 Phát hành bản mới cho <tên-app> theo docs/VERSIONING.md mục 2:
-đặt tên file dạng {ten-app}_{YY}.{M}.{DD}{NN}_{arch}-setup.{ext} với NN là
-số thứ tự trong ngày hôm nay (kiểm CHANGELOG.md để lấy NN kế tiếp),
-đồng bộ chuỗi version vào manifest, công bố SHA-256 của file cài,
-ghi một dòng vào CHANGELOG.md.
+phiên bản YY.M.DDNN với NN là số thứ tự trong ngày hôm nay (kiểm CHANGELOG.md
+để lấy NN kế tiếp), thẻ git vYY.M.DDNN, tên tệp
+{tên-gói}_{phiên bản}_{os}-{arch}[-{loại}].{ext}, tiêu đề Release "{Tên sản phẩm} {phiên bản}",
+đồng bộ chuỗi version vào manifest, ký + công bố SHA256SUMS.txt theo
+docs/DISTRIBUTION_TRUST.md mục 7, ghi một dòng vào CHANGELOG.md.
 ```
 
 **h) Rà soát bảo mật cho một thay đổi:**

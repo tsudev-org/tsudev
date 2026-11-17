@@ -325,6 +325,22 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
 fi
 
 # ------------------------------------------------------------------
+# 5b. Thẻ phát hành sản phẩm (VERSIONING.md mục 2.2) - chỉ repo có packaging/package.json.
+# Mức LƯU Ý: thẻ cũ đã phát hành là bất biến (mục 2.4), khuôn chỉ áp cho bản kế tiếp.
+if [[ $IS_CENTRAL == 0 && -f packaging/package.json ]] && git rev-parse --git-dir >/dev/null 2>&1; then
+  echo
+  echo "5b. Thẻ phát hành (VERSIONING.md mục 2.2)"
+  latest_tag="$(git tag --sort=-creatordate 2>/dev/null | grep -v '^deploy-' | head -1 || true)"
+  if [[ -z "$latest_tag" ]]; then
+    pass "chưa có thẻ phát hành nào"
+  elif [[ "$latest_tag" =~ ^v[0-9]{2}\.[1-9][0-9]?\.[0-3][0-9][0-9]{2}(-(beta|rc)\.[0-9]+)?$ ]]; then
+    pass "thẻ mới nhất $latest_tag đúng khuôn vYY.M.DDNN"
+  else
+    warn "thẻ mới nhất $latest_tag lệch khuôn vYY.M.DDNN - bản phát hành KẾ TIẾP phải theo VERSIONING.md mục 2.2 (đọc mục 2.4 trước khi đổi)"
+  fi
+fi
+
+# ------------------------------------------------------------------
 if [[ $IS_CENTRAL == 1 ]]; then
   echo
   echo "6. Design token (chỉ ở repo trung tâm)"

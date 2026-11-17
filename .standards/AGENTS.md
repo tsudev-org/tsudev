@@ -53,7 +53,9 @@ chuyên đề. Bản đồ đầy đủ: [`docs/00-INDEX.md`](docs/00-INDEX.md).
 | Kiểm thử và chất lượng mã | [`docs/TESTING_QUALITY.md`](docs/TESTING_QUALITY.md) |
 | Trình soạn thảo nội dung | [`docs/RICH_TEXT_EDITOR.md`](docs/RICH_TEXT_EDITOR.md) |
 | Tìm kiếm và lọc tiếng Việt | [`docs/SEARCH_AND_FILTER.md`](docs/SEARCH_AND_FILTER.md) |
-| Phiên bản và CHANGELOG | [`docs/VERSIONING.md`](docs/VERSIONING.md) |
+| Phiên bản, thẻ git, tên tệp, CHANGELOG | [`docs/VERSIONING.md`](docs/VERSIONING.md) |
+| Cài đặt bằng lệnh (winget, Scoop, APT/RPM, Homebrew) | [`docs/PACKAGING.md`](docs/PACKAGING.md) |
+| **Cài không bị chặn**: cửa hàng, ký mã, chống báo nhầm | [`docs/DISTRIBUTION_TRUST.md`](docs/DISTRIBUTION_TRUST.md) |
 | Đồng bộ quy ước xuống repo con | [`docs/SYNC.md`](docs/SYNC.md) |
 
 ## 2. Tiết kiệm token và ngữ cảnh

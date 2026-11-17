@@ -38,6 +38,7 @@
 2. [`BRAND_ASSETS.md`](BRAND_ASSETS.md) mục 12 - bộ tài sản nhận diện bắt buộc
 3. [`VERSIONING.md`](VERSIONING.md) - đặt tên bản phát hành
 4. [`PACKAGING.md`](PACKAGING.md) - cài bằng lệnh: winget, Scoop, apt/rpm, Homebrew
+5. [`DISTRIBUTION_TRUST.md`](DISTRIBUTION_TRUST.md) - cửa hàng, ký mã, chống báo nhầm antivirus, hồ sơ nền tảng
 
 **Bạn sắp commit hoặc mở PR:**
 1. [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md) - nhánh, commit, PR
@@ -63,7 +64,7 @@
 | [`SECURITY_BASELINE.md`](SECURITY_BASELINE.md) | Chuẩn bảo mật kỹ thuật | Bất khả xâm phạm |
 | [`GITIGNORE_POLICY.md`](GITIGNORE_POLICY.md) | Duy trì `.gitignore` | Bất khả xâm phạm |
 | [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md) | Nhánh, commit, PR, phát hành | Bất khả xâm phạm |
-| [`VERSIONING.md`](VERSIONING.md) | Ba khuôn phiên bản | Bất khả xâm phạm |
+| [`VERSIONING.md`](VERSIONING.md) | Ba khuôn phiên bản, thẻ git, tên tệp phát hành | Bất khả xâm phạm |
 | [`SYNC.md`](SYNC.md) | Đồng bộ quy ước xuống repo con | Bất khả xâm phạm |
 | [`PROJECT_STRUCTURE.md`](PROJECT_STRUCTURE.md) | Cây thư mục chuẩn | Bất khả xâm phạm |
 | [`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) | Đăng nhập, đăng ký, xác minh tài khoản | Bất khả xâm phạm |
@@ -76,6 +77,7 @@
 | [`LANGUAGE_SELECTION.md`](LANGUAGE_SELECTION.md) | Chọn ngôn ngữ theo loại project | Bất khả xâm phạm |
 | [`FREE_TIER_STACK.md`](FREE_TIER_STACK.md) | Hạ tầng 0 đồng | Bất khả xâm phạm |
 | [`PACKAGING.md`](PACKAGING.md) | Phân phối, cài bằng lệnh, ký gói | Bất khả xâm phạm |
+| [`DISTRIBUTION_TRUST.md`](DISTRIBUTION_TRUST.md) | Cài không bị chặn: cửa hàng, ký mã, notarize, chống báo nhầm, hồ sơ nền tảng | Bất khả xâm phạm |
 | [`RICH_TEXT_EDITOR.md`](RICH_TEXT_EDITOR.md) | Trình soạn thảo nội dung | Bất khả xâm phạm |
 | [`SEARCH_AND_FILTER.md`](SEARCH_AND_FILTER.md) | Tìm kiếm và lọc tiếng Việt | Bất khả xâm phạm |
 | [`ONBOARDING.md`](ONBOARDING.md) | Triển khai và bộ câu lệnh agent | Hướng dẫn |
