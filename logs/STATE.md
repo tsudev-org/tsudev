@@ -7,6 +7,9 @@
 > ⇒ 303 → interaction ⇒ 307 `/login` (trước 404 text/plain). `/` `/apps` `/blog` `/docs` 200; providers chỉ 4 provider thật.
 > ✅ Gói duyệt xong: linux-packages #29 #27, scoop #12, brew #6, trafficmonitor #69 merge; APT/RPM Sound Db 1705, 0 lệch.
 > 🔐 Vẫn mở: ĐỔI mật khẩu Neon → Render `DATABASE_URL` → xoá `neon.env`. 🧭 V1 chờ tsudev-standards v3.7.0 (đang v3.6.0).
+> 🧭 tsudev-standards **v3.7.0** đã phát hành (VERSIONING v3 + DISTRIBUTION_TRUST). Phiên kế tiếp (quy mô `~/projects`):
+> phiếu `~/projects/logs/handover/20261117-P2_ke-hoach-phan-phoi-tin-cay-da-nen-tang.md` - P0 sync v3.7.0 cho mọi repo;
+> việc của repo này ở mục 3 hàng 13 (trang `code-signing`, chính sách quyền riêng tư từng app, nút Store/Play trên /apps).
 > Không khoá, không tác vụ nền.
 
 > **Phiên 59 BẮT ĐẦU Ở ĐÂY** (kết phiên 58, 17/11/2026). Phiếu:

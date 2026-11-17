@@ -17,7 +17,9 @@
 ## 2. Còn lại
 
 1. 🔐 👤 ĐỔI mật khẩu Neon (đã lộ ở phiên 58) → sửa Render `DATABASE_URL` → xoá `~/.config/tsudev/neon.env`.
-2. 🧭 Phiếu V1: chờ tsudev-standards v3.7.0 (đo 17/11: bản mới nhất v3.6.0, repo đang ở v3.6.0) rồi `sync-standards.sh`.
+2. ✅ tsudev-standards **v3.7.0** (#56, thẻ + Release 17/11): `VERSIONING.md` v3 + `DISTRIBUTION_TRUST.md` (cài không bị
+   chặn trên Windows/macOS/Linux/Android/iOS) + cổng 5b. Còn: `./scripts/sync-standards.sh` lên v3.7.0 (P0 của phiếu
+   `~/projects/logs/handover/20261117-P2_ke-hoach-phan-phoi-tin-cay-da-nen-tang.md`), rồi mục 3 hàng 13 của phiếu đó.
 3. ✅ Mục 2.1 + 2.3 phiếu 20261117-02 (gói duyệt, chủ dự án bấm duyệt 17/11 tối): `xuat-ban` 43613604585 đã xong từ
    trước; merge linux-packages #29 #27, scoop-bucket #12, homebrew-tap #6, trafficmonitor #69 (squash `2f02d0c` - sửa
    CodeQL #6: kiểm mã winget trước khi gọi mạng; cảnh báo đóng "won't fix"). `xuat-ban` 44110855163 ⇒ APT/RPM có Sound
