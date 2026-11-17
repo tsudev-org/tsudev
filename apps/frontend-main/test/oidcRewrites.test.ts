@@ -17,7 +17,39 @@ test('nút đồng ý (beforeFiles) đứng trước luật /oidc/:path* (afterF
     source: '/oidc/interaction/:uid/confirm',
     destination: '/api/oidc-consent?uid=:uid',
   });
-  expect(r.afterFiles).toContainEqual({ source: '/oidc/:path*', destination: '/api/oidc/:path*' });
+  expect(r.afterFiles.some((x) => x.source.startsWith('/oidc/'))).toBe(true);
+});
+
+// afterFiles chạy TRƯỚC route động, nên luật /oidc phải tự chừa trang `/oidc/interaction/[uid]`.
+// Thiếu ⇒ trang đăng nhập/đồng ý 404 và mọi client OIDC tắc (17/11/2026). Đo bằng CHÍNH bộ so
+// khớp + thay đích của Next, không bằng regex tự viết.
+test('/oidc/interaction/<uid> tới TRANG, mọi đường /oidc khác tới proxy', async () => {
+  /* eslint-disable @typescript-eslint/no-require-imports */
+  const { getPathMatch } = require('next/dist/shared/lib/router/utils/path-match');
+  const { prepareDestination } = require('next/dist/shared/lib/router/utils/prepare-destination');
+  /* eslint-enable @typescript-eslint/no-require-imports */
+  const r = (await config.rewrites()) as { afterFiles: Rule[] };
+  const rule = r.afterFiles.find((x) => x.source.startsWith('/oidc/'))!;
+  const match = getPathMatch(rule.source, { removeUnnamedParams: true, strict: true });
+  const dest = (p: string) => {
+    const params = match(p);
+    if (!params) return null;
+    return prepareDestination({
+      appendParamsToQuery: false,
+      destination: rule.destination,
+      params,
+      query: {},
+    }).parsedDestination.pathname;
+  };
+  expect(dest('/oidc/interaction/AbC_123-x')).toBeNull();
+  expect(dest('/oidc/interaction/AbC_123-x/')).toBeNull();
+  expect(dest('/oidc/auth')).toBe('/api/oidc/auth');
+  expect(dest('/oidc/auth/AbC_123')).toBe('/api/oidc/auth/AbC_123');
+  expect(dest('/oidc/token')).toBe('/api/oidc/token');
+  expect(dest('/oidc/.well-known/openid-configuration')).toBe(
+    '/api/oidc/.well-known/openid-configuration'
+  );
+  expect(dest('/oidc/session/end')).toBe('/api/oidc/session/end');
 });
 
 test('không rewrite nào trỏ ra URL tuyệt đối', async () => {
