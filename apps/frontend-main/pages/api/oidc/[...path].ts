@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { MAIN_URL } from '@tsudev/ui';
+
 import { IDENTITY } from '../../../lib/services';
 import { upstreamPath } from '../../../lib/identity';
 
@@ -15,6 +17,8 @@ import { upstreamPath } from '../../../lib/identity';
  * trang đồng ý của Next (`pages/oidc/interaction`).
  */
 export const config = { api: { bodyParser: false } };
+
+const ISSUER_HOST = new URL(MAIN_URL).host;
 
 const PASS_REQ = ['content-type', 'accept', 'authorization', 'cookie', 'user-agent', 'dpop'];
 const PASS_RES = [
@@ -45,7 +49,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const path = upstreamPath(req.query.path);
   if (!path) return res.status(400).json({ error: 'Đường dẫn không hợp lệ' });
   const qs = req.url && req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
-  const headers: Record<string, string> = { 'x-forwarded-proto': 'https' };
+  // `oidc-provider` (proxy = true) dựng MỌI URL tuyệt đối trong discovery + chuyển hướng từ X-Forwarded-Host/Proto.
+  // Thiếu host ⇒ nó dùng host của Render: discovery công bố `tsudev-backend.onrender.com/oidc/auth`, trình duyệt
+  // rời tsudev.com, và đường tương đối `/oidc/interaction/<uid>` (trang đồng ý của Next) mở trên Render - nơi
+  // không có trang đó (đo 17/11/2026, phiếu 20261117-SD1). Host lấy từ CẤU HÌNH, không từ request: người gọi
+  // không giả được tên miền in vào discovery.
+  const headers: Record<string, string> = {
+    'x-forwarded-proto': 'https',
+    'x-forwarded-host': ISSUER_HOST,
+  };
   for (const h of PASS_REQ) {
     const v = req.headers[h];
     if (typeof v === 'string') headers[h] = v;
