@@ -18,10 +18,18 @@
 
 1. 🔐 👤 ĐỔI mật khẩu Neon (đã lộ ở phiên 58) → sửa Render `DATABASE_URL` → xoá `~/.config/tsudev/neon.env`.
 2. 🧭 Phiếu V1: chờ tsudev-standards v3.7.0 (đo 17/11: bản mới nhất v3.6.0, repo đang ở v3.6.0) rồi `sync-standards.sh`.
-3. Mục 2.1, 2.3-2.8 phiếu 20261117-02 (👤 / ⛔ `nguyentrangtinhsu` / repo khác) - không đổi.
+3. ✅ Mục 2.1 + 2.3 phiếu 20261117-02 (gói duyệt, chủ dự án bấm duyệt 17/11 tối): `xuat-ban` 43613604585 đã xong từ
+   trước; merge linux-packages #29 #27, scoop-bucket #12, homebrew-tap #6, trafficmonitor #69 (squash `2f02d0c` - sửa
+   CodeQL #6: kiểm mã winget trước khi gọi mạng; cảnh báo đóng "won't fix"). `xuat-ban` 44110855163 ⇒ APT/RPM có Sound
+   Db `26.11.1705-1`; `tools/doi-chieu-kenh.mjs` từ `main` ⇒ 0 lệch. Mục 2.4-2.8 - không đổi.
 4. Đăng nhập thật end-to-end ở Sound Db (cần tài khoản thật + trình duyệt) - phiên sound-db đo phía client.
 
 ## 3. Bẫy mới
 
 - 🪤 "Merged" không có nghĩa "đã lên production": deploy frontend là bước TAY sau merge. Đầu phiên kiểm
   `git merge-base --is-ancestor <commit> <thẻ deploy mới nhất>`.
+- 🪤 Repo có ruleset `required_signatures` (trafficmonitor): commit tạo trong bản clone tạm KHÔNG được ký (cấu hình ký
+  SSH nằm ở `.git/config` của bản cục bộ) ⇒ PR BLOCKED dù check xanh + đã duyệt. Sửa ở bản cục bộ, hoặc nhờ chủ dự án
+  ký lại (bộ phân loại chặn agent dùng khoá ký + force-push).
+- 🪤 Workflow mới merge có `workflow_dispatch` vẫn có thể trả 422 khi chạy tay (GitHub giữ bản ghi từ lần chạy trên PR):
+  chạy thẳng script, hoặc đợi lịch.

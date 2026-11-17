@@ -5,6 +5,7 @@
 >
 > ✅ #310 (404 `/oidc/interaction/<uid>`) đã deploy: `deploy-2026.11.17.9` Worker `cef19fd9`. Đo: `/oidc/auth?client_id=sounddb`
 > ⇒ 303 → interaction ⇒ 307 `/login` (trước 404 text/plain). `/` `/apps` `/blog` `/docs` 200; providers chỉ 4 provider thật.
+> ✅ Gói duyệt xong: linux-packages #29 #27, scoop #12, brew #6, trafficmonitor #69 merge; APT/RPM Sound Db 1705, 0 lệch.
 > 🔐 Vẫn mở: ĐỔI mật khẩu Neon → Render `DATABASE_URL` → xoá `neon.env`. 🧭 V1 chờ tsudev-standards v3.7.0 (đang v3.6.0).
 > Không khoá, không tác vụ nền.
 
