@@ -9,8 +9,9 @@ hành thành file cài. Ở đây mỗi dòng là một đợt thay đổi đán
 
 ## Bản triển khai (thẻ git)
 
-Từ 16/11/2026 mỗi lần phát hành production của `main` được gắn thẻ CalVer `vYYYY.MM.DD.N` bằng
-`scripts/release-tag.js` (deploy frontend tự gọi). Nội dung thẻ là danh sách PR có trong bản đó:
+Từ 16/11/2026 mỗi lần phát hành production của `main` được gắn thẻ CalVer bằng `scripts/release-tag.js`
+(deploy frontend tự gọi). Khuôn `deploy-YYYY.MM.DD.N` từ 17/11/2026 (phiếu 20261117-V1: tiền tố `v` dành cho
+phiên bản app của hệ tsudev); các thẻ `vYYYY.MM.DD.N` cũ giữ nguyên. Nội dung thẻ là danh sách PR có trong bản đó:
 <https://github.com/tsudev-org/tsudev/tags>. Mỗi thẻ một dòng dưới đây. _English: every production deployment is
 tagged; the tag message lists the merged pull requests, and each line below summarises one tagged deployment._
 

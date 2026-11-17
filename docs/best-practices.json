@@ -68,11 +68,11 @@
     "repo_distributed": ["Met", "git (a distributed version control system) on GitHub."],
     "version_unique": [
       "Met",
-      "tsudev.com is deployed continuously. Every production deployment of main gets a unique calendar version tag vYYYY.MM.DD.N, created automatically after the deploy by scripts/release-tag.js: https://github.com/tsudev-org/tsudev/tags"
+      "tsudev.com is deployed continuously. Every production deployment of main gets a unique calendar version tag deploy-YYYY.MM.DD.N (vYYYY.MM.DD.N before 17 Nov 2026), created automatically after the deploy by scripts/release-tag.js: https://github.com/tsudev-org/tsudev/tags"
     ],
     "version_semver": [
       "Met",
-      "Versions use Calendar Versioning (CalVer) YYYY.MM.DD with a micro counter .N for several deployments on the same day, e.g. v2026.11.16.1."
+      "Versions use Calendar Versioning (CalVer) YYYY.MM.DD with a micro counter .N for several deployments on the same day, e.g. deploy-2026.11.17.7. The deploy- prefix keeps website deployments apart from app release tags (vYY.M.DDNN) across the tsudev ecosystem."
     ],
     "version_tags": [
       "Met",
