@@ -3,7 +3,8 @@
 > Mọi app/tool tsudev có bản cài cho máy tính `SHOULD` cài được bằng **một lệnh terminal** qua trình quản lý gói
 > chính thống của từng hệ điều hành, với gói do chính tsudev đóng gói, ký và kiểm. Tài liệu này quy định kênh,
 > tên gói, chữ ký, quy trình CI và cách trình bày lệnh cài trên website. Chi phí: **0 đồng**
-> ([`FREE_TIER_STACK.md`](FREE_TIER_STACK.md)).
+> ([`FREE_TIER_STACK.md`](FREE_TIER_STACK.md)). Cửa hàng ứng dụng (Microsoft Store, Google Play, App Store), ký mã,
+> notarize và chống báo nhầm antivirus: [`DISTRIBUTION_TRUST.md`](DISTRIBUTION_TRUST.md).
 
 ## 1. Kênh phân phối được duyệt
 
@@ -32,7 +33,7 @@ sẽ thành bản cũ có lỗ hổng mà người dùng vẫn tải.
 - Mã đã công bố **MUST NOT** đổi, kể cả khi sai khuôn (`tsudev.SWICO`, `tsudev.cwico` giữ nguyên): đổi mã làm
   máy đã cài mất đường cập nhật. Đây là cùng lý do với quy tắc tên repo cũ ở `GIT_WORKFLOW.md`.
 - Tên gói Linux có tiền tố `tsudev-` để không đụng gói của dự án gốc (vd. `trafficmonitor`, `localsend`).
-- Phiên bản gói = phiên bản bản phát hành theo [`VERSIONING.md`](VERSIONING.md) mục 2 (`{YY}.{M}.{DD}{NN}`).
+- Phiên bản gói = phiên bản bản phát hành theo [`VERSIONING.md`](VERSIONING.md) mục 2 (`YY.M.DDNN`).
 
 ## 3. Một nguồn khai báo: `packaging/package.json` trong repo sản phẩm
 

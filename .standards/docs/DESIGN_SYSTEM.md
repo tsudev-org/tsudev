@@ -128,17 +128,15 @@ Viền luôn **phẳng 1px solid** màu `border` (viền được focus/hover d�
 > Quy ước đầy đủ cho cả ba khuôn phiên bản của hệ sinh thái (bộ quy ước, app, website)
 > nằm ở [`VERSIONING.md`](VERSIONING.md). Mục này giữ lại phần dùng thường xuyên nhất.
 
-Định dạng: `{ten-app}_{YY}.{M}.{DD}{NN}_{arch}-setup.{ext}`
+Chuỗi phiên bản: `YY.M.DDNN` - `YY` 2 số cuối năm; `M` tháng **không** số 0 đầu; `DD` ngày 2 chữ số; `NN` số thứ tự phát hành **trong ngày**, bắt đầu `01`.
 
-- `YY` = 2 số cuối năm; `M` = tháng **không** số 0 đầu; `DD` = ngày 2 chữ số; `NN` = số thứ tự phát hành **trong ngày**, bắt đầu `01`.
-- `arch`: `x64` | `x86` | `arm64`. `ext` theo nền tảng: `.exe` (Windows), `.dmg` (macOS), `.deb`/`.AppImage` (Linux), `.apk` (Android).
+Tên tệp: `{tên-gói}_{phiên bản}_{os}-{arch}[-{loại}].{ext}`, thẻ git `v{phiên bản}` (VERSIONING.md mục 2.2).
 
-Ví dụ ngày 19/8/2026, app `tsudev-swico` Windows 64-bit:
-1. Bản 1: `tsudev-swico_26.8.1901_x64-setup.exe`
-2. Bản 2 cùng ngày: `tsudev-swico_26.8.1902_x64-setup.exe`
-3. Bản 3 cùng ngày: `tsudev-swico_26.8.1903_x64-setup.exe`
+Ví dụ ngày 17/11/2026, Tsu Cwico Windows 64-bit:
+1. Bản 1: `tsucwico_26.11.1701_windows-x64-setup.exe`, thẻ `v26.11.1701`
+2. Bản 2 cùng ngày: `tsucwico_26.11.1702_windows-x64-setup.exe`, thẻ `v26.11.1702`
 
-Chuỗi version trong code/manifest = `26.8.1901` (đồng bộ với tên file). Mỗi lần phát hành ghi 1 dòng vào `CHANGELOG.md` theo dạng `26.8.1901 - 19/08/2026 - nội dung thay đổi`.
+Chuỗi version trong code/manifest = `26.11.1701` (đồng bộ với tên file). Mỗi lần phát hành ghi 1 dòng vào `CHANGELOG.md` theo dạng `26.11.1701 - 17/11/2026 - nội dung thay đổi`.
 
 ## 7. Cách truy xuất token theo nền tảng
 

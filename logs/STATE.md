@@ -1,5 +1,9 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên kế tiếp (phiếu toàn hệ 20261117-P2):** đọc `~/projects/logs/handover/20261117-P2_ke-hoach-phan-phoi-tin-cay-da-nen-tang.md` hàng 13 (`tsudev`, website) ở mục 3
+> + `.standards/docs/DISTRIBUTION_TRUST.md` (chuẩn v3.7.0) + `.standards/docs/VERSIONING.md` mục 2. Khuôn thẻ/tên tệp mới chỉ áp
+> cho bản phát hành KẾ TIẾP, đọc mục 2.4 (updater đã cài) trước khi đổi.
+
 > **Phiên 60 BẮT ĐẦU Ở ĐÂY** (kết phiên 59, 17/11/2026 tối). Phiếu:
 > [`20261117-05`](handover/20261117-05_phien-59-deploy-oidc-interaction.md) (hàng đợi gốc vẫn ở 20261117-02 mục 2).
 >
