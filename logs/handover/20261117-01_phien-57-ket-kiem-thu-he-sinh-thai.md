@@ -20,12 +20,13 @@
 
 ## 2. Còn lại
 
-- ⛔👤 **Trước 02/12/2026**: GitHub chặn `pull_request_target` mặc định trên repo công khai. Cổng BẮT BUỘC "Bảo vệ bản
-  quyền" (tsudev, scoop-bucket, linux-packages, homebrew-tap) dùng đúng sự kiện đó ⇒ không làm thì mọi PR kẹt vĩnh viễn.
-  Chủ dự án tạo Actions event policy ở org (Settings → Actions → Policies, hoặc `POST /orgs/tsudev-org/actions/policies`
-  cần quyền admin:org): enforcement `active`, repo 4 cái trên, `workflow_path` `.github/workflows/bao-ve-ban-quyen.yml`,
-  rule `restrict_action_events` cho phép `pull_request_target`. tsufiles còn `label-pr.yml` cùng loại (phiên tsufiles
-  quyết). Brownout 16/11 16:00-18:00 UTC đã làm cổng `startup_failure` ở mọi PR - đó là bằng chứng.
+- ✅ (17/11/2026 10:15) **Hạn 02/12 đã xử lý**: chủ dự án cấp `admin:org` cho `gh`, agent tạo Actions event policy
+  **id 15243** "Cho phep cong Bao ve ban quyen (pull_request_target)" - `active`, repo tsudev, scoop-bucket,
+  linux-packages, homebrew-tap, `workflow_path` `.github/workflows/bao-ve-ban-quyen.yml`, rule `restrict_action_events`
+  cho phép `pull_request_target`. Đo: cổng ở homebrew-tap#6 chạy lại thành công khởi động (trước đó startup_failure).
+  Repo mới có cổng này ⇒ thêm tên vào `conditions.repository_name.include` của policy 15243
+  (`gh api -X PUT orgs/tsudev-org/actions/policies/15243 ...`). tsufiles `label-pr.yml` CHƯA có trong policy (phiên
+  tsufiles quyết). Nên thu lại quyền: `gh auth refresh -h github.com -r admin:org`.
 - 👤 Duyệt lượt `xuat-ban` 43613604585 của linux-packages (environment `packages`) ⇒ APT/RPM có TsuFiles 2.4.1.
   Agent bị bộ phân loại chặn khi duyệt.
 - 👤 Áp nội dung giới thiệu đã sửa lên Neon: `DATABASE_URL='<neon>' node scripts/don-noi-dung-lac-de.js --apply --noi-dung`
