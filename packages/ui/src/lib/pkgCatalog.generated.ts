@@ -39,8 +39,14 @@ export const PKG_CATALOG = {
       homepage: 'https://contact.tsudev.com',
     },
     {
+      name: 'tsucwico',
+      version: '26.11.1002',
+      arch: ['64bit'],
+      homepage: 'https://cwico.tsudev.com',
+    },
+    {
       name: 'tsudev-files',
-      version: '2.4.0-vn.1',
+      version: '2.4.1-vn.1',
       arch: ['any'],
       homepage: 'https://files.tsudev.com',
     },
@@ -49,6 +55,12 @@ export const PKG_CATALOG = {
       version: '26.11.1202',
       arch: ['32bit', '64bit', 'arm64'],
       homepage: 'https://trafficmonitor.tsudev.com',
+    },
+    {
+      name: 'tsudisk',
+      version: '26.11.1602',
+      arch: ['64bit'],
+      homepage: 'https://disk.tsudev.com',
     },
     {
       name: 'tsuswico',
@@ -66,7 +78,7 @@ export const PKG_CATALOG = {
     },
     {
       name: 'tsudev-files',
-      version: '2.4.0-vn.1',
+      version: '2.4.1-vn.1',
       arch: ['arm64', 'x64'],
       homepage: 'https://files.tsudev.com',
     },

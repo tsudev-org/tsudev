@@ -1,5 +1,12 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 58 BẮT ĐẦU Ở ĐÂY** (kết phiên 57, 17/11/2026). Phiếu:
+> [`20261117-01`](handover/20261117-01_phien-57-ket-kiem-thu-he-sinh-thai.md) mục 2 - ⛔👤 HẠN 02/12/2026: Actions event
+> policy cho `pull_request_target` (cổng Bảo vệ bản quyền), nếu không mọi PR kẹt.
+>
+> ✅ `v2026.11.17.1` Worker `db19215f` (#293): Bảo mật/Quản lý tài khoản hết lỗi hiển thị, tiêu đề, C6. #294 (logo
+> TsuDisk ⛔), #295 (Scoop TsuDisk) mở.
+
 > **Phiên 58 BẮT ĐẦU Ở ĐÂY** (cuối phiên 57, 16/11/2026). Phiếu:
 > [`20261116-03`](handover/20261116-03_phien-57-dependabot-deploy-de-xuat-mau-xanh.md) mục 2.
 >

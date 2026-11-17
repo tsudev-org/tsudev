@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Badge, Button } from '@tsudev/ui';
+import { hienIp } from '../lib/ip';
 
 /**
  * Thanh lọc của bảng quản trị tài khoản.
@@ -337,7 +338,7 @@ export function OriginCell({ ip, country }: { ip: string | null; country: string
           <span aria-hidden>{flagOf(country)}</span> {country}
         </Badge>
       )}
-      {ip && <span className="ml-1.5 font-mono text-xs text-fg-muted">{ip}</span>}
+      {ip && <span className="ml-1.5 font-mono text-xs text-fg-muted">{hienIp(ip)}</span>}
     </span>
   );
 }

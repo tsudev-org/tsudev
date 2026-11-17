@@ -59,11 +59,22 @@ export function SecurityPosture({
             </div>
             {i.action &&
               (i.action.href ? (
-                <Button as="a" href={i.action.href} size="sm" variant="secondary">
+                <Button
+                  as="a"
+                  href={i.action.href}
+                  size="sm"
+                  variant="secondary"
+                  className="shrink-0 whitespace-nowrap"
+                >
                   {i.action.label}
                 </Button>
               ) : (
-                <Button size="sm" variant="secondary" onClick={i.action.onClick}>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={i.action.onClick}
+                  className="shrink-0 whitespace-nowrap"
+                >
                   {i.action.label}
                 </Button>
               ))}
