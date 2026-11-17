@@ -2267,6 +2267,42 @@ const authorPostCard = (p: Post) => ({
   updatedAt: p.updatedAt,
 })
 
+/// Lượt xem bài cho trang tác giả. Số đến từ `PostViewDaily` - cron `canh-site-cron`
+/// gộp D1 vào đó MỘT lần/ngày cho các ngày ĐÃ QUA, nên hôm nay chưa có trong số này.
+/// Chỉ ĐỌC Neon trong một request tác giả vốn đã chạm Neon - không đánh thức thêm.
+const VIEW_WINDOW_DAYS = 30
+
+async function viewsByPost(postIds: string[]): Promise<Map<string, number>> {
+  if (!postIds.length) return new Map()
+  const rows = await prisma.postViewDaily.groupBy({
+    by: ['postId'],
+    where: { postId: { in: postIds } },
+    _sum: { count: true },
+  })
+  return new Map(rows.map((r) => [r.postId, r._sum.count ?? 0]))
+}
+
+async function authorViewTotals(
+  authorId: string,
+  now: Date = new Date()
+): Promise<{ total: number; last30: number; windowDays: number }> {
+  const own: Prisma.PostViewDailyWhereInput = { post: { authorId, deletedAt: null } }
+  const since = new Date(now.getTime() - VIEW_WINDOW_DAYS * 86_400_000)
+  since.setUTCHours(0, 0, 0, 0)
+  const [all, recent] = await Promise.all([
+    prisma.postViewDaily.aggregate({ where: own, _sum: { count: true } }),
+    prisma.postViewDaily.aggregate({
+      where: { ...own, day: { gte: since } },
+      _sum: { count: true },
+    }),
+  ])
+  return {
+    total: all._sum.count ?? 0,
+    last30: recent._sum.count ?? 0,
+    windowDays: VIEW_WINDOW_DAYS,
+  }
+}
+
 const isModerator = (u: User): boolean => hasAtLeastRole(u.role, 'MODERATOR')
 
 const POST_STATUSES = ['DRAFT', 'PENDING', 'SCHEDULED', 'PUBLISHED', 'ARCHIVED'] as const
@@ -2358,7 +2394,7 @@ app.get(
     const own: Prisma.PostWhereInput = { authorId: me.id, deletedAt: null }
     const where: Prisma.PostWhereInput = { ...postListFilter(req.query), authorId: me.id }
     const paging = parsePaging(req.query)
-    const [total, posts, counts] = await Promise.all([
+    const [total, posts, counts, views] = await Promise.all([
       prisma.post.count({ where }),
       prisma.post.findMany({
         where,
@@ -2367,8 +2403,15 @@ app.get(
         take: paging.take,
       }),
       statusCounts(own),
+      authorViewTotals(me.id),
     ])
-    res.json({ data: posts.map(authorPostCard), meta: pageMeta(total, paging), counts })
+    const perPost = await viewsByPost(posts.map((p) => p.id))
+    res.json({
+      data: posts.map((p) => ({ ...authorPostCard(p), views: perPost.get(p.id) ?? 0 })),
+      meta: pageMeta(total, paging),
+      counts,
+      views,
+    })
   })
 )
 

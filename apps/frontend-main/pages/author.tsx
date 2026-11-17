@@ -42,7 +42,18 @@ interface AuthorPost {
   metaDescription: string | null;
   createdAt: string;
   updatedAt: string;
+  /** Tổng lượt xem đã gộp (PostViewDaily) - chưa gồm hôm nay. */
+  views?: number;
 }
+
+/** Tổng lượt xem mọi bài của tác giả, như `/api/author/posts` trả về ở `views`. */
+interface ViewTotals {
+  total: number;
+  last30: number;
+  windowDays: number;
+}
+
+const formatCount = (n: number) => n.toLocaleString('vi-VN');
 
 type AuthorMessage = { tone: 'ok' | 'error'; text: string };
 
@@ -108,6 +119,7 @@ export default function AuthorEditor() {
   const [preview, setPreview] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [viewTotals, setViewTotals] = useState<ViewTotals | null>(null);
   const router = useRouter();
   // Thẻ đang chọn sống trên URL (`?tab=docs`) để liên kết chia sẻ mở đúng thẻ.
   const tab: Tab = router.query.tab === 'docs' ? 'docs' : 'posts';
@@ -144,8 +156,13 @@ export default function AuthorEditor() {
         return;
       }
       setDenied(false);
-      const body = (await res.json()) as { data?: AuthorPost[]; meta?: PageMeta };
+      const body = (await res.json()) as {
+        data?: AuthorPost[];
+        meta?: PageMeta;
+        views?: ViewTotals;
+      };
       if (Array.isArray(body?.data)) setPosts(body.data);
+      if (body?.views) setViewTotals(body.views);
       if (body?.meta) paging.setMeta(body.meta);
     },
     // `paging` cố ý không nằm trong deps: nó là object mới mỗi lần dựng.
@@ -645,6 +662,30 @@ export default function AuthorEditor() {
             )}
 
             <div className="space-y-3">
+              {viewTotals && (
+                <Card className="p-5 flex flex-wrap items-baseline gap-x-8 gap-y-2">
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-fg-muted">
+                      Lượt xem {viewTotals.windowDays} ngày qua
+                    </div>
+                    <div className="text-2xl font-bold text-fg font-mono">
+                      {formatCount(viewTotals.last30)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase tracking-wide text-fg-muted">
+                      Tổng lượt xem
+                    </div>
+                    <div className="text-2xl font-bold text-fg font-mono">
+                      {formatCount(viewTotals.total)}
+                    </div>
+                  </div>
+                  <p className="text-xs text-fg-muted basis-full">
+                    Mỗi khách đếm một lần cho một bài trong một ngày. Số được cộng mỗi ngày một lần
+                    nên chưa gồm lượt xem hôm nay.
+                  </p>
+                </Card>
+              )}
               {!loading && posts.length === 0 && (
                 <Card className="p-6 text-fg-muted">Bạn chưa có bài nào.</Card>
               )}
@@ -668,6 +709,11 @@ export default function AuthorEditor() {
                       ))}
                       {p.references?.length > 0 && (
                         <span className="text-xs text-fg-muted">· {p.references.length} nguồn</span>
+                      )}
+                      {typeof p.views === 'number' && (
+                        <span className="text-xs text-fg-muted">
+                          · {formatCount(p.views)} lượt xem
+                        </span>
                       )}
                       <span className="text-xs text-fg-muted">
                         {isFuture(p.publishedAt)

@@ -8,9 +8,15 @@
 // release_notes - phiếu 20261115-01). Trước tệp này không có thẻ nào, nên câu hỏi
 // "production đang chạy commit nào" chỉ trả lời được bằng nhật ký deploy.
 //
-// Khuôn: CalVer `vYYYY.MM.DD.N` (N đếm từ 1 trong ngày, giờ Việt Nam). Thẻ ANNOTATED,
+// Khuôn: `deploy-YYYY.MM.DD.N` (N đếm từ 1 trong ngày, giờ Việt Nam). Thẻ ANNOTATED,
 // nội dung là ghi chú phát hành: danh sách PR đã merge kể từ thẻ trước. GitHub hiện
 // nó ở https://github.com/tsudev-org/tsudev/releases/tag/<thẻ>.
+//
+// Từ 17/11/2026 (phiếu toàn hệ 20261117-V1 bước 8) tiền tố là `deploy-`, không còn `v`:
+// thẻ `v...` trong hệ tsudev dành cho PHIÊN BẢN APP (`v26.11.1704`), và `v2026.11.17.6`
+// của website trông như một bản app. Thẻ `v20...` cũ GIỮ NGUYÊN (thẻ đã phát hành là bất
+// biến) và vẫn được tính: làm mốc ghi chú phát hành, và đếm N trong cùng ngày để số
+// thứ tự không quay về 1 giữa ngày đổi khuôn.
 //
 // CỐ Ý không tạo GitHub Release: Release không kèm chữ ký thì Scorecard
 // (Signed-Releases) chấm 0 thay vì "không áp dụng".
@@ -28,6 +34,20 @@ const { execFileSync } = require('child_process');
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const fromDeploy = args.includes('--from-deploy');
+
+const PREFIX = 'deploy-';
+/** Mẫu thẻ deploy: khuôn mới + khuôn cũ `v20...` (16-17/11/2026). */
+const TAG_GLOBS = [`${PREFIX}*`, 'v20*'];
+const TAG_RE = /^(?:deploy-|v)(\d{4})\.(\d{2})\.(\d{2})\.(\d+)$/;
+
+/** Thẻ deploy kế tiếp trong ngày `day` (`YYYY.MM.DD`) giữa các thẻ có sẵn. */
+function nextTagName(day, existing) {
+  const n = existing.reduce((max, t) => {
+    const m = TAG_RE.exec(t);
+    return m && `${m[1]}.${m[2]}.${m[3]}` === day ? Math.max(max, Number(m[4])) : max;
+  }, 0);
+  return `${PREFIX}${day}.${n + 1}`;
+}
 
 const git = (...a) =>
   execFileSync('git', a, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -84,21 +104,28 @@ function main() {
   if (git('status', '--porcelain', '--untracked-files=no'))
     stop('cây làm việc có thay đổi chưa commit');
 
-  const onHead = git('tag', '--points-at', 'HEAD', '--list', 'v*');
+  const onHead = git('tag', '--points-at', 'HEAD', '--list', ...TAG_GLOBS);
   if (onHead) {
     console.log(`✓ HEAD đã có thẻ ${onHead.split('\n')[0]} - không gắn thêm`);
     return;
   }
 
   const t = vnDate();
-  const day = `v${t.y}.${t.m}.${t.d}`;
-  const sameDay = git('tag', '--list', `${day}.*`).split('\n').filter(Boolean);
-  const n = sameDay.reduce((max, s) => Math.max(max, Number(s.split('.').pop()) || 0), 0) + 1;
-  const name = `${day}.${n}`;
+  const day = `${t.y}.${t.m}.${t.d}`;
+  const sameDay = git('tag', '--list', `${PREFIX}${day}.*`, `v${day}.*`)
+    .split('\n')
+    .filter(Boolean);
+  const name = nextTagName(day, sameDay);
 
   let prev = '';
   try {
-    prev = git('describe', '--tags', '--abbrev=0', '--match', 'v*', 'HEAD');
+    prev = git(
+      'describe',
+      '--tags',
+      '--abbrev=0',
+      ...TAG_GLOBS.flatMap((g) => ['--match', g]),
+      'HEAD'
+    );
   } catch {
     // thẻ đầu tiên
   }
@@ -134,4 +161,4 @@ function main() {
 }
 
 if (require.main === module) main();
-module.exports = { noteLine, vnDate };
+module.exports = { noteLine, vnDate, nextTagName, TAG_RE };

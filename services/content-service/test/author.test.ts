@@ -254,6 +254,47 @@ describe('nháp và bài đã xoá không lọt ra đường đọc công khai',
   })
 })
 
+describe('lượt xem trên trang tác giả', () => {
+  test('mỗi bài mang `views`; `views` tổng chỉ cộng bài CỦA MÌNH, cửa sổ 30 ngày bỏ ngày cũ', async () => {
+    const mk = async (title: string, who: string) => {
+      const r = await request(app)
+        .post('/api/author/posts')
+        .set(await asUser(who))
+        .send({ title, contentMd: 'x', published: true })
+      expect(r.status).toBe(201)
+      return (await prisma.post.findUnique({ where: { slug: r.body.slug } }))!.id as string
+    }
+    const mine = await mk(`Bài đếm lượt xem ${stamp}`, A1)
+    const other = await mk(`Bài người khác đếm ${stamp}`, A2)
+    const day = (offset: number) => {
+      const d = new Date(Date.now() - offset * 86_400_000)
+      d.setUTCHours(0, 0, 0, 0)
+      return d
+    }
+    await prisma.postViewDaily.createMany({
+      data: [
+        { postId: mine, day: day(1), count: 5 },
+        { postId: mine, day: day(2), count: 3 },
+        { postId: mine, day: day(90), count: 100 },
+        { postId: other, day: day(1), count: 999 },
+      ],
+    })
+
+    const res = await request(app)
+      .get('/api/author/posts?page_size=200')
+      .set(await asUser(A1))
+    expect(res.status).toBe(200)
+    const row = res.body.data.find((p: { id: string }) => p.id === mine)
+    expect(row.views).toBe(108)
+    expect(res.body.views.total).toBeGreaterThanOrEqual(108)
+    expect(res.body.views.total).toBeLessThan(999)
+    expect(res.body.views.last30).toBe(8)
+    expect(res.body.views.windowDays).toBe(30)
+    // Bài chưa có lượt xem nào ⇒ 0, không phải thiếu trường.
+    for (const p of res.body.data) expect(typeof p.views).toBe('number')
+  })
+})
+
 // Đánh dấu tệp này là MODULE. Thiếu import/export thì TypeScript coi nó là script
 // toàn cục và các biến top-level (`request`, `app`, `prisma`) đụng tên với tệp
 // test khác cùng kiểu (vd softDelete.test.ts) - ts-jest ở CI báo "suite failed to
