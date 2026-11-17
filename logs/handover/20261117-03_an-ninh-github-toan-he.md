@@ -25,6 +25,17 @@
   excavator/cap-nhat): tsucwico 27450972, tsuswico 27450979, tsudev-standards 27450984, sound-db 27450988, scoop-bucket
   27450994, homebrew-tap 27450997, qulythuchi 27451002.
 
+## 2b. Hạ quyền tài khoản agent (17/11/2026, chủ dự án chốt)
+
+- Mọi repo của 4 org: `tsudev-tsudev`, `b4djl1h` (+ `dieuhanhcongviecxanuicam` ở xanuicam, `lichsuhomnay` ở
+  mieubathuong - chủ dự án xác nhận cũng là tài khoản agent) được cấp quyền **Maintain** trực tiếp (52 lượt).
+- Đã hạ xuống **Member** ở cả 4 org: `b4djl1h`, `dieuhanhcongviecxanuicam`, `lichsuhomnay`. Đo: repo trả `maintain`.
+- `tsudev-tsudev` VẪN là Owner: GitHub cấm tự hạ ("Admins must be demoted by another admin") ⇒ 👤 `nguyentrangtinhsu` hạ.
+- Environment `packages` (linux-packages): người duyệt DUY NHẤT `nguyentrangtinhsu`, `prevent_self_review`, chỉ nhánh `main`.
+- Hệ quả cho phiên sau: Maintain push/PR/merge/release/CI được; KHÔNG xoá repo, KHÔNG sửa ruleset/branch protection,
+  secret, environment, chính sách org (policy 15243), quyền thành viên. Việc đó: nhờ chủ dự án làm bằng `nguyentrangtinhsu`.
+  Tạo repo mới: Member vẫn tạo được repo trong org (gói Free) và là admin của repo mình tạo - vẫn cấm tên repo cũ.
+
 ## 3. Còn lại
 
 1. 👤 Bắt buộc 2FA ở TsuGameLabs, xanuicam, mieubathuong (API không cho - chỉ giao diện): Org → Settings →
@@ -35,8 +46,8 @@
    sound-db, qulythuchi, tsudisk, tsufiles, tsudev-trafficmonitor, lotus-share (kiểm từng repo). Mỗi repo thêm vào
    `conditions.repository_name.include` của Actions policy **15243** (cần `admin:org`) và thêm "Bảo vệ bản quyền" vào
    check bắt buộc của ruleset. Mẫu: repo tsudev (`config/ban-quyen.json`, `docs/ban-quyen.md`).
-4. 🧭 Environment `packages` (linux-packages): thêm `nguyentrangtinhsu` làm người duyệt (hiện chỉ tsudev-tsudev - tài
-   khoản agent). Cân nhắc BỎ tsudev-tsudev khỏi người duyệt để agent không tự ký phát hành.
-5. 🧭 Repo private gói Free (mục 1): bảo vệ ở mức máy - pre-push hook (gitleaks), không push thẳng main theo quy ước;
+4. ✅ Environment `packages`: đã xong (mục 2b).
+5. 👤 **Hạ `tsudev-tsudev` xuống Member ở 4 org** bằng `nguyentrangtinhsu`: Org → People → tsudev-tsudev → Change role → Member.
+6. 🧭 Repo private gói Free (mục 1): bảo vệ ở mức máy - pre-push hook (gitleaks), không push thẳng main theo quy ước;
    cân nhắc chuyển public (nếu không có bí mật) hoặc nâng gói để có ruleset.
-6. 👤 Thu `admin:org` khỏi `gh` sau khi xong mục 3-4; xoá `~/.config/tsudev/cloudflare.env` sau khi thu hồi token.
+7. 👤 Thu `admin:org` khỏi `gh` sau khi xong mục 3-4; xoá `~/.config/tsudev/cloudflare.env` sau khi thu hồi token.
