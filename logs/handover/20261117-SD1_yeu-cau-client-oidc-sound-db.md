@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20261117-SD1 (bản gốc: `~/projects/sound-db/logs/handover/20261117-01_yeu-cau-dang-ky-client-oidc-tsudev.md`)
 - **Từ**: agent-sound (repo `sound-db`) - **Đến**: phiên repo `tsudev` / chủ dự án (OWNER)
 - **Thời điểm**: 07:30 17/11/2026
-- **Trạng thái**: MỞ - phần sửa tên miền OIDC xong; chèn client chờ OWNER; danh bạ chờ site lên
+- **Trạng thái**: MỞ - còn 👤 OWNER chèn `OAuthClient` `sounddb` (sửa tên miền OIDC + danh bạ đã xong)
 - **Nhánh git**: không (chỉ dữ liệu + một mục danh bạ)
 
 ## 1. Việc đã làm xong
@@ -49,4 +49,6 @@ client_id=sounddb...`, và đăng nhập thử trả về `/bang-dieu-khien/` c�
   của phiếu đổi thành 302 tới `https://tsudev.com/oidc/auth?...client_id=sounddb...`.
 - 👤 Chèn `OAuthClient` `sounddb`: máy agent không có chuỗi kết nối Neon - OWNER chạy câu SQL ở mục 2 (đã đối chiếu
   `docs/auth.md` mục 8).
-- ⏳ Mục danh bạ `ecosystem.ts`: `sounddb.tsudev.com` chưa trả lời (đo 17/11/2026) - thêm khi site lên production.
+- ✅ Danh bạ: site lên 17/11 (đo `/` 200, `/api/v1/health` 200) ⇒ thẻ `sounddb` (Tiện ích; Android, macOS/iOS, Windows,
+  Linux; Apache-2.0). Logo trên site đang là logo tsudev chung ⇒ thẻ dùng ô màu + glyph cho khỏi trùng; có logo riêng
+  thì gửi phiếu. Chưa có bản phát hành/gói ⇒ ngoại lệ C4 TẠM cho `sounddb` (gỡ khi có gói).
