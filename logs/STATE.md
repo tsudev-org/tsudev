@@ -1,5 +1,13 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 60 BẮT ĐẦU Ở ĐÂY** (kết phiên 59, 17/11/2026 tối). Phiếu:
+> [`20261117-05`](handover/20261117-05_phien-59-deploy-oidc-interaction.md) (hàng đợi gốc vẫn ở 20261117-02 mục 2).
+>
+> ✅ #310 (404 `/oidc/interaction/<uid>`) đã deploy: `deploy-2026.11.17.9` Worker `cef19fd9`. Đo: `/oidc/auth?client_id=sounddb`
+> ⇒ 303 → interaction ⇒ 307 `/login` (trước 404 text/plain). `/` `/apps` `/blog` `/docs` 200; providers chỉ 4 provider thật.
+> 🔐 Vẫn mở: ĐỔI mật khẩu Neon → Render `DATABASE_URL` → xoá `neon.env`. 🧭 V1 chờ tsudev-standards v3.7.0 (đang v3.6.0).
+> Không khoá, không tác vụ nền.
+
 > **Phiên 59 BẮT ĐẦU Ở ĐÂY** (kết phiên 58, 17/11/2026). Phiếu:
 > [`20261117-04`](handover/20261117-04_phien-58-luot-xem-the-deploy.md) mục 2 (hàng đợi gốc vẫn ở 20261117-02 mục 2).
 >
