@@ -1,8 +1,9 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
 > **Phiên 58 BẮT ĐẦU Ở ĐÂY** (kết phiên 57, 17/11/2026). Phiếu:
-> [`20261117-01`](handover/20261117-01_phien-57-ket-kiem-thu-he-sinh-thai.md) mục 2 - ⛔👤 HẠN 02/12/2026: Actions event
-> policy cho `pull_request_target` (cổng Bảo vệ bản quyền), nếu không mọi PR kẹt.
+> [`20261117-01`](handover/20261117-01_phien-57-ket-kiem-thu-he-sinh-thai.md) mục 2. ✅ Hạn 02/12 cho
+> `pull_request_target` đã xử lý: Actions event policy id 15243 (17/11). Sau đó: v2026.11.17.3 (OIDC endpoint ở
+> tsudev.com, #297), v2026.11.17.4 (Sound Db trên /apps, #298); 👤 OWNER chèn OAuthClient `sounddb` (phiếu SD1).
 >
 > ✅ `v2026.11.17.1` Worker `db19215f` (#293): Bảo mật/Quản lý tài khoản hết lỗi hiển thị, tiêu đề, C6. #294 (logo
 > TsuDisk ⛔), #295 (Scoop TsuDisk) mở.
