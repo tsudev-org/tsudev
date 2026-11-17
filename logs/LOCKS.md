@@ -4,4 +4,4 @@
 
 # Sửa xong file → XÓA dòng khóa của mình.
 
-✅ Phiên 57 (16/11/2026): không còn khoá nào (khoá SiteFooter.tsx của #252 gỡ - #252 đã merge).
+✅ Phiên 57 kết (17/11/2026): không còn khoá nào. Việc kế tiếp: phiếu `logs/handover/20261117-02_phien-57-ban-giao-cuoi.md` mục 2.

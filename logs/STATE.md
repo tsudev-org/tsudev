@@ -1,6 +1,13 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
 > **Phiên 58 BẮT ĐẦU Ở ĐÂY** (kết phiên 57, 17/11/2026). Phiếu:
+> [`20261117-02`](handover/20261117-02_phien-57-ban-giao-cuoi.md) mục 2 (đọc kèm 20261117-01).
+>
+> ✅ Best Practices passing: Tsu Contact 16836, Tsu Swico 16837, Tsu Cwico 16838 (+ tsudev 16731, tsufiles 16719).
+> Policy 15243 cho `pull_request_target`. tsudev.com `v2026.11.17.6`. Không giữ khoá, không tác vụ nền.
+> 👤 xuat-ban linux-packages · Neon (sounddb + nội dung) · duyệt PR bằng `nguyentrangtinhsu` · thu `admin:org`.
+
+> **Phiên 58 BẮT ĐẦU Ở ĐÂY** (kết phiên 57, 17/11/2026). Phiếu:
 > [`20261117-01`](handover/20261117-01_phien-57-ket-kiem-thu-he-sinh-thai.md) mục 2. ✅ Hạn 02/12 cho
 > `pull_request_target` đã xử lý: Actions event policy id 15243 (17/11). Sau đó: v2026.11.17.3 (OIDC endpoint ở
 > tsudev.com, #297), v2026.11.17.4 (Sound Db trên /apps, #298); 👤 OWNER chèn OAuthClient `sounddb` (phiếu SD1).
