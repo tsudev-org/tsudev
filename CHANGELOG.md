@@ -15,6 +15,7 @@ phiên bản app của hệ tsudev); các thẻ `vYYYY.MM.DD.N` cũ giữ nguyê
 <https://github.com/tsudev-org/tsudev/tags>. Mỗi thẻ một dòng dưới đây. _English: every production deployment is
 tagged; the tag message lists the merged pull requests, and each line below summarises one tagged deployment._
 
+- deploy-2026.11.17.7 - 17/11/2026 - Lượt xem bài trên /author (tổng + 30 ngày + từng bài); thẻ deploy đổi khuôn (#306).
 - v2026.11.17.6 - 17/11/2026 - Hộp thoại có nút Huỷ riêng không hiện thêm nút Đóng (#300).
 - v2026.11.17.5 - 17/11/2026 - Logo riêng TsuDisk trên /apps (#294).
 - v2026.11.17.4 - 17/11/2026 - Sound Db trên danh bạ /apps (#298).

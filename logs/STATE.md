@@ -1,5 +1,12 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 59 BẮT ĐẦU Ở ĐÂY** (kết phiên 58, 17/11/2026). Phiếu:
+> [`20261117-04`](handover/20261117-04_phien-58-luot-xem-the-deploy.md) mục 2 (hàng đợi gốc vẫn ở 20261117-02 mục 2).
+>
+> ✅ Lượt xem trên /author + thẻ deploy `deploy-YYYY.MM.DD.N` (#306, `deploy-2026.11.17.7` Worker `ea6ceb72`).
+> ✅ C6 xong (TsuFiles 2.4.1-vn.1 trong catalog); Sound Db có kênh cài, ngoại lệ C4 `sounddb` gỡ.
+> 👤 Neon: OAuthClient `sounddb` (phiên sound-db-ca đang chờ - nhắn lại khi xong). Không khoá, không tác vụ nền.
+
 > **Phiên 58 BẮT ĐẦU Ở ĐÂY** (kết phiên 57, 17/11/2026 tối). Đọc theo thứ tự:
 >
 > 1. [`20261117-02`](handover/20261117-02_phien-57-ban-giao-cuoi.md) mục 2 - việc còn lại của phiên 57.

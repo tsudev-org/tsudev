@@ -233,12 +233,13 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       id: 'sounddb',
       // Sản phẩm mới 17/11/2026 (phiếu 20261117-SD1, repo tsudev-org/sound-db, Apache-2.0). Đăng nhập bằng tài khoản
       // tsudev qua OIDC (client `sounddb`). Chưa có logo riêng (website dùng logo tsudev chung ⇒ ô màu + glyph cho
-      // khỏi trùng thẻ) và chưa có bản phát hành / gói - ngoại lệ C4 tạm ở packages/ui/test/installChannels.test.ts.
+      // khỏi trùng thẻ). Bản đầu v26.11.1704 (17/11/2026) vào cả ba kho gói ⇒ ngoại lệ C4 tạm đã gỡ.
       name: 'Sound Db',
       tagline: 'Máy đo âm thanh chính xác: dB, phổ FFT, octave, cao độ - có cả bản chạy trên web.',
       category: 'utility',
       platforms: ['android', 'apple', 'windows', 'linux'],
       website: 'https://sounddb.tsudev.com',
+      releases: 'https://github.com/tsudev-org/sound-db/releases/latest',
       openSource: true,
       tint: ['#0f766e', '#134e4a'],
       icon: 'M3 12h2M7 8v8M11 5v14M15 9v6M19 11v2M21 12h0',

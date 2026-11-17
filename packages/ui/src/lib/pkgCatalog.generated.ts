@@ -14,7 +14,7 @@ export const PKG_CATALOG = {
     },
     {
       name: 'tsudev-files',
-      version: '2.4.0-vn.1',
+      version: '2.4.1-vn.1',
       arch: ['arm64', 'x64'],
       homepage: 'https://files.tsudev.com',
     },
@@ -23,6 +23,12 @@ export const PKG_CATALOG = {
       version: '26.11.1201-1',
       arch: ['x64'],
       homepage: 'https://luyen-go-phim.tsudev.com',
+    },
+    {
+      name: 'tsudev-sound-db',
+      version: '26.11.1704-1',
+      arch: ['x64'],
+      homepage: 'https://sounddb.tsudev.com',
     },
   ],
   scoop: [
@@ -51,6 +57,12 @@ export const PKG_CATALOG = {
       homepage: 'https://files.tsudev.com',
     },
     {
+      name: 'tsudev-sound-db',
+      version: '26.11.1704',
+      arch: ['64bit'],
+      homepage: 'https://sounddb.tsudev.com',
+    },
+    {
       name: 'tsudev-trafficmonitor',
       version: '26.11.1202',
       arch: ['32bit', '64bit', 'arm64'],
@@ -58,7 +70,7 @@ export const PKG_CATALOG = {
     },
     {
       name: 'tsudisk',
-      version: '26.11.1602',
+      version: '26.11.1704',
       arch: ['64bit'],
       homepage: 'https://disk.tsudev.com',
     },
@@ -81,6 +93,12 @@ export const PKG_CATALOG = {
       version: '2.4.1-vn.1',
       arch: ['arm64', 'x64'],
       homepage: 'https://files.tsudev.com',
+    },
+    {
+      name: 'tsudev-sound-db',
+      version: '26.11.1704',
+      arch: ['any'],
+      homepage: 'https://sounddb.tsudev.com',
     },
   ],
 } as const;
