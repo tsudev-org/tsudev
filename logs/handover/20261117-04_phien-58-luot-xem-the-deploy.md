@@ -18,14 +18,18 @@
 
 ## 2. Còn lại
 
-1. 👤 **Neon** - vẫn không có `~/.config/tsudev/neon.env`: chèn `OAuthClient` `sounddb` (phiếu SD1 mục 2). Phiên
-   `sound-db-ca` hỏi lúc 13:10Z (oidc/auth 400 invalid_client) - đã trả lời; làm xong thì NHẮN LẠI `sound-db-ca`.
-   Kèm `node scripts/don-noi-dung-lac-de.js --apply --noi-dung`.
-2. ⛔ `nguyentrangtinhsu` duyệt: tsudev #290 và các PR ở phiếu 20261117-02 mục 2.3.
+1. ✅ **Neon** (chủ dự án đặt `neon.env` 17/11 tối): chèn `OAuthClient` `sounddb` (SD1 ĐÓNG, oidc/auth 303) + áp
+   `--apply --noi-dung` (0 xoá mềm; đăng lại 4 tài liệu + 1 bài - bài blog hết chữ "tím", đo sau khi ISR dựng lại).
+   🔐 Mật khẩu Neon đã HIỆN vào nhật ký phiên 58 (tệp là URL trần, lệnh `sed 's/=.*/…/'` chỉ che sau dấu `=` cuối) ⇒
+   ĐỔI mật khẩu Neon rồi sửa `DATABASE_URL` ở Render (bộ nhớ `doi-mat-khau-neon-cap-nhat-render`); xoá `neon.env`.
+2. ✅ #290 đã duyệt + merge (17/11). ⛔ Còn các PR ở repo khác, phiếu 20261117-02 mục 2.3.
 3. Các mục 2.4-2.8 của phiếu 20261117-02 (thuộc repo khác / 👤) - không đổi.
 4. 🧭 Phiếu V1: chờ tsudev-standards v3.7.0 (bước 1) rồi `sync-standards.sh`.
 
 ## 3. Bẫy mới
+
+- 🪤 Che bí mật bằng `sed 's/=.*/=…/'` KHÔNG che được URL trần (`postgresql://user:MẬT-KHẨU@host/db?sslmode=…`):
+  nó chỉ thay phần sau dấu `=` cuối. Kiểm tệp bí mật bằng `wc -c` / `cut -c1-12`, không in nội dung.
 
 - 🪤 `grep` trong shell của Claude Code là HÀM bọc `ugrep --ignore-files`: nó BỎ QUA tệp bị gitignore (`.next/`,
   `.open-next/`) và trả rỗng KHÔNG báo lỗi. Đã suýt kết luận "bản dựng production thiếu mã mới". Kiểm bản dựng bằng

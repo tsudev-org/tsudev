@@ -5,7 +5,9 @@
 >
 > ✅ Lượt xem trên /author + thẻ deploy `deploy-YYYY.MM.DD.N` (#306, `deploy-2026.11.17.7` Worker `ea6ceb72`).
 > ✅ C6 xong (TsuFiles 2.4.1-vn.1 trong catalog); Sound Db có kênh cài, ngoại lệ C4 `sounddb` gỡ.
-> 👤 Neon: OAuthClient `sounddb` (phiên sound-db-ca đang chờ - nhắn lại khi xong). Không khoá, không tác vụ nền.
+> ✅ (cùng phiên) Neon: OAuthClient `sounddb` chèn (SD1 ĐÓNG) + nội dung giới thiệu áp lại; #290 merge.
+> 🔐 ĐỔI mật khẩu Neon (đã lộ vào nhật ký phiên 58) → sửa Render `DATABASE_URL` → xoá `~/.config/tsudev/neon.env`.
+> Không khoá, không tác vụ nền.
 
 > **Phiên 58 BẮT ĐẦU Ở ĐÂY** (kết phiên 57, 17/11/2026 tối). Đọc theo thứ tự:
 >
