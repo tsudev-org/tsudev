@@ -1,11 +1,48 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên 59 BẮT ĐẦU Ở ĐÂY** (kết phiên 58, 17/11/2026). Phiếu:
+> [`20261117-04`](handover/20261117-04_phien-58-luot-xem-the-deploy.md) mục 2 (hàng đợi gốc vẫn ở 20261117-02 mục 2).
+>
+> ✅ Lượt xem trên /author + thẻ deploy `deploy-YYYY.MM.DD.N` (#306, `deploy-2026.11.17.7` Worker `ea6ceb72`).
+> ✅ C6 xong (TsuFiles 2.4.1-vn.1 trong catalog); Sound Db có kênh cài, ngoại lệ C4 `sounddb` gỡ.
+> 👤 Neon: OAuthClient `sounddb` (phiên sound-db-ca đang chờ - nhắn lại khi xong). Không khoá, không tác vụ nền.
+
+> **Phiên 58 BẮT ĐẦU Ở ĐÂY** (kết phiên 57, 17/11/2026 tối). Đọc theo thứ tự:
+>
+> 1. [`20261117-02`](handover/20261117-02_phien-57-ban-giao-cuoi.md) mục 2 - việc còn lại của phiên 57.
+> 2. [`20261117-03`](handover/20261117-03_an-ninh-github-toan-he.md) - an ninh GitHub: agent nay là Member + Maintain
+>    (cả `tsudev-tsudev`); việc quản trị (ruleset, secret, environment, policy org) nhờ chủ dự án bằng `nguyentrangtinhsu`.
+> 3. [`20261117-V1`](handover/20261117-V1_quy-uoc-phien-ban-thong-nhat.md) - thống nhất phiên bản toàn hệ; bước 1 là
+>    VERSIONING v3 ở tsudev-standards, bước 8 là thẻ deploy `deploy-YYYY.MM.DD.N` của repo này.
+>
+> Tên tài khoản `tsudev-tsudev` GIỮ NGUYÊN (tên `tsudev` thuộc người khác; đổi tên thả `tsudev-tsudev` cho người lạ
+> chiếm ⇒ updater Swico đã cài theo chuyển hướng `tsudev-tsudev/swico` tải bản giả). Không khoá, không tác vụ nền.
+
+> **Phiên 58 BẮT ĐẦU Ở ĐÂY** (kết phiên 57, 17/11/2026). Phiếu:
+> [`20261117-02`](handover/20261117-02_phien-57-ban-giao-cuoi.md) mục 2 (đọc kèm 20261117-01).
+>
+> ✅ Best Practices passing: Tsu Contact 16836, Tsu Swico 16837, Tsu Cwico 16838 (+ tsudev 16731, tsufiles 16719).
+> Policy 15243 cho `pull_request_target`. tsudev.com `v2026.11.17.6`. Không giữ khoá, không tác vụ nền.
+> 👤 xuat-ban linux-packages · Neon (sounddb + nội dung) · duyệt PR bằng `nguyentrangtinhsu` · thu `admin:org`.
+> 🔐 An ninh GitHub toàn hệ: phiếu [`20261117-03`](handover/20261117-03_an-ninh-github-toan-he.md) mục 3 (người duyệt DUY NHẤT
+> `nguyentrangtinhsu`; `tsudev-tsudev` + `b4djl1h` là tài khoản agent).
+
+> **Phiên 58 BẮT ĐẦU Ở ĐÂY** (kết phiên 57, 17/11/2026). Phiếu:
+> [`20261117-01`](handover/20261117-01_phien-57-ket-kiem-thu-he-sinh-thai.md) mục 2. ✅ Hạn 02/12 cho
+> `pull_request_target` đã xử lý: Actions event policy id 15243 (17/11). Sau đó: v2026.11.17.3 (OIDC endpoint ở
+> tsudev.com, #297), v2026.11.17.4 (Sound Db trên /apps, #298); 👤 OWNER chèn OAuthClient `sounddb` (phiếu SD1).
+>
+> ✅ `v2026.11.17.1` Worker `db19215f` (#293): Bảo mật/Quản lý tài khoản hết lỗi hiển thị, tiêu đề, C6. #294 (logo
+> TsuDisk ⛔), #295 (Scoop TsuDisk) mở.
+
 > **Phiên 58 BẮT ĐẦU Ở ĐÂY** (cuối phiên 57, 16/11/2026). Phiếu:
 > [`20261116-03`](handover/20261116-03_phien-57-dependabot-deploy-de-xuat-mau-xanh.md) mục 2.
 >
 > ✅ Merge Dependabot #281 #283 #282 + deploy `v2026.11.16.6` Worker `9f683a4f` (có #288 logo 5 trò chơi); Render
 > `e5a3831` success, OIDC discovery 200. Ba phiếu đổi tên (90, C1, S1) ĐÓNG. Đề xuất bảng màu xanh logo lên bộ quy
 > ước: tsudev-standards#55.
+> ✅ (sau) TsuDisk vào danh bạ (#291, `v2026.11.16.7` Worker `be10a2d2`), phiếu D1 ĐÓNG; ngoại lệ C4 tạm cho `disk`.
+> ⛔ #290 xoá 5 logo gốc trò chơi - chờ `nguyentrangtinhsu` duyệt. Chủ dự án UỶ QUYỀN tự merge/deploy (16/11).
 > 🧭 Việc 1 (đo lượt gộp sau 01:23 UTC 17/11 → /author) và Việc 2 (C6) vẫn mở.
 
 > **Phiên 57 BẮT ĐẦU Ở ĐÂY** (cuối phiên 56, 16/11/2026). Việc mở như phiên 56 bên dưới (phiếu 20261116-02 mục 2).

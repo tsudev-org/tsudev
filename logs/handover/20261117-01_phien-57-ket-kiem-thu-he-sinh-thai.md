@@ -1,0 +1,54 @@
+# PHIẾU BÀN GIAO - Phiên 57 (kết): kiểm thử đăng nhập, kênh gói TsuFiles 2.4.1, brownout pull_request_target
+
+- **Mã phiếu**: 20261117-01
+- **Phiên**: phiên 57 (tsudev-27), 16-17/11/2026 - nối phiếu 20261116-03
+- **Trạng thái**: MỞ (mục 2)
+
+## 1. Đã xong
+
+| Việc                                                                                                                                                                                                                                                                                                                                                                                                                              | PR / nơi   | Số đo                                                                                                         |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------- |
+| Kiểm thử bằng trình duyệt 3 tài khoản seed (khách, MEMBER, OWNER + TOTP) trên dev local + rà quét production                                                                                                                                                                                                                                                                                                                      | -          | 26 + 23 trang                                                                                                 |
+| /settings/security: khối TOTP vẽ CẢ nút Bật lẫn form Tắt dù "Đạt" ⇒ theo `posture.totp`; 7 sự kiện bảo mật in mã thô (`step_up_failed`...) ⇒ có nhãn + test quét nguồn `logSecurity`; nút "Thêm passkey" không gãy dòng                                                                                                                                                                                                           | #293       | frontend 243/243                                                                                              |
+| /admin/accounts: ô vai trò bị cắt ("Đăng b"), "Thu hồi phiên" gãy 3 dòng, IP `::ffff:x` ⇒ IPv4; `aria-label` cho ô chọn                                                                                                                                                                                                                                                                                                           | #293       | -                                                                                                             |
+| Tiêu đề tab không lặp tên site ("Nội quy tsudev - tsudev") - `lib/seoTitle.ts` + test                                                                                                                                                                                                                                                                                                                                             | #293       | prod `/terms` `/rules` đúng                                                                                   |
+| C6: `pkg:catalog` - tsudev-files 2.4.1-vn.1 (Scoop, Homebrew), Scoop `tsucwico`                                                                                                                                                                                                                                                                                                                                                   | #293       | prod `/apps` có `scoop install tsudev/tsucwico`                                                               |
+| Deploy `v2026.11.17.1`, Worker `db19215f`                                                                                                                                                                                                                                                                                                                                                                                         | -          | `/` `/apps` `/blog` `/docs` `/ung-ho` `/terms` `/rules` 200; providers = credentials, passkey, github, google |
+| Logo riêng TsuDisk (phiếu D2)                                                                                                                                                                                                                                                                                                                                                                                                     | #294 ⛔    | chờ duyệt                                                                                                     |
+| TsuDisk có Scoop - gỡ ngoại lệ C4 (phiếu D3)                                                                                                                                                                                                                                                                                                                                                                                      | #295       | ui 254/254                                                                                                    |
+| Hệ sinh thái: Tsu Contact winget (winget-pkgs#477388 → `tsudev.TsuContact` 26.11.1601); tsuswico#26 (tách tệp, cột số căn phải) + deploy swico; Scoop/Homebrew TsuFiles 2.4.1 (scoop-bucket#13, homebrew-tap#7); linux-packages#28 (`doi-chieu-kenh.mjs`, sửa dựng thử kho bản cũ); scoop-bucket#14 (mô tả tsucwico); lotus-share#47 + deploy; cwico website deploy + STATE (#74); rà quét giao diện lotus/cwico/swico/contact OK | nhiều repo | xem phiếu 20261116-03 + kết quả các phiếu D1-D3                                                               |
+
+| Bổ sung 17/11: OIDC endpoint ở tsudev.com (#297, v.3); Sound Db trên /apps (#298, v.4); logo TsuDisk (#294, v.5); hộp thoại có Huỷ riêng không hiện thêm "Đóng" + nút "Thêm passkey" không gãy dòng (#300, v.6) - kiểm khổ 390 + chế độ Sáng 16 trang OWNER: 0 tràn ngang | #297 #298 #294 #300 | `v2026.11.17.6` Worker `60537a75`; discovery `authorization_endpoint` = https://tsudev.com/oidc/auth |
+
+## 2. Còn lại
+
+- ✅ (17/11/2026 10:15) **Hạn 02/12 đã xử lý**: chủ dự án cấp `admin:org` cho `gh`, agent tạo Actions event policy
+  **id 15243** "Cho phep cong Bao ve ban quyen (pull_request_target)" - `active`, repo tsudev, scoop-bucket,
+  linux-packages, homebrew-tap, `workflow_path` `.github/workflows/bao-ve-ban-quyen.yml`, rule `restrict_action_events`
+  cho phép `pull_request_target`. Đo: cổng ở homebrew-tap#6 chạy lại thành công khởi động (trước đó startup_failure).
+  Repo mới có cổng này ⇒ thêm tên vào `conditions.repository_name.include` của policy 15243
+  (`gh api -X PUT orgs/tsudev-org/actions/policies/15243 ...`). tsufiles `label-pr.yml` CHƯA có trong policy (phiên
+  tsufiles quyết). Nên thu lại quyền: `gh auth refresh -h github.com -r admin:org`.
+- 👤 Duyệt lượt `xuat-ban` 43613604585 của linux-packages (environment `packages`) ⇒ APT/RPM có TsuFiles 2.4.1.
+  Agent bị bộ phân loại chặn khi duyệt.
+- 👤 Áp nội dung giới thiệu đã sửa lên Neon: `DATABASE_URL='<neon>' node scripts/don-noi-dung-lac-de.js --apply --noi-dung`
+  (bài blog còn ghi "đen + tím" ở production).
+- ⛔ Chờ `nguyentrangtinhsu` duyệt: tsudev #290 #294; trafficmonitor#69 (ruleset bật "extra approval for unattributed
+  changes" - PR có commit đồng tác giả Claude cần người khác duyệt); Scorecard linux-packages#27, scoop-bucket#12,
+  homebrew-tap#6; linux-packages#29 (workflow đối chiếu hằng ngày).
+- 🧭 Đo lượt gộp lượt xem (sau 01:23 UTC 17/11) → /author (phiếu 20261116-01 mục 2).
+
+## 3. Bẫy mới
+
+- 🪤 Deploy khi `npm run dev:local` còn chạy ⇒ `opennextjs-cloudflare build` lỗi "`redirect` can not be returned from
+  getStaticProps during prerendering (/projects)" - hai bên dùng chung `.next`. Dừng dev trước khi deploy.
+- 🪤 Proxy dev ở máy này là cổng **8090** (`DEV_PROXY_PORT` trong `.env`), không phải 8080.
+- 🪤 GitHub brownout `pull_request_target`: run `startup_failure`, không job, `gh run view` chỉ nói "workflow file
+  issue"; lý do thật CHỈ hiện ở mục Annotations khi mở trang run bằng trình duyệt đã đăng nhập.
+- 🪤 Test của app không dịch JSX: hàm muốn test thì đặt ở `lib/*.ts`, không trong `components/*.tsx`.
+- 🪤 Logo SẢN PHẨM ở `apps/frontend-main/public/eco/` + `build-eco-icons.js` KHÔNG thuộc vùng cổng Bảo vệ bản quyền
+  (vùng: `packages/brand/source/`, `public/brand/`, giấy phép, chân trang, ủng hộ, script cài, workflow). PR logo
+  sản phẩm không cần chờ chủ sở hữu.
+- 🪤 Ruleset tsudev `dismiss_stale_reviews_on_push`: giải xung đột / cập nhật nhánh sau khi đã được duyệt ⇒ lượt duyệt
+  bị huỷ. Với PR vùng bảo vệ, cập nhật nhánh TRƯỚC rồi mới xin duyệt.
+- 🪤 Chủ dự án đăng nhập `tsudev-tsudev` (tác giả PR của agent) KHÔNG duyệt được - phải là `nguyentrangtinhsu`.

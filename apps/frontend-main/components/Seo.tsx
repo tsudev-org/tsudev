@@ -1,6 +1,7 @@
 import React from 'react';
 import Head from 'next/head';
 import { MAIN_URL } from '@tsudev/ui';
+import { SITE_NAME, tieuDeDayDu } from '../lib/seoTitle';
 
 // Thẻ meta dùng chung cho mọi trang công khai. Gom về một chỗ vì ba lý do:
 //
@@ -13,7 +14,6 @@ import { MAIN_URL } from '@tsudev/ui';
 // 3. Ảnh og:image phải là URL tuyệt đối - đường dẫn tương đối bị các trình đọc
 //    link bỏ qua trong im lặng, và không có cách nào biết ngoài việc đi thử.
 
-const SITE_NAME = 'tsudev';
 const DEFAULT_DESCRIPTION =
   'Tải ứng dụng do tsudev tự phát triển cho Windows, Android, macOS, Linux - kèm SHA-256, chữ ký Ed25519, tài liệu cài đặt và blog kỹ thuật.';
 const DEFAULT_IMAGE = '/og-image.png';
@@ -38,9 +38,7 @@ export default function Seo({
   publishedAt,
   noindex = false,
 }: SeoProps) {
-  const fullTitle = title
-    ? `${title} - ${SITE_NAME}`
-    : `${SITE_NAME} - Phát hành ứng dụng tự phát triển`;
+  const fullTitle = tieuDeDayDu(title);
   const canonical = `${MAIN_URL}${path === '/' ? '' : path}`;
   const imageUrl = /^https?:\/\//.test(image) ? image : `${MAIN_URL}${image}`;
 

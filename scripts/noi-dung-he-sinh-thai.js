@@ -80,7 +80,7 @@ scoop bucket add tsudev https://github.com/tsudev-org/scoop-bucket
 scoop install tsudev/tsudev-trafficmonitor
 \`\`\`
 
-Có trong bucket: tsudev-trafficmonitor, tsuswico, tsucontact, tsudev-files, lotus-share. Cập nhật: \`scoop update *\`.
+Có trong bucket: tsudev-trafficmonitor, tsuswico, tsucwico, tsucontact, tsudev-files, lotus-share. Cập nhật: \`scoop update *\`.
 
 ## Homebrew (macOS)
 
@@ -159,14 +159,14 @@ const POSTS = [
     slug: 'tsudev-com-giao-dien-moi-va-danh-ba-ung-dung',
     title: 'tsudev.com có giao diện mới và danh bạ ứng dụng',
     excerpt:
-      'Giao diện đen + tím gọn hơn, chỉ còn Sáng / Tối / Hệ thống, và mọi ứng dụng của hệ sinh thái nay ở một chỗ.',
+      'Giao diện đen tuyền + xanh logo gọn hơn, chỉ còn Sáng / Tối / Hệ thống, và mọi ứng dụng của hệ sinh thái nay ở một chỗ.',
     tags: ['tsudev', 'thông báo'],
     contentMd: `tsudev.com vừa được làm lại để tập trung vào việc chính: giúp bạn tìm, tải và cài ứng dụng của hệ sinh thái tsudev.
 
 ## Có gì mới
 
 - **Danh bạ ứng dụng** ở [/apps](/apps): các ứng dụng và trò chơi, tìm không cần gõ dấu, lọc theo nền tảng, mở website riêng của từng sản phẩm, chọn nhiều ứng dụng để lấy một lệnh winget.
-- **Giao diện đen + tím**, một nền liền mạch, dễ đọc ở cả hai chế độ.
+- **Giao diện đen tuyền + xanh lấy từ logo tsudev**, một nền liền mạch, dễ đọc ở cả hai chế độ.
 - **Ba lựa chọn giao diện: Sáng, Tối, Hệ thống** - nút ở cuối trang. Chọn "Hệ thống" thì trang đổi theo cài đặt máy bạn.
 - Tài liệu được viết lại cho đúng việc bạn cần: [cài bằng lệnh](/docs/cai-ung-dung-bang-winget), [kiểm tra tệp tải về](/docs/kiem-tra-tep-tai-ve-sha256-ed25519), [xử lý cảnh báo khi cài](/docs/canh-bao-smartscreen-android-khi-cai).
 

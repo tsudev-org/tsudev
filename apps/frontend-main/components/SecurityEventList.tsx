@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatDateTimeVN } from '../lib/format';
+import { hienIp } from '../lib/ip';
 
 /**
  * Danh sách sự kiện bảo mật, dùng chung cho hai bề mặt:
@@ -43,6 +44,13 @@ const LABELS: Record<string, string> = {
   account_deactivated: 'Vô hiệu hoá tài khoản',
   account_reactivated: 'Khôi phục tài khoản',
   account_deletion_scheduled: 'Hẹn xoá tài khoản',
+  backup_codes_regenerated: 'Tạo lại mã dự phòng',
+  new_device_alert: 'Cảnh báo đăng nhập từ thiết bị mới',
+  step_up: 'Xác thực lại cho thao tác nhạy cảm',
+  step_up_failed: 'Xác thực lại thất bại',
+  verify_code_sent: 'Gửi mã xác minh qua email',
+  verify_code_wrong: 'Nhập sai mã xác minh',
+  verify_code_blocked: 'Khoá nhập mã xác minh (sai quá nhiều lần)',
 };
 
 const label = (type: string): string => LABELS[type] ?? type;
@@ -110,7 +118,7 @@ export const SecurityEventList = ({
               )}
               {e.note && <span className="ml-2 text-xs text-fg-muted">{e.note}</span>}
               <div className="text-xs text-fg-muted">
-                {[device, e.ip].filter(Boolean).join(' · ') || 'không rõ thiết bị'}
+                {[device, e.ip && hienIp(e.ip)].filter(Boolean).join(' · ') || 'không rõ thiết bị'}
               </div>
             </div>
             <span className="shrink-0 text-xs text-fg-muted">{formatDateTimeVN(e.createdAt)}</span>

@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { startRegistration } from '@simplewebauthn/browser';
-import { Button, Input, Layout, RecordFooter } from '@tsudev/ui';
+import { Badge, Button, Input, Layout, RecordFooter } from '@tsudev/ui';
 import type { PageMeta } from '@tsudev/types';
 
 import { useUrlPaging, useUrlPagingSync } from '../../lib/useUrlPaging';
@@ -361,7 +361,9 @@ export default function SecurityPage() {
                 placeholder="MacBook cơ quan"
                 className="flex-1"
               />
-              <Button onClick={addPasskey}>Thêm passkey</Button>
+              <Button onClick={addPasskey} className="shrink-0 whitespace-nowrap">
+                Thêm passkey
+              </Button>
             </div>
           </Section>
 
@@ -403,26 +405,26 @@ export default function SecurityPage() {
                   <Button onClick={confirmTotp}>Xác nhận</Button>
                 </div>
               </>
-            ) : (
+            ) : !posture ? (
+              // Chưa biết trạng thái: không vẽ nút Bật lẫn form Tắt (trước đây vẽ CẢ HAI cùng lúc, đọc như mâu thuẫn
+              // với dòng "Đạt" ở Mức an toàn).
+              <p className="text-sm text-fg-muted">Đang tải trạng thái…</p>
+            ) : posture.totp ? (
               <>
                 <p className="text-sm text-fg-secondary">
-                  Thêm một mã dùng một lần từ ứng dụng xác thực khi đăng nhập bằng mật khẩu.
+                  <Badge tone="success">Đang bật</Badge> Đăng nhập bằng mật khẩu cần thêm mã 6 chữ
+                  số từ ứng dụng xác thực.
                 </p>
-                <Button variant="secondary" className="mt-4" onClick={startTotp}>
-                  Bật xác thực hai bước
-                </Button>
-                {posture?.totp && (
-                  <div className="mt-6 border-t border-line pt-4">
-                    <p className="text-sm text-fg-muted">
-                      Còn {posture.backupCodesRemaining ?? 0} mã dự phòng chưa dùng.
-                    </p>
-                    <Button variant="secondary" className="mt-2" onClick={regenerateBackupCodes}>
-                      Tạo lại mã dự phòng
-                    </Button>
-                  </div>
-                )}
                 <div className="mt-6 border-t border-line pt-4">
-                  <p className="text-sm text-fg-muted">Đã bật rồi và muốn tắt?</p>
+                  <p className="text-sm text-fg-muted">
+                    Còn {posture.backupCodesRemaining ?? 0} mã dự phòng chưa dùng.
+                  </p>
+                  <Button variant="secondary" className="mt-2" onClick={regenerateBackupCodes}>
+                    Tạo lại mã dự phòng
+                  </Button>
+                </div>
+                <div className="mt-6 border-t border-line pt-4">
+                  <p className="text-sm text-fg-muted">Tắt xác thực hai bước</p>
                   <div className="mt-2 flex items-end gap-2">
                     <Input
                       id="disable-pw"
@@ -438,6 +440,15 @@ export default function SecurityPage() {
                     </Button>
                   </div>
                 </div>
+              </>
+            ) : (
+              <>
+                <p className="text-sm text-fg-secondary">
+                  Thêm một mã dùng một lần từ ứng dụng xác thực khi đăng nhập bằng mật khẩu.
+                </p>
+                <Button variant="secondary" className="mt-4" onClick={startTotp}>
+                  Bật xác thực hai bước
+                </Button>
               </>
             )}
           </Section>

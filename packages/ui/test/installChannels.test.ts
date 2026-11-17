@@ -9,7 +9,9 @@ import { ECOSYSTEM_APPS, type EcoApp, type EcoPlatform } from '../src/lib/ecosys
  *
  * Android không có kênh lệnh hợp lý (APK ký + trang sản phẩm) nên không đòi. App
  * KHÔNG có hệ điều hành máy tính nào phải được khai ngoại lệ TƯỜNG MINH dưới đây,
- * kèm lý do - để danh sách ngoại lệ là một quyết định, không phải một khe hở.
+ * kèm lý do - để danh sách ngoại lệ là một quyết định, không phải một khe hở. App
+ * máy tính CHƯA có gói ở kho nào cũng khai ở đây (tạm thời): khi gói có mặt trong
+ * catalog, test "ngoại lệ mồ côi" đỏ để nhắc gỡ dòng ngoại lệ.
  */
 const CHANNELS: Record<Exclude<EcoPlatform, 'android'>, (a: EcoApp) => string[]> = {
   windows: (a) =>
@@ -23,10 +25,15 @@ const EXCEPTIONS: Record<string, string> = {
     'D6 - La bàn là app Android độc quyền: APK có chữ ký + trang sản phẩm, không có kênh lệnh',
 };
 
+const hasAnyChannel = (app: EcoApp) =>
+  app.platforms.some(
+    (p) => p !== 'android' && CHANNELS[p as keyof typeof CHANNELS](app).length > 0
+  );
+
 describe('C4: kênh cài bằng lệnh cho mọi app', () => {
   test.each(ECOSYSTEM_APPS.map((a) => [a.id, a] as const))('%s', (id, app) => {
     const desktop = app.platforms.filter((p) => p !== 'android') as (keyof typeof CHANNELS)[];
-    if (desktop.length === 0) {
+    if (desktop.length === 0 || EXCEPTIONS[id]) {
       expect(EXCEPTIONS[id]).toBeTruthy();
       return;
     }
@@ -42,7 +49,7 @@ describe('C4: kênh cài bằng lệnh cho mọi app', () => {
     for (const id of Object.keys(EXCEPTIONS)) {
       const app = ECOSYSTEM_APPS.find((a) => a.id === id);
       expect(app).toBeDefined();
-      expect(app!.platforms.some((p) => p !== 'android')).toBe(false);
+      expect({ id, hasAnyChannel: hasAnyChannel(app!) }).toEqual({ id, hasAnyChannel: false });
     }
   });
 });

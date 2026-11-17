@@ -79,7 +79,7 @@ export function useStepUp() {
   }
 
   const dialog = (
-    <Modal open={prompt !== null} onClose={cancel} title="Xác thực lại">
+    <Modal closeButton={false} open={prompt !== null} onClose={cancel} title="Xác thực lại">
       {prompt && (
         <form className="space-y-4" onSubmit={submit}>
           <p className="text-sm text-fg-secondary">

@@ -367,6 +367,7 @@ export default function AdminContent() {
       </div>
 
       <Modal
+        closeButton={false}
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         title={`${action === 'hide' ? 'Ẩn' : 'Khôi phục'} ${selectedRows.length} ${KIND_LABEL[
