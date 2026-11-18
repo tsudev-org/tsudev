@@ -137,7 +137,7 @@ async function dangNoiDung() {
     where: { username: 'tsudev' },
     select: { id: true },
   });
-  if (!tacGia) throw new Error('Không có tài khoản tsudev - không đăng nội dung.');
+  if (!tacGia) throw new Error('Không có tài khoản TsuDEV - không đăng nội dung.');
   const now = new Date();
   for (const d of DOCS) {
     const data = { ...d, ...buildDocSearch(d), deletedAt: null };

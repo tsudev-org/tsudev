@@ -148,7 +148,7 @@ gỡ trọn cụm, nếu không sẽ còn lại đường code tính phí trên 
 >
 > **Một chỗ kế hoạch không lường trước, tìm ra bằng cách grep cả cây** (đúng bài
 > học của đợt 1): **trang chủ** `pages/index.tsx` gọi `trust.directory()` và
-> hiển thị cả một khối "Website mang dấu tsudev" + chỉ số "Website đã cấp dấu".
+> hiển thị cả một khối "Website mang dấu TsuDEV" + chỉ số "Website đã cấp dấu".
 > Đã gỡ khối đó và lời gọi đó; CTA "Đăng ký cấp dấu" ở trang chủ đổi thành
 > "Tìm hiểu con dấu" trỏ `/trust`.
 

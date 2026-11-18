@@ -3,7 +3,7 @@ name = "trust-crypto"
 version = "0.1.0"
 edition = "2021"
 publish = false
-description = "Ed25519 cho con dấu tín nhiệm tsudev, biên dịch sang WebAssembly."
+description = "Ed25519 cho con dấu tín nhiệm TsuDEV, biên dịch sang WebAssembly."
 
 [lib]
 crate-type = ["cdylib", "rlib"]

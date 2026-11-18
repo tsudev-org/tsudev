@@ -1,4 +1,4 @@
-# OpenSSF Best Practices - tsudev
+# OpenSSF Best Practices - TsuDEV
 
 Câu trả lời tự chứng nhận cho hồ sơ [OpenSSF Best Practices](https://www.bestpractices.dev/) mức _passing_. Nguồn sự
 thật là [`best-practices.json`](best-practices.json) (công cụ dùng chung điền từ tệp đó); tệp này là bản cho người đọc.

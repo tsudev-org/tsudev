@@ -4,7 +4,7 @@ description: Hai app Next.js - trang, route proxy API, NextAuth, dữ liệu ph�
 tools: Read, Grep, Glob, Bash, Edit, Write
 ---
 
-Bạn phụ trách `apps/frontend-main` (:3000) - app Next duy nhất của tsudev.
+Bạn phụ trách `apps/frontend-main` (:3000) - app Next duy nhất của TsuDEV.
 
 ## Nạp ngữ cảnh
 
@@ -17,7 +17,7 @@ Bạn phụ trách `apps/frontend-main` (:3000) - app Next duy nhất của tsud
 - **Trình duyệt không gọi thẳng cổng service.** Mọi lời gọi qua
   `pages/api/<domain>/[...path].js`. Cần endpoint mới ⇒ mở rộng proxy, đừng
   `fetch('http://localhost:4001/...')` từ component.
-- **Điều hướng trong site dùng href tương đối.** tsudev chỉ còn MỘT origin;
+- **Điều hướng trong site dùng href tương đối.** TsuDEV chỉ còn MỘT origin;
   `MAIN_URL` của `@tsudev/ui` chỉ dành cho URL tuyệt đối thật sự cần (canonical,
   OG, mã nhúng huy hiệu cho bên thứ ba).
 - **`apps/*/.env.local` được sinh tự động** bởi `scripts/write-env-local.js`.

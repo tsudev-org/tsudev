@@ -244,7 +244,7 @@ export async function initOidc(): Promise<void> {
       const esc = (v: unknown) =>
         String(v ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
       ctx.type = 'html'
-      ctx.body = `<!doctype html><html lang="vi"><meta charset="utf-8"><title>Không đăng nhập được - tsudev</title><body style="font-family:system-ui;max-width:32rem;margin:4rem auto;padding:0 1rem"><h1>Không đăng nhập được</h1><p>Yêu cầu đăng nhập từ ứng dụng này không hợp lệ.</p><p><code>${esc(out.error)}</code>: ${esc(out.error_description)}</p><p><a href="/">Về tsudev.com</a></p></body></html>`
+      ctx.body = `<!doctype html><html lang="vi"><meta charset="utf-8"><title>Không đăng nhập được - TsuDEV</title><body style="font-family:system-ui;max-width:32rem;margin:4rem auto;padding:0 1rem"><h1>Không đăng nhập được</h1><p>Yêu cầu đăng nhập từ ứng dụng này không hợp lệ.</p><p><code>${esc(out.error)}</code>: ${esc(out.error_description)}</p><p><a href="/">Về tsudev.com</a></p></body></html>`
     },
   })
   // Sau proxy (Cloudflare Worker → Render): tin X-Forwarded-Proto để cookie `secure` đúng.

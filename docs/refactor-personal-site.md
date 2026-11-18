@@ -14,7 +14,7 @@ Tài liệu này là **kế hoạch**. Hiện trạng vẫn là `CLAUDE.md` và
 > (dự kiến, chưa từng đăng ký) sang **`tsudev.com`** - tên miền thật, đăng ký
 > tại Spaceship. Chuỗi tên miền trong tài liệu này đã được cập nhật theo. Mọi
 > nhắc tới **diễn đàn / `forum.*`** là bối cảnh của thời điểm viết: app đó đã bị
-> xoá ở PR #9, tsudev nay chỉ còn một app trên một origin.
+> xoá ở PR #9, TsuDEV nay chỉ còn một app trên một origin.
 
 > **Ghi chú lịch sử (19/08/2026).** Mọi nhắc tới **Keycloak / `auth.*` / cổng
 > 4100** trong tài liệu này là bối cảnh của thời điểm viết. Nhà cung cấp danh
@@ -156,7 +156,7 @@ Bỏ `ReputationEvent` và `User.reputation`. "Uy tín" từ nay là thuộc tí
 
 Không cần model mới cho phần này - chỉ cần một trang hồ sơ tổ chức và vài truy
 vấn tổng hợp. Đúng mục đích bạn nêu: **cấp huy hiệu cho website dùng source code
-tsudev, và chứng nhận cho website do đội ngũ tsudev thực hiện.**
+TsuDEV, và chứng nhận cho website do đội ngũ TsuDEV thực hiện.**
 
 ---
 
@@ -224,7 +224,7 @@ giữ lại cho canonical/OG), `scripts/check-session-sharing.js` và
 `/projects` sẽ dựng ở GĐ 5.
 
 **Trang chủ và trang pháp lý viết lại**: khối "Hoạt động diễn đàn" + "Thành viên
-tích cực" thay bằng khối "Website mang dấu tsudev" đọc từ `trust.directory()`;
+tích cực" thay bằng khối "Website mang dấu TsuDEV" đọc từ `trust.directory()`;
 số liệu hero đổi từ _thành viên/bài viết/chủ đề_ sang _bài viết/tài liệu/website
 đã cấp dấu_; `terms` `rules` `privacy` bỏ mô tả diễn đàn/chợ/tin nhắn.
 
@@ -358,7 +358,7 @@ phía server, nên không có CORS để vướng.
 ### GĐ 6 - Hồ sơ uy tín tổ chức ✅ **xong**
 
 `GET /api/trust/profile/:orgId` (công khai) + trang `/trust/org/[id]`; danh bạ
-liên kết sang hồ sơ; trang chương trình dấu liệt kê dự án tsudev thuộc chương
+liên kết sang hồ sơ; trang chương trình dấu liệt kê dự án TsuDEV thuộc chương
 trình đó (liên kết hai chiều Dự án ↔ Chương trình).
 
 **Cố ý không có "điểm uy tín".** Một con số kiểu 87/100 trông có thẩm quyền hơn

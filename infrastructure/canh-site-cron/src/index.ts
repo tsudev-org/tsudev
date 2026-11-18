@@ -142,7 +142,7 @@ async function keepWarm(env: Env): Promise<void> {
  * chạy - đúng điều đợt này ra đời để chấm dứt.
  */
 async function baoDong(env: Env, tieuDe: string, than: string): Promise<void> {
-  const text = `🚨 *tsudev* - ${tieuDe}\n\n${than}`;
+  const text = `🚨 *TsuDEV* - ${tieuDe}\n\n${than}`;
   if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
     console.error('[cron] CHƯA cấu hình Telegram - báo động chỉ nằm ở log này:\n' + text);
     return;

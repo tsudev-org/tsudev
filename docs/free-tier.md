@@ -1,6 +1,6 @@
 # Ngân sách miễn phí - hạn mức nào, van ở đâu, vượt thì sao
 
-Toàn bộ tsudev chạy trên gói miễn phí của bảy dịch vụ. Quy tắc của repo này:
+Toàn bộ TsuDEV chạy trên gói miễn phí của bảy dịch vụ. Quy tắc của repo này:
 **mọi thứ có thể sinh ra hoá đơn phải có một cái van trong mã, hoặc không được
 dùng.** File này ghi các van đó nằm ở đâu và con số nào làm chúng đóng lại.
 

@@ -1,8 +1,8 @@
-# Kế hoạch an toàn thông tin tsudev (từ 05/11/2026)
+# Kế hoạch an toàn thông tin TsuDEV (từ 05/11/2026)
 
-> Kế hoạch tổng thể để bảo vệ **tệp phát hành, dữ liệu và tài khoản** của tsudev,
+> Kế hoạch tổng thể để bảo vệ **tệp phát hành, dữ liệu và tài khoản** của TsuDEV,
 > kèm thiết kế **Trung tâm an ninh phát hành** - trang quản trị theo dõi, kiểm
-> tra và xử lý mọi tệp phần mềm trên hệ thống. Soạn sau khi rà mã nguồn tsudev và
+> tra và xử lý mọi tệp phần mềm trên hệ thống. Soạn sau khi rà mã nguồn TsuDEV và
 > các tài liệu bảo mật của các dự án khác trên cùng máy (mục 9).
 
 ## 0. Nguyên tắc - đọc trước
@@ -17,7 +17,7 @@
 3. **Hạ tầng 0 đồng là ràng buộc thật** (`docs/free-tier.md`). Giải pháp tốn phí
    (WAF trả phí, SIEM thương mại, SMS) chỉ được đề xuất kèm lý do và phương án 0đ.
 4. **Tài sản quan trọng nhất là niềm tin vào tệp tải về.** Một kẻ tấn công thay
-   được tệp `.exe` trên tsudev là gây hại cho MỌI người tải - nặng hơn mọi sự cố
+   được tệp `.exe` trên TsuDEV là gây hại cho MỌI người tải - nặng hơn mọi sự cố
    khác của site. Thứ tự ưu tiên của kế hoạch đi theo điều này.
 
 ## 1. Tài sản cần bảo vệ
@@ -72,7 +72,7 @@ Kết quả: `npm audit --omit=dev` = **0 lỗ hổng** (trước: 7, gồm 2 cr
 | G1  | CI **không có** quét bảo mật nào: không gitleaks, không SCA tự động, không SAST                                                                       | Lỗ hổng phụ thuộc sống nhiều tuần mà không ai biết - đúng chuyện vừa xảy ra với Next.js |
 | G2  | `main` **không có** branch protection (repo Public đã cho phép bật)                                                                                   | Một push nhầm/độc vượt mọi review; lớp chắn duy nhất là hook local                      |
 | G3  | Tải tệp phát hành: URL presign PUT **không giới hạn kích thước**, `contentType` do client khai, không kiểm đuôi tệp hay chữ ký nhị phân (magic bytes) | Đẩy tệp sai loại/khổng lồ; tệp `.apk` thực chất là thứ khác                             |
-| G4  | Không quét mã độc cho tệp phát hành                                                                                                                   | Máy dev bị nhiễm ⇒ tsudev phát tán mã độc có chữ ký hợp lệ                              |
+| G4  | Không quét mã độc cho tệp phát hành                                                                                                                   | Máy dev bị nhiễm ⇒ TsuDEV phát tán mã độc có chữ ký hợp lệ                              |
 | G5  | Không kiểm lại toàn vẹn ĐỊNH KỲ: sha256 chỉ tính một lần lúc niêm phong                                                                               | Tệp bị thay trong R2 (lộ khoá S3) không ai phát hiện                                    |
 | G6  | ADMIN/OWNER **không bị ép** bật 2FA                                                                                                                   | Lộ mật khẩu = mất toàn quyền                                                            |
 | G7  | Không xác thực lại (step-up) cho thao tác nguy hiểm: công bố/thu hồi tệp, đổi vai trò                                                                 | Phiên bị chiếm (XSS, máy bỏ quên) = thao tác ngay                                       |
@@ -185,7 +185,7 @@ chối, test lệch toàn vẹn tự gỡ công bố).
   DB chỉ lưu SỰ CỐ (`securityState`: OK | LECH_TOAN_VEN | NGHI_MA_DOC); phần còn
   lại tính lúc đọc.
 - **VirusTotal chặn khi `malicious >= 1`**, không chặn theo `suspicious`: tệp tự
-  ký không chứng chỉ (đúng loại tsudev phát hành) hay bị gắn cờ heuristic.
+  ký không chứng chỉ (đúng loại TsuDEV phát hành) hay bị gắn cờ heuristic.
 - **Niêm phong lại không còn "an toàn mọi lúc"**: tệp đã có sha256 mà kho ra băm
   khác ⇒ 409 `LECH_TOAN_VEN`, không ký. Trước đó nút Niêm phong ký luôn tệp bị thay.
 - **Step-up chỉ nhận TOTP** (không mã dự phòng, chưa passkey). Token HMAC, khoá dẫn
@@ -248,7 +248,7 @@ báo động; xoá một dòng nhật ký ở DB ⇒ trigger từ chối.
 
 ## 6. Những gì KHÔNG làm, và vì sao
 
-| Đề xuất thường gặp                                    | Lý do không làm ở tsudev                                                                 |
+| Đề xuất thường gặp                                    | Lý do không làm ở TsuDEV                                                                 |
 | ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | WAF/Bot Management trả phí, fingerprint TLS (JA3/JA4) | Trái hạ tầng 0đ; trang công khai là ISR tĩnh ở biên, bề mặt động nhỏ                     |
 | IdP riêng (Keycloak/Zitadel)                          | Một người vận hành; auth-service hiện có Argon2id + TOTP + passkey + thu hồi phiên       |
@@ -272,7 +272,7 @@ báo động; xoá một dòng nhật ký ở DB ⇒ trigger từ chối.
 
 ## 9. Nguồn tham khảo đã rà trên máy dev (chỉ đọc)
 
-| Tài liệu                                              | Học được gì cho tsudev                                                                                                                    |
+| Tài liệu                                              | Học được gì cho TsuDEV                                                                                                                    |
 | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | `ubnd/20261027-SPEC-SEC-2026-V2-...`                  | Zero Trust, phòng thủ nhiều lớp, tiêu chí nghiệm thu đo được; upload: magic bytes, đổi tên ngẫu nhiên, lưu ngoài web-root, link có chữ ký |
 | `app-la-ban/20261028-tai-lieu-ky-thuat-...`           | Mô hình trang giám sát an ninh: bảng kê, trung tâm cảnh báo, hành động có TTL và lý do, nhật ký chuỗi băm                                 |

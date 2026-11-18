@@ -1,9 +1,9 @@
-# Kiến trúc tsudev
+# Kiến trúc TsuDEV
 
 Monorepo npm workspaces (`apps/*`, `services/*`, `packages/*`). Không có công cụ
 build monorepo (Turbo/Nx): mọi thứ chạy qua `npm --workspace <path> run <script>`.
 
-**Một app, ba service, một tiến trình ở production.** tsudev là website cá nhân
+**Một app, ba service, một tiến trình ở production.** TsuDEV là website cá nhân
 để **phát hành file cài đặt của các app tự phát triển** (SHA-256 + chữ ký
 Ed25519), kèm dự án/bản quyền, blog và tài liệu. Đã gỡ: diễn đàn, chợ, tin nhắn
 ([refactor-personal-site.md](refactor-personal-site.md)); Toà soạn Agent AI

@@ -1,6 +1,6 @@
 # Infrastructure & Deployment (tsudev)
 
-Hạ tầng, giám sát và quy trình triển khai cho hệ sinh thái tsudev.
+Hạ tầng, giám sát và quy trình triển khai cho hệ sinh thái TsuDEV.
 
 ## Kiến trúc triển khai (mục tiêu)
 

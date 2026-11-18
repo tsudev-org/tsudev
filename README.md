@@ -1,17 +1,17 @@
-<img src="apps/frontend-main/public/brand/logo-tsudev-256.png" alt="Logo tsudev" width="128" />
+<img src="apps/frontend-main/public/brand/logo-tsudev-256.png" alt="Logo TsuDEV" width="128" />
 
-# tsudev
+# TsuDEV
 
 [![CI](https://github.com/tsudev-org/tsudev/actions/workflows/ci.yml/badge.svg)](https://github.com/tsudev-org/tsudev/actions/workflows/ci.yml)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/16731/badge)](https://www.bestpractices.dev/projects/16731)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/tsudev-org/tsudev/badge)](https://scorecard.dev/viewer/?uri=github.com/tsudev-org/tsudev)
 
-Website cá nhân của tsudev để **phát hành file cài đặt của các app tự phát
+Website cá nhân của TsuDEV để **phát hành file cài đặt của các app tự phát
 triển**: mỗi bản có SHA-256 do máy chủ tính và chữ ký Ed25519 người tải tự kiểm
 được. Kèm **dự án & bản quyền** (giấy phép, trạng thái đăng ký quyền tác giả),
 blog, kho tài liệu và **xác thực**.
 
-Một sản phẩm của [tsudev](https://tsudev.com).
+Một sản phẩm của [TsuDEV](https://tsudev.com).
 
 **Hạng sản phẩm: A - Web có tài khoản** (`.standards/docs/AUTH_AND_ACCOUNT.md`
 mục 1). Hạng A `MUST NOT` tự dựng kho người dùng riêng: danh tính của hệ sinh
@@ -135,5 +135,5 @@ Commit theo [Conventional Commits](https://www.conventionalcommits.org/).
 ## Giấy phép và nhãn hiệu
 
 Mã nguồn: [Apache License 2.0](LICENSE) - bản sao và bản sửa đổi phải giữ nguyên [`NOTICE`](NOTICE) và mọi thông báo
-bản quyền. Tên **tsudev**, logo và tên sản phẩm là nhãn hiệu, không nằm trong giấy phép:
+bản quyền. Tên **TsuDEV**, logo và tên sản phẩm là nhãn hiệu, không nằm trong giấy phép:
 [`TRADEMARKS.md`](TRADEMARKS.md). Copyright 2026 tsudev.

@@ -21,7 +21,7 @@ npm --workspace apps/frontend-main run cf-typegen  # sinh lại cloudflare-env.d
 ### Tài khoản Cloudflare: dùng cấu hình wrangler RIÊNG
 
 `~/.config/.wrangler` (đăng nhập OAuth của wrangler) dùng CHUNG cho mọi phiên trên máy dev, và phiên của dự án
-khác có thể đăng nhập nó sang tài khoản khác bất cứ lúc nào (đã xảy ra 12/11/2026). Hệ tsudev dùng cấu hình riêng,
+khác có thể đăng nhập nó sang tài khoản khác bất cứ lúc nào (đã xảy ra 12/11/2026). Hệ TsuDEV dùng cấu hình riêng,
 trỏ tới tài khoản `9541f44e…`:
 
 ```bash

@@ -8,7 +8,7 @@ async function main() {
   // --- Users ---
   // tsudev là OWNER - quản trị cao nhất, bậc duy nhất tạo được tài khoản và cấp
   // vai trò. `update.role` được đặt CÓ CHỦ ĐÍCH (khác các user khác dưới đây):
-  // tài khoản tsudev đã tồn tại từ đợt seed cũ với role ADMIN, nên phải nâng nó
+  // tài khoản TsuDEV đã tồn tại từ đợt seed cũ với role ADMIN, nên phải nâng nó
   // ở nhánh update, không chỉ nhánh create. Đây là đường DUY NHẤT cấp OWNER -
   // không endpoint dữ liệu nào cấp được bậc này.
   // tsudev do người vận hành kiểm soát, gắn với hộp thư thật; seed nó là đã xác
@@ -16,15 +16,15 @@ async function main() {
   // xác minh nào. Đặt ở CẢ create lẫn update vì tài khoản đã tồn tại từ đợt seed
   // cũ (emailVerifiedAt = NULL), cùng lý do với role.
   const admin = await prisma.user.upsert({
-    where: { username: 'tsudev' },
+    where: { username: 'TsuDEV' },
     update: { role: 'OWNER', emailVerifiedAt: new Date() },
     create: {
-      username: 'tsudev',
+      username: 'TsuDEV',
       email: 'devnguyentrangtinhsu@gmail.com',
       displayName: 'Nguyễn Trang Tình Sử',
       role: 'OWNER',
       emailVerifiedAt: new Date(),
-      bio: 'Founder của tsudev - Decoding the Future, One Commit at a Time.',
+      bio: 'Founder của TsuDEV - Decoding the Future, One Commit at a Time.',
     },
   })
   await prisma.user.upsert({
@@ -52,7 +52,7 @@ async function main() {
   const posts = [
     {
       slug: 'welcome-to-tsudev',
-      title: 'Chào mừng đến với tsudev',
+      title: 'Chào mừng đến với TsuDEV',
       excerpt: 'Nơi phát hành ứng dụng tự phát triển, kèm tài liệu cài đặt và blog kỹ thuật.',
       tags: ['thông báo', 'giới thiệu'],
       contentMd:
@@ -98,7 +98,7 @@ async function main() {
       category: 'reference',
       position: 2,
       contentMd:
-        '## Endpoint công khai\n\nĐường công khai duy nhất của tsudev cho bên thứ ba là khoá ký bản phát hành:\n\n- `GET /.well-known/tsudev-release-jwks.json` - khoá công khai Ed25519, dùng để tự xác minh chữ ký của tệp cài đặt mà không cần tin máy chủ tsudev\n\nCác đường dẫn nội dung (`/api/posts`, `/api/docs`, `/api/projects`) **không** mở ra ngoài: chúng chỉ phục vụ lớp render của chính site và nằm sau cổng chặn `INTERNAL_API_TOKEN`.',
+        '## Endpoint công khai\n\nĐường công khai duy nhất của TsuDEV cho bên thứ ba là khoá ký bản phát hành:\n\n- `GET /.well-known/tsudev-release-jwks.json` - khoá công khai Ed25519, dùng để tự xác minh chữ ký của tệp cài đặt mà không cần tin máy chủ TsuDEV\n\nCác đường dẫn nội dung (`/api/posts`, `/api/docs`, `/api/projects`) **không** mở ra ngoài: chúng chỉ phục vụ lớp render của chính site và nằm sau cổng chặn `INTERNAL_API_TOKEN`.',
     },
   ]
   for (const d of docs) {
@@ -111,7 +111,7 @@ async function main() {
   const projects = [
     {
       slug: 'tsudev-platform',
-      name: 'tsudev Platform',
+      name: 'TsuDEV Platform',
       summary:
         'Nền tảng web monorepo: phát hành ứng dụng, blog, tài liệu, đăng nhập và object storage.',
       descriptionMd:
@@ -128,11 +128,11 @@ async function main() {
     },
     {
       slug: 'tsudev-trust-crypto',
-      name: 'Ký bản phát hành tsudev',
+      name: 'Ký bản phát hành TsuDEV',
       summary:
         'Thư viện ký Ed25519 viết bằng Rust biên dịch sang WASM - ký checksum của mọi tệp cài đặt phát hành trên tsudev.com.',
       descriptionMd:
-        '## Ký bản phát hành\n\nDự án cá nhân không có chứng chỉ ký mã thương mại. Mỗi bản phát hành trên tsudev.com vì thế kèm SHA-256 và một chữ ký Ed25519 xác minh được độc lập qua JWKS công khai - không cần tin máy chủ tsudev.\n',
+        '## Ký bản phát hành\n\nDự án cá nhân không có chứng chỉ ký mã thương mại. Mỗi bản phát hành trên tsudev.com vì thế kèm SHA-256 và một chữ ký Ed25519 xác minh được độc lập qua JWKS công khai - không cần tin máy chủ TsuDEV.\n',
       kind: 'LIBRARY',
       status: 'BETA',
       version: '0.1.0',

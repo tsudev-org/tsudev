@@ -14,7 +14,7 @@ trong `CLAUDE.md`.
 > (dự kiến, chưa từng đăng ký) sang **`tsudev.com`** - tên miền thật, đăng ký
 > tại Spaceship. Chuỗi tên miền trong tài liệu này đã được cập nhật theo. Mọi
 > nhắc tới **diễn đàn / `forum.*`** là bối cảnh của thời điểm viết: app đó đã bị
-> xoá ở PR #9, tsudev nay chỉ còn một app trên một origin.
+> xoá ở PR #9, TsuDEV nay chỉ còn một app trên một origin.
 
 > **Ghi chú lịch sử (19/08/2026).** Mọi nhắc tới **Keycloak / `auth.*` / cổng
 > 4100** trong tài liệu này là bối cảnh của thời điểm viết. Nhà cung cấp danh

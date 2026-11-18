@@ -1,4 +1,4 @@
-# Tài liệu tsudev - mục lục định tuyến
+# Tài liệu TsuDEV - mục lục định tuyến
 
 Đọc **chọn lọc** theo vùng công việc. Không nạp cả thư mục: mỗi file thừa là
 token trả tiền mà không dùng đến.

@@ -9,7 +9,7 @@ import { readSessionToken } from '../../../lib/sessionCookie';
 import { oidcCookies } from '../../../lib/oidcCookie';
 
 /**
- * Trang đồng ý "Đăng nhập bằng tài khoản tsudev" (P4, D1). `oidc-provider` chuyển
+ * Trang đồng ý "Đăng nhập bằng tài khoản TsuDEV" (P4, D1). `oidc-provider` chuyển
  * trình duyệt tới đây với cookie `_interaction` gắn đúng đường dẫn này. Chưa đăng nhập
  * tsudev.com ⇒ về /login rồi quay lại. Đã đăng nhập ⇒ hiện site con xin những gì.
  */
