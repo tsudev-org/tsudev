@@ -23,6 +23,8 @@ const CHANNELS: Record<Exclude<EcoPlatform, 'android'>, (a: EcoApp) => string[]>
 const EXCEPTIONS: Record<string, string> = {
   compass:
     'D6 - La bàn là app Android độc quyền: APK có chữ ký + trang sản phẩm, không có kênh lệnh',
+  qulythuchi:
+    'Phiếu 20261118-QT3 - chưa có bản cài (P10 của qulythuchi); bản web qulythuchi.tsudev.com/app dùng ngay. Gỡ khi có gói',
 };
 
 const hasAnyChannel = (app: EcoApp) =>
