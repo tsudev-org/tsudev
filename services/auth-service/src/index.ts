@@ -1520,7 +1520,7 @@ app.post(
 )
 
 // ---------------------------------------------------------------------------
-// Quản lý tài khoản & phân quyền - CHỈ OWNER (tài khoản TsuDEV)
+// Quản lý tài khoản & phân quyền - CHỈ OWNER (tài khoản tsudev)
 //
 // Đây là bề mặt cấp/thu hồi vai trò, nên nó là ranh giới leo thang đặc quyền.
 // Ba bất biến, mỗi cái chặn một đường tự nâng quyền:

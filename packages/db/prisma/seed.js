@@ -8,7 +8,7 @@ async function main() {
   // --- Users ---
   // tsudev là OWNER - quản trị cao nhất, bậc duy nhất tạo được tài khoản và cấp
   // vai trò. `update.role` được đặt CÓ CHỦ ĐÍCH (khác các user khác dưới đây):
-  // tài khoản TsuDEV đã tồn tại từ đợt seed cũ với role ADMIN, nên phải nâng nó
+  // tài khoản tsudev đã tồn tại từ đợt seed cũ với role ADMIN, nên phải nâng nó
   // ở nhánh update, không chỉ nhánh create. Đây là đường DUY NHẤT cấp OWNER -
   // không endpoint dữ liệu nào cấp được bậc này.
   // tsudev do người vận hành kiểm soát, gắn với hộp thư thật; seed nó là đã xác
@@ -16,10 +16,10 @@ async function main() {
   // xác minh nào. Đặt ở CẢ create lẫn update vì tài khoản đã tồn tại từ đợt seed
   // cũ (emailVerifiedAt = NULL), cùng lý do với role.
   const admin = await prisma.user.upsert({
-    where: { username: 'TsuDEV' },
+    where: { username: 'tsudev' },
     update: { role: 'OWNER', emailVerifiedAt: new Date() },
     create: {
-      username: 'TsuDEV',
+      username: 'tsudev',
       email: 'devnguyentrangtinhsu@gmail.com',
       displayName: 'Nguyễn Trang Tình Sử',
       role: 'OWNER',
