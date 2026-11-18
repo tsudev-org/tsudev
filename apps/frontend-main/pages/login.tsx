@@ -188,7 +188,7 @@ export default function LoginPage({ oauth }: LoginProps) {
   return (
     <AuthShell
       title="Đăng nhập"
-      description="Dùng tài khoản tsudev của bạn."
+      description="Dùng tài khoản TsuDEV của bạn."
       footer={
         <>
           Chưa có tài khoản?{' '}
@@ -259,7 +259,7 @@ export default function LoginPage({ oauth }: LoginProps) {
             cắm cứng nét 1.7 và không đi qua bảng màu theo vai trò, nên nó không
             đổi theo ba chế độ giao diện và không cổng tương phản nào canh nó.
             Hai logo GitHub/Google phía trên thì CỐ Ý ở lại dạng inline: chúng là
-            nhãn hiệu của bên thứ ba, không phải icon của tsudev, và logo Google
+            nhãn hiệu của bên thứ ba, không phải icon của TsuDEV, và logo Google
             vốn nhiều màu nên không thể đi qua hệ màu-một-sắc-theo-vai-trò. */}
         <Icon name="passkey" size={16} />
         Đăng nhập bằng passkey

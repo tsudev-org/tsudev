@@ -18,7 +18,7 @@ const COLS: Col[] = [
   {
     title: 'Sản phẩm',
     links: [
-      eco('Danh bạ ứng dụng', '/apps'),
+      eco('Danh sách ứng dụng', '/apps'),
       eco('Hướng dẫn cài đặt', '/docs'),
       // Trang Ủng hộ TRUNG TÂM của hệ sinh thái (phiếu 20261112-01).
       eco('Ủng hộ', '/ung-ho'),
@@ -138,7 +138,7 @@ export const SiteFooter = () => {
             ở repo quy ước trung tâm trước, đừng sửa tại chỗ.
           */}
           <p className="mt-3 text-sm text-fg-muted max-w-xs leading-relaxed">
-            <strong className="font-semibold text-fg-secondary">tsudev</strong> là hệ sinh thái sản
+            <strong className="font-semibold text-fg-secondary">TsuDEV</strong> là hệ sinh thái sản
             phẩm và công cụ phần mềm tại{' '}
             <a href={MAIN_URL} className="text-fg-secondary hover:text-fg transition-colors">
               tsudev.com
@@ -160,7 +160,7 @@ export const SiteFooter = () => {
             trafficmonitor.tsudev.com. Trước 13/11/2026 khổ di động xếp cột ngược nên bộ chọn
             nằm TRÊN dòng bản quyền và giãn hết bề ngang. */}
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
-          <span className="text-sm text-fg-muted">© tsudev</span>
+          <span className="text-sm text-fg-muted">© TsuDEV</span>
           <ThemeToggle />
         </div>
       </div>

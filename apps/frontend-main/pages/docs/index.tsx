@@ -20,12 +20,12 @@ export default function DocsIndex({ groups, failed }: DocsIndexProps) {
       <Seo
         title="Tài liệu"
         path="/docs"
-        description="Hướng dẫn cài đặt, nhật ký thay đổi và cách xử lý sự cố cho các ứng dụng của tsudev."
+        description="Hướng dẫn cài đặt, nhật ký thay đổi và cách xử lý sự cố cho các ứng dụng của TsuDEV."
       />
       <PageHeader
         eyebrow="Tài liệu"
         title="Hướng dẫn & tài liệu"
-        description="Cài đặt, cập nhật và xử lý sự cố cho từng ứng dụng tsudev phát hành - kèm cách tự kiểm SHA-256 và chữ ký trước khi cài."
+        description="Cài đặt, cập nhật và xử lý sự cố cho từng ứng dụng TsuDEV phát hành - kèm cách tự kiểm SHA-256 và chữ ký trước khi cài."
         meta={
           total > 0 ? (
             <span className="text-sm text-fg-muted">

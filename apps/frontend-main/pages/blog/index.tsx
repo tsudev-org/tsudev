@@ -23,8 +23,8 @@ export default function BlogIndex({ posts, failed }: BlogIndexProps) {
   const [featured, ...rest] = posts;
   const byline = (p: Post) => (
     <div className="mt-4 flex items-center gap-2 text-xs text-fg-muted">
-      <Avatar name={p.author?.displayName || 'tsudev'} size={22} />
-      {p.author?.displayName || 'tsudev'} · {shownDate(p.publishedAt || p.createdAt)}
+      <Avatar name={p.author?.displayName || 'TsuDEV'} size={22} />
+      {p.author?.displayName || 'TsuDEV'} · {shownDate(p.publishedAt || p.createdAt)}
     </div>
   );
   const tags = (p: Post, n = 3) =>
@@ -39,7 +39,7 @@ export default function BlogIndex({ posts, failed }: BlogIndexProps) {
     );
   return (
     <Layout active="/blog" bare>
-      <Seo title="Blog" path="/blog" description="Bài viết và hướng dẫn kỹ thuật trên tsudev." />
+      <Seo title="Blog" path="/blog" description="Bài viết và hướng dẫn kỹ thuật trên TsuDEV." />
       <PageHeader
         eyebrow="Blog"
         title="Bài viết & góc nhìn kỹ thuật"

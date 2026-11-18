@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
         }
       >
         <Notice kind="ok">
-          Nếu <strong>{email}</strong> có tài khoản tsudev, chúng tôi vừa gửi tới đó một liên kết
+          Nếu <strong>{email}</strong> có tài khoản TsuDEV, chúng tôi vừa gửi tới đó một liên kết
           đặt lại mật khẩu.
         </Notice>
         <p className="text-sm text-fg-muted">

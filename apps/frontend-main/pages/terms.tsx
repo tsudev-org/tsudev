@@ -10,11 +10,11 @@ const SECTIONS = [
       <>
         <p>
           Điều khoản sử dụng này là thỏa thuận giữa bạn và <strong>{OPERATOR.legalName}</strong> (mã
-          số {OPERATOR.taxCode}), địa chỉ {OPERATOR.address}, bên vận hành website tsudev - sau đây
+          số {OPERATOR.taxCode}), địa chỉ {OPERATOR.address}, bên vận hành website TsuDEV - sau đây
           gọi là “chúng tôi”.
         </p>
         <p>
-          Bằng việc truy cập hoặc sử dụng bất kỳ dịch vụ nào của tsudev, bạn xác nhận đã đọc, hiểu
+          Bằng việc truy cập hoặc sử dụng bất kỳ dịch vụ nào của TsuDEV, bạn xác nhận đã đọc, hiểu
           và đồng ý chịu ràng buộc bởi Điều khoản này cùng{' '}
           <a href="/privacy">Chính sách quyền riêng tư</a> và <a href="/rules">Nội quy</a>. Nếu
           không đồng ý, vui lòng ngừng sử dụng dịch vụ.
@@ -32,7 +32,7 @@ const SECTIONS = [
     body: (
       <>
         <p>
-          tsudev là website cá nhân dùng để phát hành các ứng dụng, công cụ và thư viện do tsudev tự
+          TsuDEV là website cá nhân dùng để phát hành các ứng dụng, công cụ và thư viện do TsuDEV tự
           phát triển, bao gồm:
         </p>
         <ul>
@@ -44,7 +44,7 @@ const SECTIONS = [
             <strong>Tài liệu</strong> - hướng dẫn cài đặt, nhật ký thay đổi và cách xử lý sự cố.
           </li>
           <li>
-            <strong>Blog</strong> - bài viết kỹ thuật do tác giả của tsudev đăng.
+            <strong>Blog</strong> - bài viết kỹ thuật do tác giả của TsuDEV đăng.
           </li>
           <li>
             <strong>Tài khoản</strong> - đăng nhập, quản lý hồ sơ và bảo mật (xác thực hai lớp, khoá
@@ -68,10 +68,10 @@ const SECTIONS = [
           cung cấp thông tin chính xác, đầy đủ và cập nhật khi có thay đổi.
         </p>
         <p>
-          Tài khoản được xác thực bằng địa chỉ thư điện tử. tsudev không cung cấp dịch vụ mạng xã
+          Tài khoản được xác thực bằng địa chỉ thư điện tử. TsuDEV không cung cấp dịch vụ mạng xã
           hội: người dùng không đăng tải hay trao đổi thông tin với nhau, và nội dung công khai chỉ
           do tác giả được chủ dự án cấp quyền đăng. Vì vậy chúng tôi không thu thập số điện thoại
-          hay số định danh cá nhân của bạn. Nếu sau này tsudev bổ sung tính năng cho phép người dùng
+          hay số định danh cá nhân của bạn. Nếu sau này TsuDEV bổ sung tính năng cho phép người dùng
           đăng tải hoặc trao đổi thông tin công khai, việc xác thực tài khoản sẽ được thực hiện theo
           điểm e khoản 3 Điều 23 Nghị định số 147/2024/NĐ-CP, và chúng tôi sẽ thông báo trước khi áp
           dụng.
@@ -94,7 +94,7 @@ const SECTIONS = [
     body: (
       <>
         <p>
-          Bạn không được sử dụng tsudev để thực hiện các hành vi bị nghiêm cấm theo Luật An ninh
+          Bạn không được sử dụng TsuDEV để thực hiện các hành vi bị nghiêm cấm theo Luật An ninh
           mạng số 116/2025/QH15 và pháp luật có liên quan, bao gồm nhưng không giới hạn ở:
         </p>
         <ul>
@@ -123,7 +123,7 @@ const SECTIONS = [
           </li>
           <li>
             Tấn công, dò quét, khai thác lỗ hổng, phát tán mã độc hoặc gây cản trở hoạt động của hệ
-            thống thông tin tsudev và của bên thứ ba.
+            thống thông tin TsuDEV và của bên thứ ba.
           </li>
           <li>
             Đăng nội dung khiêu dâm, đồi trụy, tội ác, tệ nạn xã hội, mê tín dị đoan; nội dung xâm
@@ -143,7 +143,7 @@ const SECTIONS = [
           </li>
         </ul>
         <p>
-          Chuẩn mực với nội dung đăng trên tsudev được quy định chi tiết tại{' '}
+          Chuẩn mực với nội dung đăng trên TsuDEV được quy định chi tiết tại{' '}
           <a href="/rules">Nội quy</a>.
         </p>
       </>
@@ -156,7 +156,7 @@ const SECTIONS = [
       <>
         <p>
           Bạn <strong>giữ nguyên quyền tác giả</strong> đối với nội dung do mình tạo ra và đăng lên
-          tsudev. Chúng tôi không yêu cầu chuyển giao quyền sở hữu.
+          TsuDEV. Chúng tôi không yêu cầu chuyển giao quyền sở hữu.
         </p>
         <p>
           Khi đăng nội dung công khai, bạn cấp cho chúng tôi một giấy phép không độc quyền, miễn phí
@@ -169,12 +169,12 @@ const SECTIONS = [
           của bên thứ ba.
         </p>
         <p>
-          Thương hiệu, logo, giao diện và mã nguồn của tsudev thuộc quyền sở hữu của chúng tôi, trừ
+          Thương hiệu, logo, giao diện và mã nguồn của TsuDEV thuộc quyền sở hữu của chúng tôi, trừ
           các thành phần mã nguồn mở được nêu rõ giấy phép riêng.
         </p>
         <h3>Báo cáo xâm phạm quyền</h3>
         <p>
-          Nếu cho rằng nội dung trên tsudev xâm phạm quyền của bạn, hãy gửi thông báo tới{' '}
+          Nếu cho rằng nội dung trên TsuDEV xâm phạm quyền của bạn, hãy gửi thông báo tới{' '}
           <strong>{OPERATOR.abuseEmail}</strong>, nêu rõ: nội dung bị khiếu nại và đường dẫn; căn cứ
           xác lập quyền; thông tin liên hệ; và cam kết về tính trung thực của thông báo. Chúng tôi
           sẽ xem xét và xử lý trong thời hạn pháp luật quy định.
@@ -208,28 +208,28 @@ const SECTIONS = [
   },
   {
     id: 'tai-ve',
-    heading: 'Tải và sử dụng phần mềm do tsudev phát hành',
+    heading: 'Tải và sử dụng phần mềm do TsuDEV phát hành',
     body: (
       <>
         <p>
-          Phần mềm phát hành trên tsudev được cung cấp <strong>miễn phí</strong>. Mỗi dự án ghi rõ
+          Phần mềm phát hành trên TsuDEV được cung cấp <strong>miễn phí</strong>. Mỗi dự án ghi rõ
           giấy phép áp dụng; việc sử dụng, sửa đổi và phân phối lại phần mềm tuân theo giấy phép đó.
         </p>
         <p>
           Mã SHA-256 do máy chủ của chúng tôi tự tính khi niêm phong tệp, và chữ ký Ed25519 kiểm
-          được bằng khoá công khai mà tsudev công bố. Hai thông tin này xác nhận tệp bạn tải về đúng
-          là tệp tsudev đã phát hành và chưa bị thay đổi - chúng <strong>không phải</strong> cam kết
+          được bằng khoá công khai mà TsuDEV công bố. Hai thông tin này xác nhận tệp bạn tải về đúng
+          là tệp TsuDEV đã phát hành và chưa bị thay đổi - chúng <strong>không phải</strong> cam kết
           rằng phần mềm phù hợp với mục đích cụ thể của bạn hay không có lỗi. Chúng tôi khuyến nghị
           bạn đối chiếu SHA-256 hoặc chữ ký trước khi cài, theo hướng dẫn trong{' '}
           <a href="/docs">Tài liệu</a>.
         </p>
         <p>
-          tsudev là dự án cá nhân và không dùng chứng chỉ ký mã thương mại, nên hệ điều hành có thể
+          TsuDEV là dự án cá nhân và không dùng chứng chỉ ký mã thương mại, nên hệ điều hành có thể
           hiện cảnh báo khi cài đặt. Bạn tự quyết định việc cài đặt sau khi đã đối chiếu.
         </p>
         <p>
           Khi phân phối lại bản đã sửa đổi, bạn không được trình bày nó như bản phát hành chính thức
-          của tsudev. Phát hiện lỗ hổng bảo mật trong phần mềm hoặc website, vui lòng báo riêng tới{' '}
+          của TsuDEV. Phát hiện lỗ hổng bảo mật trong phần mềm hoặc website, vui lòng báo riêng tới{' '}
           <strong>{OPERATOR.abuseEmail}</strong> trước khi công khai để chúng tôi kịp khắc phục.
         </p>
       </>
@@ -300,8 +300,8 @@ export default function TermsPage() {
     <LegalDoc
       active="/terms"
       eyebrow="Pháp lý"
-      title="Điều khoản sử dụng dịch vụ tsudev"
-      lead="Các quy định ràng buộc giữa bạn và tsudev khi tải phần mềm, đọc tài liệu, blog và sử dụng tài khoản trên tsudev."
+      title="Điều khoản sử dụng dịch vụ TsuDEV"
+      lead="Các quy định ràng buộc giữa bạn và TsuDEV khi tải phần mềm, đọc tài liệu, blog và sử dụng tài khoản trên TsuDEV."
       effective={DOC_DATES.effective}
       updated={DOC_DATES.updated}
       sections={SECTIONS}

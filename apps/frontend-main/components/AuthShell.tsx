@@ -38,7 +38,7 @@ export const AuthShell = ({ title, description, children, footer, noindex }: Aut
         <div className="hidden lg:block">
           <Logo size={40} />
           <h2 className="mt-6 text-3xl font-semibold tracking-tight text-fg text-balance">
-            Một tài khoản cho mọi ứng dụng tsudev
+            Một tài khoản cho mọi ứng dụng TsuDEV
           </h2>
           <ul className="mt-8 space-y-5">
             {GUARANTEES.map(([icon, head, text]) => (

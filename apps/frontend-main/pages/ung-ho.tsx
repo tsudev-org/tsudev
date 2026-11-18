@@ -33,16 +33,16 @@ export default function UngHoPage() {
       <Seo
         title="Ủng hộ"
         path="/ung-ho"
-        description="Ủng hộ hệ sinh thái phần mềm tsudev bằng chuyển khoản VietQR - tự nguyện, 100% tới nhà phát triển, không mở khoá tính năng nào. Đây là nơi duy nhất công bố kênh ủng hộ."
+        description="Ủng hộ hệ sinh thái phần mềm TsuDEV bằng chuyển khoản VietQR - tự nguyện, 100% tới nhà phát triển, không mở khoá tính năng nào. Đây là nơi duy nhất công bố kênh ủng hộ."
       />
       <PageHeader
-        eyebrow="Hệ sinh thái tsudev"
+        eyebrow="Hệ sinh thái TsuDEV"
         title={
           <>
-            Ủng hộ <span className="tsu-text-gradient">tsudev</span>
+            Ủng hộ <span className="tsu-text-gradient">TsuDEV</span>
           </>
         }
-        description="Mọi ứng dụng và trò chơi của tsudev đều miễn phí. Nếu chúng có ích cho bạn, một khoản ủng hộ nhỏ giúp duy trì máy chủ, chứng thư ký mã và thời gian phát triển."
+        description="Mọi ứng dụng và trò chơi của TsuDEV đều miễn phí. Nếu chúng có ích cho bạn, một khoản ủng hộ nhỏ giúp duy trì máy chủ, chứng thư ký mã và thời gian phát triển."
         crumbs={[{ label: 'Trang chủ', href: '/' }, { label: 'Ủng hộ' }]}
       />
 
@@ -56,11 +56,11 @@ export default function UngHoPage() {
           </span>
           <p>
             <strong className="font-semibold text-fg">
-              Trang này là nơi duy nhất công bố kênh ủng hộ của tsudev
+              Trang này là nơi duy nhất công bố kênh ủng hộ của TsuDEV
             </strong>{' '}
             và chỉ có MỘT tài khoản nhận dưới đây. Ủng hộ là tự nguyện, 100% tới nhà phát triển,
             không mở khoá tính năng, không gỡ quảng cáo, không đổi lấy quyền lợi nào. Ai gửi bạn số
-            tài khoản hay mã QR khác nhân danh tsudev đều không phải tsudev.
+            tài khoản hay mã QR khác nhân danh TsuDEV đều không phải TsuDEV.
           </p>
         </div>
 

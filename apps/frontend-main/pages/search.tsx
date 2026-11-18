@@ -269,7 +269,7 @@ export default function SearchPage({
       <Seo
         title="Tìm kiếm"
         path="/search"
-        description="Tìm bài viết và tài liệu trên tsudev."
+        description="Tìm bài viết và tài liệu trên TsuDEV."
         noindex
       />
       <PageHeader
@@ -519,8 +519,8 @@ export default function SearchPage({
                       <div className="mt-3 flex items-center gap-2 text-xs text-fg-muted">
                         {h.kind === 'post' ? (
                           <>
-                            <Avatar name={h.author?.displayName || 'tsudev'} size={20} />
-                            {h.author?.displayName || 'tsudev'}
+                            <Avatar name={h.author?.displayName || 'TsuDEV'} size={20} />
+                            {h.author?.displayName || 'TsuDEV'}
                             {' · '}
                             {formatDateVN(h.publishedAt || h.createdAt)}
                           </>

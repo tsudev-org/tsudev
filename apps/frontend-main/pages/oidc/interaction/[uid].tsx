@@ -17,7 +17,7 @@ type Props =
   { ok: true; uid: string; clientName: string; scopes: string[] } | { ok: false; uid: string };
 
 const SCOPE_TEXT: Record<string, string> = {
-  openid: 'Biết bạn là ai (mã tài khoản tsudev)',
+  openid: 'Biết bạn là ai (mã tài khoản TsuDEV)',
   profile: 'Tên hiển thị, tên đăng nhập, ảnh đại diện',
   email: 'Địa chỉ email và trạng thái xác minh',
   offline_access: 'Giữ đăng nhập khi bạn không mở trang (tối đa 30 ngày)',
@@ -85,7 +85,7 @@ export default function OidcConsent(props: Props) {
   };
 
   return (
-    <AuthShell noindex title={`${props.clientName} muốn dùng tài khoản tsudev của bạn`}>
+    <AuthShell noindex title={`${props.clientName} muốn dùng tài khoản TsuDEV của bạn`}>
       {err && <Notice kind="error">{err}</Notice>}
       <p className="text-sm text-fg-secondary">Ứng dụng sẽ được biết:</p>
       <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-fg">

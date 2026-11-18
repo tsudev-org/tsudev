@@ -9,8 +9,8 @@ const SECTIONS = [
     body: (
       <>
         <p>
-          Chính sách này mô tả cách tsudev thu thập, sử dụng, lưu trữ, chia sẻ và bảo vệ dữ liệu cá
-          nhân của bạn khi bạn truy cập và sử dụng các dịch vụ tại tsudev: trang dự án và tải phần
+          Chính sách này mô tả cách TsuDEV thu thập, sử dụng, lưu trữ, chia sẻ và bảo vệ dữ liệu cá
+          nhân của bạn khi bạn truy cập và sử dụng các dịch vụ tại TsuDEV: trang dự án và tải phần
           mềm, kho tài liệu, blog và tài khoản người dùng.
         </p>
         <p>
@@ -67,7 +67,7 @@ const SECTIONS = [
         </ul>
         <h3>Dữ liệu cá nhân nhạy cảm</h3>
         <p>
-          tsudev không chủ động thu thập dữ liệu cá nhân nhạy cảm. Nếu một tính năng cụ thể cần đến
+          TsuDEV không chủ động thu thập dữ liệu cá nhân nhạy cảm. Nếu một tính năng cụ thể cần đến
           loại dữ liệu này, chúng tôi sẽ thông báo riêng và chỉ xử lý sau khi có sự đồng ý rõ ràng,
           tách bạch của bạn cho đúng mục đích đó. Bạn không nên đăng dữ liệu nhạy cảm của mình hoặc
           của người khác vào nội dung công khai.
@@ -261,7 +261,7 @@ const SECTIONS = [
     heading: 'Cookie và công nghệ tương tự',
     body: (
       <>
-        <p>tsudev sử dụng cookie ở mức tối thiểu cần thiết:</p>
+        <p>TsuDEV sử dụng cookie ở mức tối thiểu cần thiết:</p>
         <ul>
           <li>
             <strong>Cookie thiết yếu:</strong> duy trì phiên đăng nhập và chống giả mạo yêu cầu
@@ -317,7 +317,7 @@ export default function PrivacyPage() {
       active="/privacy"
       eyebrow="Pháp lý"
       title="Chính sách quyền riêng tư và bảo vệ dữ liệu cá nhân"
-      lead="Cách tsudev thu thập, sử dụng và bảo vệ dữ liệu cá nhân của bạn, cùng các quyền bạn có thể thực hiện bất cứ lúc nào theo Luật Bảo vệ dữ liệu cá nhân 2025."
+      lead="Cách TsuDEV thu thập, sử dụng và bảo vệ dữ liệu cá nhân của bạn, cùng các quyền bạn có thể thực hiện bất cứ lúc nào theo Luật Bảo vệ dữ liệu cá nhân 2025."
       effective={DOC_DATES.effective}
       updated={DOC_DATES.updated}
       sections={SECTIONS}

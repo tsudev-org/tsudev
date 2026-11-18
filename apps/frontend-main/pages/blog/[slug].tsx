@@ -85,9 +85,9 @@ export default function BlogPost({ post, related, failed, slug, toc }: BlogPostP
         meta={
           <>
             <span className="inline-flex items-center gap-2 text-sm">
-              <Avatar name={post.author?.displayName || 'tsudev'} size={28} />
+              <Avatar name={post.author?.displayName || 'TsuDEV'} size={28} />
               <span className="font-medium text-fg-secondary">
-                {post.author?.displayName || 'tsudev'}
+                {post.author?.displayName || 'TsuDEV'}
               </span>
             </span>
             <span className="text-sm text-fg-muted">
