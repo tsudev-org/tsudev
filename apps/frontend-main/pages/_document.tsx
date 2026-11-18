@@ -39,12 +39,12 @@ const DARK_BASE = '#0a0a0a';
 const THEME_SCRIPT = `
 (function () {
   var BASE = { light: '${LIGHT_BASE}', dark: '${DARK_BASE}' };
-  var mode = 'dark';
+  var mode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark' : 'light';
   try {
     var saved = localStorage.getItem('tsudev-theme');
-    if (saved === 'system') {
-      mode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark' : 'light';
+    if (saved === 'system' || saved === null) {
+      // Hệ thống (mặc định, PRODUCT_POLICY 1.2): giữ chế độ của máy đã giải ở trên.
     } else if (saved === 'dark' || saved === 'light') {
       mode = saved;
     } else if (saved === 'warm') {

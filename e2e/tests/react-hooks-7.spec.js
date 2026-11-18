@@ -47,7 +47,7 @@ test('các trang nạp dữ liệu bằng useLoader có nội dung thật', asyn
 test('bộ chọn giao diện ở chân trang: đổi chế độ, nhớ qua lần tải lại', async ({ page }) => {
   await page.goto(MAIN, { waitUntil: 'networkidle' });
   const group = page.getByRole('radiogroup', { name: 'Giao diện' });
-  // Tối là mặc định - chọn Sáng mới chứng minh được việc đổi + nhớ.
+  // Mặc định Hệ thống (PRODUCT_POLICY 1.2) - chọn Sáng tường minh để chứng minh việc đổi + nhớ.
   await group.getByRole('radio', { name: 'Sáng' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.reload({ waitUntil: 'networkidle' });
