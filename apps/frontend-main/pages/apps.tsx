@@ -19,7 +19,7 @@ import EcoGameCard from '../components/EcoGameCard';
 import InstallTray from '../components/InstallTray';
 
 /**
- * Danh bạ ứng dụng của hệ sinh thái tsudev - học theo winstall.app:
+ * Danh sách ứng dụng của hệ sinh thái TsuDEV - học theo winstall.app:
  *   - tìm nhanh (bỏ dấu tiếng Việt, khớp tên + mô tả) và lọc theo nền tảng/nhóm;
  *   - chọn NHIỀU app/game (ô tròn hoặc bấm vùng trống của thẻ) rồi lấy MỘT lệnh cài
  *     gộp cho từng hệ điều hành (InstallTray) - winget không bao giờ chung dòng với apt/brew;
@@ -113,21 +113,21 @@ export default function AppsPage() {
   const toggle = (id: string) =>
     setPicked((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
 
-  // Sản phẩm đã chọn, theo thứ tự danh bạ (app trước, game có bản cài sau).
+  // Sản phẩm đã chọn, theo thứ tự danh sách (app trước, game có bản cài sau).
   const pickedItems = [...ECOSYSTEM_APPS, ...ECO_GAMES].filter((x) => picked.includes(x.id));
 
   return (
     <Layout active="/apps" bare>
       <Seo
-        title="Danh bạ ứng dụng"
+        title="Danh sách ứng dụng"
         path="/apps"
-        description="Mọi ứng dụng và trò chơi của hệ sinh thái tsudev ở một chỗ: tìm, lọc theo nền tảng, mở website sản phẩm, tải bản mới nhất hoặc cài nhiều app một lượt bằng một lệnh cho Windows, macOS hay Linux."
+        description="Mọi ứng dụng và trò chơi của hệ sinh thái TsuDEV ở một chỗ: tìm, lọc theo nền tảng, mở website sản phẩm, tải bản mới nhất hoặc cài nhiều app một lượt bằng một lệnh cho Windows, macOS hay Linux."
       />
       <PageHeader
-        eyebrow="Hệ sinh thái tsudev"
+        eyebrow="Hệ sinh thái TsuDEV"
         title={
           <>
-            Danh bạ <span className="tsu-text-gradient">ứng dụng</span>
+            Danh sách <span className="tsu-text-gradient">ứng dụng</span>
           </>
         }
         description="Tìm app bạn cần, mở website riêng của sản phẩm hoặc tải bản mới nhất. Chọn nhiều app để lấy một lệnh cài tất cả - riêng cho Windows, macOS hay Linux."
@@ -264,7 +264,7 @@ export default function AppsPage() {
           </h2>
           <p className="mt-1.5 max-w-2xl text-sm text-fg-secondary">
             Mọi gói dựng từ đúng tệp đã phát hành trên GitHub, kèm SHA-256; trình quản lý gói tự
-            kiểm trước khi cài. Thêm nguồn tsudev một lần, sau đó cài và cập nhật như mọi phần mềm
+            kiểm trước khi cài. Thêm nguồn TsuDEV một lần, sau đó cài và cập nhật như mọi phần mềm
             khác.
           </p>
           {/* Lệnh cài một dòng (PACKAGING.md mục 6): script chỉ chuyển sang trình quản lý gói,

@@ -1,4 +1,4 @@
-export const SITE_NAME = 'tsudev';
+export const SITE_NAME = 'TsuDEV';
 
 /**
  * Tiêu đề tab "Trang - tsudev". Trang đã kết bằng tên site (vd "Nội quy tsudev") thì không nối thêm, nếu không tab

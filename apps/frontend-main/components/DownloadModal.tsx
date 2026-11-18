@@ -145,10 +145,10 @@ function OChecksum({ r }: { r: ProjectRelease }) {
             {r.signingKid && <code className="font-mono text-fg-muted">kid={r.signingKid}</code>}
           </span>
           <p className="mt-1.5 text-xs text-fg-muted">
-            Máy chủ tsudev tự đọc lại tệp trong kho, tính SHA-256 ở trên rồi ký nó cùng phiên bản,
+            Máy chủ TsuDEV tự đọc lại tệp trong kho, tính SHA-256 ở trên rồi ký nó cùng phiên bản,
             nền tảng và tên tệp. Chữ ký là một JWS (EdDSA); khoá công khai để kiểm nằm ở{' '}
             <a href="/.well-known/tsudev-release-jwks.json" className="text-link hover:underline">
-              JWKS của tsudev
+              JWKS của TsuDEV
             </a>
             .
           </p>
@@ -324,7 +324,7 @@ export default function DownloadModal({ open, onClose, project, releases }: Down
           </div>
 
           <p className="mt-5 border-t border-line pt-4 text-xs text-fg-muted">
-            Tệp phát hành của tsudev không có chứng chỉ ký mã thương mại, nên Windows SmartScreen và
+            Tệp phát hành của TsuDEV không có chứng chỉ ký mã thương mại, nên Windows SmartScreen và
             Android có thể cảnh báo &quot;nguồn không xác định&quot;. Checksum ở trên là cách kiểm
             tệp bạn vừa tải đúng là tệp đã công bố.
           </p>

@@ -15,7 +15,7 @@ import { SITE_NAME, tieuDeDayDu } from '../lib/seoTitle';
 //    link bỏ qua trong im lặng, và không có cách nào biết ngoài việc đi thử.
 
 const DEFAULT_DESCRIPTION =
-  'Tải ứng dụng do tsudev tự phát triển cho Windows, Android, macOS, Linux - kèm SHA-256, chữ ký Ed25519, tài liệu cài đặt và blog kỹ thuật.';
+  'Tải ứng dụng do TsuDEV tự phát triển cho Windows, Android, macOS, Linux - kèm SHA-256, chữ ký Ed25519, tài liệu cài đặt và blog kỹ thuật.';
 const DEFAULT_IMAGE = '/og-image.png';
 
 type SeoProps = {
@@ -70,7 +70,7 @@ export default function Seo({
       <link
         rel="alternate"
         type="application/rss+xml"
-        title="Blog tsudev"
+        title="Blog TsuDEV"
         href={`${MAIN_URL}/feed.xml`}
       />
     </Head>

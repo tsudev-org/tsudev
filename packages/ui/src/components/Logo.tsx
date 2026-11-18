@@ -27,7 +27,7 @@ export const Logo = ({ size = 48, className = '' }: LogoProps) => (
     <source type="image/webp" srcSet={srcSet('webp')} sizes={`${size}px`} />
     <img
       src="/brand/logo-tsudev-256.png"
-      alt="tsudev"
+      alt="TsuDEV"
       width={size}
       height={size}
       decoding="async"

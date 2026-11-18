@@ -9,8 +9,8 @@ const SECTIONS = [
     body: (
       <>
         <p>
-          tsudev là website cá nhân để phát hành các ứng dụng tự phát triển, kèm tài liệu và bài
-          viết kỹ thuật. Nội quy này giữ cho nội dung trên tsudev chính xác, hữu ích và đáng tin cậy
+          TsuDEV là website cá nhân để phát hành các ứng dụng tự phát triển, kèm tài liệu và bài
+          viết kỹ thuật. Nội quy này giữ cho nội dung trên TsuDEV chính xác, hữu ích và đáng tin cậy
           - với người đọc bài viết cũng như người tải phần mềm về dùng.
         </p>
         <p>
@@ -82,7 +82,7 @@ const SECTIONS = [
         </li>
         <li>
           <strong>Mạo danh bản phát hành chính thức:</strong> phân phối lại tệp cài đặt đã sửa đổi
-          dưới tên tsudev, hoặc chỉnh sửa checksum, chữ ký đi kèm.
+          dưới tên TsuDEV, hoặc chỉnh sửa checksum, chữ ký đi kèm.
         </li>
         <li>
           <strong>Lạm dụng tài khoản:</strong> chia sẻ, mua bán tài khoản, hoặc dùng tài khoản của
@@ -157,7 +157,7 @@ const SECTIONS = [
     body: (
       <>
         <p>
-          Gặp nội dung vi phạm, sai sót trong tài liệu, hoặc một tệp cài đặt mạo danh tsudev, hãy
+          Gặp nội dung vi phạm, sai sót trong tài liệu, hoặc một tệp cài đặt mạo danh TsuDEV, hãy
           gửi thư tới <strong>{OPERATOR.abuseEmail}</strong>. Lỗ hổng bảo mật xin báo riêng qua địa
           chỉ này trước khi công khai, để chúng tôi kịp phát hành bản sửa.
         </p>
@@ -180,8 +180,8 @@ export default function RulesPage() {
     <LegalDoc
       active="/rules"
       eyebrow="Pháp lý"
-      title="Nội quy tsudev"
-      lead="Chuẩn mực khi đăng nội dung, sử dụng tài khoản, tải và phân phối phần mềm của tsudev, cùng cách chúng tôi xử lý vi phạm."
+      title="Nội quy TsuDEV"
+      lead="Chuẩn mực khi đăng nội dung, sử dụng tài khoản, tải và phân phối phần mềm của TsuDEV, cùng cách chúng tôi xử lý vi phạm."
       effective={DOC_DATES.effective}
       updated={DOC_DATES.updated}
       sections={SECTIONS}

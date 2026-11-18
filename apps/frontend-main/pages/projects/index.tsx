@@ -32,12 +32,12 @@ export default function ProjectsIndex({ projects, failed }: ProjectsIndexProps) 
       <Seo
         title="Dự án"
         path="/projects"
-        description="Dự án, công cụ và phần mềm do tsudev phát triển, kèm giấy phép và trạng thái đăng ký bản quyền."
+        description="Dự án, công cụ và phần mềm do TsuDEV phát triển, kèm giấy phép và trạng thái đăng ký bản quyền."
       />
       <PageHeader
         eyebrow="Dự án"
         title="Ứng dụng, công cụ & thư viện"
-        description="Mọi thứ tsudev phát triển và phát hành. Mỗi dự án ghi rõ giấy phép; mỗi bản phát hành kèm SHA-256 và chữ ký Ed25519 để bạn tự kiểm trước khi cài."
+        description="Mọi thứ TsuDEV phát triển và phát hành. Mỗi dự án ghi rõ giấy phép; mỗi bản phát hành kèm SHA-256 và chữ ký Ed25519 để bạn tự kiểm trước khi cài."
         meta={
           <>
             <span className="text-sm text-fg-muted">{projects.length} dự án</span>

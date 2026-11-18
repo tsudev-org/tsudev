@@ -14,7 +14,7 @@
 // hành). Nếu sau này đăng ký hộ kinh doanh/doanh nghiệp thì cập nhật ở đây, các
 // trang tự đổi theo.
 export const OPERATOR = {
-  name: 'tsudev',
+  name: 'TsuDEV',
   legalName: 'Nguyễn Trang Tình Sử',
   taxCode: '8536310833',
   address: 'An Giang, Việt Nam',

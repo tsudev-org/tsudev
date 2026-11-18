@@ -40,7 +40,7 @@ import { keepStaleOnFailure } from '../lib/isr';
  */
 const FEATURES: { title: string; desc: string; href: string; icon: IconName }[] = [
   {
-    title: 'Danh bạ ứng dụng',
+    title: 'Danh sách ứng dụng',
     desc: 'Mọi app của hệ sinh thái ở một chỗ - tìm, lọc theo nền tảng, cài nhiều app một lượt bằng winget.',
     href: '/apps',
     icon: 'package',
@@ -100,7 +100,7 @@ export default function Home({
     <Layout active="/" bare>
       <Seo
         path="/"
-        description="Hệ sinh thái phần mềm tsudev: tìm, tải và cài ứng dụng cho Windows, Android, macOS, Linux - website riêng từng sản phẩm, winget, SHA-256 và chữ ký Ed25519."
+        description="Hệ sinh thái phần mềm TsuDEV: tìm, tải và cài ứng dụng cho Windows, Android, macOS, Linux - website riêng từng sản phẩm, winget, SHA-256 và chữ ký Ed25519."
       />
 
       {/* ---------- HERO ----------
@@ -120,12 +120,12 @@ export default function Home({
             <span aria-hidden="true">→</span>
           </a>
           <h1 className="mt-6 text-4xl md:text-6xl font-semibold tracking-tight text-fg text-balance leading-[1.08] md:leading-(--text-6xl--line-height)">
-            Phần mềm nhỏ
+            Phần mềm TsuDEV
             <br />
-            <span className="tsu-text-gradient">để dùng hàng ngày</span>
+            <span className="tsu-text-gradient">Làm được, dùng được, chơi được</span>
           </h1>
           <p className="mt-6 mx-auto max-w-2xl text-lg text-fg-secondary text-pretty">
-            Hệ sinh thái ứng dụng do tsudev tự phát triển - mở website riêng của từng sản phẩm, cài
+            Hệ sinh thái ứng dụng do TsuDEV tự phát triển - mở website riêng của từng sản phẩm, cài
             bằng một lệnh qua winget, Scoop, Homebrew hoặc kho APT/DNF có chữ ký.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -148,7 +148,7 @@ export default function Home({
             <input
               type="search"
               name="q"
-              aria-label="Tìm ứng dụng trong hệ sinh thái tsudev"
+              aria-label="Tìm ứng dụng trong hệ sinh thái TsuDEV"
               placeholder="Bạn cần app gì? Ví dụ: chuyển đổi tệp"
               className="h-9 min-w-0 flex-1 bg-transparent text-sm text-fg outline-hidden placeholder:text-fg-muted"
             />
@@ -179,16 +179,16 @@ export default function Home({
         <section className="pt-8 pb-6 reveal" id="he-sinh-thai">
           <SectionHeading
             eyebrow="Hệ sinh thái"
-            title="Sản phẩm của tsudev"
+            title="Sản phẩm của TsuDEV"
             action={
               <Button as="a" href="/apps" variant="ghost" size="sm">
-                Danh bạ đầy đủ →
+                Xem tất cả →
               </Button>
             }
           />
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {ECOSYSTEM_APPS.map((a) => (
-              <EcoAppCard key={a.id} app={a} />
+              <EcoAppCard key={a.id} app={a} hideInstall />
             ))}
           </div>
         </section>
@@ -214,7 +214,7 @@ export default function Home({
         </section>
 
         {/* ---------- TẢI VỀ ----------
-            Đặt TRƯỚC khu "Dự án": thứ người lạ vào tsudev.com muốn làm được
+            Đặt TRƯỚC khu "Dự án": thứ người lạ vào TsuDEV.com muốn làm được
             ngay là TẢI một thứ về dùng, không phải đọc mô tả dự án. Khu này tự
             ẩn khi chưa có bản phát hành nào - xem DownloadSection. */}
         <DownloadSection items={downloads} failed={downloadsFailed} />
@@ -227,7 +227,7 @@ export default function Home({
           <section className="py-10 reveal">
             <SectionHeading
               eyebrow="Sản phẩm"
-              title="Dự án của tsudev"
+              title="Dự án của TsuDEV"
               action={
                 <Button as="a" href="/projects" variant="ghost" size="sm">
                   Xem tất cả →
@@ -323,8 +323,8 @@ export default function Home({
                   </h3>
                   <p className="mt-2 text-sm text-fg-muted flex-1">{p.excerpt}</p>
                   <div className="mt-4 flex items-center gap-2 text-xs text-fg-muted">
-                    <Avatar name={p.author?.displayName || 'tsudev'} size={22} />
-                    <span>{p.author?.displayName || 'tsudev'}</span>
+                    <Avatar name={p.author?.displayName || 'TsuDEV'} size={22} />
+                    <span>{p.author?.displayName || 'TsuDEV'}</span>
                     <span>·</span>
                     <span>{shownDate(p.createdAt)}</span>
                   </div>
