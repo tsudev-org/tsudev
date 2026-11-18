@@ -83,30 +83,41 @@ export default function EcoAppCard({ app, selectable, selected, onToggle, hideIn
           <a
             href={app.website}
             {...NEW_TAB}
-            className="group inline-flex h-8 items-center gap-1.5 rounded-md border border-primary-hover bg-primary px-3 text-sm font-medium text-on-primary transition-colors hover:bg-primary-hover"
+            className="inline-flex h-8 items-center rounded-md border border-primary-hover bg-primary px-3 text-sm font-medium text-on-primary transition-colors hover:bg-primary-hover"
           >
-            <Icon name="globe" size={16} />
-            Website dự án
-            <ExternalArrow />
+            Tới Website
             <span className="sr-only"> (mở tab mới)</span>
           </a>
         )}
-        {app.releases && (
-          <a
-            href={app.releases}
-            {...NEW_TAB}
-            className={`group inline-flex h-8 items-center gap-1.5 rounded-md border px-3 text-sm font-medium transition-colors ${
-              app.website
-                ? 'border-line-strong bg-surface text-fg hover:border-line-control hover:bg-hovered'
-                : 'border-primary-hover bg-primary text-on-primary hover:bg-primary-hover'
-            }`}
-          >
-            <Icon name={releasesOnGithub ? 'github' : 'download'} size={16} />
-            Tải bản mới nhất
-            <ExternalArrow />
-            <span className="sr-only"> (mở tab mới)</span>
-          </a>
-        )}
+        {app.releases &&
+          (releasesOnGithub ? (
+            // Nút ra GitHub: nền đen tuyền ở cả hai chế độ, dấu GitHub (hình tròn có mèo) màu
+            // trắng - chủ dự án yêu cầu 19/11/2026. Viền mờ để nút còn nổi trên nền tối.
+            <a
+              href={app.releases}
+              {...NEW_TAB}
+              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-white/20 bg-black px-3 text-sm font-medium text-white transition-colors hover:border-white/40 hover:bg-neutral-900"
+            >
+              <Icon name="github" size={16} className="text-white!" />
+              Tới GitHub
+              <span className="sr-only"> (mở tab mới)</span>
+            </a>
+          ) : (
+            <a
+              href={app.releases}
+              {...NEW_TAB}
+              className={`group inline-flex h-8 items-center gap-1.5 rounded-md border px-3 text-sm font-medium transition-colors ${
+                app.website
+                  ? 'border-line-strong bg-surface text-fg hover:border-line-control hover:bg-hovered'
+                  : 'border-primary-hover bg-primary text-on-primary hover:bg-primary-hover'
+              }`}
+            >
+              <Icon name="download" size={16} />
+              Tải bản mới nhất
+              <ExternalArrow />
+              <span className="sr-only"> (mở tab mới)</span>
+            </a>
+          ))}
       </div>
 
       <PlatformRow platforms={app.platforms} />

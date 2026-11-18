@@ -121,8 +121,11 @@ export default function Home({
           </a>
           <h1 className="mt-6 text-4xl md:text-6xl font-semibold tracking-tight text-fg text-balance leading-[1.08] md:leading-(--text-6xl--line-height)">
             Phần mềm TsuDEV
-            <br />
-            <span className="tsu-text-gradient">Làm được, dùng được, chơi được</span>
+            {/* Câu phụ nhỏ hơn tiêu đề, luôn MỘT dòng (chủ dự án yêu cầu 19/11/2026): cỡ chữ co
+                theo bề ngang màn hình để vừa cả máy 320 px mà không phải xuống dòng. */}
+            <span className="tsu-text-gradient mt-3 block whitespace-nowrap text-[clamp(1.0625rem,5vw,2.25rem)] leading-tight">
+              Làm được, dùng được, chơi được
+            </span>
           </h1>
           <p className="mt-6 mx-auto max-w-2xl text-lg text-fg-secondary text-pretty">
             Hệ sinh thái ứng dụng do TsuDEV tự phát triển - mở website riêng của từng sản phẩm, cài
