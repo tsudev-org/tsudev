@@ -19,7 +19,7 @@ const MAIN = process.env.E2E_MAIN_URL || publicUrl(loadTopology(), 'main');
 // chung: e2e/tests/helpers/login.js.
 const signIn = (page, user = 'tsudev') => signInAs(page, MAIN, user);
 
-test('trang chủ dựng được và mang thương hiệu tsudev', async ({ page }) => {
+test('trang chủ dựng được và mang thương hiệu TsuDEV', async ({ page }) => {
   await page.goto(MAIN, { waitUntil: 'networkidle' });
   await expect(page.locator('header')).toBeVisible();
   await expect(page).toHaveTitle(/tsudev/i);
@@ -35,7 +35,7 @@ test('blog: danh sách có bài thật và mở được bài chi tiết', async
   // Khẳng định ĐÚNG tiêu đề lấy từ DB, không phải "có một thẻ h1 nào đó" -
   // trang lỗi vẫn có h1. (Bài viết render markdown nên có nhiều h1, lấy cái đầu.)
   await page.goto(`${MAIN}/blog/welcome-to-tsudev`, { waitUntil: 'networkidle' });
-  await expect(page.locator('h1').first()).toHaveText('Chào mừng đến với tsudev');
+  await expect(page.locator('h1').first()).toHaveText('Chào mừng đến với TsuDEV');
 });
 
 test('tài liệu: danh sách có mục thật và mở được trang chi tiết', async ({ page }) => {
@@ -137,7 +137,7 @@ test('dự án: danh sách có dự án thật và mở được trang chi tiế
   await expect(first).toBeVisible();
 
   await page.goto(`${MAIN}/projects/tsudev-trust-crypto`, { waitUntil: 'networkidle' });
-  await expect(page.locator('h1')).toHaveText('Ký bản phát hành tsudev');
+  await expect(page.locator('h1')).toHaveText('Ký bản phát hành TsuDEV');
   // Dự án này seed ở trạng thái REGISTERED - số giấy chứng nhận PHẢI hiện ra.
   // Đây là khẳng định trung tâm của mục bản quyền, không phải trang trí.
   await expect(page.getByText('TSD-2026-0001')).toBeVisible();
