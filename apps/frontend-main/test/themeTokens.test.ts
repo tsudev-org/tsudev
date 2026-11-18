@@ -60,15 +60,20 @@ describe('màu nền chép ra ngoài tokens.css phải khớp nguồn', () => {
     for (const hex of [light, dark]) expect(src).toContain(`'${hex}'`);
   });
 
-  // Chế độ TỐI là mặc định (đen tuyền + xanh logo, chủ dự án chọn 16/11/2026): `:root` TRẦN
-  // phải mang bảng tối. Đảo lại thì lượt tải đầu tiên của một khách chưa từng chọn
-  // gì sẽ hiện chế độ khác, và ba bản sao bên dưới (_document, ThemeToggle,
-  // manifest) phải đổi cùng lúc.
-  test('chế độ tối là mặc định', () => {
+  // Khách mới đi theo HỆ THỐNG (PRODUCT_POLICY mục 1.2, tsudev-standards v3.8.0 - thay mặc định
+  // Tối của 16/11/2026). `:root` TRẦN vẫn mang bảng tối: đó là khung khi JavaScript tắt, còn
+  // script chặn ở _document giải chế độ của máy TRƯỚC khung hình đầu; ThemeToggle cũng mặc định
+  // 'system' - hai bản sao phải đổi cùng lúc.
+  test('khách mới theo chế độ của hệ thống', () => {
     expect(css).toMatch(/:root,\s*\n:root\[data-theme='dark'\]\s*\{[^}]*color-scheme:\s*dark/);
     const doc = read('pages', '_document.tsx');
     expect(doc).toContain('data-theme="dark"');
-    expect(doc).toContain("var mode = 'dark';");
+    expect(doc).toMatch(
+      /var mode = window\.matchMedia && window\.matchMedia\('\(prefers-color-scheme: dark\)'\)/
+    );
+    const toggle = read('..', '..', 'packages', 'ui', 'src', 'components', 'ThemeToggle.tsx');
+    expect(toggle).toContain("return 'system';");
+    expect(toggle).toContain("stored ?? 'system'");
   });
 
   // Bảng màu KHÔNG được treo vào prefers-color-scheme - nếu có, hai người mở

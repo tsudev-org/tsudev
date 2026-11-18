@@ -67,7 +67,8 @@ const readChoice = (): ThemeChoice => {
     // localStorage ném lỗi khi cookie bên thứ ba bị chặn hoặc trang chạy trong
     // iframe sandbox. Hỏng ở đây phải là "về mặc định", không phải trang trắng.
   }
-  return 'dark';
+  // Mặc định Hệ thống (PRODUCT_POLICY mục 1.2, tsudev-standards v3.8.0): khách mới đi theo máy.
+  return 'system';
 };
 
 // Kho lựa chọn cho `useSyncExternalStore`: đọc localStorage làm ảnh chụp (máy
@@ -133,7 +134,7 @@ export const ThemeToggle = () => {
   // `null` = đang dựng ở máy chủ / lượt hydrat - xem ghi chú `mounted` ở đầu tệp.
   const stored = useSyncExternalStore(subscribeChoice, getChoice, getServerChoice);
   const mounted = stored !== null;
-  const choice: ThemeChoice = stored ?? 'dark';
+  const choice: ThemeChoice = stored ?? 'system';
 
   // Chọn "Hệ thống" thì phải đổi NGAY khi máy đổi, không chờ tải lại trang.
   useEffect(() => {
