@@ -1,4 +1,4 @@
-# PHÂN PHỐI TIN CẬY - CÀI ĐẶT KHÔNG BỊ CHẶN (v1.0.0)
+# PHÂN PHỐI TIN CẬY - CÀI ĐẶT KHÔNG BỊ CHẶN (v1.1.0)
 
 > Mọi sản phẩm tsudev phát hành thành tệp cài `MUST` đến tay người dùng qua kênh mà hệ điều hành, trình duyệt và
 > phần mềm diệt virus đã tin, với chữ ký và nguồn gốc kiểm chứng được. Tài liệu này quy định kênh theo từng nền tảng
@@ -42,7 +42,7 @@
 3. Chưa có chứng chỉ: phát hành qua Store (MSIX) và winget/Scoop là chính; trang tải về ghi trung thực rằng tệp tải
    trực tiếp có thể hiện SmartScreen, kèm SHA-256 và link VirusTotal (mục 3). KHÔNG hướng dẫn người dùng tắt
    SmartScreen hay Defender.
-4. Thông tin phiên bản trong tệp `MUST` đủ: `CompanyName` = `tsudev`, `ProductName`, `FileDescription`,
+4. Thông tin phiên bản trong tệp `MUST` đủ: `CompanyName` = `TsuDEV`, `ProductName`, `FileDescription`,
    `FileVersion`/`ProductVersion` = `YY.M.DDNN.0`, `LegalCopyright`; manifest `asInvoker` trừ khi thật sự cần quyền
    quản trị (ghi lý do trong ADR).
 
@@ -73,12 +73,16 @@ cho tới khi có Apple Developer Program:
    trên trang tải về: bản Play và bản APK dùng khoá khác nhau nên KHÔNG cập nhật chéo được.
 4. Hồ sơ Play `MUST` đủ: chính sách quyền riêng tư (URL `https://tsudev.com/...`), mục **An toàn dữ liệu**, xếp hạng
    nội dung (IARC), đối tượng mục tiêu, quyền truy cập app cho người duyệt, tuyên bố quyền nhạy cảm (nếu xin).
-5. Không xin quyền thừa; quyền nhạy cảm (SMS, nhật ký cuộc gọi, vị trí nền, `REQUEST_INSTALL_PACKAGES`,
+5. Tài khoản Play cá nhân mới phải qua **thử nghiệm kín** trước bản chính thức; hồ sơ điền theo
+   [`STORE_SUBMISSION.md`](STORE_SUBMISSION.md) mục 4.1. Không SDK quảng cáo, không quyền `AD_ID`
+   ([`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) mục 3).
+6. Không xin quyền thừa; quyền nhạy cảm (SMS, nhật ký cuộc gọi, vị trí nền, `REQUEST_INSTALL_PACKAGES`,
    `MANAGE_EXTERNAL_STORAGE`) chỉ khi là chức năng cốt lõi và có tờ khai.
 
 ### 1.4. iOS (trước khi có tài khoản Apple)
 
-App có kế hoạch lên iOS `SHOULD` chuẩn bị từ bây giờ để đầu 2027 chỉ còn bước nộp:
+Từ v1.1.0: mọi app di động `MUST` (không còn là `SHOULD`) được phát triển cho iOS ngay và thử trên iPhone thật qua cáp
+theo [`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) mục 2.1, để đầu 2027 chỉ còn bước nộp:
 
 - Mã đa nền tảng dựng được cho iOS trên CI macOS (không ký), `PrivacyInfo.xcprivacy` (privacy manifest) khai đủ API
   có lý do bắt buộc, bundle id `com.tsudev.<ten>` cố định, không dùng API riêng/bị cấm.
@@ -144,6 +148,9 @@ Bổ sung cho [`SECURITY_BASELINE.md`](SECURITY_BASELINE.md), áp cho mọi app/
 - **Cập nhật:** mục 2.5; có kênh báo lỗ hổng (`SECURITY.md`) và cam kết thời gian phản hồi.
 
 ## 5. Hồ sơ phải đăng ký
+
+Mọi hồ sơ dưới đây có biểu mẫu trên web: agent đề xuất và chạy phiên điền biểu mẫu theo
+[`STORE_SUBMISSION.md`](STORE_SUBMISSION.md) (👤 chỉ đăng nhập và bấm gửi).
 
 | Hồ sơ | Phạm vi | Ai làm | Chi phí | Ghi chú |
 | --- | --- | --- | --- | --- |

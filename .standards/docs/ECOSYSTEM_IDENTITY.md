@@ -1,4 +1,4 @@
-# NHẬN DIỆN HỆ SINH THÁI TSUDEV (v3.0.0)
+# NHẬN DIỆN HỆ SINH THÁI TSUDEV (v3.1.0)
 
 > `https://tsudev.com` là nhà chung của mọi dịch vụ, sản phẩm và công cụ trong hệ
 > sinh thái. Tài liệu này quy định mọi project **tự khai mình thuộc về đâu** như
@@ -37,12 +37,12 @@ mọi trang giới thiệu, mọi bản mô tả repo:
 
 Mô tả chuẩn, dùng nguyên văn khi cần một câu giới thiệu:
 
-> **tsudev** là hệ sinh thái sản phẩm và công cụ phần mềm tại
+> **TsuDEV** là hệ sinh thái sản phẩm và công cụ phần mềm tại
 > [tsudev.com](https://tsudev.com).
 
 Bản dài, dùng cho trang giới thiệu và mô tả kho mã:
 
-> **tsudev** là hệ sinh thái sản phẩm và công cụ phần mềm tại
+> **TsuDEV** là hệ sinh thái sản phẩm và công cụ phần mềm tại
 > [tsudev.com](https://tsudev.com). Mọi sản phẩm trong hệ sinh thái dùng chung một
 > tài khoản, một bộ quy ước kỹ thuật, và một bộ nhận diện.
 
@@ -72,12 +72,12 @@ Mọi repo thuộc hệ sinh thái `MUST` có:
 `<head>` của mọi trang `MUST` có đủ:
 
 ```html
-<title>{Tên trang} - {Tên sản phẩm} | tsudev</title>
+<title>{Tên trang} - {Tên sản phẩm} | TsuDEV</title>
 <meta name="description" content="{mô tả trang, 120 tới 160 ký tự}" />
 <meta name="theme-color" content="{token bg-base theo chế độ nền}" />
 <link rel="canonical" href="https://{ten-mien}/{duong-dan}" />
 
-<meta property="og:site_name" content="tsudev" />
+<meta property="og:site_name" content="TsuDEV" />
 <meta property="og:type" content="website" />
 <meta property="og:title" content="{Tên trang} - {Tên sản phẩm}" />
 <meta property="og:description" content="{mô tả}" />
@@ -89,7 +89,7 @@ Mọi repo thuộc hệ sinh thái `MUST` có:
 - `og:site_name` `MUST` là chuỗi `tsudev` ở **mọi** sản phẩm, kể cả sản phẩm có
   tên miền riêng. Đó là thứ nối các sản phẩm lại với nhau khi được chia sẻ.
 - Khuôn tiêu đề `MUST` đúng thứ tự trên. Trang chủ của sản phẩm rút gọn thành
-  `{Tên sản phẩm} | tsudev`.
+  `{Tên sản phẩm} | TsuDEV`.
 - `og:image` `MUST` là `1200x630`, sinh từ dây chuyền ở
   [`BRAND_ASSETS.md`](BRAND_ASSETS.md) mục 1. `MUST NOT` cắt tay từ ảnh chụp
   màn hình.
@@ -101,9 +101,9 @@ Mọi repo thuộc hệ sinh thái `MUST` có:
 Siêu dữ liệu bản cài (`Company`, `Product`, `Copyright`, `About`) `MUST` ghi:
 
 ```
-Nhà phát hành:  tsudev
+Nhà phát hành:  TsuDEV
 Trang chủ:      https://tsudev.com
-Bản quyền:      Copyright (c) {năm} tsudev
+Bản quyền:      Copyright (c) {năm} TsuDEV
 ```
 
 Hộp thoại **Giới thiệu** `MUST` có dấu hiệu, tên sản phẩm, chuỗi phiên bản theo
@@ -113,8 +113,39 @@ Hộp thoại **Giới thiệu** `MUST` có dấu hiệu, tên sản phẩm, chu
 
 ## 3. Tên gọi và cách viết
 
-| Đúng | Sai |
-| --- | --- |
+> **Từ v3.8.0 (quyết định chủ dự án 19/11/2026):** tên thương hiệu HIỂN THỊ là **`TsuDEV`** ở mọi nơi người đọc thấy
+> (website `*.tsudev.com`, giao diện app, tài liệu, bài viết, hồ sơ cửa hàng, Release notes). Thay quy tắc "luôn viết
+> thường" của các bản trước.
+
+| Ngữ cảnh | Đúng | Sai |
+| --- | --- | --- |
+| Tên thương hiệu cho người đọc | `TsuDEV` | `tsudev`, `TsuDev`, `TSUDEV`, `Tsudev`, `Tsu Dev` |
+| Tên sản phẩm cho người đọc | `Tsu Swico`, `Tsu Contact`, `TsuFiles` (theo tên đã chốt của sản phẩm) | `TSUDEV SWICO`, `tsudev swico` |
+| Định danh máy đọc | `tsudev`, `tsudev-org`, `tsudev-<san-pham>`, `com.tsudev.<ten>`, `tsudev.cwico` | đổi sang chữ hoa |
+| Tên miền | `tsudev.com` | `www.tsudev.com`, `TsuDEV.com`, `Tsudev.com` |
+
+- `TsuDEV` viết đúng như vậy kể cả ở đầu câu. Dòng bản quyền: `© {năm} TsuDEV`.
+- Định danh máy đọc **giữ chữ thường, không đổi**: tên miền, tên repo/org GitHub, tên gói npm/Scoop/winget/APT,
+  package name Android, bundle id, khoá cấu hình/localStorage, tên tài khoản. Đổi những thứ này làm gãy updater, kênh
+  cài và liên kết cũ (xem quy tắc tên repo cũ bất khả xâm phạm).
+- Logo dạng ảnh có chữ: chữ trong ảnh do chủ dự án quyết; `alt` của logo là `TsuDEV`.
+- Tên sản phẩm dạng máy đọc: `tsudev-<san-pham>`, chữ thường, nối bằng gạch ngang ngắn `-`.
+- Tên hiển thị cho người đọc `MAY` bỏ tiền tố khi ngữ cảnh đã rõ, nhưng tiêu đề trang `MUST` giữ đủ theo mục 2.2.
+- Tên miền chính `MUST` là `tsudev.com` không có `www.`. `www.tsudev.com` `MUST` chuyển hướng `301` về bản không `www`.
+- `MUST` dùng `https://`. `http://` `MUST` chuyển hướng `301`, kèm `HSTS` theo
+  [`SECURITY_BASELINE.md`](SECURITY_BASELINE.md) mục 7.2.
+
+### 3.1. Danh sách ứng dụng trên tsudev.com (từ v3.8.0)
+
+- Trang `tsudev.com/apps` tên là **Danh sách ứng dụng** (không dùng "danh bạ" - từ đó chỉ dùng cho danh bạ liên hệ).
+  Nút dẫn tới đó từ trang chủ: **Xem tất cả**.
+- Hero trang chủ: dòng trên **Phần mềm TsuDEV**, dòng dưới **Làm được, dùng được, chơi được**.
+- Thẻ sản phẩm ở trang chủ KHÔNG hiện lệnh cài (chỉ ở `/apps`); thẻ không có dòng "Dựa trên…" (ghi công dự án gốc ở
+  `NOTICE` và website sản phẩm theo giấy phép).
+- Nút dẫn tới website sản phẩm: **Website dự án** (biểu tượng quả địa cầu). Nút dẫn ra `github.com` (tải bản phát
+  hành, mã nguồn) `MUST` dùng **biểu tượng GitHub** để người dùng biết trước sẽ sang trang khác.
+
+--- | --- |
 | `tsudev` | `TsuDev`, `TSUDEV`, `Tsudev`, `tsu dev` |
 | `tsudev-swico` | `TSUDEV SWICO`, `Swico`, `tsudev swico` |
 | `tsudev.com` | `www.tsudev.com`, `Tsudev.com` |
@@ -134,9 +165,9 @@ Hộp thoại **Giới thiệu** `MUST` có dấu hiệu, tên sản phẩm, chu
 
 ## 4. Nối về nhà chung
 
-- Chân trang của mọi sản phẩm web `MUST` có dấu hiệu tsudev kèm liên kết
-  `https://tsudev.com`, và dòng bản quyền `© {năm} tsudev` (hoặc `(c) {năm} tsudev`).
-- Hàng cuối cùng của chân trang `SHOULD` là `© {năm} tsudev` (bên trái) + **bộ chọn giao diện** (bên phải) theo mục
+- Chân trang của mọi sản phẩm web `MUST` có dấu hiệu TsuDEV kèm liên kết
+  `https://tsudev.com`, và dòng bản quyền `© {năm} TsuDEV` (hoặc `(c) {năm} TsuDEV`).
+- Hàng cuối cùng của chân trang `SHOULD` là `© {năm} TsuDEV` (bên trái) + **bộ chọn giao diện** (bên phải) theo mục
   4.1. Bộ chọn `SHOULD NOT` nằm ở đầu trang.
 - Chân trang `MUST` có liên kết tới **Điều khoản sử dụng** và **Chính sách riêng
   tư**. Hai trang này ở `tsudev.com` và dùng chung cho cả hệ sinh thái; sản phẩm
@@ -154,7 +185,7 @@ Hợp đồng chung để chọn một lần ở site này thì site kia trong h
 sẻ localStorage, nhưng cùng khóa và cùng hành vi giữ trải nghiệm nhất quán):
 
 - Khóa localStorage `tsudev-theme`, giá trị `light` | `dark` | `system`. Giá trị cũ `warm` ⇒ `light`. Không có hoặc
-  không đọc được ⇒ `dark`.
+  không đọc được ⇒ `system` (từ v3.8.0 - mặc định theo hệ thống, `PRODUCT_POLICY.md` mục 1; trước đó là `dark`).
 - Áp **trước khi vẽ** bằng script đồng bộ trong `<head>`, đặt **sau** `<meta name="theme-color">` và **trước**
   stylesheet; script đặt `data-theme="light|dark"` lên `<html>` và đổi `content` của meta theme-color (Tối
   `#0a0a0a`, Sáng `#fafafa`). `system` hỏi `matchMedia('(prefers-color-scheme: dark)')` và nghe sự kiện `change`.
@@ -168,33 +199,40 @@ sẻ localStorage, nhưng cùng khóa và cùng hành vi giữ trải nghiệm n
 
 ### 4.2. Bảng màu và ngôn ngữ thiết kế của website (từ v3.4.0)
 
-Website trong hệ sinh thái dùng **đen tuyền + tím**, ghi đè token màu chuẩn ở tầng repo (ví dụ `palette.css`,
-`tokens/extensions.<repo>.json`) - không sửa `.standards/`. Mọi cặp chữ/nền đạt WCAG AA.
+> **Từ v3.8.0 (quyết định chủ dự án 16/11 và 19/11/2026; nhận đề xuất tsudev-standards#55):** bảng **đen tuyền +
+> xanh logo** thay bảng tím. Biểu tượng (kể cả biểu tượng nền tảng Windows/Linux/Android/macOS và nhóm icon "thông
+> tin") `MUST` dùng sắc xanh của logo, KHÔNG còn tím. Ngoại lệ **đã chốt** (chủ dự án 11/11, xác nhận lại 19/11/2026): lotus.tsudev.com
+> giữ **tím hoa sen** cho khớp logo Lotus Share - KHÔNG đổi sang xanh. Logo `logo-tsudev.png` giữ nguyên (không vẽ lại
+> chữ "TsuDEV" trong ảnh - quyết định 19/11/2026); `alt` vẫn là `TsuDEV`.
+
+Website trong hệ sinh thái dùng **đen tuyền + xanh logo** (xanh lơ ~`#30C8F0` → xanh dương chữ "dev" ~`#1E90FF` của
+`logo-tsudev.png`), ghi đè token màu chuẩn ở tầng repo (ví dụ `palette.css`, `tokens/extensions.<repo>.json`) - không
+sửa `.standards/`. Mọi cặp chữ/nền đạt WCAG AA. Nguồn đang chạy: `tsudev-org/tsudev` `tokens/extensions.tsudev-web.json`.
 
 | Vai trò (token) | Tối (mặc định) | Sáng |
 | --- | --- | --- |
-| `bg-base` / `bg-surface` / `bg-subtle` / `bg-hover` | `#0A0A0A` / `#111111` / `#171717` / `#1F1F1F` | `#FAFAFA` / `#FFFFFF` / `#F4F4F5` / `#EBEBED` |
-| `border` / `border-strong` / `border-control` | `#242424` / `#2E2E2E` / `#6E6E6E` | `#E4E4E7` / `#D4D4D8` / `#71717A` |
+| `bg-base` / `bg-surface` / `bg-subtle` / `bg-hover` | `#0A0A0A` / `#0F1114` / `#15181D` / `#1C2027` | `#FAFAFA` / `#FFFFFF` / `#F4F4F5` / `#EBEBED` |
+| `border` / `border-strong` / `border-control` | `#22272F` / `#2C323C` / `#6E6E6E` | `#E4E4E7` / `#D4D4D8` / `#71717A` |
 | `text-primary` / `text-secondary` / `text-muted` | `#EDEDED` / `#B4B4B4` / `#8F8F8F` | `#0A0A0A` / `#3F3F46` / `#52525B` |
-| `text-link` | `#C4A1FF` | `#6D28D9` |
-| `primary` / `primary-hover` / `primary-active` | `#A970FF` / `#BB8CFF` / `#9A5CF5` | `#7C3AED` / `#6D28D9` / `#5B21B6` |
+| `text-link` | `#7DD3FC` | `#0757A3` |
+| `primary` / `primary-hover` / `primary-active` | `#38BDF8` / `#7DD3FC` / `#0EA5E9` | `#0868C4` / `#0757A3` / `#064785` |
 | `on-primary` | `#0A0A0A` (mực đen) | `#FFFFFF` |
-| `focus-ring` | `#A970FF` | `#7C3AED` |
-| nhấn phụ `accent` / quầng `glow` | `#E879F9` / `rgba(169,112,255,0.16)` | `#A21CAF` / `rgba(124,58,237,0.10)` |
+| `focus-ring` | `#38BDF8` | `#0868C4` |
+| nhấn phụ `accent` / quầng `glow` | `#3B9EFF` / `rgba(56,189,248,0.14)` | `#0E7490` / `rgba(8,104,196,0.10)` |
+| icon nhóm "thông tin" `icon-info` (gồm biểu tượng nền tảng) / điều hướng `icon-nav` | `#60A5FA` / `#7DD3FC` | `#0369A1` / `#0757A3` |
 
-Ở chế độ Tối chữ trên nút tím là **mực đen**: không mã tím nào vừa đạt 4.5:1 làm chữ trên `#0A0A0A` vừa đạt 4.5:1
-dưới chữ trắng. Viền nút phụ và ô nhập là `border-control` (3:1), không phải `border-strong`.
+Ở chế độ Tối chữ trên nút xanh là **mực đen**: xanh lơ không đạt 4.5:1 dưới chữ trắng. Viền nút phụ và ô nhập là `border-control` (3:1), không phải `border-strong`.
 
 Ngôn ngữ thiết kế (tham khảo supabase.com, không chép logo/chữ/ảnh):
 
 - MỘT nền liền mạch từ đầu tới chân trang: không dải nền khác màu giữa các khối, không viền ngang cắt trang;
-  ranh giới là khoảng trống. Tím chỉ ở điểm nhấn; một quầng tím **tĩnh** ở đỉnh trang, không chuyển động nền.
+  ranh giới là khoảng trống. Xanh chỉ ở điểm nhấn; một quầng xanh lơ **tĩnh** ở đỉnh trang, không chuyển động nền.
 - Đầu trang dính, kính mờ trên cùng màu nền + một đường hairline; bên phải nút phụ + nút chính cao 32px.
 - Nút chính: nền `primary` + viền `primary-hover`, bo 6px, chữ `font-medium` 14px; nút phụ: nền bề mặt + viền
   `border-control`. Không quầng sáng, không gradient trên nút.
 - Thẻ: nền bề mặt + viền hairline, bo 8px; hover đậm viền + nền một bậc; không nhấc, không quầng màu.
-- Hero canh giữa, tiêu đề `font-semibold`, một cụm chữ tím → tím hồng tĩnh; nhãn nhỏ kiểu mono chữ hoa màu liên kết.
-- Icon trong nút/ô nền đặc ăn màu chữ của nút (`currentColor`); biểu tượng app trên ô nền tím nhạt, chênh ≥ 4.5:1.
+- Hero canh giữa, tiêu đề `font-semibold`, một cụm chữ xanh lơ → xanh dương tĩnh; nhãn nhỏ kiểu mono chữ hoa màu liên kết.
+- Icon trong nút/ô nền đặc ăn màu chữ của nút (`currentColor`); biểu tượng app trên ô nền xanh nhạt, chênh ≥ 4.5:1.
 
 ---
 
