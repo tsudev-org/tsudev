@@ -240,6 +240,21 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       icon: 'M3 12h2M7 8v8M11 5v14M15 9v6M19 11v2M21 12h0',
     },
     {
+      id: 'qulythuchi',
+      // Sản phẩm mới 18/11/2026 (phiếu 20261118-QT3, repo tsudev-org/qulythuchi, AGPL-3.0). Đăng nhập bằng tài khoản
+      // tsudev qua OIDC (client `qulythuchi`, phiếu QT1). Chưa có logo riêng (website dùng logo chung ⇒ ô màu + glyph).
+      // Bản web /app/ dùng được ngay; bản cài ra ở P10 của repo đó ⇒ ngoại lệ C4 tạm (test/installChannels).
+      name: 'Quly Thu Chi',
+      tagline:
+        'Quản lý thu chi cá nhân mã hóa đầu-cuối: ghi nhanh, ngân sách, báo cáo - dùng ngay trên web.',
+      category: 'utility',
+      platforms: ['android', 'windows', 'linux'],
+      website: 'https://qulythuchi.tsudev.com',
+      openSource: true,
+      tint: ['#0369a1', '#0c4a6e'],
+      icon: 'M3 7h18v12H3zM3 7l3-3h12l3 3M16 13h2',
+    },
+    {
       id: 'compass',
       name: 'La bàn',
       tagline:
