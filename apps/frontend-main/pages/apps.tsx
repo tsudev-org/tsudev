@@ -97,7 +97,7 @@ export default function AppsPage() {
       (a) =>
         (!platform || a.platforms.includes(platform)) &&
         (!category || a.category === category) &&
-        (!nq || viNormalizeText(`${a.name} ${a.tagline} ${a.basedOn ?? ''}`).includes(nq))
+        (!nq || viNormalizeText(`${a.name} ${a.tagline}`).includes(nq))
     );
   }, [q, platform, category]);
 

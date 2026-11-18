@@ -65,8 +65,6 @@ export type EcoApp = {
   pkgArch?: string;
   /** Mã nguồn mở hay độc quyền - hiện thành nhãn. */
   openSource: boolean;
-  /** Ghi công dự án gốc (bắt buộc với bản Việt hoá theo giấy phép). */
-  basedOn?: string;
   /**
    * LOGO THẬT của app (đường dẫn trên tsudev.com, WebP vuông 128px) - chỉ app có
    * logo riêng. Sinh bằng `packages/brand/build-eco-icons.js` từ website của app;
@@ -138,7 +136,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       website: 'https://trafficmonitor.tsudev.com',
       releases: 'https://github.com/tsudev-org/tsudev-trafficmonitor/releases/latest',
       openSource: true,
-      basedOn: 'TrafficMonitor',
       logo: '/eco/trafficmonitor.webp',
       tint: ['#4f46e5', '#312e81'],
       icon: 'M4.5 17a7.5 7.5 0 1 1 15 0M12 17l3.6-5.2M7.6 13.4h.01M12 9.6v.01M16.4 13.4h.01',
@@ -206,7 +203,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       platforms: ['windows', 'apple', 'linux'],
       website: 'https://files.tsudev.com',
       openSource: true,
-      basedOn: 'Filee',
       logo: '/eco/files.webp',
       tint: ['#7c3aed', '#4c1d95'],
       icon: 'M6 3h7l5 5v4M6 3v18h6M13 3v5h5M14.5 17H21M18.5 14.5 21 17l-2.5 2.5',
@@ -224,7 +220,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       website: 'https://lotus.tsudev.com',
       releases: 'https://github.com/tsudev-org/lotus-share/releases/latest',
       openSource: true,
-      basedOn: 'LocalSend',
       logo: '/eco/lotus.webp',
       tint: ['#db2777', '#831843'],
       icon: 'M20.5 3.5 3.5 10l6.5 2.8L13 20zM10 12.8 20.5 3.5',

@@ -65,7 +65,7 @@ export default function EcoAppCard({ app, selectable, selected, onToggle, hideIn
 
       {/* Mô tả giãn (flex-1): phần trống dồn xuống dưới để nút và hàng nền tảng các thẻ
           cùng hàng thẳng nhau. Dòng "Dựa trên…" đã bỏ khỏi thẻ (chủ dự án 19/11/2026);
-          ghi công dự án gốc vẫn ở NOTICE/website sản phẩm theo giấy phép. */}
+          điều kiện giấy phép của dự án gốc giữ ở LICENSE/NOTICE từng repo (phiếu TC1). */}
       <div className="mt-3 flex-1">
         <p className="text-sm text-fg-secondary">{app.tagline}</p>
       </div>
