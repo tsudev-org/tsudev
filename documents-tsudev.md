@@ -18,7 +18,7 @@
 
 **TÀI LIỆU ĐẶC TẢ KỸ THUẬT (TECHNICAL SPECIFICATIONS)**
 
-**Dự án:** Hệ sinh thái Công nghệ tsudev
+**Dự án:** Hệ sinh thái Công nghệ TsuDEV
 
 **Phiên bản tài liệu:** 1.0.0
 
@@ -35,8 +35,8 @@
 ### **1.1. Định vị thương hiệu**
 
 - **Tên thương hiệu:** Nguyễn Trang Tình Sử (tsudev)
-- **Slogan:** "tsudev: Decoding the Future, One Commit at a Time." (tsudev: Giải mã tương lai qua từng dòng code).
-- **Mô tả Meta/About:** "tsudev là hệ sinh thái công nghệ đa nền tảng, vận hành trên các tiêu chuẩn kỹ thuật toàn cầu. Tập trung vào việc chuẩn hóa tri thức thông qua kho tư liệu khổng lồ, diễn đàn thảo luận chuyên sâu và các giải pháp mã nguồn có tính ứng dụng cao, đồng hành cùng sự thành công của cộng đồng."
+- **Slogan:** "TsuDEV: Decoding the Future, One Commit at a Time." (TsuDEV: Giải mã tương lai qua từng dòng code).
+- **Mô tả Meta/About:** "TsuDEV là hệ sinh thái công nghệ đa nền tảng, vận hành trên các tiêu chuẩn kỹ thuật toàn cầu. Tập trung vào việc chuẩn hóa tri thức thông qua kho tư liệu khổng lồ, diễn đàn thảo luận chuyên sâu và các giải pháp mã nguồn có tính ứng dụng cao, đồng hành cùng sự thành công của cộng đồng."
 
 ### **1.2. Mục tiêu hệ thống**
 
@@ -50,7 +50,7 @@ Hệ thống được thiết kế theo kiến trúc **Microservices** hoặc **
 
 ### **2.1. Phân hệ Website (Sub-sites Topology)**
 
-Từ đợt tái cấu trúc ở PR #9, tsudev là **một app duy nhất trên một origin**:
+Từ đợt tái cấu trúc ở PR #9, TsuDEV là **một app duy nhất trên một origin**:
 blog, tài liệu, dự án & bản quyền, con dấu tín nhiệm và trang quản trị đều là
 nhánh đường dẫn của cùng một site, không còn tách thành sub-site riêng. Chỉ hai
 thành phần cần origin riêng, vì chúng là hệ khác chứ không phải trang khác.

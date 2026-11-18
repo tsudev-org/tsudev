@@ -48,7 +48,7 @@ theo độ sáng và khử nhân với nền đen để quầng xanh giữ đún
 
 **Không kéo giãn.** Mọi cỡ đều `fit: 'contain'` trên khung vuông; ảnh nguồn không bị cắt.
 
-**Avatar vẽ bằng vector.** `source/avatar.png` có dòng chữ "tsudev\_" đè lên vùng
+**Avatar vẽ bằng vector.** `source/avatar.png` có dòng chữ "TsuDEV\_" đè lên vùng
 xích đạo của quả cầu lưới, nên phần lưới nằm dưới chữ đã mất hẳn dữ liệu - mọi
 cách vá (lấp từ bản xoay 90°, nội suy theo hàng) đều để lại vệt rõ. Vì vậy quả
 cầu được dựng lại bằng SVG ngay trong script: sạch tuyệt đối ở mọi kích thước,

@@ -1,10 +1,10 @@
-# Contributing to tsudev - Đóng góp cho tsudev
+# Contributing to TsuDEV - Đóng góp cho TsuDEV
 
 _Tiếng Việt ở dưới. Issues and pull requests are welcome in English or Vietnamese._
 
 ## English
 
-tsudev is the website `tsudev.com` (Next.js on Cloudflare Workers) and its backend services (Express + Prisma on
+TsuDEV is the website `tsudev.com` (Next.js on Cloudflare Workers) and its backend services (Express + Prisma on
 PostgreSQL). It is deployed continuously from `main`.
 
 - **Bugs and feature requests**: open an issue with the _Bug report_ or _Feature request_ form:

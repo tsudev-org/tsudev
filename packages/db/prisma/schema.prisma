@@ -812,7 +812,7 @@ model OidcPayload {
   @@index([expiresAt])
 }
 
-/// Site con đăng ký đăng nhập bằng tài khoản tsudev (P4). Chỉ client CÔNG KHAI:
+/// Site con đăng ký đăng nhập bằng tài khoản TsuDEV (P4). Chỉ client CÔNG KHAI:
 /// Authorization Code + PKCE S256, không client secret, redirect URI khớp TUYỆT ĐỐI.
 /// Tạo bằng seed/OWNER - không có đường tự đăng ký (dynamic registration TẮT).
 model OAuthClient {

@@ -337,7 +337,7 @@ của app tải về - đều đang phóng từ ảnh raster.
 
 ### 2.3 Hai việc TÔI KHÔNG TỰ LÀM, và vì sao
 
-**Logo SVG master (việc 2.1-2.2).** Thương hiệu tsudev đã có một biểu tượng:
+**Logo SVG master (việc 2.1-2.2).** Thương hiệu TsuDEV đã có một biểu tượng:
 **chim cú mạch điện**, ở `packages/brand/source/logo.jpeg`. Nó là một hình vẽ
 minh hoạ, và dựng lại nó thành vector bằng hình học tay tôi sẽ không cho ra cùng
 một biểu tượng - nó cho ra MỘT BIỂU TƯỢNG KHÁC. Thay bản sắc thương hiệu là
@@ -348,7 +348,7 @@ Ba đường đi, chọn một:
 | đường                                                  | được gì                                        | mất gì                                                                                 |
 | ------------------------------------------------------ | ---------------------------------------------- | -------------------------------------------------------------------------------------- |
 | Vector hoá con cú hiện có                              | giữ nguyên bản sắc, dùng được ở mọi kích thước | cần người vẽ lại bằng công cụ vector; tôi làm được bản xấp xỉ nhưng nó sẽ KHÁC bản gốc |
-| Giữ raster, chỉ thêm SVG **wordmark** cho chữ "tsudev" | rẻ, không chạm bản sắc, đủ cho OG/huy hiệu chữ | favicon và huy hiệu nhỏ vẫn phóng từ raster                                            |
+| Giữ raster, chỉ thêm SVG **wordmark** cho chữ "TsuDEV" | rẻ, không chạm bản sắc, đủ cho OG/huy hiệu chữ | favicon và huy hiệu nhỏ vẫn phóng từ raster                                            |
 | Thiết kế monogram mới                                  | sắc nét ở mọi cỡ, hiện đại                     | **đổi bản sắc thương hiệu**                                                            |
 
 **Tông màu riêng (việc 2.6).** Bảng màu hiện tại (`--primary #2563eb`,

@@ -77,7 +77,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
       </a>
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center gap-8">
-          <a href="/" className="shrink-0" aria-label="tsudev trang chủ">
+          <a href="/" className="shrink-0" aria-label="TsuDEV trang chủ">
             <Logo />
           </a>
           <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Chính">

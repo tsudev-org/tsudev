@@ -1,6 +1,6 @@
 -- Thêm hai bậc vai trò vào enum "Role":
 --   AUTHOR - tài khoản đăng bài (đặc quyền tối thiểu, KHÔNG có quyền quản trị khác).
---   OWNER  - quản trị cao nhất, chỉ tài khoản tsudev giữ. Cấp bằng seed/DB,
+--   OWNER  - quản trị cao nhất, chỉ tài khoản TsuDEV giữ. Cấp bằng seed/DB,
 --            KHÔNG bao giờ cấp được qua bất kỳ endpoint dữ liệu nào.
 --
 -- ⚠️ THÊM enum value là THUẦN CỘNG (không xoá, không đổi cột) nên migration đi

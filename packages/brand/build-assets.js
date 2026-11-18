@@ -363,7 +363,7 @@ async function main() {
     }
   }
 
-  console.log('\n[3/5] Favicon - NGUYÊN logo (cú + chữ "tsudev"), nền trong suốt');
+  console.log('\n[3/5] Favicon - NGUYÊN logo (cú + chữ "TsuDEV"), nền trong suốt');
   // Chủ dự án chốt 13/11/2026: favicon là logo HOÀN CHỈNH có chữ, chỉ bỏ nền -
   // `.standards/docs/BRAND_ASSETS.md` mục 2 nhận lựa chọn này từ v3.6.0.
   const PNG_SMALL = { compressionLevel: 9, palette: true, quality: 90, effort: 10 };
@@ -415,8 +415,8 @@ async function main() {
 
   console.log('\n[4/5] Web app manifest');
   const manifest = {
-    name: 'tsudev - Hệ sinh thái phần mềm',
-    short_name: 'tsudev',
+    name: 'TsuDEV - Hệ sinh thái phần mềm',
+    short_name: 'TsuDEV',
     description:
       'Tìm, tải và cài ứng dụng của hệ sinh thái tsudev bằng một lệnh: winget, Scoop, Homebrew, APT, DNF.',
     start_url: '/',

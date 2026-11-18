@@ -23,7 +23,7 @@ function _throttled(key, windowMs = 60000) {
 function _format({ service, level, message, error, context }) {
   const emoji = LEVELS[level] || 'ℹ️';
   const lines = [
-    `${emoji} *tsudev alert* - \`${service || 'unknown'}\``,
+    `${emoji} *TsuDEV alert* - \`${service || 'unknown'}\``,
     `*level:* ${level || 'info'}`,
     `*message:* ${message || '(no message)'}`,
   ];
@@ -72,7 +72,7 @@ async function _sendEmail(payload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       to,
-      subject: `[tsudev] ${payload.level} · ${payload.service}`,
+      subject: `[TsuDEV] ${payload.level} · ${payload.service}`,
       text: payload.message,
       meta: payload,
     }),

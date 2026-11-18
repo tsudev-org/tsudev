@@ -198,7 +198,7 @@ export const esc = (s: string): string =>
 
 export function verifyEmailHtml(displayName: string, link: string): string {
   return `<p>Chào ${esc(displayName)},</p>
-<p>Xác minh địa chỉ email cho tài khoản tsudev của bạn:</p>
+<p>Xác minh địa chỉ email cho tài khoản TsuDEV của bạn:</p>
 <p><a href="${esc(link)}">Xác minh email</a></p>
 <p>Liên kết có hiệu lực trong 24 giờ. Nếu bạn không tạo tài khoản nào, hãy bỏ qua thư này.</p>`
 }
@@ -213,7 +213,7 @@ export function verifyEmailHtml(displayName: string, link: string): string {
  */
 export function verifyCodeHtml(displayName: string, code: string, minutes: number): string {
   return `<p>Chào ${esc(displayName)},</p>
-<p>Mã xác minh tài khoản tsudev của bạn:</p>
+<p>Mã xác minh tài khoản TsuDEV của bạn:</p>
 <p style="font-size:28px;font-weight:700;letter-spacing:0.18em;font-family:monospace">${esc(
     code
   )}</p>
@@ -223,7 +223,7 @@ export function verifyCodeHtml(displayName: string, code: string, minutes: numbe
 
 export function resetPasswordHtml(displayName: string, link: string): string {
   return `<p>Chào ${esc(displayName)},</p>
-<p>Có yêu cầu đặt lại mật khẩu cho tài khoản tsudev của bạn:</p>
+<p>Có yêu cầu đặt lại mật khẩu cho tài khoản TsuDEV của bạn:</p>
 <p><a href="${esc(link)}">Đặt lại mật khẩu</a></p>
 <p>Liên kết có hiệu lực trong 1 giờ và chỉ dùng được một lần. Nếu bạn không yêu cầu, hãy bỏ qua thư này - mật khẩu hiện tại không thay đổi.</p>`
 }
@@ -231,7 +231,7 @@ export function resetPasswordHtml(displayName: string, link: string): string {
 /** Gửi tới địa chỉ MỚI - xác nhận quyền kiểm soát trước khi thay email. */
 export function changeEmailHtml(displayName: string, newEmail: string, link: string): string {
   return `<p>Chào ${esc(displayName)},</p>
-<p>Có yêu cầu đổi email của tài khoản tsudev sang địa chỉ này (${esc(
+<p>Có yêu cầu đổi email của tài khoản TsuDEV sang địa chỉ này (${esc(
     newEmail
   )}). Xác nhận để hoàn tất:</p>
 <p><a href="${esc(link)}">Xác nhận đổi email</a></p>
@@ -241,7 +241,7 @@ export function changeEmailHtml(displayName: string, newEmail: string, link: str
 /** Gửi tới địa chỉ CŨ sau khi đổi thành công - để chủ tài khoản biết nếu bị chiếm. */
 export function emailChangedNoticeHtml(displayName: string, newEmail: string): string {
   return `<p>Chào ${esc(displayName)},</p>
-<p>Email của tài khoản tsudev vừa được đổi sang <strong>${esc(
+<p>Email của tài khoản TsuDEV vừa được đổi sang <strong>${esc(
     newEmail
   )}</strong>. Mọi phiên đăng nhập cũ đã bị đăng xuất.</p>
 <p>Nếu KHÔNG phải bạn thực hiện, hãy dùng chức năng quên mật khẩu để lấy lại quyền kiểm soát ngay và liên hệ quản trị.</p>`
@@ -261,8 +261,8 @@ export function securityAlertHtml(
   notMeUrl?: string
 ): string {
   return `<p>Chào ${esc(displayName)},</p>
-<p>${esc(title)} trên tài khoản tsudev của bạn.</p>
+<p>${esc(title)} trên tài khoản TsuDEV của bạn.</p>
 ${context ? `<p style="color:#555">${esc(context)}</p>` : ''}
-${notMeUrl ? `<p><a href="${esc(notMeUrl)}" style="display:inline-block;padding:10px 16px;background:#7c3aed;color:#fff;border-radius:6px;text-decoration:none">Không phải tôi - đăng xuất mọi thiết bị</a></p>` : ''}
+${notMeUrl ? `<p><a href="${esc(notMeUrl)}" style="display:inline-block;padding:10px 16px;background:#0868C4;color:#fff;border-radius:6px;text-decoration:none">Không phải tôi - đăng xuất mọi thiết bị</a></p>` : ''}
 <p>Nếu KHÔNG phải bạn thực hiện, tài khoản của bạn có thể đã bị xâm nhập: hãy <a href="https://tsudev.com/forgot-password">đặt lại mật khẩu</a> ngay (thao tác này đăng xuất mọi thiết bị) và kiểm tra mục Bảo mật.</p>`
 }

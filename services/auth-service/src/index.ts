@@ -271,7 +271,7 @@ app.post(
       await sendMail(
         email,
         'Có người thử đăng ký bằng email của bạn',
-        `<p>Địa chỉ này đã có tài khoản tsudev. Nếu bạn vừa thử đăng ký, hãy <a href="${link}">đăng nhập</a> hoặc dùng chức năng quên mật khẩu.</p>`,
+        `<p>Địa chỉ này đã có tài khoản TsuDEV. Nếu bạn vừa thử đăng ký, hãy <a href="${link}">đăng nhập</a> hoặc dùng chức năng quên mật khẩu.</p>`,
         'register_duplicate_email'
       )
       return res.status(201).json({ ok: true })
@@ -292,7 +292,7 @@ app.post(
     const token = await issueToken(user.id, 'EMAIL_VERIFY')
     await sendMail(
       email,
-      'Xác minh email cho tài khoản tsudev',
+      'Xác minh email cho tài khoản TsuDEV',
       verifyEmailHtml(user.displayName || username, `${siteUrl()}/verify-email?token=${token.raw}`),
       'verify_email'
     )
@@ -646,7 +646,7 @@ app.post(
     const token = await issueToken(user.id, 'PASSWORD_RESET')
     await sendMail(
       email,
-      'Đặt lại mật khẩu tsudev',
+      'Đặt lại mật khẩu TsuDEV',
       resetPasswordHtml(
         user.displayName || user.username,
         `${siteUrl()}/reset-password?token=${token.raw}`
@@ -757,7 +757,7 @@ app.post(
     // cũ và biết đường lấy lại.
     await sendMail(
       before.email,
-      'Email tài khoản tsudev vừa được đổi',
+      'Email tài khoản TsuDEV vừa được đổi',
       emailChangedNoticeHtml(before.displayName || before.username, newEmail),
       'email_changed_notice'
     )
@@ -870,7 +870,7 @@ app.post(
     const token = await issueToken(user.id, 'EMAIL_VERIFY')
     await sendMail(
       user.email,
-      'Xác minh email cho tài khoản tsudev',
+      'Xác minh email cho tài khoản TsuDEV',
       verifyEmailHtml(
         user.displayName || user.username,
         `${siteUrl()}/verify-email?token=${token.raw}`
@@ -949,7 +949,7 @@ app.post(
     const code = await issueVerifyCode(user.id)
     await sendMail(
       user.email,
-      'Mã xác minh tài khoản tsudev',
+      'Mã xác minh tài khoản TsuDEV',
       verifyCodeHtml(user.displayName || user.username, code.raw, VERIFY_CODE_TTL_MIN),
       'verify_code'
     )
@@ -1025,7 +1025,7 @@ app.post(
       await sendMail(
         newEmail,
         'Có người thử dùng email của bạn',
-        `<p>Một tài khoản tsudev vừa thử đổi email sang địa chỉ này, nhưng nó đã gắn với một tài khoản khác. Nếu là bạn, hãy đăng nhập bằng tài khoản sẵn có hoặc dùng chức năng quên mật khẩu.</p>`
+        `<p>Một tài khoản TsuDEV vừa thử đổi email sang địa chỉ này, nhưng nó đã gắn với một tài khoản khác. Nếu là bạn, hãy đăng nhập bằng tài khoản sẵn có hoặc dùng chức năng quên mật khẩu.</p>`
       )
       return res.json({ ok: true })
     }
@@ -1034,7 +1034,7 @@ app.post(
     logSecurity(user.id, 'email_change_request', req, { note: `→ ${newEmail}` })
     await sendMail(
       newEmail,
-      'Xác nhận đổi email tài khoản tsudev',
+      'Xác nhận đổi email tài khoản TsuDEV',
       changeEmailHtml(
         user.displayName || user.username,
         newEmail,
@@ -1520,7 +1520,7 @@ app.post(
 )
 
 // ---------------------------------------------------------------------------
-// Quản lý tài khoản & phân quyền - CHỈ OWNER (tài khoản tsudev)
+// Quản lý tài khoản & phân quyền - CHỈ OWNER (tài khoản TsuDEV)
 //
 // Đây là bề mặt cấp/thu hồi vai trò, nên nó là ranh giới leo thang đặc quyền.
 // Ba bất biến, mỗi cái chặn một đường tự nâng quyền:

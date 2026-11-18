@@ -204,7 +204,7 @@ bằng **email**; site **không** thu số điện thoại hay số định danh
 
 Điểm e khoản 3 Điều 23 Nghị định 147/2024/NĐ-CP buộc xác thực bằng số điện thoại
 di động Việt Nam (hoặc số định danh) - nhưng đó là nghĩa vụ của bên **cung cấp
-dịch vụ mạng xã hội**. tsudev hiện không phải: người dùng không đăng hay trao đổi
+dịch vụ mạng xã hội**. TsuDEV hiện không phải: người dùng không đăng hay trao đổi
 thông tin với nhau, nội dung công khai chỉ do tài khoản AUTHOR đăng, và AUTHOR chỉ
 OWNER cấp được (§3). Thu số điện thoại khi không có nghĩa vụ thì ngược nguyên tắc
 tối thiểu hoá dữ liệu của Luật BVDLCN 91/2025, thêm dữ liệu D2 phải bảo vệ, và

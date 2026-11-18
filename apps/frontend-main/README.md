@@ -1,6 +1,6 @@
 # frontend-main
 
-Next.js 15 + React 19, cổng **3000**. App **duy nhất** của tsudev: trang chủ,
+Next.js 15 + React 19, cổng **3000**. App **duy nhất** của TsuDEV: trang chủ,
 dự án & bản quyền, blog, docs, con dấu tín nhiệm và khu quản trị.
 
 ```bash

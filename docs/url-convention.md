@@ -1,4 +1,4 @@
-# Quy ước URL của tsudev
+# Quy ước URL của TsuDEV
 
 > Một câu hỏi, một câu trả lời: **địa chỉ nào là chính tắc?** File này là nơi
 > duy nhất trả lời. Cổng và tên miền vẫn lấy từ `config/topology.json` - ở đây
@@ -57,7 +57,7 @@ triệu chứng là _thành công giả_ - đăng nhập trả 200 mà phiên kh
   cho biến thể có dấu).
 - **Danh từ số nhiều cho khu vực, slug cho từng mục**: `/projects/<slug>`,
   `/blog/<slug>`, `/docs/<slug>`.
-- **Điều hướng trong site dùng href TƯƠNG ĐỐI.** tsudev chỉ còn một origin;
+- **Điều hướng trong site dùng href TƯƠNG ĐỐI.** TsuDEV chỉ còn một origin;
   `MAIN_URL` của `@tsudev/ui` chỉ dành cho URL tuyệt đối thật sự cần: thẻ
   canonical, ảnh OG, `sitemap.xml`, `robots.txt`.
 - **`/api/*` là bề mặt máy gọi máy**, không phải trang. `robots.txt` chặn nó;

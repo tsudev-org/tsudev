@@ -1,6 +1,6 @@
 {
-  "name": "tsudev - Hệ sinh thái phần mềm",
-  "short_name": "tsudev",
+  "name": "TsuDEV - Hệ sinh thái phần mềm",
+  "short_name": "TsuDEV",
   "description": "Tìm, tải và cài ứng dụng của hệ sinh thái tsudev bằng một lệnh: winget, Scoop, Homebrew, APT, DNF.",
   "start_url": "/",
   "display": "standalone",
