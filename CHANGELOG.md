@@ -15,6 +15,7 @@ phiên bản app của hệ tsudev); các thẻ `vYYYY.MM.DD.N` cũ giữ nguyê
 <https://github.com/tsudev-org/tsudev/tags>. Mỗi thẻ một dòng dưới đây. _English: every production deployment is
 tagged; the tag message lists the merged pull requests, and each line below summarises one tagged deployment._
 
+- deploy-2026.11.19.1 - 19/11/2026 - Thương hiệu TsuDEV: hero "Phần mềm TsuDEV / Làm được, dùng được, chơi được", Danh sách ứng dụng, Xem tất cả, Website dự án, icon GitHub, bỏ "Dựa trên" + trường `basedOn`, trang chủ ẩn lệnh cài, icon nền tảng tím → xanh logo (#315).
 - deploy-2026.11.17.9 - 17/11/2026 - OIDC: trang đăng nhập/đồng ý `/oidc/interaction/<uid>` hết 404 - mọi client OIDC (Sound Db) vào được (#310); xoá 5 logo gốc trò chơi (#290).
 - deploy-2026.11.17.8 - 17/11/2026 - Kênh cài Sound Db, TsuFiles 2.4.1-vn.1 trong danh mục kho gói (#307).
 - deploy-2026.11.17.7 - 17/11/2026 - Lượt xem bài trên /author (tổng + 30 ngày + từng bài); thẻ deploy đổi khuôn (#306).

@@ -1,5 +1,11 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên kế tiếp BẮT ĐẦU Ở ĐÂY** (19/11/2026, phiên điều phối projects-19). ✅ #315 deploy `deploy-2026.11.19.1`: TsuDEV,
+> Danh sách ứng dụng, icon xanh. Hàng đợi: (1) phiếu [`20261119-TC1`](handover/20261119-TC1_yeu-cau-danh-ba-khong-ten-du-an-goc.md)
+> bước 2-5 (bước 1 đã xong trong #315); (2) phiếu toàn hệ `~/projects/logs/handover/20261119-01_ke-hoach-toan-he-v3.8.0.md`
+> phase T1 (sync tsudev-standards v3.8.x), T3 (khoá `tsudev-theme` mặc định `system`), T5 (máy chủ quyền lợi Pro/Ủng hộ),
+> T6 (component huy hiệu). Không khoá, không tác vụ nền.
+
 > **Phiên kế tiếp (phiếu toàn hệ 20261117-P2):** đọc `~/projects/logs/handover/20261117-P2_ke-hoach-phan-phoi-tin-cay-da-nen-tang.md` hàng 13 (`tsudev`, website) ở mục 3,
 > rồi `.standards/docs/DISTRIBUTION_TRUST.md` (chuẩn v3.7.0) và `.standards/docs/VERSIONING.md` mục 2. Thẻ deploy website theo
 > `deploy-YYYY.MM.DD.N` (phiếu V1 bước 8).
