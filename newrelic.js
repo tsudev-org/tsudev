@@ -4,7 +4,7 @@
  * safe if New Relic agent is not installed.
  */
 exports.config = {
-  app_name: [process.env.NEW_RELIC_APP_NAME || 'TsuDEV'],
+  app_name: [process.env.NEW_RELIC_APP_NAME || 'tsudev'],
   license_key: process.env.NEW_RELIC_LICENSE_KEY || '',
   logging: {
     level: process.env.NEW_RELIC_LOG_LEVEL || 'info',
