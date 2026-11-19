@@ -73,7 +73,13 @@
     "platform-apple": "#0A0A0A",
     "on-platform-apple": "#FFFFFF",
     "platform-linux": "#FCC624",
-    "on-platform-linux": "#0A0A0A"
+    "on-platform-linux": "#0A0A0A",
+    "badge-pro-from": "#30C8F0",
+    "badge-pro-to": "#1E90FF",
+    "badge-pro-ink": "#0A0A0A",
+    "badge-donor-bg": "#CCFBF1",
+    "badge-donor-border": "#0F766E",
+    "badge-donor-ink": "#134E4A"
   },
   "dark": {
     "accent": "#3B9EFF",
@@ -101,7 +107,13 @@
     "platform-apple": "#EDEDED",
     "on-platform-apple": "#0A0A0A",
     "platform-linux": "#FCC624",
-    "on-platform-linux": "#0A0A0A"
+    "on-platform-linux": "#0A0A0A",
+    "badge-pro-from": "#30C8F0",
+    "badge-pro-to": "#1E90FF",
+    "badge-pro-ink": "#0A0A0A",
+    "badge-donor-bg": "#042F2E",
+    "badge-donor-border": "#2DD4BF",
+    "badge-donor-ink": "#99F6E4"
   },
   "typography": {
     "$note": "Thang chữ của DESIGN_SYSTEM.md §4 dừng ở 30px (H1) - đủ cho giao diện công cụ, nhưng khối hero của một website cần bậc lớn hơn. Ba bậc dưới đây nối tiếp 30px theo lưới 4px và CHỈ dùng cho tiêu đề hero/marketing, không dùng trong luồng thao tác.",

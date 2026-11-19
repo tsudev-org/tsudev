@@ -12,6 +12,7 @@ import { Modal } from './components/Modal';
 import { Toast } from './components/Toast';
 import { Logo } from './components/Logo';
 import { Badge } from './components/Badge';
+import { TsuBadge } from './components/TsuBadge';
 import { SectionHeading } from './components/SectionHeading';
 import { Avatar } from './components/Avatar';
 import { Stat } from './components/Stat';
@@ -58,6 +59,7 @@ export {
   Toast,
   Logo,
   Badge,
+  TsuBadge,
   SectionHeading,
   Avatar,
   Stat,
@@ -78,6 +80,7 @@ export default Layout;
 // xuất chúng thì nơi dùng buộc phải viết `string` rồi đụng vào union bên trong -
 // đúng thứ đã xảy ra với `tone` của Badge ở trang quản trị dự án.
 export type { BadgeTone } from './components/Badge';
+export type { TsuBadgeValue } from './components/TsuBadge';
 export type {
   EcoApp,
   EcoGame,
