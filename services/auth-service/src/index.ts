@@ -29,7 +29,13 @@ import { parsePaging, pageMeta, ROLES } from '@tsudev/types'
 import type { Role } from '@tsudev/types'
 import { createRateLimit, identityKey, largePageRateLimit } from '@tsudev/ratelimit'
 import { postgresRateLimitStore } from './rateLimitStore'
-import { initOidc, interactionDetails, interactionFinish, oidcHandler } from './oidc'
+import {
+  initOidc,
+  interactionDetails,
+  interactionFinish,
+  interactionHint,
+  oidcHandler,
+} from './oidc'
 import {
   assertTurnstileConfig,
   LOGIN_TURNSTILE_AFTER,
@@ -1062,6 +1068,19 @@ app.post(
       return res.json(d)
     } catch {
       return res.status(400).json({ error: 'interaction_invalid' })
+    }
+  })
+)
+
+// Gợi ý lối đăng nhập (QT4) - KHÔNG cần đăng nhập: trang interaction gọi lúc người dùng
+// chưa có phiên. Đường NẰM NGOÀI `/api/identity/oidc` vì cả tiền tố đó bị gác `auth` (401) để chuyển thẳng sang Google/GitHub. Chỉ trả giá trị trong IDP_HINTS.
+app.post(
+  '/api/identity/oidc-hint',
+  asyncHandler(async (req, res) => {
+    try {
+      return res.json({ hint: await interactionHint(req, res) })
+    } catch {
+      return res.json({ hint: null })
     }
   })
 )
