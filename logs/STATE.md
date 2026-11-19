@@ -1,5 +1,10 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên kế tiếp BẮT ĐẦU Ở ĐÂY** (kết phiên tsudev-64, 19/11/2026). Phiếu
+> [`20261119-64`](handover/20261119-64_phien-64-ziczac-qt4-de-xuat-author.md). ✅ #327 khối ziczac trang chủ + #326 QT4
+> idp_hint, `deploy-2026.11.19.5` Worker `76760e4c`. 🧭 Chờ chủ dự án chốt `docs/de-xuat-trang-viet-bai.md` (trang
+> /author). Hàng đợi cũ bên dưới vẫn mở. Không khoá, không tác vụ nền.
+
 > **Phiên kế tiếp BẮT ĐẦU Ở ĐÂY** (19/11/2026, phiên điều phối projects-19). ✅ #315 deploy `deploy-2026.11.19.1`: TsuDEV,
 > Danh sách ứng dụng, icon xanh. Hàng đợi: (1) phiếu [`20261119-TC1`](handover/20261119-TC1_yeu-cau-danh-ba-khong-ten-du-an-goc.md)
 > bước 2-5 (bước 1 đã xong trong #315); (2) phiếu toàn hệ `~/projects/logs/handover/20261119-01_ke-hoach-toan-he-v3.8.0.md`

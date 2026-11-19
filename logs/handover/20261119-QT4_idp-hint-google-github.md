@@ -28,3 +28,6 @@ cầu authorize (chỉ 2 giá trị này; IdP chưa hỗ trợ thì node-oidc-pr
 - 19/11/2026 - tsudev-64 (nhận lại PR #326 theo lời mời của qulythuchi): sửa test đỏ - đường gợi ý ban đầu nằm dưới
   `/api/identity/oidc` mà cả tiền tố đó bị gác `auth` ⇒ 401 khi chưa đăng nhập; dời thành `POST /api/identity/oidc-hint`.
   Sửa định dạng phiếu (cổng Lint & format).
+- 19/11/2026 - tsudev-64: #326 merge (932f825), Worker `76760e4c` (`deploy-2026.11.19.5`). Đo production:
+  `idp_hint=google` ⇒ `/login?...&idp=google` ⇒ trình duyệt tự sang accounts.google.com; `idp_hint=apple` ⇒ `/login`
+  không có `idp`. ĐÓNG.
