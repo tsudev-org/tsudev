@@ -66,7 +66,8 @@ const SERVICES = [
     // là cách chắc chắn để một ngày nào đó gọi nhầm tầng.
     // '/oidc' (P4): nhà cung cấp OpenID Connect - giao thức công khai cho site con,
     // ngoài '/api' nên không qua cổng INTERNAL_API_TOKEN. Thiếu ở đây ⇒ 404 ở production.
-    prefixes: ['/api/identity', '/oidc'],
+    // '/ent' (PRO-B): máy chủ quyền lợi - công khai, tự xác thực (ADR-0002).
+    prefixes: ['/api/identity', '/oidc', '/ent'],
   },
 ]
 

@@ -1,4 +1,5 @@
-import { createHmac, generateKeyPairSync } from 'crypto'
+import { createHash, createHmac, createPrivateKey, generateKeyPairSync } from 'crypto'
+import type { JsonWebKey, KeyObject } from 'crypto'
 import type { Request, Response, RequestHandler } from 'express'
 import { prisma } from '@tsudev/db'
 import type { Prisma } from '@prisma/client'
@@ -36,6 +37,13 @@ type OidcProvider = {
   ) => Promise<string>
   Grant: new (args: { accountId: string; clientId: string }) => GrantInstance
   Client: { find: (id: string) => Promise<{ clientName?: string; clientId: string } | undefined> }
+  AccessToken: {
+    find: (
+      value: string
+    ) => Promise<
+      { accountId?: string; clientId?: string; scope?: string; isExpired?: boolean } | undefined
+    >
+  }
 }
 type GrantInstance = {
   addOIDCScope: (s: string) => void
@@ -91,6 +99,32 @@ type Payload = Record<string, unknown> & {
   userCode?: string
   uid?: string
   consumed?: number
+}
+
+/** Khoá ký đang dùng của provider - dùng lại để ký JWS quyền lợi (PRO-B, ADR-0002). */
+let activeSigning: { key: KeyObject; kid: string } | null = null
+
+/** `kid` = thumbprint RFC 7638 khi JWK không tự ghi `kid` - cùng cách `oidc-provider` công bố ở JWKS. */
+function jwkKid(jwk: Record<string, unknown>): string {
+  if (typeof jwk.kid === 'string' && jwk.kid) return jwk.kid
+  const canon = JSON.stringify({ crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y })
+  return createHash('sha256').update(canon).digest('base64url')
+}
+
+/** Khoá ES256 + `kid` để ký JWS quyền lợi; `null` khi OIDC tắt (thiếu khoá). */
+export const entitlementSigningKey = (): { key: KeyObject; kid: string } | null => activeSigning
+
+/**
+ * Tra access token OIDC (token mờ, lưu ở OidcPayload) - cho `/api/me/entitlements`.
+ * Hết hạn / không tồn tại / OIDC tắt ⇒ `null`.
+ */
+export async function findAccessToken(
+  value: string
+): Promise<{ accountId: string; clientId: string; scopes: string[] } | null> {
+  if (!provider || !value || value.length > 512) return null
+  const t = await provider.AccessToken.find(value)
+  if (!t || t.isExpired || !t.accountId || !t.clientId) return null
+  return { accountId: t.accountId, clientId: t.clientId, scopes: String(t.scope || '').split(' ') }
 }
 
 async function clientMetadata(id: string): Promise<Record<string, unknown> | undefined> {
@@ -214,7 +248,9 @@ export async function initOidc(): Promise<void> {
     // Gợi ý lối đăng nhập từ RP (phiếu 20261119-QT4): chỉ đọc qua `interactionHint`, giá trị
     // ngoài danh sách bị bỏ qua - không bao giờ đi thẳng vào URL chuyển hướng.
     extraParams: ['idp_hint'],
-    scopes: ['openid', 'offline_access', 'profile', 'email'],
+    // `tsudev.entitlements` (PRO-B): access token đọc được `/api/me/entitlements`.
+    // Client chỉ xin được khi bảng OAuthClient.scopes có nó.
+    scopes: ['openid', 'offline_access', 'profile', 'email', 'tsudev.entitlements'],
     claims: {
       openid: ['sub'],
       profile: ['preferred_username', 'name', 'picture'],
@@ -253,6 +289,10 @@ export async function initOidc(): Promise<void> {
   // Sau proxy (Cloudflare Worker → Render): tin X-Forwarded-Proto để cookie `secure` đúng.
   p.proxy = true
   provider = p
+  activeSigning = {
+    key: createPrivateKey({ key: jwk as JsonWebKey, format: 'jwk' }),
+    kid: jwkKid(jwk),
+  }
   disabledReason = ''
 }
 
