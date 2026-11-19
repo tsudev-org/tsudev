@@ -211,6 +211,9 @@ export async function initOidc(): Promise<void> {
     clientDefaults: { id_token_signed_response_alg: 'ES256' },
     enabledJWA: { idTokenSigningAlgValues: ['ES256'] },
     pkce: { required: () => true },
+    // Gợi ý lối đăng nhập từ RP (phiếu 20261119-QT4): chỉ đọc qua `interactionHint`, giá trị
+    // ngoài danh sách bị bỏ qua - không bao giờ đi thẳng vào URL chuyển hướng.
+    extraParams: ['idp_hint'],
     scopes: ['openid', 'offline_access', 'profile', 'email'],
     claims: {
       openid: ['sub'],
@@ -295,6 +298,22 @@ export async function interactionDetails(req: Request, res: Response) {
       .split(' ')
       .filter(Boolean),
   }
+}
+
+/** Lối đăng nhập RP gợi ý được chấp nhận. Thêm giá trị ⇒ thêm provider tương ứng ở NextAuth. */
+export const IDP_HINTS = ['google', 'github'] as const
+export type IdpHint = (typeof IDP_HINTS)[number]
+
+/**
+ * `idp_hint` của interaction đang mở, CHỈ khi nằm trong `IDP_HINTS` (ngược lại `null`).
+ * Gọi được khi CHƯA đăng nhập: cookie `_interaction` do provider ký, và câu trả lời chỉ là
+ * một giá trị trong danh sách cố định - không lộ client, scope hay dữ liệu tài khoản nào.
+ */
+export async function interactionHint(req: Request, res: Response): Promise<IdpHint | null> {
+  if (!provider) return null
+  const i = await provider.interactionDetails(withOidcCookie(req), res)
+  const hint = String(i.params.idp_hint || '')
+  return (IDP_HINTS as readonly string[]).includes(hint) ? (hint as IdpHint) : null
 }
 
 /**

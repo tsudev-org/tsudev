@@ -23,16 +23,37 @@ const SCOPE_TEXT: Record<string, string> = {
   offline_access: 'Giữ đăng nhập khi bạn không mở trang (tối đa 30 ngày)',
 };
 
+const IDP_HINTS = new Set(['google', 'github']);
+
+async function fetchIdpHint(cookie: string | undefined): Promise<string | null> {
+  try {
+    const r = await fetch(`${IDENTITY}/api/identity/oidc-hint`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...internalHeaders(),
+        'x-oidc-cookie': oidcCookies(cookie),
+      },
+      body: '{}',
+    });
+    if (!r.ok) return null;
+    const { hint } = (await r.json()) as { hint?: unknown };
+    return typeof hint === 'string' && IDP_HINTS.has(hint) ? hint : null;
+  } catch {
+    return null;
+  }
+}
+
 export const getServerSideProps: GetServerSideProps<Props> = async ({ req, params }) => {
   const uid = String(params?.uid || '');
   const token = await readSessionToken(req);
   if (!token) {
-    return {
-      redirect: {
-        destination: `/login?callbackUrl=${encodeURIComponent(`/oidc/interaction/${uid}`)}`,
-        permanent: false,
-      },
-    };
+    // RP gợi ý lối đăng nhập (`idp_hint`, phiếu QT4) ⇒ trang /login tự mở đúng provider,
+    // người dùng không phải bấm Google/GitHub lần nữa. Lỗi/không có gợi ý ⇒ /login như cũ.
+    const hint = await fetchIdpHint(req.headers.cookie);
+    const q = new URLSearchParams({ callbackUrl: `/oidc/interaction/${uid}` });
+    if (hint) q.set('idp', hint);
+    return { redirect: { destination: `/login?${q}`, permanent: false } };
   }
   try {
     const r = await fetch(`${IDENTITY}/api/identity/oidc/interaction`, {

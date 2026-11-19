@@ -233,3 +233,34 @@ test('đổi sessionVersion ⇒ refresh token chết (trigger Postgres)', async 
   const r = await tokenReq({ grant_type: 'refresh_token', refresh_token: t.refresh_token });
   assert.equal(r.status, 400);
 });
+
+test('idp_hint (QT4): google/github trả về khi chưa đăng nhập; giá trị lạ ⇒ null', async () => {
+  const hintFor = async (idpHint) => {
+    const { challenge } = pkce();
+    const q = new URLSearchParams({
+      client_id: CLIENT,
+      response_type: 'code',
+      redirect_uri: REDIRECT,
+      scope: 'openid',
+      code_challenge: challenge,
+      code_challenge_method: 'S256',
+      idp_hint: idpHint,
+    });
+    const start = await get(`/oidc/auth?${q}`);
+    assert.equal(start.status, 303);
+    const r = await fetch(`${base}/api/identity/oidc-hint`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-oidc-cookie': cookiesOf(start).join('; ') },
+      body: '{}',
+    });
+    assert.equal(r.status, 200);
+    return (await r.json()).hint;
+  };
+  assert.equal(await hintFor('google'), 'google');
+  assert.equal(await hintFor('github'), 'github');
+  assert.equal(await hintFor('apple'), null);
+  assert.equal(await hintFor('https://ke-tan-cong.example'), null);
+  // Không có cookie interaction ⇒ null, không lỗi 500.
+  const r = await fetch(`${base}/api/identity/oidc-hint`, { method: 'POST' });
+  assert.deepEqual(await r.json(), { hint: null });
+});
