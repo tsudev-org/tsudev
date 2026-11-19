@@ -102,6 +102,18 @@ export default function LoginPage({ oauth }: LoginProps) {
   const next = safeNext(router.query.callbackUrl);
 
   const queryError = typeof router.query.error === 'string' ? router.query.error : '';
+
+  // `?idp=google|github` (đặt bởi /oidc/interaction khi RP gửi `idp_hint`, phiếu QT4): mở
+  // thẳng provider đó MỘT lần. Chỉ provider đã cấu hình thật; có lỗi trả về thì KHÔNG tự mở
+  // lại (tránh vòng lặp) - người dùng thấy trang đăng nhập đầy đủ.
+  const idp = typeof router.query.idp === 'string' ? router.query.idp : '';
+  const autoIdp = useRef(false);
+  useEffect(() => {
+    if (autoIdp.current || status !== 'unauthenticated' || queryError) return;
+    if (!oauth.some((p) => p.id === idp)) return;
+    autoIdp.current = true;
+    void signIn(idp, { callbackUrl: next });
+  }, [idp, next, oauth, queryError, status]);
   const shown =
     error || (queryError ? (ERROR_TEXT[queryError] ?? 'Đăng nhập không thành công.') : '');
 
