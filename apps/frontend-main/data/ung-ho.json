@@ -1,5 +1,5 @@
 {
-  "ghiChu": "Nguồn DUY NHẤT của kênh ủng hộ hệ sinh thái tsudev, hiển thị ở https://tsudev.com/ung-ho (trang trung tâm; app và repo chỉ trỏ tới trang). Thông tin chuẩn: phiếu gốc ~/projects/logs/handover/20261112-01 mục 2. Ảnh QR chép NGUYÊN TỆP từ tsudev-files (tools/ung-ho/tao-vietqr.py sinh); tên tệp mang 8 ký tự đầu SHA-256 để cache immutable - đổi QR thì đổi tên tệp. lib/ungHo.ts kiểm VietQR lúc build trang; test/ungHo.test.ts ghim SHA-256 (CI + scripts/deploy-frontend.js).",
+  "ghiChu": "Nguồn DUY NHẤT của kênh ủng hộ hệ sinh thái TsuDEV, hiển thị ở https://tsudev.com/ung-ho (trang trung tâm; app và repo chỉ trỏ tới trang). Thông tin chuẩn: phiếu gốc ~/projects/logs/handover/20261112-01 mục 2. Ảnh QR chép NGUYÊN TỆP từ tsudev-files (tools/ung-ho/tao-vietqr.py sinh); tên tệp mang 8 ký tự đầu SHA-256 để cache immutable - đổi QR thì đổi tên tệp. lib/ungHo.ts kiểm VietQR lúc build trang; test/ungHo.test.ts ghim SHA-256 (CI + scripts/deploy-frontend.js).",
   "kenh": [
     {
       "ten": "Chuyển khoản ngân hàng (VietQR)",
