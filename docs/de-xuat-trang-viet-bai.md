@@ -1,6 +1,7 @@
 # Đề xuất - Trang Viết bài (`/author`) kiểu toà soạn báo điện tử
 
-> Trạng thái: **CHỜ CHỦ DỰ ÁN CHỐT** (mở 19/11/2026, phiên tsudev-64). Các mục đánh dấu ❓ là câu hỏi cần trả lời.
+> Trạng thái: **ĐÃ CHỐT 19/11/2026** - làm Giai đoạn A trước, ảnh tải thẳng lên R2; định dạng lưu do ADR-0003 quyết
+> (phiếu `logs/handover/20261119-65`, phase P1). Thực thi ở phase P4 của phiếu đó.
 
 ## 1. Hiện trạng (đo trong mã 19/11/2026)
 
