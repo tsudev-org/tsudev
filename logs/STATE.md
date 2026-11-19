@@ -1,5 +1,9 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên kế tiếp BẮT ĐẦU Ở ĐÂY** (19/11/2026, sau phiên tsudev-64): kế hoạch tái cấu trúc toàn diện chia 9 phase ở
+> phiếu [`20261119-65`](handover/20261119-65_ke-hoach-tai-cau-truc-toan-dien.md). Mỗi phiên làm ĐÚNG MỘT phase, bắt đầu
+> từ phase ghi ở mục 4 của phiếu (hiện: **P1 - rà quét sâu**). Không khoá, không tác vụ nền.
+
 > **Phiên kế tiếp BẮT ĐẦU Ở ĐÂY** (kết phiên tsudev-64, 19/11/2026). Phiếu
 > [`20261119-64`](handover/20261119-64_phien-64-ziczac-qt4-de-xuat-author.md). ✅ #327 khối ziczac trang chủ + #326 QT4
 > idp_hint, `deploy-2026.11.19.5` Worker `76760e4c`. 🧭 Chờ chủ dự án chốt `docs/de-xuat-trang-viet-bai.md` (trang
