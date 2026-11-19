@@ -2915,8 +2915,10 @@ app.delete(
 //
 // Chặn ở production: endpoint này không cần đăng nhập, và mỗi lần gọi là một
 // cảnh báo thật bắn về Telegram/email. Để mở thì bất kỳ ai cũng làm ngập kênh
-// trực của đội - thứ khiến cảnh báo thật bị bỏ qua.
-if (process.env.NODE_ENV !== 'production' || process.env.ENABLE_DEBUG_BOOM === 'true') {
+// trực của đội - thứ khiến cảnh báo thật bị bỏ qua. SEC-11: KHÔNG còn biến môi
+// trường nào mở lại nó ở production (cửa `ENABLE_DEBUG_BOOM` cũ đã gỡ);
+// `test/debugBoom.test.ts` canh.
+if (process.env.NODE_ENV !== 'production') {
   app.get('/debug/boom', () => {
     throw new Error('Boom! Lỗi chủ động để kiểm thử cảnh báo.')
   })

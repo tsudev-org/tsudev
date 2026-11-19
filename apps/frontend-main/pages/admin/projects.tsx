@@ -68,7 +68,8 @@ const EMPTY: ProjectForm = {
   copyrightAt: '',
   copyrightOwner: '',
   featured: false,
-  published: true,
+  // AD-03 (F-P1-08): dự án mới mặc định chưa công bố.
+  published: false,
   sortOrder: 0,
 };
 
