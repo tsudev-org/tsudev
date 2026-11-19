@@ -122,6 +122,14 @@
   --color-icon-info: var(--icon-info);
   --color-icon-trust: var(--icon-trust);
 
+  /* Huy hiệu Pro / Ủng hộ (PRO-C) - mã màu gốc ở tsudev-standards assets/badges/. */
+  --color-badge-pro-from: var(--badge-pro-from);
+  --color-badge-pro-to: var(--badge-pro-to);
+  --color-badge-pro-ink: var(--badge-pro-ink);
+  --color-badge-donor-bg: var(--badge-donor-bg);
+  --color-badge-donor-border: var(--badge-donor-border);
+  --color-badge-donor-ink: var(--badge-donor-ink);
+
   --color-platform-windows: var(--platform-windows);
   --color-platform-android: var(--platform-android);
   --color-platform-apple: var(--platform-apple);
@@ -926,5 +934,93 @@ html:not([data-auth-author]) .tsu-auth-author {
     animation: none !important;
     transition: none !important;
     translate: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Huy hiệu Pro / Ủng hộ (TsuBadge - tsudev-standards PRODUCT_POLICY 4.2, PRO-C).
+   Cao 0,75 × chiều cao dòng của tên đi kèm, kẹp 16-20 px (trình duyệt chưa có đơn vị
+   `lh` dùng 18 px); pill; cách tên 4-6 px; không đẩy tên xuống dòng. Shimmer Pro lướt
+   một lần mỗi 7 giây (WCAG 2.3.1: xa dưới 3 lần/giây); tim Ủng hộ đập nhẹ khi rê/chạm.
+   Giảm chuyển động ⇒ tắt cả hai.
+   --------------------------------------------------------------------------- */
+.tsu-badges {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  margin-inline-start: 5px;
+  vertical-align: middle;
+}
+.tsu-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+  height: clamp(16px, 0.75lh, 20px);
+  padding-inline: 0.6em;
+  overflow: hidden;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+}
+.tsu-badge--pro {
+  color: var(--badge-pro-ink);
+  letter-spacing: 0.05em;
+  background: linear-gradient(90deg, var(--badge-pro-from), var(--badge-pro-to));
+}
+.tsu-badge--pro::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  animation: tsu-badge-shimmer 7s ease-in-out infinite;
+}
+.tsu-badge--donor {
+  color: var(--badge-donor-ink);
+  background: var(--badge-donor-bg);
+  border: 1px solid var(--badge-donor-border);
+}
+.tsu-badge__heart {
+  display: inline-flex;
+  transform-origin: center;
+}
+.tsu-badge--donor:hover .tsu-badge__heart,
+.tsu-badge--donor:active .tsu-badge__heart {
+  animation: tsu-badge-heart 0.9s ease-in-out 2;
+}
+@keyframes tsu-badge-shimmer {
+  0%,
+  80% {
+    transform: translateX(-120%);
+  }
+  95%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+@keyframes tsu-badge-heart {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tsu-badge--pro::after,
+  .tsu-badge--donor .tsu-badge__heart {
+    animation: none !important;
   }
 }
