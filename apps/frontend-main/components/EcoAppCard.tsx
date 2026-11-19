@@ -85,7 +85,7 @@ export default function EcoAppCard({ app, selectable, selected, onToggle, hideIn
             {...NEW_TAB}
             className="inline-flex h-8 items-center rounded-md border border-primary-hover bg-primary px-3 text-sm font-medium text-on-primary transition-colors hover:bg-primary-hover"
           >
-            Tới Website
+            Website
             <span className="sr-only"> (mở tab mới)</span>
           </a>
         )}
@@ -99,7 +99,7 @@ export default function EcoAppCard({ app, selectable, selected, onToggle, hideIn
               className="inline-flex h-8 items-center gap-1.5 rounded-md border border-white/20 bg-black px-3 text-sm font-medium text-white transition-colors hover:border-white/40 hover:bg-neutral-900"
             >
               <Icon name="github" size={16} className="text-white!" />
-              Tới GitHub
+              GitHub
               <span className="sr-only"> (mở tab mới)</span>
             </a>
           ) : (

@@ -4,6 +4,7 @@ import { useRecoverBuildPlaceholder } from '../lib/useRecoverBuildPlaceholder';
 import Seo from '../components/Seo';
 import DownloadSection from '../components/DownloadSection';
 import EcoAppCard from '../components/EcoAppCard';
+import HomeShowcase from '../components/HomeShowcase';
 import { useScrollReveal } from '../lib/useScrollReveal';
 import {
   Layout,
@@ -16,54 +17,10 @@ import {
   Icon,
   ECOSYSTEM_APPS,
 } from '@tsudev/ui';
-import type { IconName } from '@tsudev/ui';
 import { api } from '../lib/api';
 import { KIND_LABEL, STATUS_LABEL, copyrightMeta } from '../lib/projectLabels';
 import type { Post, Project, ProjectWithReleases } from '../lib/types';
 import { keepStaleOnFailure } from '../lib/isr';
-
-/**
- * Bốn phân hệ ở khối "Hệ sinh thái". Từ 29/10/2026 tsudev.com là nơi ĐĂNG VÀ
- * PHÁT HÀNH FILE CÀI ĐẶT của các app tự phát triển, nên Dự án đứng đầu.
- *
- * Trước đây mỗi mục mang một chuỗi `d` SVG viết tay cộng một `tone` luân phiên
- * brand/teal. Hai vấn đề, và cái thứ hai mới là vấn đề thật:
- *
- *   1. Bốn icon nằm NGOÀI `@tsudev/ui`, nên chúng không đi qua bảng màu theo
- *      vai trò và không cổng tương phản nào canh chúng ở ba chế độ.
- *   2. `tone` luân phiên theo VỊ TRÍ, không theo nghĩa - màu như thế là trang
- *      trí, không phải tín hiệu.
- *
- * Nay mỗi mục khai một `IconName` và màu do VAI TRÒ của icon quyết định: chữ
- * ký ra ngọc vì nó là trust, dự án ra xanh lá vì `package` thuộc nhóm create
- * (thứ tạo ra và phát hành được).
- */
-const FEATURES: { title: string; desc: string; href: string; icon: IconName }[] = [
-  {
-    title: 'Danh sách ứng dụng',
-    desc: 'Mọi app của hệ sinh thái ở một chỗ - tìm, lọc theo nền tảng, cài nhiều app một lượt bằng winget.',
-    href: '/apps',
-    icon: 'package',
-  },
-  {
-    title: 'Tài liệu',
-    desc: 'Hướng dẫn cài đặt, nhật ký thay đổi và cách xử lý sự cố của từng app.',
-    href: '/docs',
-    icon: 'book',
-  },
-  {
-    title: 'Blog',
-    desc: 'Bài viết kỹ thuật, hướng dẫn và góc nhìn công nghệ.',
-    href: '/blog',
-    icon: 'list',
-  },
-  {
-    title: 'Trò chơi trên web',
-    desc: 'Trò chơi nhẹ chạy ngay trên trình duyệt - không cần cài, không quảng cáo.',
-    href: '/apps#tro-choi',
-    icon: 'play',
-  },
-];
 
 /**
  * Ngày HIỂN THỊ dạng tuyệt đối (DD/MM/YYYY, giờ Việt Nam), KHÔNG dạng thời gian tương đối:
@@ -181,7 +138,6 @@ export default function Home({
             nơi giới thiệu đầy đủ và tải bản cài đặt của từng app. */}
         <section className="pt-8 pb-6 reveal" id="he-sinh-thai">
           <SectionHeading
-            eyebrow="Hệ sinh thái"
             title="Sản phẩm của TsuDEV"
             action={
               <Button as="a" href="/apps" variant="ghost" size="sm">
@@ -196,24 +152,11 @@ export default function Home({
           </div>
         </section>
 
-        {/* ---------- CÓ GÌ Ở ĐÂY ---------- */}
-        <section className="pt-16 pb-6 reveal">
-          <SectionHeading eyebrow="Có gì ở đây" title="Mọi thứ cho một ứng dụng, ở một chỗ" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {FEATURES.map((e) => (
-              <a
-                key={e.title}
-                href={e.href}
-                className="tsu-glow-card block rounded-lg border border-line bg-surface p-5 group"
-              >
-                <span className="tsu-monogram inline-flex h-10 w-10 items-center justify-center rounded-lg mb-4">
-                  <Icon name={e.icon} size={20} />
-                </span>
-                <h3 className="font-medium text-fg">{e.title}</h3>
-                <p className="mt-1.5 text-sm text-fg-muted">{e.desc}</p>
-              </a>
-            ))}
-          </div>
+        {/* ---------- CÓ THỂ THỨ BẠN CẦN TÌM ĐANG Ở ĐÂY ----------
+            Bốn thẻ lớn xếp ziczac (chủ dự án yêu cầu 19/11/2026) - xem components/HomeShowcase.tsx. */}
+        <section className="pt-16 pb-6">
+          <SectionHeading className="reveal" title="Có thể thứ bạn cần tìm đang ở đây" />
+          <HomeShowcase posts={posts} />
         </section>
 
         {/* ---------- TẢI VỀ ----------
@@ -286,8 +229,15 @@ export default function Home({
         {(postsFailed || posts.length > 0) && (
           <section className="py-10 reveal">
             <SectionHeading
-              eyebrow="Mới nhất"
-              title="Bài viết nổi bật"
+              title={
+                // Nhãn "Mới nhất" ở GÓC TRÊN BÊN PHẢI chữ tiêu đề (chủ dự án yêu cầu 19/11/2026).
+                <span className="relative inline-block pr-2">
+                  Bài viết nổi bật
+                  <span className="absolute -top-3 left-full -translate-x-2 whitespace-nowrap rounded-full bg-glow px-2 py-0.5 text-[0.6875rem] font-semibold leading-none tracking-normal text-link">
+                    Mới nhất
+                  </span>
+                </span>
+              }
               action={
                 <Button as="a" href="/blog" variant="ghost" size="sm">
                   Xem tất cả →
