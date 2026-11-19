@@ -248,7 +248,7 @@ test('idp_hint (QT4): google/github trả về khi chưa đăng nhập; giá tr�
     });
     const start = await get(`/oidc/auth?${q}`);
     assert.equal(start.status, 303);
-    const r = await fetch(`${base}/api/identity/oidc/interaction/hint`, {
+    const r = await fetch(`${base}/api/identity/oidc-hint`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-oidc-cookie': cookiesOf(start).join('; ') },
       body: '{}',
@@ -261,6 +261,6 @@ test('idp_hint (QT4): google/github trả về khi chưa đăng nhập; giá tr�
   assert.equal(await hintFor('apple'), null);
   assert.equal(await hintFor('https://ke-tan-cong.example'), null);
   // Không có cookie interaction ⇒ null, không lỗi 500.
-  const r = await fetch(`${base}/api/identity/oidc/interaction/hint`, { method: 'POST' });
+  const r = await fetch(`${base}/api/identity/oidc-hint`, { method: 'POST' });
   assert.deepEqual(await r.json(), { hint: null });
 });

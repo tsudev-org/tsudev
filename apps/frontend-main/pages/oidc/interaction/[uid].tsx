@@ -27,7 +27,7 @@ const IDP_HINTS = new Set(['google', 'github']);
 
 async function fetchIdpHint(cookie: string | undefined): Promise<string | null> {
   try {
-    const r = await fetch(`${IDENTITY}/api/identity/oidc/interaction/hint`, {
+    const r = await fetch(`${IDENTITY}/api/identity/oidc-hint`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

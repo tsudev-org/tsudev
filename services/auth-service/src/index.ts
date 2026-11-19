@@ -1073,9 +1073,9 @@ app.post(
 )
 
 // Gợi ý lối đăng nhập (QT4) - KHÔNG cần đăng nhập: trang interaction gọi lúc người dùng
-// chưa có phiên để chuyển thẳng sang Google/GitHub. Chỉ trả giá trị trong IDP_HINTS.
+// chưa có phiên. Đường NẰM NGOÀI `/api/identity/oidc` vì cả tiền tố đó bị gác `auth` (401) để chuyển thẳng sang Google/GitHub. Chỉ trả giá trị trong IDP_HINTS.
 app.post(
-  '/api/identity/oidc/interaction/hint',
+  '/api/identity/oidc-hint',
   asyncHandler(async (req, res) => {
     try {
       return res.json({ hint: await interactionHint(req, res) })
