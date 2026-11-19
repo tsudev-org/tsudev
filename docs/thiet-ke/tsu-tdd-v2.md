@@ -11,7 +11,7 @@
 | Đối tượng đọc       | Lập trình viên full-stack, kỹ sư hạ tầng/bảo mật, UI/UX                                                                      |
 | Nguồn hiện trạng    | `docs/thiet-ke/ra-quet-20261119.md` (rà quét P1, mã F-xx / F-P1-xx) + mã nguồn repo `tsudev-org/tsudev` tại commit `f1d6225` |
 | Kế hoạch thực thi   | phiếu `logs/handover/20261119-65_ke-hoach-tai-cau-truc-toan-dien.md` (phase P4-P9)                                           |
-| Trạng thái          | Chương 1-13 (P2) xong; chương 14-23 do phase P3 viết nối                                                                     |
+| Trạng thái          | **Hoàn chỉnh** chương 1-23 (P2: 1-13, P3: 14-23, 19/11/2026); thực thi theo chương 23 (P4-P9)                                |
 | Bản sao review      | `docs/thiet-ke/tsu-tdd-v2.md` trong repo (qua PR). Tệp này và bản sao phải giống nhau                                        |
 
 > **Quy ước từ khoá**: **PHẢI** = bắt buộc; **NÊN** = khuyến nghị mạnh, bỏ qua phải ghi lý do; **CÓ THỂ** = tuỳ chọn.
@@ -43,7 +43,16 @@
 11. Khu vực Quản trị (Admin)
 12. Danh mục Modal / Popup / Drawer / Toast
 13. Chuyển động & vi tương tác
-    14-23. (phase P3) Kiến trúc kỹ thuật, dữ liệu, API, bảo mật, pháp lý, giám sát, hiệu năng/SEO/a11y, CI/CD, lộ trình
+14. Kiến trúc kỹ thuật (hiện trạng + đích 0đ)
+15. Mô hình dữ liệu (Prisma)
+16. API - mở rộng route hiện có
+17. Bảo mật - đối chiếu `docs/security-plan.md`, mức ASVS
+18. Tuân thủ pháp luật Việt Nam
+19. Giám sát, nhật ký & ứng phó sự cố
+20. Hiệu năng, SEO & khả năng tiếp cận
+21. Kiểm thử, CI/CD & chuỗi cung ứng
+22. Sổ quyết định, đính chính, rủi ro & phụ lục
+23. Lộ trình P4-P9 và nghiệm thu
 
 ---
 
@@ -651,26 +660,26 @@ dùng Plausible/Umami/ClickHouse (v1.0) - thêm tiến trình hoặc dịch vụ
 
 ### 8.8. Yêu cầu
 
-| Mã    | Yêu cầu                                                                                                                                                                                                                                                                                                | Giải quyết | File sẽ sửa                                                                                                                               | Phase    |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| ED-01 | Bỏ `published: true` khỏi giá trị khởi tạo; form nhanh bị gỡ hẳn khi `/studio` thay `/author` - trước đó đổi mặc định thành Nháp ngay đầu P4.                                                                                                                                                          | F-01       | `pages/author.tsx` (dòng 84, nhãn dòng 606)                                                                                               | P4 (đầu) |
-| ED-02 | MỘT lối tạo bài: `/studio` không còn form 13 ô; nút "+ Viết bài" → `/studio/posts/new`.                                                                                                                                                                                                                | F-04, F-05 | `pages/author.tsx` → `pages/studio/index.tsx`, `pages/studio/posts.tsx` (mới)                                                             | P4       |
-| ED-03 | `WorkspaceLayout` cho Studio (mục 8.1), trang tách: tổng quan / bài / tài liệu / ảnh; `AuthorDocs` thành `/studio/docs`.                                                                                                                                                                               | F-04       | `components/WorkspaceLayout.tsx` (mới), `components/AuthorDocs.tsx`, `pages/studio/docs/index.tsx` (mới)                                  | P4       |
-| ED-04 | Trình soạn 3 vùng + thanh hành động dính + trạng thái lưu ("Đang lưu… / Đã lưu HH:mm / Lỗi - thử lại").                                                                                                                                                                                                | F-04       | `pages/author/posts/[slug].tsx` → `pages/studio/posts/[slug].tsx`                                                                         | P4       |
-| ED-05 | Menu `/` chèn khối, menu nổi khi bôi chọn, bảng, danh sách việc, chú thích ảnh, callout `> [!NOTE]`, nhúng video - mỗi khối có ca trong test khứ hồi (PG-01).                                                                                                                                          | F-P1-01    | `components/MarkdownEditor.tsx`, `test/mdRoundTrip.test.ts` (mới)                                                                         | P4       |
-| ED-06 | Nhãn ARIA nút thanh công cụ bắt đầu bằng chữ hiện ("H2 - Tiêu đề cấp 2").                                                                                                                                                                                                                              | F-P1-09    | `components/MarkdownEditor.tsx`                                                                                                           | P4       |
-| ED-07 | Tải ảnh: kéo-thả/dán/chọn tệp → nén WebP ở trình duyệt (canvas, cạnh dài ≤ 2000 px, chất lượng 0,82) → presign PUT `/api/storage/*` → chèn Markdown; hộp thoại alt bắt buộc trước khi chèn. Máy chủ: presign chỉ ký `image/webp                                                                        | png        | jpeg                                                                                                                                      | gif      | avif` và trần kích thước (việc backend nhỏ, không migration; chi tiết ở chương 17 - P3). | -   | `components/MarkdownEditor.tsx`, `lib/imageUpload.ts` (mới), `services/storage-service/src/index.ts` | P4  |
-| ED-08 | Tự lưu: localStorage mỗi lần gõ (debounce 1 s, khoá theo slug, khôi phục có hỏi); máy chủ mỗi 30 s KHI nội dung đổi và bài là Nháp. Vì mỗi lần lưu hiện tạo `PostRevision` (`recordRevision`), backend PHẢI gộp: cùng người sửa trong 10 phút ⇒ cập nhật revision cuối thay vì thêm (không migration). | F-02       | `pages/studio/posts/[slug].tsx` (đổi tên ở ED-04), `lib/useAutosave.ts` (mới), `services/content-service/src/index.ts` (`recordRevision`) | P4       |
-| ED-09 | Cảnh báo rời trang khi chưa lưu (`beforeunload` + chặn `routeChangeStart` bằng `ConfirmDialog`).                                                                                                                                                                                                       | F-02       | `pages/studio/posts/[slug].tsx` (đổi tên ở ED-04)                                                                                         | P4       |
-| ED-10 | Phát hiện sửa chồng: client gửi `updatedAt` đã đọc; máy chủ trả **409** nếu khác, giao diện mở `ConfirmDialog` "Bài đã được sửa lúc HH:mm bởi X" (Tải bản mới / Xem khác biệt / Ghi đè - ghi đè chỉ MODERATOR+). P4 làm ở mức so `updatedAt` (không migration); P7 nâng lên `If-Match`.                | F-02       | `pages/studio/posts/[slug].tsx` (đổi tên ở ED-04), `services/content-service/src/index.ts`                                                | P4       |
-| ED-11 | Xem trước dùng đúng `renderMarkdown` + CSS bài thật, chuyển Máy tính/Di động (khung 390 px), Sáng/Tối. Không "liên kết xem trước có ký" của v1.0 ở A (cần token + route mới - để P7).                                                                                                                  | -          | `pages/studio/posts/[slug].tsx` (đổi tên ở ED-04), `packages/ui/src/components/Article.tsx`                                               | P4       |
-| ED-12 | Tab Kiểm tra (phía trình duyệt ở A): tiêu đề ≤ 70, mô tả ≤ 160, có ảnh bìa, ảnh thiếu alt, tiêu đề nhảy cấp, liên kết `http:`, đoạn > 120 từ, số từ, thời gian đọc. Cùng hàm dùng lại phía máy chủ ở P7 (WF-05).                                                                                       | F-17       | `lib/contentChecks.ts` (mới), `lib/seoTitle.ts`                                                                                           | P4       |
-| ED-13 | Ô thẻ dạng chip có gợi ý từ thẻ đã dùng; slug tự suy không dấu, khoá sau khi công bố (đổi slug đã công bố cần chuyển hướng - P7).                                                                                                                                                                      | F-06       | `packages/ui/src/components/TagInput.tsx` (mới), `pages/studio/posts/[slug].tsx` (đổi tên ở ED-04)                                        | P4       |
-| ED-14 | Phím tắt: Ctrl+S lưu, Ctrl+Shift+P xem trước, Ctrl+Enter hành động chính; bảng phím tắt `?`.                                                                                                                                                                                                           | -          | `pages/studio/posts/[slug].tsx` (đổi tên ở ED-04)                                                                                         | P4       |
-| ED-15 | `/studio/posts/new/history` (và slug không tồn tại) trả 404.                                                                                                                                                                                                                                           | F-P1-13    | `pages/author/posts/[slug]/history.tsx` → `pages/studio/posts/[slug]/history.tsx`                                                         | P4       |
-| ED-16 | `/studio/media`: lưới ảnh từ `GET /api/files`, chép Markdown.                                                                                                                                                                                                                                          | -          | `pages/studio/media.tsx` (mới)                                                                                                            | P4       |
-| ED-17 | Ô nhóm tài liệu chọn từ danh sách `lib/docCategories.ts` (không còn chữ tự do); thêm nhóm mới chỉ MODERATOR+.                                                                                                                                                                                          | F-06       | `components/AuthorDocs.tsx`, `lib/docCategories.ts`                                                                                       | P4       |
-| ED-18 | E2E: viết → tải ảnh → lưu → gửi duyệt → MODERATOR công bố → trang công khai vẽ đủ khối; đăng nhập qua bước TOTP (`totpCode()`).                                                                                                                                                                        | PR-09      | `e2e/tests/cms.spec.js`, `e2e/tests/upload.spec.js`                                                                                       | P4       |
+| Mã    | Yêu cầu                                                                                                                                                                                                                                                                                                                                           | Giải quyết | File sẽ sửa                                                                                                                               | Phase    |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| ED-01 | Bỏ `published: true` khỏi giá trị khởi tạo; form nhanh bị gỡ hẳn khi `/studio` thay `/author` - trước đó đổi mặc định thành Nháp ngay đầu P4.                                                                                                                                                                                                     | F-01       | `pages/author.tsx` (dòng 84, nhãn dòng 606)                                                                                               | P4 (đầu) |
+| ED-02 | MỘT lối tạo bài: `/studio` không còn form 13 ô; nút "+ Viết bài" → `/studio/posts/new`.                                                                                                                                                                                                                                                           | F-04, F-05 | `pages/author.tsx` → `pages/studio/index.tsx`, `pages/studio/posts.tsx` (mới)                                                             | P4       |
+| ED-03 | `WorkspaceLayout` cho Studio (mục 8.1), trang tách: tổng quan / bài / tài liệu / ảnh; `AuthorDocs` thành `/studio/docs`.                                                                                                                                                                                                                          | F-04       | `components/WorkspaceLayout.tsx` (mới), `components/AuthorDocs.tsx`, `pages/studio/docs/index.tsx` (mới)                                  | P4       |
+| ED-04 | Trình soạn 3 vùng + thanh hành động dính + trạng thái lưu ("Đang lưu… / Đã lưu HH:mm / Lỗi - thử lại").                                                                                                                                                                                                                                           | F-04       | `pages/author/posts/[slug].tsx` → `pages/studio/posts/[slug].tsx`                                                                         | P4       |
+| ED-05 | Menu `/` chèn khối, menu nổi khi bôi chọn, bảng, danh sách việc, chú thích ảnh, callout `> [!NOTE]`, nhúng video - mỗi khối có ca trong test khứ hồi (PG-01).                                                                                                                                                                                     | F-P1-01    | `components/MarkdownEditor.tsx`, `test/mdRoundTrip.test.ts` (mới)                                                                         | P4       |
+| ED-06 | Nhãn ARIA nút thanh công cụ bắt đầu bằng chữ hiện ("H2 - Tiêu đề cấp 2").                                                                                                                                                                                                                                                                         | F-P1-09    | `components/MarkdownEditor.tsx`                                                                                                           | P4       |
+| ED-07 | Tải ảnh: kéo-thả/dán/chọn tệp → nén WebP ở trình duyệt (canvas, cạnh dài ≤ 2000 px, chất lượng 0,82) → presign PUT `/api/storage/*` → chèn Markdown; hộp thoại alt bắt buộc trước khi chèn. Máy chủ: presign chỉ ký `image/webp`, `png`, `jpeg`, `gif`, `avif` và trần kích thước (việc backend nhỏ, không migration; chi tiết ở chương 17 - P3). | -          | `components/MarkdownEditor.tsx`, `lib/imageUpload.ts` (mới), `services/storage-service/src/index.ts`                                      | P4       |
+| ED-08 | Tự lưu: localStorage mỗi lần gõ (debounce 1 s, khoá theo slug, khôi phục có hỏi); máy chủ mỗi 30 s KHI nội dung đổi và bài là Nháp. Vì mỗi lần lưu hiện tạo `PostRevision` (`recordRevision`), backend PHẢI gộp: cùng người sửa trong 10 phút ⇒ cập nhật revision cuối thay vì thêm (không migration).                                            | F-02       | `pages/studio/posts/[slug].tsx` (đổi tên ở ED-04), `lib/useAutosave.ts` (mới), `services/content-service/src/index.ts` (`recordRevision`) | P4       |
+| ED-09 | Cảnh báo rời trang khi chưa lưu (`beforeunload` + chặn `routeChangeStart` bằng `ConfirmDialog`).                                                                                                                                                                                                                                                  | F-02       | `pages/studio/posts/[slug].tsx` (đổi tên ở ED-04)                                                                                         | P4       |
+| ED-10 | Phát hiện sửa chồng: client gửi `updatedAt` đã đọc; máy chủ trả **409** nếu khác, giao diện mở `ConfirmDialog` "Bài đã được sửa lúc HH:mm bởi X" (Tải bản mới / Xem khác biệt / Ghi đè - ghi đè chỉ MODERATOR+). P4 làm ở mức so `updatedAt` (không migration); P7 nâng lên `If-Match`.                                                           | F-02       | `pages/studio/posts/[slug].tsx` (đổi tên ở ED-04), `services/content-service/src/index.ts`                                                | P4       |
+| ED-11 | Xem trước dùng đúng `renderMarkdown` + CSS bài thật, chuyển Máy tính/Di động (khung 390 px), Sáng/Tối. Không "liên kết xem trước có ký" của v1.0 ở A (cần token + route mới - để P7).                                                                                                                                                             | -          | `pages/studio/posts/[slug].tsx` (đổi tên ở ED-04), `packages/ui/src/components/Article.tsx`                                               | P4       |
+| ED-12 | Tab Kiểm tra (phía trình duyệt ở A): tiêu đề ≤ 70, mô tả ≤ 160, có ảnh bìa, ảnh thiếu alt, tiêu đề nhảy cấp, liên kết `http:`, đoạn > 120 từ, số từ, thời gian đọc. Cùng hàm dùng lại phía máy chủ ở P7 (WF-05).                                                                                                                                  | F-17       | `lib/contentChecks.ts` (mới), `lib/seoTitle.ts`                                                                                           | P4       |
+| ED-13 | Ô thẻ dạng chip có gợi ý từ thẻ đã dùng; slug tự suy không dấu, khoá sau khi công bố (đổi slug đã công bố cần chuyển hướng - P7).                                                                                                                                                                                                                 | F-06       | `packages/ui/src/components/TagInput.tsx` (mới), `pages/studio/posts/[slug].tsx` (đổi tên ở ED-04)                                        | P4       |
+| ED-14 | Phím tắt: Ctrl+S lưu, Ctrl+Shift+P xem trước, Ctrl+Enter hành động chính; bảng phím tắt `?`.                                                                                                                                                                                                                                                      | -          | `pages/studio/posts/[slug].tsx` (đổi tên ở ED-04)                                                                                         | P4       |
+| ED-15 | `/studio/posts/new/history` (và slug không tồn tại) trả 404.                                                                                                                                                                                                                                                                                      | F-P1-13    | `pages/author/posts/[slug]/history.tsx` → `pages/studio/posts/[slug]/history.tsx`                                                         | P4       |
+| ED-16 | `/studio/media`: lưới ảnh từ `GET /api/files`, chép Markdown.                                                                                                                                                                                                                                                                                     | -          | `pages/studio/media.tsx` (mới)                                                                                                            | P4       |
+| ED-17 | Ô nhóm tài liệu chọn từ danh sách `lib/docCategories.ts` (không còn chữ tự do); thêm nhóm mới chỉ MODERATOR+.                                                                                                                                                                                                                                     | F-06       | `components/AuthorDocs.tsx`, `lib/docCategories.ts`                                                                                       | P4       |
+| ED-18 | E2E: viết → tải ảnh → lưu → gửi duyệt → MODERATOR công bố → trang công khai vẽ đủ khối; đăng nhập qua bước TOTP (`totpCode()`).                                                                                                                                                                                                                   | PR-09      | `e2e/tests/cms.spec.js`, `e2e/tests/upload.spec.js`                                                                                       | P4       |
 
 ---
 
@@ -1005,9 +1014,997 @@ Bỏ hiệu ứng gõ chữ ở dải lệnh (v1.0): làm chậm việc chép l�
 
 ---
 
-> **Hết phần 1 (chương 1-13, phase P2, 19/11/2026).** Chương 14-23 (kiến trúc, dữ liệu, API, bảo mật, pháp lý, giám
-> sát, hiệu năng/SEO/a11y, CI/CD, lộ trình chi tiết P4-P9) do phase P3 viết nối vào đây. Các điểm chương 1-13 đã
-> chuyển cho P3 quyết: bảng phiên để liệt kê thiết bị (10.2), trần kích thước + loại tệp của presign (ED-07), xoá
-> vĩnh viễn sau 30 ngày thùng rác so với trigger chặn xoá cứng (9.2), Cloudflare Access cho `/admin` (11.1), HIBP
-> k-anonymity (10.2), `pg_trgm` cho tìm kiếm chịu lỗi gõ (6.3), giá trị SLA takedown luật định (11.2), CSP
-> `connect-src` cho Turnstile (F-P1-14).
+> Các điểm chương 1-13 chuyển cho P3 (bảng phiên, presign, thùng rác 30 ngày, Cloudflare Access, HIBP, `pg_trgm`, SLA
+> takedown, CSP Turnstile) đã có quyết định ở 15.4, 17.3, 17.4, 18.1-18.3; đính chính chương 1-13 ở 22.1.
+
+---
+
+## 14. Kiến trúc kỹ thuật (hiện trạng + đích 0đ)
+
+Mã yêu cầu chương 14-23: `AR-` kiến trúc · `DB-` dữ liệu · `API-` API · `SEC-` bảo mật · `LG-` pháp lý · `OB-` giám
+sát/nhật ký · `PF-` hiệu năng/SEO/a11y · `CI-` kiểm thử/CI/CD · `RK-` rủi ro/sổ quyết định. Cột như chương 3-13.
+
+### 14.1. Ngăn xếp thật và đề xuất v1.0 bị thay
+
+| Lớp            | v1.0 đề xuất                               | Giữ / thay bằng (lý do)                                                                                                                                                                                                             |
+| -------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend + BFF | Next App Router + RSC                      | **Giữ Next 16 Pages Router** trên Cloudflare Workers (OpenNext). Vỏ trang qua `getLayout` (chương 6). App Router chỉ khi có ADR riêng: đổi router = viết lại 40+ trang, proxy BFF, ISR R2 - không đổi được hành vi người dùng thấy  |
+| Giao diện      | Tailwind 4 + Radix                         | **Giữ Tailwind 4 + `@tsudev/ui`** (component tự viết, token `.standards/`). Không thêm Radix: hộp thoại/disclosure đã có trong `packages/ui`, thêm thư viện thứ hai là hai nguồn hành vi bàn phím                                   |
+| Trình soạn     | TipTap 2 + JSON                            | **Tiptap 3 + Markdown GFM** (ADR-0001, ADR-0003)                                                                                                                                                                                    |
+| Vẽ Markdown    | unified + rehype-sanitize + Shiki          | **`marked` dùng chung trình soạn + bộ lọc HTML** (ADR-0003, PG-01). Shiki (~1 MB ngữ pháp) không chạy được trong trần 10 ms CPU của Worker cho trang ISR lớn - tô màu mã giữ phía trình duyệt như hiện có                           |
+| API nghiệp vụ  | Monolith mô-đun, có thể tách Rust          | **3 service Express (CommonJS) gộp `backend-bundle`** - một tiến trình Render free (750 giờ/tháng cho cả workspace). Rust chỉ ở `packages/trust-crypto` (WASM, ký bản phát hành)                                                    |
+| CSDL           | Postgres 17 + RLS + Drizzle                | **Neon Postgres 18 + Prisma**. Không RLS (một vai trò DB cho cả bundle; ranh giới là `@tsudev/auth` + trigger chỉ-thêm). Đổi ORM không có lợi đo được                                                                               |
+| Cache/hàng đợi | Valkey + BullMQ                            | **Không có**. Rate limit = bảng Postgres (`@tsudev/ratelimit`); hàng đợi ISR = `memoryQueue`; việc theo lịch = Worker cron `canh-site-cron` gọi `/api/internal/*`. Không Queues (gói trả phí - `docs/free-tier.md` "Danh sách cấm") |
+| Tìm kiếm       | Meilisearch                                | **Postgres FTS + `unaccent` + `searchBodyNorm`** (`@tsudev/search`, SEARCH_AND_FILTER). `pg_trgm` cho lỗi gõ: xem DB-09                                                                                                             |
+| Lưu trữ        | MinIO tự host + imgproxy                   | **R2** (prod) / MinIO (dev). Biến thể ảnh: nén WebP ở trình duyệt (ED-07), không imgproxy (tiến trình thứ hai)                                                                                                                      |
+| Quét tệp       | ClamAV                                     | **Magic bytes + danh sách loại + trần kích thước** (SEC-05); bản phát hành giữ VirusTotal hiện có (`releaseSecurity.ts`). ClamAV cần ~1 GB RAM thường trực - vượt Render free 512 MB                                                |
+| Xác thực       | Lucia/SimpleWebAuthn hoặc Kratos/Keycloak  | **Giữ auth-service** (Argon2id, passkey, TOTP, step-up, OIDC provider ES256). IdP tự host = tiến trình thứ hai                                                                                                                      |
+| Thư            | SMTP có SPF/DKIM/DMARC                     | **Resend** (3.000 thư/tháng, 100/ngày) - mọi thư mới (WF-09, SEC-10) PHẢI tính vào trần này (OB-05)                                                                                                                                 |
+| Quan sát       | OTel + Grafana/Loki/Tempo + Sentry tự host | **Workers Logs + log Render + `packages/observability` (Sentry gói free nếu có DSN, `notify.js` Telegram/email) + Worker cron đo nội dung** (chương 19)                                                                             |
+| Biên           | CDN + WAF (Coraza/CRS) + bot mgmt          | **Cloudflare** (proxy, TLS, WAF managed rules của gói Free, Turnstile). Không WAF tự host                                                                                                                                           |
+| Hạ tầng/IaC    | K8s/Nomad + OpenTofu                       | **`render.yaml` + hai `wrangler.jsonc` + `config/topology.json`** là IaC hiện có. Không K8s                                                                                                                                         |
+| Bí mật         | Vault/OpenBao hoặc SOPS + age              | **Biến môi trường Render + secret Wrangler + GitHub Secrets**; sao lưu khoá ký + DB mã hoá bằng `age` (`infrastructure/sao-luu/`, G11/G12). Vault = tiến trình thứ hai                                                              |
+| Môi trường     | dev · staging · production                 | **dev (máy) · preview Worker (tuỳ chọn) · production**. Staging đầy đủ cần Render service thứ hai - vi phạm ngân sách số 1. Thay bằng E2E ở CI trên Postgres dịch vụ + MinIO và `opennextjs-cloudflare preview` cho frontend        |
+
+### 14.2. Sơ đồ triển khai (thật)
+
+```mermaid
+flowchart TB
+  U[Trình duyệt / app hệ sinh thái] -->|HTTPS, HSTS| CF[Cloudflare: DNS, TLS, WAF Free, Turnstile]
+  CF --> W[Worker frontend-main<br/>Next 16 Pages Router - OpenNext]
+  W -->|ISR cache| R2C[(R2 tsudev-next-cache)]
+  W -->|lượt xem| D1[(D1 VIEWS_DB)]
+  W -->|BFF: INTERNAL_API_TOKEN + khẳng định danh tính| RB[Render free: backend-bundle :4000<br/>bảng tiền tố → content / storage / identity]
+  RB --> NE[(Neon Postgres 18<br/>Prisma, trigger chỉ-thêm)]
+  RB -->|ký presign| R2[(R2 bucket tệp + bản phát hành)]
+  U -->|PUT/GET presign| R2
+  RB --> RS[Resend]
+  RB --> VT[VirusTotal - bản phát hành]
+  CR[Worker canh-site-cron] -->|*/5 phút trừ 01-06h VN: giữ ấm + đo nội dung| W
+  CR -->|/api/internal/*| RB
+  CR --> D1
+  CR -->|CU-giờ| NEAPI[Neon API]
+  GH[GitHub Actions] -->|13 check bắt buộc| MAIN[main]
+  DEV[Máy chủ dự án] -->|scripts/deploy-frontend.js| W
+  MAIN -->|auto deploy| RB
+```
+
+Hai điều sơ đồ v1.0 thiếu và v2.0 PHẢI giữ: (1) trang công khai sống được khi Render ngủ/chết nhờ ISR R2 +
+`keepStaleOnFailure()`; (2) tệp lớn không đi qua Worker hay Render (presign thẳng R2).
+
+### 14.3. Cấu trúc mã nguồn
+
+Giữ Hình trạng B (`.standards/docs/PROJECT_STRUCTURE.md` §2). Không tạo `apps/worker`, `packages/editor`,
+`packages/content`, `packages/audit` như v1.0 nếu chưa có hai nơi dùng chung. Thêm có điều kiện:
+
+| Đích                                                         | Khi nào                                                                                                                       |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `packages/types/src/contentChecks.ts`                        | P7 (WF-05) - mã chạy được cả Workers lẫn Node, `packages/types` đã là nơi dùng chung đó                                       |
+| `packages/types/src/markdown.ts` (bộ vẽ `marked` dùng chung) | P4 (PG-01) nếu trình soạn (`apps/`) và service cùng cần; nếu chỉ frontend dùng ⇒ giữ ở `apps/frontend-main/lib/md.ts`         |
+| `services/newsroom-service/`, `services/trust-service/`      | Chỉ còn `dist/` + `tsbuildinfo` KHÔNG theo dõi trong git (rác sau khi gỡ). Xoá ở máy (`rm -rf`), không cần PR. Không dựng lại |
+
+### 14.4. Việc theo lịch không có hàng đợi
+
+Mọi việc định kỳ chạy bằng Worker cron gọi endpoint nội bộ có `INTERNAL_API_TOKEN`, gộp vào hai nhịp sẵn có
+(`*/5 0-17,23 * * *` và `23 1,13 * * *` - giờ UTC). Bài hẹn giờ KHÔNG cần cron: `postWorkflow.ts` suy trạng thái lúc
+đọc (`publishedAt > now` ⇒ chưa công khai) - chương 9 vẽ "Đến giờ (cron có sẵn)" là cách nói, hành vi thật là suy lúc
+đọc. Việc mới đề xuất trong tài liệu này và nhịp gánh nó:
+
+| Việc                                                                 | Nhịp                                                | Chi phí Neon                      |
+| -------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------- |
+| (đã có, không cron) dọn `RateLimitBucket`, `SecurityEvent` > 90 ngày | trên đường ghi (`rateLimitStore.ts`, `logSecurity`) | 0 - mẫu NÊN theo cho việc dọn mới |
+| Hết hạn thùng rác > 30 ngày (DB-07)                                  | 2 lần/ngày                                          | như trên                          |
+| Đồng hồ SLA takedown (AD-06, LG-05)                                  | 2 lần/ngày + khi mở trang                           | như trên                          |
+| Hạn `security.txt` (SEC-12)                                          | Không cần cron: tính lúc vẽ `/admin`                | 0                                 |
+
+Luật: không thêm biểu thức cron mới (mỗi nhịp mới gọi Render là một lần đánh thức Neon - `docs/free-tier.md`
+ngân sách số 2); việc mới đi vào handler của nhịp `23 1,13 * * *`.
+
+### 14.5. Yêu cầu
+
+| Mã    | Yêu cầu                                                                                                                                                         | Giải quyết   | File sẽ sửa                                                                                   | Phase |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------------------- | ----- |
+| AR-01 | Không thêm tiến trình thường trực, binding trả phí hay dịch vụ tính tiền; mọi PR thêm phụ thuộc hạ tầng PHẢI cập nhật `docs/free-tier.md` cùng commit.          | PR-05        | `docs/free-tier.md`                                                                           | P4-P9 |
+| AR-02 | Route mới của service có tiền tố chưa có trong bảng ⇒ thêm vào `SERVICES` của bundle cùng PR; `test/prefixCoverage.test.ts` canh.                               | -            | `services/backend-bundle/src/index.ts`, `services/backend-bundle/test/prefixCoverage.test.ts` | P4-P9 |
+| AR-03 | Việc định kỳ mới đi vào handler nhịp `23 1,13` của `canh-site-cron` qua `/api/internal/*`; không biểu thức cron mới; `cronContract.test.ts` cập nhật.           | -            | `infrastructure/canh-site-cron/src/index.ts`, `apps/frontend-main/test/cronContract.test.ts`  | P7-P8 |
+| AR-04 | Trang mới công khai đọc nội dung PHẢI là ISR qua `lib/isr.ts` (`keepStaleOnFailure`) và vào danh sách `test/isrPages.test.ts`; trang theo người dùng không ISR. | PG-05..PG-13 | `apps/frontend-main/lib/isr.ts`, `apps/frontend-main/test/isrPages.test.ts`                   | P6    |
+| AR-05 | Mã dùng chung Workers + Node đặt ở package thuần (không `fs`, không native); kiểm bằng typecheck cả `tsconfig.json` lẫn `tsconfig.services.json`.               | WF-05        | `packages/types/src/*`, `tsconfig.services.json`                                              | P4/P7 |
+| AR-06 | Không đổi router (App Router), ORM, hay thêm Radix/Framer Motion/Shiki phía máy chủ khi chưa có ADR mới.                                                        | 14.1         | `docs/adr/` (nếu đổi)                                                                         | -     |
+| AR-07 | Dọn rác máy: `services/newsroom-service/`, `services/trust-service/` (chỉ `dist/`, ngoài git).                                                                  | -            | (ngoài git)                                                                                   | P4    |
+
+---
+
+## 15. Mô hình dữ liệu (Prisma)
+
+Nguồn: `packages/db/prisma/schema.prisma` (Prisma, một schema, Neon Postgres 18), 31 thư mục migration tới
+`20261114140000_oidc_dang_nhap_chung`. v1.0 vẽ lại toàn bộ (UUIDv7, `content_items` gộp bài + tài liệu, `roles`/
+`permissions`, `sessions`, `media`, `audit_events` có băm, envelope encryption). v2.0 **không** viết lại: phần lớn đã có
+dưới tên khác, phần còn lại thêm bằng migration cộng dồn.
+
+### 15.1. Model hiện có (rút gọn)
+
+```mermaid
+erDiagram
+  User ||--o{ Post : "authorId (SetNull)"
+  User ||--o{ WebAuthnCredential : passkeys
+  User ||--o| TotpCredential : totp
+  User ||--o{ BackupCode : "mã dự phòng"
+  User ||--o{ AuthToken : "xác minh/đặt lại"
+  User ||--o{ SecurityEvent : "chỉ-thêm + prevHash"
+  User ||--o{ EmailAlias : "bí danh"
+  User ||--o{ FileObject : "ownerId"
+  Category ||--o{ Post : "1 chuyên mục"
+  Post ||--o{ PostRevision : "phiên bản"
+  Post ||--o{ PostStatusEvent : "lịch sử trạng thái"
+  Post ||--o{ PostViewDaily : "lượt xem/ngày"
+  Project ||--o{ ProjectRelease : "bản phát hành ký Ed25519"
+  OAuthClient ||--o{ OidcPayload : "grant/phiên OIDC"
+  TrustAuditLog }o--|| User : "actorId (chỉ-thêm + prevHash)"
+```
+
+| Nhu cầu v1.0                       | Đã có ở                                                                                                                                   |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `users`, `credentials_password`    | `User` (`passwordHash` Argon2id, `passwordBreached`/`passwordCheckedAt` - HIBP đã chạy trong `services/auth-service/src/password.ts`)     |
+| `webauthn_credentials`, `totp`, mã | `WebAuthnCredential`, `TotpCredential` (bí mật mã hoá bằng `TOTP_ENCRYPTION_KEY`), `BackupCode`                                           |
+| `sessions`                         | KHÔNG có bảng: JWT next-auth + `User.sessionVersion` (thu hồi tất cả) - xem DB-08                                                         |
+| `roles/permissions/user_roles`     | enum `Role` (thang cố định) - giữ (PR-02, chương 9.1)                                                                                     |
+| `content_items` + `revisions`      | `Post` / `Doc` riêng; `PostRevision`; `PostStatusEvent`; trạng thái `PostStatus`                                                          |
+| `terms` (category/tag/label)       | `Category`; `Post.tags String[]` + GIN; nhãn: DB-02                                                                                       |
+| `media`                            | `FileObject` (key, tên, loại, size, `ownerId` - **hiện không được ghi**, SEC-05)                                                          |
+| `products/releases/release_assets` | `Project` + `ProjectRelease` (sha256 + chữ ký do máy chủ, niêm phong, `ReleaseSecurityState`)                                             |
+| `audit_events` + chuỗi băm         | `TrustAuditLog` + `SecurityEvent`: trigger CHỈ-THÊM, chặn TRUNCATE, `prevHash` do trigger tính, `releaseSecurity.ts` kiểm toàn chuỗi (G8) |
+| `page_views_daily`                 | `PostViewDaily` (gom từ D1 `VIEWS_DB` mỗi ngày bởi cron)                                                                                  |
+| Xoá mềm + chặn xoá cứng            | `deletedAt` + trigger `tsudev_block_hard_delete` trên `Post`, `Doc`, `Project` (mở khoá chỉ bằng `SET LOCAL tsudev.allow_hard_delete`)    |
+| Tìm kiếm không dấu                 | `searchTitleNorm`/`searchBodyNorm` + chỉ mục GIN `gin_trgm_ops` (extension `pg_trgm` **đã cài**) trên `Post` và `Doc`                     |
+
+Không làm so với v1.0: UUIDv7 (khoá `cuid()` hiện có đã sắp được theo thời gian và đổi khoá là migration phá vỡ),
+RLS (một vai trò DB), `content_items` gộp, `redirects` tổng quát, `consents` nhiều mục đích (site không xử lý dữ liệu
+cho mục đích tiếp thị - xem LG-03), `data_subject_requests` (xuất/xoá là tự phục vụ, đồng bộ - ST-08, LG-04),
+neo băm WORM (S3 Object Lock là tính năng R2 có, nhưng mỗi ngày một object + khoá - xem SEC-11), envelope encryption qua
+KMS (không có KMS 0đ; khoá ứng dụng + sao lưu `age` là mức đủ cho quy mô này).
+
+### 15.2. Thay đổi lược đồ (tất cả cộng dồn - không DROP, không đổi kiểu)
+
+**M1 - `<ts>_quy_trinh_duyet` (P7)**
+
+```prisma
+enum PostStatus { DRAFT PENDING SCHEDULED PUBLISHED ARCHIVED CHANGES_REQUESTED APPROVED }   // ADD VALUE x2 (WF-01)
+
+enum EditorialLabel { VERIFIED AI_ASSISTED UPDATED OUTDATED PRIORITY LEGAL_HOLD }          // WF-06, bảng 9.4
+
+model Post {
+  // ...
+  labels EditorialLabel[] @default([])
+}
+
+model PostStatusEvent {
+  // ...
+  kind String?   // null = chuyển trạng thái; 'minor_edit' (WF-04), 'bypass' (WF-03), 'label' (WF-06), 'takedown' (AD-06)
+}
+
+model User {
+  // ...
+  notifyOnReview   Boolean @default(true)   // MODERATOR+: bài mới chờ duyệt (WF-09)
+  notifyOnDecision Boolean @default(true)   // tác giả: bị trả lại / được công bố
+}
+```
+
+Bẫy: `ALTER TYPE ... ADD VALUE` không được dùng giá trị mới trong CÙNG giao dịch. Migration M1 KHÔNG được có câu
+`UPDATE ... SET status = 'CHANGES_REQUESTED'`; không cần điền ngược (bài DRAFT có `reviewNote` cũ giữ DRAFT).
+
+**M2 - `<ts>_bai_viet_giai_doan_b` (P7)** (WF-08, ED-13)
+
+```prisma
+model Series {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  posts       Post[]
+}
+
+model Post {
+  // ...
+  subtitle       String?
+  coverCaption   String?
+  coverCredit    String?
+  seoTitle       String?
+  canonicalUrl   String?
+  ogImageUrl     String?
+  noindex        Boolean   @default(false)
+  featuredAt     DateTime?           // thay `featured Boolean`: vừa là cờ vừa sắp được; `pinnedAt` có sẵn GIỮ nghĩa "ghim đầu blog"
+  seriesId       String?
+  series         Series?   @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  seriesPosition Int?
+  @@index([seriesId, seriesPosition])
+}
+
+model PostSlugRedirect {             // đổi slug bài đã công bố ⇒ 308 (ED-13)
+  oldSlug   String   @id
+  postId    String
+  createdAt DateTime @default(now())
+  @@index([postId])
+}
+```
+
+Ghi chú WF-08: `docs/de-xuat-trang-viet-bai.md` gọi là `featured`; v2.0 chốt `featuredAt DateTime?` (NULL = không nổi
+bật) để khỏi cần cột thứ hai cho thứ tự. `PostSlugRedirect` không có khoá ngoại tới `Post` để giữ bản ghi khi bài vào
+thùng rác (bài chỉ xoá mềm nên vẫn tra được).
+
+**M3 - `<ts>_kiem_duyet_tuan_thu` (P8)** (AD-06, MD-08, MD-20, LG-02, LG-05)
+
+```prisma
+enum ReportReason { SPAM ILLEGAL PERSONAL_DATA COPYRIGHT HARASSMENT MISLEADING OTHER }
+enum CaseStatus   { OPEN IN_PROGRESS ACTIONED REJECTED }
+enum TakedownSource { AUTHORITY RIGHTS_HOLDER USER }
+
+model ContentReport {
+  id          String       @id @default(cuid())
+  ref         String       @unique          // mã tham chiếu trả cho người báo (MD-08)
+  targetType  String                         // 'post' | 'doc' | 'project'
+  targetId    String
+  reason      ReportReason
+  details     String?                        // ≤ 1000
+  reporterId  String?                        // null = khách
+  ipHash      String?                        // HMAC(IP) - không lưu IP thô (LG-03)
+  status      CaseStatus   @default(OPEN)
+  handledById String?
+  handledAt   DateTime?
+  resolution  String?
+  createdAt   DateTime     @default(now())
+  @@index([status, createdAt])
+  @@index([targetType, targetId])
+}
+
+model TakedownRequest {
+  id            String         @id @default(cuid())
+  source        TakedownSource
+  authorityName String?
+  documentNo    String?
+  receivedAt    DateTime
+  dueAt         DateTime                     // receivedAt + SLA (LG-05)
+  targetType    String
+  targetId      String
+  status        CaseStatus     @default(OPEN)
+  actionTaken   String?
+  handledById   String?
+  handledAt     DateTime?
+  notes         String?
+  createdAt     DateTime       @default(now())
+  @@index([status, dueAt])
+}
+
+model User {
+  // ...
+  termsVersion    String?     // phiên bản Điều khoản + Chính sách quyền riêng tư đã đồng ý (LG-02)
+  termsAcceptedAt DateTime?
+}
+```
+
+Mọi đổi `status` của hai bảng trên PHẢI ghi một dòng `TrustAuditLog` (chỉ-thêm sẵn có) - không thêm trigger mới cho
+chúng (hồ sơ vụ việc được phép sửa; nhật ký thì không). `TakedownRequest` và `ContentReport` không xoá mềm: giữ
+theo LG-06.
+
+### 15.3. Thứ tự migration và quy trình
+
+| Thứ tự | Migration                 | Phase | Phụ thuộc                   | DROP? | Trước khi merge                                                         |
+| ------ | ------------------------- | ----- | --------------------------- | ----- | ----------------------------------------------------------------------- |
+| 1      | M1 `quy_trinh_duyet`      | P7    | -                           | không | `npm run db:backup` (khuyến nghị), chủ dự án chạy `db:migrate` lên Neon |
+| 2      | M2 `bai_viet_giai_doan_b` | P7    | không phụ thuộc M1          | không | như trên; cùng PR với M1 được nếu cùng phát hành                        |
+| 3      | M3 `kiem_duyet_tuan_thu`  | P8    | M1 (`PostStatusEvent.kind`) | không | như trên                                                                |
+
+Quy trình cố định (CLAUDE.md, `docs/architecture.md`): agent soạn PR có migration + `npm run db:generate` + test ⇒
+DỪNG ⇒ chủ dự án chạy `db:migrate` lên Neon bằng lệnh `read -rsp` ⇒ agent merge. `migrationGate` của backend-bundle
+thoát 1 nếu thứ tự đảo. Không sửa migration đã áp dụng (kể cả comment).
+
+### 15.4. Quyết định cho các điểm P2 chuyển sang
+
+- **Bảng phiên liệt kê thiết bị (10.2)**: KHÔNG thêm ở P4-P9. Lý do: muốn thu hồi TỪNG thiết bị phải đưa `sid` vào
+  JWT next-auth, đưa nó vào khẳng định danh tính BFF→service và cho `@tsudev/auth` tra bảng ở mọi request - đổi ranh
+  giới bảo mật cho giá trị thấp (vài tài khoản). Thay bằng: `/settings/sessions` hiện "Đăng nhập gần đây" đọc
+  `SecurityEvent` loại đăng nhập (thiết bị, quốc gia, thời điểm - đã ghi) + nút "Đăng xuất mọi thiết bị khác" có sẵn.
+  Mở lại bằng ADR nếu có tài khoản nhiều người dùng chung.
+- **`pg_trgm` cho lỗi gõ (6.3)**: extension và chỉ mục trigram ĐÃ CÓ; `contains` hiện dùng chúng. Thêm nhánh dự phòng
+  không migration: khi `contains` ra 0 kết quả, chạy `word_similarity(q, "searchTitleNorm") > 0.4` qua `$queryRaw`
+  (chỉ trên tiêu đề, `LIMIT 5`) và hiện "Có phải bạn tìm...". Một truy vấn thêm chỉ khi rỗng.
+- **Thùng rác 30 ngày vs trigger (9.2)**: GIỮ trigger. Hết 30 ngày bài rời danh sách thùng rác nhưng dòng còn
+  (`deletedAt` cũ). Khi CẦN xoá vĩnh viễn (yêu cầu xoá dữ liệu cá nhân, takedown) dùng "xoá nội dung" OWNER: thay
+  `title`/`contentMd`/`excerpt` bằng chỗ giữ chỗ, xoá `PostRevision` của bài (bảng không có trigger chặn), giữ
+  `id`/`slug`/`PostStatusEvent` làm bằng chứng; ghi `TrustAuditLog`. Không mở `allow_hard_delete` từ ứng dụng.
+- **Alt ảnh trong thư viện (8.5)**: không bảng `media`; alt sống trong Markdown. `FileObject` chỉ cần `ownerId` được
+  ghi (SEC-05) để `/studio/media` lọc "của tôi" - không migration (cột đã có).
+- **Hồ sơ xác nhận đồng ý (LG-02)**: hai cột trên `User` ở M3, không bảng `consents`.
+
+### 15.5. Yêu cầu
+
+| Mã    | Yêu cầu                                                                                                                          | Giải quyết      | File sẽ sửa                                                                                         | Phase      |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------- | --------------- | --------------------------------------------------------------------------------------------------- | ---------- |
+| DB-01 | M1: `PostStatus` + `CHANGES_REQUESTED`, `APPROVED`; `PostStatusEvent.kind`; không dùng giá trị mới trong cùng migration.         | WF-01, WF-03/04 | `packages/db/prisma/schema.prisma`, `packages/db/prisma/migrations/<ts>_quy_trinh_duyet` (mới)      | P7 ⛔ Neon |
+| DB-02 | M1: enum `EditorialLabel` + `Post.labels` mảng mặc định rỗng; `LEGAL_HOLD` chặn sửa/chuyển trạng thái ở service (không trigger). | WF-06           | `packages/db/prisma/schema.prisma`, `services/content-service/src/postWorkflow.ts`                  | P7 ⛔ Neon |
+| DB-03 | M1: `User.notifyOnReview`, `User.notifyOnDecision`.                                                                              | WF-09           | `packages/db/prisma/schema.prisma`, `services/auth-service/src/index.ts`                            | P7 ⛔ Neon |
+| DB-04 | M2: cột Giai đoạn B + `Series` + `featuredAt` (thay `featured`).                                                                 | WF-08           | `packages/db/prisma/schema.prisma`, `packages/db/prisma/migrations/<ts>_bai_viet_giai_doan_b` (mới) | P7 ⛔ Neon |
+| DB-05 | M2: `PostSlugRedirect`; `GET /api/posts/:slug` không thấy ⇒ tra bảng ⇒ trả `{ redirect }`, trang ISR trả 308.                    | ED-13           | `services/content-service/src/index.ts`, `apps/frontend-main/pages/blog/[slug].tsx`                 | P7 ⛔ Neon |
+| DB-06 | M3: `ContentReport`, `TakedownRequest`, `User.termsVersion/termsAcceptedAt`; đổi trạng thái vụ việc ghi `TrustAuditLog`.         | AD-06, MD-08    | `packages/db/prisma/schema.prisma`, `packages/db/prisma/migrations/<ts>_kiem_duyet_tuan_thu` (mới)  | P8 ⛔ Neon |
+| DB-07 | Thùng rác: lọc `deletedAt > now() - 30 ngày`; "xoá nội dung" OWNER theo 15.4 (không xoá dòng, xoá revision, ghi audit).          | WF-02, 9.2      | `services/content-service/src/index.ts`                                                             | P7         |
+| DB-08 | Không bảng phiên; `/settings/sessions` đọc `SecurityEvent` đăng nhập.                                                            | 10.2            | `services/auth-service/src/index.ts`, `pages/settings/sessions.tsx` (mới)                           | P5         |
+| DB-09 | Tìm kiếm: nhánh `word_similarity` khi rỗng (không migration).                                                                    | 6.3             | `services/content-service/src/index.ts`, `packages/search/src/index.ts`                             | P6         |
+| DB-10 | Mỗi PR có migration: `npm run db:generate`, test service xanh, PR mô tả lệnh migrate; agent DỪNG trước merge.                    | -               | `packages/db/prisma/migrations/*`                                                                   | P7-P8      |
+
+---
+
+## 16. API - mở rộng route hiện có
+
+### 16.1. Quy ước (giữ cái đang chạy, chỉ thêm)
+
+| Chủ đề       | v1.0                                        | v2.0 chốt                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------ | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tiền tố      | `/api/v1/*`                                 | **Giữ** `/api/posts`, `/api/docs`, `/api/projects`, `/api/releases`, `/api/author/*`, `/api/admin/*`, `/api/internal/*` (content), `/api/files`, `/api/presign`, `/api/upload` (storage), `/api/identity/*`, `/oidc/*` (auth). Đổi sang `/api/v1` phải sửa đồng thời bảng tiền tố bundle, 5 proxy BFF, client app hệ sinh thái - không có lợi đo được. Phá vỡ hợp đồng ⇒ đường MỚI bên cạnh, không đánh số cả cây |
+| Lỗi          | RFC 9457 Problem Details                    | **Giữ `{ error: "<câu tiếng Việt>" }`** (mọi client đang đọc trường này) + **thêm** `code` (máy đọc, `snake_case`) và `requestId` ở endpoint mới/sửa. Không đổi `Content-Type` sang `application/problem+json`                                                                                                                                                                                                    |
+| Phân trang   | con trỏ `cursor/limit`                      | **`page`/`page_size` + `{ data, meta }`** theo `.standards/docs/DATA_TABLE.md` (đã có `parsePaging`/`pageMeta`). Danh sách lớn nhất (bài) cỡ trăm dòng - offset đủ                                                                                                                                                                                                                                                |
+| Đồng thời    | `ETag`/`If-Match`                           | P4: client gửi `updatedAt` trong thân, 409 khi lệch (ED-10). P7: `If-Match: "<updatedAt ISO>"` trên `PUT /api/author/posts/:slug`, 412 khi lệch, 428 khi thiếu (WF-07). BFF chuyển nguyên header                                                                                                                                                                                                                  |
+| Idempotency  | `Idempotency-Key` cho tạo/chuyển trạng thái | **Không làm**: chuyển trạng thái đã kiểm cạnh (sai cạnh ⇒ 409, gửi lặp vô hại); tạo bài sinh slug duy nhất. Riêng `POST` báo cáo nội dung chống lặp bằng rate limit + Turnstile                                                                                                                                                                                                                                   |
+| Kiểm đầu vào | Zod + OpenAPI sinh tự động                  | Giữ kiểm tay hiện có (repo không dùng Zod); endpoint mới PHẢI có test cho đầu vào sai kiểu (mảng/object thay chuỗi - bài học CodeQL ở storage). OpenAPI: không làm (một client duy nhất là BFF cùng repo)                                                                                                                                                                                                         |
+| Mã yêu cầu   | `request_id`                                | BFF lấy `CF-Ray` (có sẵn ở mọi request Cloudflare) chuyển thành `X-Request-Id`; service ghi vào log và trả trong lỗi. Không tự sinh id ở service                                                                                                                                                                                                                                                                  |
+| Webhook vào  | GitHub Releases HMAC                        | **Không làm** (11.2: bản phát hành tự host có luồng niêm phong riêng)                                                                                                                                                                                                                                                                                                                                             |
+
+### 16.2. Endpoint thêm/sửa (đối chiếu route có thật)
+
+Route hiện có lấy từ `services/content-service/src/index.ts`, `services/auth-service/src/index.ts`,
+`services/storage-service/src/index.ts`. Mọi đường dưới đây nằm trong tiền tố ĐÃ có trong bảng
+`services/backend-bundle/src/index.ts` (`/api/author`, `/api/admin`, `/api/internal`, `/api/posts`, `/api/identity`,
+`/api/presign`, `/api/files`) - **không cần sửa bảng tiền tố**, trừ ghi chú ở cột cuối.
+
+| Phương thức + đường                                                 | Đổi           | Quyền                          | Ghi chú                                                                                                                                                  | Phase |
+| ------------------------------------------------------------------- | ------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| `PUT /api/author/posts/:slug`                                       | sửa           | AUTHOR (của mình) / MODERATOR+ | nhận `updatedAt` ⇒ 409 (P4); `If-Match` ⇒ 412/428 (P7); gộp revision 10 phút (ED-08)                                                                     | P4/P7 |
+| `POST /api/author/posts/:slug/autosave`                             | mới           | như trên                       | chỉ khi DRAFT/CHANGES_REQUESTED; không đổi trạng thái; trả `updatedAt` mới                                                                               | P4    |
+| `GET /api/author/posts?status=&q=&category=&page=&page_size=&sort=` | sửa           | AUTHOR+                        | thêm lọc + `deleted=1` (thùng rác ≤ 30 ngày, WF-02)                                                                                                      | P4/P7 |
+| `POST /api/author/posts/:slug/restore`                              | mới           | chủ bài / MODERATOR+           | `deletedAt` ⇒ null (≤ 30 ngày)                                                                                                                           | P7    |
+| `POST /api/author/posts/:slug/transition`                           | sửa           | theo 9.1                       | cạnh mới của 9.2; `note` bắt buộc khi trả lại / công bố bỏ qua hàng duyệt; chạy `contentChecks` ⇒ 422 `{ error, code: "content_checks_failed", checks }` | P7    |
+| `PUT /api/author/posts/:slug/labels`                                | mới           | theo bảng 9.4                  | ghi `PostStatusEvent kind=label`                                                                                                                         | P7    |
+| `GET /api/author/tags?q=`                                           | mới           | AUTHOR+                        | gợi ý thẻ (ED-13) - `unnest(tags)` đếm, `LIMIT 10`                                                                                                       | P4    |
+| `POST /api/author/posts/:slug/preview-token`                        | mới           | chủ bài / MODERATOR+           | HMAC (khoá `INTERNAL_IDENTITY_SECRET` dẫn xuất riêng), hạn 24 h, không bảng (ED-11)                                                                      | P7    |
+| `DELETE /api/admin/posts/:id/content`                               | mới           | OWNER + step-up                | "xoá nội dung" theo 15.4 (DB-07)                                                                                                                         | P8    |
+| `POST /api/posts/:slug/report`                                      | mới           | khách (Turnstile)              | rate limit 5/giờ/IP-băm; trả `ref` (MD-08)                                                                                                               | P8    |
+| `GET/POST/PATCH /api/admin/moderation/*`                            | mới           | ADMIN+                         | báo cáo + takedown (AD-06)                                                                                                                               | P8    |
+| `GET /api/admin/audit?source=&actor=&from=&to=&page=`               | mới (content) | ADMIN+                         | hợp nhất `PostStatusEvent` + `TrustAuditLog`; `SecurityEvent` lấy từ auth-service qua BFF (AD-07)                                                        | P8    |
+| `POST /api/internal/maintenance`                                    | mới           | `INTERNAL_API_TOKEN`           | việc định kỳ của 14.4 (thùng rác, SLA) - gọi từ nhịp `23 1,13`                                                                                           | P7-P8 |
+| `GET /api/identity/security/logins`                                 | mới           | đã đăng nhập                   | "Đăng nhập gần đây" từ `SecurityEvent` (DB-08)                                                                                                           | P5    |
+| `GET /api/identity/connected` + `POST .../revoke`                   | mới           | đã đăng nhập                   | grant OIDC theo `OidcPayload.grantId` của `sub` (ST-06; ra "Sắp có" nếu không truy được an toàn)                                                         | P5    |
+| `POST /api/identity/account/export`                                 | mới           | đã đăng nhập + step-up         | JSON đồng bộ (ST-08, LG-04); nội dung bài lấy từ content qua đường nội bộ                                                                                | P8    |
+| `PUT /api/identity/profile/update`                                  | sửa           | đã đăng nhập                   | thêm `notifyOnReview`/`notifyOnDecision` (DB-03)                                                                                                         | P7    |
+| `POST /api/identity/internal/notify`                                | mới           | `INTERNAL_API_TOKEN`           | content gọi để gửi thư duyệt (WF-09); dưới `/api/identity` - không đổi bảng tiền tố                                                                      | P7    |
+| `GET/POST /api/presign`                                             | sửa           | MEMBER+                        | danh sách loại + trần kích thước + ghi `FileObject.ownerId` (SEC-05)                                                                                     | P4    |
+| `GET /api/files?mine=1`                                             | sửa           | MEMBER+                        | MEMBER/AUTHOR chỉ thấy tệp của mình; MODERATOR+ thấy tất (hiện ai cũng thấy tất)                                                                         | P4    |
+| `POST /api/upload`                                                  | sửa           | ADMIN+                         | hạ trần 100 MB ⇒ 10 MB và nâng quyền: đường dự phòng phía máy chủ đệm cả thân vào RAM của Render free (512 MB)                                           | P4    |
+
+BFF: proxy `pages/api/content/[...path].ts` chỉ cho `admin`, `author` - `POST /api/posts/:slug/report` cần nhánh
+riêng (`pages/api/report.ts`, mới) có Turnstile; proxy account/identity có danh sách `ALLOWED` - thêm đường mới vào
+đó cùng PR (CLAUDE.md "bốn chỗ" của useradmin).
+
+### 16.3. Yêu cầu
+
+| Mã     | Yêu cầu                                                                                                                    | Giải quyết   | File sẽ sửa                                                                                                    | Phase |
+| ------ | -------------------------------------------------------------------------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------- | ----- |
+| API-01 | Không `/api/v1`; endpoint mới nằm trong tiền tố có sẵn; nếu buộc phải tiền tố mới ⇒ AR-02.                                 | 16.1         | `services/backend-bundle/src/index.ts`                                                                         | P4-P9 |
+| API-02 | Lỗi mới/sửa có `{ error, code, requestId }`; BFF chuyển `CF-Ray` thành `X-Request-Id`; service log kèm id.                 | OB-02        | `apps/frontend-main/lib/bff.ts`, `services/content-service/src/index.ts`, `services/auth-service/src/index.ts` | P4    |
+| API-03 | Danh sách mới theo `page`/`page_size` + `{ data, meta }` (`parsePaging`/`pageMeta`); không cursor.                         | IA-04        | `services/content-service/src/index.ts`                                                                        | P4    |
+| API-04 | Khoá lạc quan: 409 theo `updatedAt` (P4) ⇒ `If-Match` 412/428 (P7); BFF không lột header `If-Match`.                       | ED-10, WF-07 | `services/content-service/src/index.ts`, `apps/frontend-main/pages/api/content/[...path].ts`                   | P4/P7 |
+| API-05 | Endpoint bảng 16.2 kèm test service (quyền đúng/sai, đầu vào sai kiểu, cạnh sai ⇒ 409).                                    | PR-09        | `services/content-service/test/*`, `services/auth-service/test/*`, `services/storage-service/test/*`           | P4-P8 |
+| API-06 | Route báo cáo công khai có nhánh BFF riêng với Turnstile + rate limit; không mở rộng `ALLOWED_PREFIXES` của proxy content. | MD-08        | `apps/frontend-main/pages/api/report.ts` (mới)                                                                 | P8    |
+| API-07 | `GET /api/files` lọc theo chủ sở hữu dưới MODERATOR; `POST /api/upload` ADMIN+ và ≤ 10 MB.                                 | SEC-05       | `services/storage-service/src/index.ts`                                                                        | P4    |
+
+---
+
+## 17. Bảo mật - đối chiếu `docs/security-plan.md`, mức ASVS
+
+### 17.1. Mục tiêu và phạm vi
+
+- **OWASP ASVS 5.0 mức 2** cho toàn hệ thống (v1.0 đòi mức 3 cho xác thực/Admin/phát hành: KHÔNG cam kết - mức 3
+  đòi những thứ ngoài 0đ như HSM, kiểm thử xâm nhập độc lập định kỳ). Riêng đường phát hành phần mềm đã vượt mức 2 ở
+  vài chỗ (ký Ed25519 phía máy chủ, kiểm toàn vẹn định kỳ, nhật ký có chuỗi băm) - giữ, không tuyên bố mức 3.
+- Mô hình mối đe doạ: STRIDE theo **tính năng mới** (một bảng ngắn trong mô tả PR của P4, P7, P8), không làm lại cho
+  cả hệ thống - tài sản và mối đe doạ đã liệt kê ở `docs/security-plan.md` §1.
+- 12 khoảng trống G1-G12 của `docs/security-plan.md` đều đã ĐÓNG (§2.4; G4/G5 đóng ở mã, chờ chủ dự án đặt
+  `VIRUSTOTAL_API_KEY`/`RELEASE_INTEGRITY_TOKEN`; G10 còn 6 low chỉ dev). Chương này chỉ thêm cái CÒN THIẾU sau khi
+  đối chiếu với v1.0 và với bề mặt mới của chương 8-11.
+
+### 17.2. Đối chiếu từng yêu cầu v1.0
+
+Trạng thái: ✅ đã có (nguồn) · ➕ thiếu, thêm mã SEC- mới · ✖ không làm (lý do).
+
+| v1.0                                                   | Trạng thái         | Nguồn / quyết định                                                                                                                                                                               |
+| ------------------------------------------------------ | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| v1.0 SEC-001 Argon2id, ≥ 12 ký tự, HIBP                | ✅                 | `services/auth-service/src/password.ts` (`MIN_PASSWORD_LEN = 12`, HIBP k-anonymity `api.pwnedpasswords.com/range/`, fail-open có log). Điểm P2 chuyển sang (10.2) **đã xong** - không làm zxcvbn |
+| v1.0 SEC-002 Passkey ưu tiên, TOTP, mã dự phòng        | ✅                 | auth-service; không SMS (AUTH_AND_ACCOUNT)                                                                                                                                                       |
+| v1.0 SEC-003 2FA bắt buộc cho người viết+              | ➕ SEC-01          | Hiện chỉ ADMIN+ (G6, `requireSecondFactor`). Mở rộng tới MODERATOR (người công bố được); AUTHOR: NÊN, nhắc trong Studio                                                                          |
+| v1.0 SEC-004 Cookie `__Host-`, ID lưu băm              | ✖                  | Phiên là JWT next-auth mang `Domain=.tsudev.com` (cần cho site con/OIDC) - `__Host-` cấm thuộc tính `Domain`. Thu hồi bằng `sessionVersion` (đọc DB mỗi request service)                         |
+| v1.0 SEC-005 Hết hạn 7 ngày / 8 h Studio / sudo        | ➕ SEC-02          | Step-up đã có (`STEP_UP_TTL_SECONDS = 300`). Phiên next-auth đang mặc định 30 ngày: đặt `maxAge` 14 ngày, `updateAge` 1 ngày                                                                     |
+| v1.0 SEC-006 Chống dò mật khẩu                         | ✅                 | `RateLimitBucket` (G9), khoá theo tài khoản (`lockedUntil`), Turnstile sau 3 lần sai (`docs/auth.md` §7)                                                                                         |
+| v1.0 SEC-007 Không lộ tồn tại tài khoản                | ✅                 | `docs/auth.md` §7 (Turnstile tính cả IP để khỏi thành kênh dò)                                                                                                                                   |
+| v1.0 SEC-008 Token đặt lại: băm, một lần, hạn          | ✅                 | `AuthToken` (`AuthTokenPurpose`)                                                                                                                                                                 |
+| v1.0 SEC-009 OAuth 2.1 + OIDC, PKCE                    | ✅                 | `services/auth-service/src/oidc.ts` (ES256, PKCE bắt buộc)                                                                                                                                       |
+| v1.0 SEC-010 Cảnh báo đăng nhập lạ                     | ➕ SEC-10          | `lastLoginCountry`/`lastLoginIp` đã ghi; thiếu thư cảnh báo khi quốc gia mới. "Impossible travel": không làm (cần GeoIP chi tiết)                                                                |
+| v1.0 SEC-020 Kiểm quyền phía server                    | ✅                 | `requireRole()` đọc DB, fail closed (PR-02)                                                                                                                                                      |
+| v1.0 SEC-021 RLS                                       | ✖                  | Một vai trò DB cho cả bundle; phạm vi lọc ở truy vấn + test IDOR (SEC-03)                                                                                                                        |
+| v1.0 SEC-022 Chống IDOR                                | ➕ SEC-03          | `cuid` khó đoán; nhưng `GET /api/files` trả tệp của MỌI người cho MEMBER (API-07). Thêm test IDOR cho mỗi endpoint mới theo chủ sở hữu                                                           |
+| v1.0 SEC-023 Sudo + lý do; đổi vai trò ADMIN cần OWNER | ✅                 | step-up (G7), useradmin chỉ OWNER; lý do bắt buộc ở AD-04                                                                                                                                        |
+| v1.0 SEC-030 CSP nonce + `strict-dynamic`              | ✅ một phần        | CSP băm + nonce, `object-src 'none'`, `frame-ancestors 'none'` (`proxy.ts`). Thiếu `report-to` - xem SEC-08. `base-uri 'self'` giữ (không `'none'`: Next cần)                                    |
+| v1.0 SEC-031 Trusted Types ở Studio/Admin              | ➕ SEC-09          | CÓ THỂ ở P9, bắt đầu `Content-Security-Policy-Report-Only` trên `/studio`, `/admin` (Tiptap/ProseMirror chèn DOM - phải đo trước)                                                                |
+| v1.0 SEC-032 Header bảo mật                            | ✅                 | `next.config.js` (nosniff, Referrer-Policy, XFO DENY, Permissions-Policy, COOP, CORP) + HSTS preload. Đo A+ ở P9 (PF-)                                                                           |
+| v1.0 SEC-033 CSRF                                      | ✅                 | next-auth CSRF cho form đăng nhập; route ghi qua BFF cùng origin + `SameSite=Lax`. ➕ SEC-04: kiểm `Origin` ở BFF cho phương thức ghi                                                            |
+| v1.0 SEC-034 Làm sạch HTML nội dung                    | ➕ SEC-06          | Bộ vẽ đổi sang `marked` (ADR-0003, PG-01) ⇒ PHẢI qua bộ lọc thẻ/thuộc tính, chặn `javascript:`/`data:` ở `href`/`src`, liên kết ngoài `rel="noopener noreferrer nofollow ugc"`                   |
+| v1.0 SEC-035 Iframe chỉ miền cho phép                  | ➕ SEC-07          | Nhúng YouTube/Vimeo (ADR-0003) ⇒ `frame-src` thêm đúng `https://www.youtube-nocookie.com https://player.vimeo.com`; iframe có `sandbox="allow-scripts allow-same-origin allow-presentation"`     |
+| v1.0 SEC-036 Chống SSRF                                | ✅/✖               | Không có tính năng máy chủ lấy URL người dùng (đã bỏ kiểm liên kết gãy, xem trước liên kết, ảnh từ URL - 9.3). Thêm tính năng đó ⇒ phải có bộ chặn dải IP nội bộ                                 |
+| v1.0 SEC-037 Rate limit theo endpoint                  | ✅/➕              | Có ở 3 service (`@tsudev/ratelimit`, Postgres cho tầng nhạy cảm). Thêm cho báo cáo (5/giờ), tự lưu (6/phút/người), xuất dữ liệu (3/ngày) - SEC-05, API-06                                        |
+| v1.0 SEC-038 SQL tham số hoá                           | ✅                 | Prisma + `$queryRaw` mẫu tag; CodeQL canh                                                                                                                                                        |
+| v1.0 SEC-039 Không lộ thông tin                        | ✅                 | Express tắt `x-powered-by`; lỗi chung. ➕ kiểm `/debug/boom` của content chỉ bật ngoài production (SEC-11)                                                                                       |
+| v1.0 SEC-040 `security.txt`                            | ➕ SEC-12          | PG-12 (P6) tạo tệp; P9 kiểm hạn                                                                                                                                                                  |
+| v1.0 SEC-050..052 Phân loại, tối thiểu, mã hoá         | ✅ một phần        | Không thu SĐT (`docs/auth.md` §6); bí mật TOTP mã hoá; Neon + R2 mã hoá khi lưu (mặc định nhà cung cấp). Phân loại: bảng LG-03 (chương 18), không gắn nhãn từng cột                              |
+| v1.0 SEC-053 Sao lưu 3-2-1, RPO 15 phút                | ✅ mức 0đ          | `npm run db:backup` mã hoá `age` (G12) + Neon PITR gói free (giới hạn ngày giữ của gói). RPO/RTO cam kết: RPO 24 h, RTO 4 h - xem OB-06                                                          |
+| v1.0 SEC-054 Dữ liệu đặt tại Việt Nam                  | ✖ / LG             | Neon/Render/Cloudflare ở nước ngoài, không có lựa chọn 0đ trong nước. Nghĩa vụ lưu trữ/chuyển dữ liệu xuyên biên giới xử lý ở chương 18 (LG-07)                                                  |
+| v1.0 SEC-055 Dev không dùng dữ liệu thật               | ✅                 | `npm run db:seed:dev`                                                                                                                                                                            |
+| 17.6 Ống tải tệp (cách ly, ClamAV, EXIF)               | ➕ SEC-05          | Phương án 0đ ở 17.3                                                                                                                                                                              |
+| v1.0 SEC-070..074 Phân phối phần mềm                   | ✅ / ngoài phạm vi | Ký Ed25519 + JWKS + niêm phong + kiểm định kỳ + VirusTotal (`docs/release-signing.md`). Authenticode/Play/APT: thuộc từng repo app và `.standards/docs/DISTRIBUTION_TRUST.md`                    |
+| 17.8 Bastion, vá trong 7 ngày, pentest                 | ✅ / ✖             | Không có máy chủ SSH. Dependabot + `npm audit --omit=dev` 0 High (CI). Pentest độc lập: ✖ (chi phí); thay bằng tự kiểm ASVS L2 theo danh mục ở P9                                                |
+
+### 17.3. Ống tải ảnh 0đ (điểm P2 chuyển sang - ED-07)
+
+Phát hiện khi đọc mã: `services/storage-service/src/index.ts` ký presign PUT với `ContentType` do client khai, KHÔNG
+giới hạn loại hay kích thước; `FileObject.ownerId` không được ghi; `publicUrlOf()` trả `S3_PUBLIC_ENDPOINT/bucket/key` -
+nhưng bucket R2 production **riêng tư** (đọc ẩn danh 403, CLAUDE.md). Tức là ảnh tải lên theo ED-07 sẽ **không hiện
+được** trên trang công khai nếu giữ nguyên. Chốt:
+
+1. **Bucket ảnh riêng `tsudev-media`** (R2, gói free), tách khỏi bucket tệp phát hành. Đọc công khai qua tên miền tuỳ
+   chỉnh **`media.tsudev.com`** (Cloudflare cache, egress 0đ, không tốn request Worker). Không dùng `r2.dev` (giới
+   hạn tốc độ, không cache). Bucket phát hành GIỮ riêng tư - không đổi `S3_PUBLIC_ENDPOINT` của nó (CLAUDE.md).
+   Lưu ý: cookie phiên mang `Domain=.tsudev.com` nên trình duyệt VẪN gửi nó tới `media.tsudev.com` - an toàn chỉ vì
+   miền đó phục vụ tệp tĩnh từ R2, không có mã đọc cookie, và không tệp nào chạy được script (cấm SVG/HTML, header
+   `X-Content-Type-Options: nosniff` qua Transform Rule). Không bao giờ thêm loại tệp chạy được vào bucket này.
+2. **Presign có điều kiện**: `contentType ∈ {image/webp, image/png, image/jpeg, image/gif, image/avif}`; client khai
+   `size`, máy chủ từ chối > 5 MB và **ký `ContentLength`** vào URL (R2 từ chối PUT lệch độ dài); khoá object do máy chủ
+   sinh `posts/<userId>/<yyyy>/<cuid>.<đuôi theo loại>` (không theo tên tệp người dùng); ghi `FileObject.ownerId`.
+   Cấm SVG (XSS qua `image/svg+xml`).
+3. **Magic bytes**: không có tiến trình hậu kiểm (không Queues/worker). Thay: client đã nén WebP qua canvas (ED-07) -
+   canvas chỉ xuất ảnh thật và **đã bỏ EXIF/GPS**; máy chủ kiểm 12 byte đầu bằng `GetObject Range: bytes=0-11` khi tác
+   giả bấm chèn (`POST /api/presign/confirm`, mới) - sai chữ ký ⇒ xoá object, 422. Không ClamAV (17.2).
+4. Tệp khác ảnh (PDF, video) không cho tải ở Studio (video nhúng ngoài - ADR-0003).
+
+### 17.4. Các điểm P2 chuyển sang
+
+- **Cloudflare Access cho `/admin` (11.1)**: CÓ THỂ ở P9, là lớp THÊM chứ không thay `requireRole`. BFF gọi Render từ
+  phía máy chủ nên Access trên `tsudev.com` không chặn đường BFF→service; phải phủ CẢ trang lẫn đường trình duyệt gọi:
+  `/admin*`, `/api/content/admin*`, `/api/identity/useradmin*`, `/api/storage/upload`. Gói Zero Trust free (≤ 50 người).
+  Rủi ro: tự khoá ngoài nếu cấu hình sai ⇒ bật kèm quy tắc bỏ qua cho chính chủ bằng phương thức thứ hai (one-time PIN
+  qua email). Việc của chủ dự án (dashboard) - agent soạn hướng dẫn.
+- **HIBP (10.2)**: đã có - đóng.
+- **Trần kích thước + loại tệp presign (ED-07)**: 17.3.
+- **CSP `connect-src` cho Turnstile (F-P1-14)**: KHÔNG nới. Turnstile chỉ cần `script-src` + `frame-src`
+  `challenges.cloudflare.com` (đã có); lỗi `data:` là thăm dò nội bộ của widget, chức năng không hỏng. Thêm `data:`
+  vào `connect-src` mở `fetch('data:...')` cho mọi script trên trang - đổi tiếng ồn lấy bề mặt. Ghi "đã chấp nhận" ở
+  rà quét; P9 lọc nó khỏi báo cáo CSP (SEC-08).
+- **Chuỗi băm nhật ký (11.2)**: đã có (`prevHash` + trigger + `releaseSecurity.ts` kiểm cả chuỗi). Neo băm ra kho WORM:
+  CÓ THỂ ở P9 - nhịp `23 1,13` ghi băm dòng cuối của hai bảng vào object R2 `audit-anchors/<ngày>.txt` của bucket phát
+  hành (riêng tư); không Object Lock (cần cấu hình bucket - chủ dự án). Giá trị: kẻ chiếm DB phải sửa cả R2.
+
+### 17.5. Yêu cầu
+
+| Mã     | Yêu cầu                                                                                                                                                                                                                              | Giải quyết          | File sẽ sửa                                                                                                 | Phase                     |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------- |
+| SEC-01 | `requireSecondFactor` cho đường công bố/duyệt của MODERATOR (transition approve/publish, labels, minor edit); Studio nhắc AUTHOR chưa có 2FA. Passkey tính là yếu tố thứ hai CHỈ khi phiên ghi `amr` (gỡ hạn chế `docs/auth.md` §4). | v1.0 SEC-003, G6    | `packages/auth/src/index.ts`, `services/content-service/src/postWorkflow.ts`, `docs/auth.md`                | P7                        |
+| SEC-02 | next-auth `session.maxAge` 14 ngày, `updateAge` 1 ngày; giữ step-up 5 phút.                                                                                                                                                          | v1.0 SEC-005        | `apps/frontend-main/pages/api/auth/[...nextauth].ts`                                                        | P5                        |
+| SEC-03 | Test IDOR cho mỗi endpoint theo chủ sở hữu (bài, tệp, xuất dữ liệu): người khác ⇒ 403/404.                                                                                                                                           | v1.0 SEC-022        | `services/content-service/test/*`, `services/storage-service/test/*`                                        | P4-P8                     |
+| SEC-04 | BFF từ chối phương thức ghi có `Origin` khác origin site (403) - lớp thêm cho CSRF.                                                                                                                                                  | v1.0 SEC-033        | `apps/frontend-main/lib/bff.ts`                                                                             | P5                        |
+| SEC-05 | Ống tải ảnh 17.3: bucket `tsudev-media` + `media.tsudev.com`, presign có loại/kích thước/`ContentLength`, khoá do máy chủ sinh, `ownerId`, xác nhận magic bytes; `/api/upload` ADMIN+ ≤ 10 MB.                                       | ED-07, F-P1 mới     | `services/storage-service/src/index.ts`, `infrastructure/r2/` , `config/topology.json`, `docs/free-tier.md` | P4 (👤 tạo bucket + miền) |
+| SEC-06 | Bộ vẽ `marked` có bộ lọc thẻ/thuộc tính (danh sách cho phép), chặn `javascript:`/`data:`/`vbscript:`, `rel` cho liên kết ngoài; test XSS (payload OWASP cheat sheet) trong `mdRoundTrip`.                                            | v1.0 SEC-034, PG-01 | `apps/frontend-main/lib/md.ts`, `apps/frontend-main/test/mdRoundTrip.test.ts` (mới)                         | P4 (đầu)                  |
+| SEC-07 | `frame-src` thêm `youtube-nocookie.com` + `player.vimeo.com`; iframe nhúng có `sandbox` + `loading="lazy"` + `referrerpolicy`; `test/csp.test.ts` canh danh sách đúng.                                                               | v1.0 SEC-035        | `apps/frontend-main/proxy.ts`, `apps/frontend-main/test/csp.test.ts`                                        | P4                        |
+| SEC-08 | CSP `report-to` về endpoint nhận báo cáo (Worker ghi Workers Logs, lấy mẫu 10%, lọc báo cáo `data:` của Turnstile).                                                                                                                  | F-P1-14             | `apps/frontend-main/proxy.ts`, `apps/frontend-main/pages/api/csp-report.ts` (mới)                           | P9                        |
+| SEC-09 | Trusted Types Report-Only ở `/studio`, `/admin`; chuyển sang chặn khi 7 ngày không vi phạm.                                                                                                                                          | v1.0 SEC-031        | `apps/frontend-main/proxy.ts`                                                                               | P9                        |
+| SEC-10 | Thư cảnh báo khi đăng nhập từ quốc gia chưa từng thấy (so `lastLoginCountry` + 5 sự kiện đăng nhập gần nhất); tính vào trần Resend (OB-05).                                                                                          | v1.0 SEC-010        | `services/auth-service/src/index.ts`                                                                        | P8                        |
+| SEC-11 | `/debug/boom` chỉ đăng ký khi `NODE_ENV !== 'production'`; test canh.                                                                                                                                                                | v1.0 SEC-039        | `services/content-service/src/index.ts`                                                                     | P4                        |
+| SEC-12 | `security.txt` (RFC 9116) có `Expires` ≤ 1 năm; `/admin` cảnh báo khi còn < 30 ngày; test đọc trường `Expires`.                                                                                                                      | v1.0 SEC-040        | `apps/frontend-main/public/.well-known/security.txt` (mới), `pages/admin/index.tsx`                         | P6/P9                     |
+| SEC-13 | Cloudflare Access (CÓ THỂ) theo 17.4 - hướng dẫn cho chủ dự án, không mã.                                                                                                                                                            | 11.1                | `docs/security-plan.md`                                                                                     | P9 👤                     |
+| SEC-14 | Neo băm nhật ký ra R2 hai lần/ngày (CÓ THỂ).                                                                                                                                                                                         | 11.2                | `services/content-service/src/releaseSecurity.ts`, `infrastructure/canh-site-cron/src/index.ts`             | P9                        |
+| SEC-15 | Tự kiểm ASVS 5.0 L2: bảng kiểm theo chương V1-V17 ghi vào `docs/security-plan.md` §mới, mỗi mục "đạt/không áp dụng/thiếu → mã".                                                                                                      | 17.1                | `docs/security-plan.md`                                                                                     | P9                        |
+
+---
+
+## 18. Tuân thủ pháp luật Việt Nam
+
+> ⚠️ **Không thay thế tư vấn pháp lý.** Chương này ánh xạ nghĩa vụ phổ biến sang yêu cầu kỹ thuật để lập trình viên
+> làm được. Trước khi coi là đủ, chủ dự án NÊN nhờ luật sư xác nhận phạm vi nghĩa vụ áp dụng cho tsudev.com - một
+> website do **cá nhân** vận hành (`apps/frontend-main/lib/legal.ts`: không pháp nhân, mã số thuế cá nhân), không
+> phải mạng xã hội, không phải doanh nghiệp viễn thông/Internet. Nhận định "có áp dụng không" dưới đây là nhận định vận
+> hành của tài liệu, cùng tinh thần `docs/auth.md` §6.
+
+### 18.1. Văn bản và trạng thái kiểm chứng (tra 19/11/2026)
+
+"Đã kiểm" = số hiệu + ngày ban hành + ngày hiệu lực khớp nguồn chính thức (Công báo / Cổng Chính phủ / CSDL Bộ Công
+an). "Kiểm thứ cấp" = chỉ khớp qua trang tin/tư vấn, CHƯA đọc văn bản gốc. "Chưa kiểm" = chưa tra trong phiên này.
+
+| Văn bản                                                                                                                                                                                                                                                          | Ban hành   | Hiệu lực                                  | Trạng thái                                                                                    | Nguồn                                                                                                                                                                                                                                             |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ----------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Luật An ninh mạng số **116/2025/QH15**                                                                                                                                                                                                                           | 10/12/2025 | **01/07/2026** (Điều 44)                  | Đã kiểm                                                                                       | https://congbao.chinhphu.vn/van-ban/luat-so-116-2025-qh15-468678.htm · https://vanban.bocongan.gov.vn/co-so-du-lieu-van-ban/luat-an-ninh-mang-1768902649                                                                                          |
+| - thay Luật An ninh mạng 2018 và Luật An toàn thông tin mạng 2015                                                                                                                                                                                                | -          | -                                         | Kiểm thứ cấp                                                                                  | https://apolatlegal.com/vi/laws/luat-an-ninh-mang-2025-so-116-2025-qh15/                                                                                                                                                                          |
+| - gỡ thông tin vi phạm ≤ **24 giờ** từ khi nhận yêu cầu của lực lượng chuyên trách Bộ Công an (điểm b khoản 2 Điều 25; khẩn cấp 6 giờ); cung cấp thông tin người dùng ≤ 24 giờ, khẩn cấp ≤ 3 giờ - nghĩa vụ của **doanh nghiệp** viễn thông/Internet/mạng xã hội | -          | -                                         | Kiểm thứ cấp (các nguồn lệch nhau về mốc khẩn cấp)                                            | https://english.luatvietnam.vn/lawoncybersecurityno116-2025-qh15dateddecember102025ofthenationalassembly-422396-doc1.html · https://www.tincongnghe.net/t-166518/dn-go-bo-thong-tin-vi-pham-trong-24-gio-tinh-huong-khan-cap-khong-qua-6-gio.html |
+| - hệ thống thông tin đã phân cấp theo luật cũ giữ cấp; 12 tháng chuyển tiếp                                                                                                                                                                                      | -          | -                                         | Kiểm thứ cấp                                                                                  | https://tapchianninhmang.vn/tu-1-7-luat-an-ninh-mang-chinh-thuc-co-hieu-luc-thuc-thi                                                                                                                                                              |
+| Luật Bảo vệ dữ liệu cá nhân số **91/2025/QH15**                                                                                                                                                                                                                  | 26/06/2025 | **01/01/2026**                            | Đã kiểm                                                                                       | https://congbao.chinhphu.vn/van-ban/luat-so-91-2025-qh15-45578.htm · https://vanban.chinhphu.vn/?pageid=27160&docid=214590&classid=1&typegroupid=3                                                                                                |
+| Nghị định **356/2025/NĐ-CP** (hướng dẫn Luật 91; thay NĐ 13/2023/NĐ-CP)                                                                                                                                                                                          | 31/12/2025 | **01/01/2026** (một nguồn ghi 31/12/2025) | Đã kiểm số hiệu (Cổng Chính phủ); ngày hiệu lực kiểm thứ cấp                                  | https://vanban.chinhphu.vn/?pageid=27160&docid=216387                                                                                                                                                                                             |
+| - Điều 3-4: danh mục dữ liệu cơ bản/nhạy cảm; **lịch sử hoạt động trên không gian mạng thuộc nhóm nhạy cảm**; Điều 5: thời hạn xử lý từng loại yêu cầu của chủ thể; doanh nghiệp nhỏ/khởi nghiệp được miễn một số nghĩa vụ 5 năm                                 | -          | -                                         | Kiểm thứ cấp                                                                                  | https://luatvietnam.vn/tin-van-ban-moi/da-co-nghi-dinh-356-huong-dan-luat-bao-ve-du-lieu-ca-nhan-2025-186-106267-article.html                                                                                                                     |
+| Nghị định **330/2026/NĐ-CP** (xử phạt VPHC an ninh mạng + BVDLCN; 4 chương, 82 điều)                                                                                                                                                                             | 19/08/2026 | **19/08/2026**                            | Kiểm thứ cấp (cổng xaydungchinhsach.chinhphu.vn - trang tin của Chính phủ, chưa đọc toàn văn) | https://xaydungchinhsach.chinhphu.vn/nghi-dinh-330-2026-nd-cp-ve-xu-phat-vi-pham-hanh-chinh-trong-linh-vuc-an-ninh-mang-119260824172446407.htm                                                                                                    |
+| - phạt BVDLCN tối đa 3 tỷ (tổ chức) / 1,5 tỷ (cá nhân); lưu trữ quá thời gian cần thiết bị phạt                                                                                                                                                                  | -          | -                                         | Kiểm thứ cấp                                                                                  | https://lexdata.vn/van-ban-phap-luat/nghi-dinh-330-2026-nd-cp/                                                                                                                                                                                    |
+| Nghị định **147/2024/NĐ-CP** (quản lý dịch vụ Internet, thông tin trên mạng)                                                                                                                                                                                     | -          | 25/12/2024                                | Kiểm thứ cấp; đã dùng ở `docs/auth.md` §6                                                     | https://lsvn.vn/giam-sat-thong-tin-va-go-bo-thong-tin-vi-pham-phap-luat-tren-mang-tu-25-12-2024-a150341.html                                                                                                                                      |
+| Luật Dữ liệu số 60/2024/QH15                                                                                                                                                                                                                                     | -          | -                                         | Chưa kiểm                                                                                     | -                                                                                                                                                                                                                                                 |
+| Nghị định hướng dẫn phân loại cấp độ hệ thống thông tin theo Luật 116/2025                                                                                                                                                                                       | -          | -                                         | Chưa kiểm (chưa xác định số hiệu)                                                             | -                                                                                                                                                                                                                                                 |
+
+Hệ quả cho mã nguồn: `apps/frontend-main/lib/legal.ts` (`DOC_DATES`, phần viện dẫn) đã nêu Luật ANM 2025 thay luật
+2018 từ 01/07/2026 và NĐ 356 thay NĐ 13 từ 01/01/2026 - KHỚP bảng trên. Chưa nêu NĐ 330/2026 - thêm ở LG-01.
+
+### 18.2. Ánh xạ nghĩa vụ → yêu cầu kỹ thuật
+
+| Nghĩa vụ / rủi ro                                                                | Áp dụng cho tsudev.com?                                                                                     | Biện pháp (mã)                                                                                                                                               |
+| -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Gỡ thông tin vi phạm theo yêu cầu cơ quan chuyên trách (24 giờ / khẩn cấp 6 giờ) | Luật đặt cho doanh nghiệp; site cá nhân **vẫn nên** đáp ứng cùng mốc vì chi phí thấp                        | Takedown có đồng hồ SLA (AD-06, DB-06): mặc định `dueAt = receivedAt + 24 h`, khẩn cấp 6 h, cấu hình được (LG-05)                                            |
+| Cung cấp thông tin người dùng theo yêu cầu hợp pháp (24 giờ / khẩn cấp 3 giờ)    | như trên                                                                                                    | Quy trình tay: OWNER xác minh văn bản, xuất bằng công cụ có audit (LG-08); không cấp truy cập DB                                                             |
+| Xác thực tài khoản khi đăng ký (NĐ 147/2024, Luật 116)                           | Không phải mạng xã hội (`docs/auth.md` §6) - email đã xác minh là đủ; **bật lại** nếu mở bình luận/diễn đàn | Giữ `legalClaims.test.ts`; LG-09                                                                                                                             |
+| Thông báo xử lý dữ liệu + đồng ý (Luật 91)                                       | Có                                                                                                          | `/privacy` có phiên bản; ghi `termsVersion/termsAcceptedAt` khi đăng ký và khi văn bản đổi trọng yếu (LG-02, DB-06)                                          |
+| Dữ liệu nhạy cảm: lịch sử hoạt động trên không gian mạng (NĐ 356 - kiểm thứ cấp) | Có: `SecurityEvent` (IP, user-agent, quốc gia), `lastLoginIp`, `LoginAttempt`                               | Tối thiểu hoá: giữ 90 ngày (đã có cho `SecurityEvent`), nêu rõ trong `/privacy`, `ipHash` cho bảng mới (LG-03)                                               |
+| Quyền chủ thể (truy cập, sửa, xoá, rút đồng ý...) trong thời hạn NĐ 356 Điều 5   | Có                                                                                                          | Tự phục vụ: xuất dữ liệu (ST-08), sửa hồ sơ, xoá tài khoản (30 ngày chờ, đã có); kênh `privacy@tsudev.com` (LG-04)                                           |
+| Thời hạn lưu trữ / không giữ quá mức cần thiết (NĐ 330 phạt)                     | Có                                                                                                          | Bảng lưu giữ LG-06                                                                                                                                           |
+| Chuyển dữ liệu ra nước ngoài (Neon, Render, Cloudflare, Resend ở nước ngoài)     | Có - hạ tầng 0đ không có lựa chọn trong nước                                                                | Nêu trong `/privacy` (bên nhận, quốc gia); hồ sơ đánh giá tác động chuyển dữ liệu ra nước ngoài - tài liệu, chủ dự án lập; ✖ dời hạ tầng về Việt Nam (LG-07) |
+| Thông báo vi phạm dữ liệu                                                        | Có                                                                                                          | Runbook 19.4 có bước thông báo cơ quan + chủ thể (OB-07)                                                                                                     |
+| Phân loại cấp độ hệ thống thông tin                                              | Chưa rõ (nghị định hướng dẫn chưa kiểm); quy mô cá nhân, dự kiến cấp thấp                                   | Hồ sơ là TÀI LIỆU của chủ dự án, không trang `/admin/compliance` (11.2); LG-10 👤                                                                            |
+| Nội dung tạo bằng AI / giả mạo                                                   | Có (người viết dùng AI)                                                                                     | Nhãn "Có hỗ trợ AI" bắt buộc khi tác giả đánh dấu (9.3, WF-06); `/rules` cấm giả mạo người khác                                                              |
+| Trẻ em                                                                           | Thấp: đăng ký chỉ để đọc/tải; AUTHOR do OWNER cấp                                                           | `/terms` nêu độ tuổi tối thiểu tự đăng ký; không hồ sơ công khai cho MEMBER (LG-02)                                                                          |
+
+### 18.3. Lưu giữ dữ liệu (điểm P2 chuyển sang - thùng rác 9.2)
+
+| Dữ liệu                            | Giữ                                          | Hết hạn thì                                                             |
+| ---------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------- |
+| Bài/tài liệu trong thùng rác       | 30 ngày khôi phục được                       | Ẩn khỏi Studio; dòng còn (trigger); xoá nội dung khi có yêu cầu (DB-07) |
+| `PostRevision`                     | Theo bài                                     | Xoá cùng "xoá nội dung"                                                 |
+| `SecurityEvent`                    | 90 ngày (đã có, trigger cho dọn)             | Tự dọn trên đường ghi                                                   |
+| `TrustAuditLog`, `PostStatusEvent` | Lâu dài (chỉ-thêm)                           | Không xoá; không chứa nội dung bài                                      |
+| `ContentReport`, `TakedownRequest` | 24 tháng sau khi đóng (CẦN luật sư xác nhận) | Xoá nội dung `details`/`notes`, giữ mã + kết quả                        |
+| Tài khoản đã yêu cầu xoá           | 30 ngày chờ (`ACCOUNT_DELETION_GRACE_MS`)    | Purge; `Post.authorId` ⇒ NULL; nhật ký chỉ-thêm giữ `actorName`         |
+| Bản sao lưu `age`                  | 8 bản mới nhất (`infrastructure/sao-luu/`)   | Xoay vòng - dữ liệu đã xoá biến mất khỏi bản sao trong ≤ 8 chu kỳ       |
+| Log Render / Workers Logs          | Theo nhà cung cấp (vài ngày)                 | Không chứa mật khẩu/token/URL presign (đã có quy ước)                   |
+
+### 18.4. Trang pháp lý
+
+Giữ đường hiện có `/privacy`, `/terms`, `/rules` (v1.0 đề xuất `/legal/*`: đổi URL làm gãy liên kết đã phát hành trong
+app; không làm). Thêm: phiên bản + "Lịch sử thay đổi" cuối mỗi trang từ `DOC_DATES`; mục Cookie trong `/privacy` (chỉ
+cookie phiên next-auth, CSRF, chế độ giao diện ở localStorage - không cookie theo dõi) thay cho trang `/legal/cookies`;
+mục "Gửi yêu cầu về dữ liệu" trong `/privacy` thay `/legal/data-requests`.
+
+### 18.5. Yêu cầu
+
+| Mã    | Yêu cầu                                                                                                                                                                                                                | Giải quyết  | File sẽ sửa                                                                           | Phase      |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------- | ---------- |
+| LG-01 | Cập nhật viện dẫn: thêm NĐ 330/2026/NĐ-CP; mỗi văn bản kèm số hiệu + ngày hiệu lực theo 18.1; `legalClaims.test.ts` canh không viện dẫn văn bản "chưa kiểm".                                                           | 18.1        | `apps/frontend-main/lib/legal.ts`, `apps/frontend-main/test/legalClaims.test.ts`      | P8         |
+| LG-02 | Ghi `termsVersion`/`termsAcceptedAt` khi đăng ký và khi chấp nhận lại; văn bản đổi trọng yếu ⇒ hộp thoại chấp nhận lại ở lần đăng nhập kế.                                                                             | 18.2        | `services/auth-service/src/index.ts`, `pages/signup.tsx`, `lib/legal.ts`              | P8 ⛔ Neon |
+| LG-03 | `/privacy` liệt kê từng loại dữ liệu, mục đích, thời hạn (18.3), bên nhận + quốc gia (Neon, Render, Cloudflare, Resend, VirusTotal), dữ liệu nhạy cảm (nhật ký hoạt động). Bảng mới lưu `ipHash` (HMAC), không IP thô. | 18.2        | `apps/frontend-main/pages/privacy.tsx`, `apps/frontend-main/lib/legal.ts`             | P8         |
+| LG-04 | Xuất dữ liệu tự phục vụ (ST-08) + mục "Gửi yêu cầu về dữ liệu" có thời hạn trả lời theo NĐ 356 Điều 5 (điền sau khi đọc văn bản gốc).                                                                                  | 18.2        | `apps/frontend-main/pages/privacy.tsx`, `pages/settings/privacy.tsx` (mới)            | P8         |
+| LG-05 | SLA takedown: `dueAt` = nhận + 24 h (thường) / 6 h (khẩn cấp), hằng số cấu hình một chỗ; `/admin` và thư cảnh báo khi còn < 25% thời gian.                                                                             | 11.2, AD-06 | `services/content-service/src/index.ts`, `pages/admin/moderation.tsx` (mới)           | P8         |
+| LG-06 | Thực thi bảng lưu giữ 18.3 (việc dọn trong nhịp cron sẵn có - AR-03).                                                                                                                                                  | 18.3        | `services/content-service/src/index.ts`, `infrastructure/canh-site-cron/src/index.ts` | P8         |
+| LG-07 | Hồ sơ đánh giá tác động xử lý + chuyển dữ liệu ra nước ngoài: mẫu Markdown ngoài repo công khai, chủ dự án lập/ký.                                                                                                     | 18.2        | (tài liệu riêng của chủ dự án)                                                        | P8 👤      |
+| LG-08 | Công cụ xuất dữ liệu một tài khoản cho cơ quan có thẩm quyền: dùng chung mã ST-08, chỉ OWNER + step-up, ghi `TrustAuditLog` kèm số văn bản.                                                                            | 18.2        | `services/auth-service/src/index.ts`                                                  | P8         |
+| LG-09 | Giữ cổng `legalClaims.test.ts`; PR mở tính năng người dùng đăng nội dung PHẢI thêm xác thực SĐT trước (`docs/auth.md` §6).                                                                                             | NĐ 147      | `apps/frontend-main/test/legalClaims.test.ts`                                         | -          |
+| LG-10 | Chủ dự án nhờ luật sư xác nhận: áp dụng Luật 116 Điều 25 cho site cá nhân, cấp độ hệ thống, thời hạn 18.3, miễn trừ NĐ 356 cho cá nhân.                                                                                | -           | -                                                                                     | 👤         |
+
+---
+
+## 19. Giám sát, nhật ký & ứng phó sự cố
+
+### 19.1. Ba lớp nhật ký (thật)
+
+| Lớp       | v1.0                                         | Hiện có / đích 0đ                                                                                                                                                                                                                                                |
+| --------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Kiểm toán | `audit_events` 24 tháng nóng + lạnh bất biến | `TrustAuditLog` (quản trị, phát hành, vụ việc P8) + `SecurityEvent` (90 ngày) - chỉ-thêm, chuỗi băm. `PostStatusEvent` (biên tập). Gom xem ở `/admin/audit` (AD-07). Neo băm R2 CÓ THỂ (SEC-14)                                                                  |
+| Ứng dụng  | pino JSON, `request_id`, `trace_id`, 90 ngày | `console.*` của Express ⇒ log Render; Worker ⇒ Workers Logs (`observability` trong `wrangler.jsonc`). Thêm `requestId` = `CF-Ray` (API-02). Không trace phân tán (một bước nhảy BFF→bundle, `CF-Ray` đủ nối). Giữ quy ước không log URL presign, token, mật khẩu |
+| Hạ tầng   | WAF, CDN, LB, OS, DB audit ≥ 12 tháng        | Cloudflare Security Events (gói Free, giữ ngắn) + Neon/Render dashboard. Không kéo về kho riêng (cần dịch vụ lưu log trả phí). Ghi rõ giới hạn trong `/privacy`                                                                                                  |
+
+### 19.2. Giám sát & cảnh báo
+
+SLO v1.0 (99,9%, p95 < 300 ms) **không cam kết**: Render free ngủ và cold start ~50 s sau khung nghỉ 01-06 h là đánh
+đổi đã chọn (`docs/free-tier.md`). SLO thật, đo được:
+
+| Chỉ số                                  | Mục tiêu                       | Đo bằng                                                                |
+| --------------------------------------- | ------------------------------ | ---------------------------------------------------------------------- |
+| Trang công khai ISR trả 200 có nội dung | 99,5%/tháng (kể cả Render ngủ) | `canh-site-cron` đếm nội dung (`demNoiDung.ts`) + uptime ngoài (OB-03) |
+| Tệp phát hành toàn vẹn, kiểm < 24 h     | 100%                           | nhịp `23 1,13` (`kiemToanVen.ts`) - đã có                              |
+| Neon CU-giờ                             | < 80/100 mỗi tháng             | `hanMuc.ts` - đã có                                                    |
+| Render giờ instance                     | < 650/750                      | đọc tay hằng tháng (`docs/free-tier.md` "Tự kiểm mỗi tháng")           |
+| Thư Resend                              | < 80/ngày, < 2.400/tháng       | OB-05                                                                  |
+
+Kênh báo động: Telegram qua `canh-site-cron` và `packages/observability/notify.js` - **chưa cấu hình** (cron log "CHƯA
+cấu hình Telegram"). Đây là khoảng trống lớn nhất của chương: mọi cảnh báo dưới đây vô nghĩa nếu không ai nhận. OB-01
+là việc đầu tiên, của chủ dự án.
+
+Quy tắc cảnh báo (v1.0 giữ cái làm được không cần SIEM):
+
+| Sự kiện                                                        | Nguồn                                   | Nhịp                                    |
+| -------------------------------------------------------------- | --------------------------------------- | --------------------------------------- |
+| Site trống nội dung / 5xx                                      | `demNoiDung.ts`                         | 5 phút (có)                             |
+| Toàn vẹn tệp phát hành sai, chuỗi băm nhật ký gãy              | `kiemToanVen.ts`, `releaseSecurity.ts`  | 2 lần/ngày (có; thêm chuỗi băm - OB-04) |
+| Neon gần hạn mức                                               | `hanMuc.ts`                             | có                                      |
+| Đổi vai trò, tắt 2FA của ADMIN+, đăng nhập ADMIN+ quốc gia mới | auth-service ghi sự kiện ⇒ thư (SEC-10) | tức thời                                |
+| Takedown còn < 25% thời gian                                   | `/api/internal/maintenance`             | 2 lần/ngày                              |
+| `security.txt` còn < 30 ngày                                   | `/admin` (tính lúc vẽ)                  | khi mở                                  |
+| Khoá ký phát hành: `RELEASE_SIGNING_KEY` khởi động hỏng        | backend từ chối khởi động (có)          | -                                       |
+
+### 19.3. Theo dõi nội dung
+
+Bảng "Sức khoẻ nội dung" trên `/studio` (không job mới): bài nhãn Lỗi thời, ảnh thiếu alt (từ `contentChecks` chạy lúc
+mở trang trên tối đa 50 bài gần nhất), báo cáo mở (P8). Không kiểm liên kết gãy định kỳ (9.3).
+
+### 19.4. Runbook sự cố (rút gọn, ghi vào `docs/security-plan.md` §mới)
+
+1. **Phát hiện** - cảnh báo Telegram/thư, báo cáo qua `security@`/`abuse@tsudev.com`.
+2. **Phân loại** SEV1 (lộ dữ liệu/khoá, tệp phát hành bị thay) · SEV2 (site chết) · SEV3 (một chức năng) · SEV4.
+3. **Khoanh vùng** - công cụ đã có: thu hồi mọi phiên (`security/revoke-all`, tăng `sessionVersion`), thu hồi bản
+   phát hành (`/api/admin/releases/:id/revoke`), hạ vai trò ở `/admin/accounts`, chế độ "Under Attack" của Cloudflare.
+4. **Loại bỏ** - vá; xoay khoá: `RELEASE_SIGNING_KEY` (cũ vào `RELEASE_SIGNING_KEYS_RETIRED` TRƯỚC), `TOTP_ENCRYPTION_KEY`
+   (⚠️ hỏng mọi 2FA - chỉ khi lộ), `INTERNAL_IDENTITY_SECRET` (đổi CÙNG LÚC Worker + Render), mật khẩu Neon (⇒ Render
+   `DATABASE_URL`).
+5. **Khôi phục** - `infrastructure/sao-luu/` (dump `age` + khoá), kiểm bằng `--kiem` trước khi nạp.
+6. **Thông báo** - SEV1 có dữ liệu cá nhân: thông báo cơ quan chuyên trách và chủ thể theo thời hạn Luật 91/NĐ 356
+   (điền mốc giờ sau khi đọc văn bản gốc - LG-10); mẫu thư tiếng Việt soạn sẵn trong runbook.
+7. **Rút kinh nghiệm** - phiếu `logs/handover/` + mục "kỹ thuật đã trả giá" trong `HANDOFF.md` §0.7.
+
+Diễn tập: khôi phục sao lưu mỗi 6 tháng (đã làm G11/G12 một lần); không tabletop nhóm (một người vận hành).
+
+### 19.5. Yêu cầu
+
+| Mã    | Yêu cầu                                                                                                                                                                       | Giải quyết   | File sẽ sửa                                                                                           | Phase |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | ----------------------------------------------------------------------------------------------------- | ----- |
+| OB-01 | Cấu hình kênh báo động: `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` cho Worker cron + Render; nghiệm thu bằng `/debug/boom` (dev) và một báo động thử từ cron.                    | 19.2         | `infrastructure/canh-site-cron/wrangler.jsonc` (secret), `packages/observability/README.md`           | P9 👤 |
+| OB-02 | `requestId` (`CF-Ray`) xuyên BFF → service → log → thân lỗi (cùng API-02).                                                                                                    | v1.0 19.1    | `apps/frontend-main/lib/bff.ts`, `services/*/src/index.ts`                                            | P4    |
+| OB-03 | Uptime ngoài miễn phí (vd. UptimeRobot gói free, 5 phút) cho `/`, `/api/auth/providers`, `/.well-known/tsudev-release-jwks.json`; KHÔNG trỏ vào đường chạm DB (giữ Neon ngủ). | v1.0 19.2    | `docs/free-tier.md`                                                                                   | P9 👤 |
+| OB-04 | Nhịp `23 1,13` kiểm chuỗi băm `TrustAuditLog`/`SecurityEvent` (hàm có sẵn ở `releaseSecurity.ts`) và báo động khi gãy.                                                        | 11.2         | `infrastructure/canh-site-cron/src/kiemToanVen.ts`, `services/content-service/src/releaseSecurity.ts` | P9    |
+| OB-05 | Đếm thư gửi/ngày trong auth-service; ≥ 80 ⇒ chỉ gửi thư bảo mật + xác minh (bỏ thư thông báo duyệt), log cảnh báo.                                                            | WF-09        | `services/auth-service/src/index.ts`                                                                  | P7    |
+| OB-06 | Ghi RPO 24 h / RTO 4 h vào `docs/security-plan.md`; lịch diễn tập khôi phục 6 tháng vào `logs/STATE.md`.                                                                      | v1.0 SEC-053 | `docs/security-plan.md`, `logs/STATE.md`                                                              | P9    |
+| OB-07 | Runbook 19.4 thành mục riêng của `docs/security-plan.md`, kèm mẫu thư thông báo tiếng Việt.                                                                                   | 19.4         | `docs/security-plan.md`                                                                               | P9    |
+| OB-08 | Bảng "Sức khoẻ nội dung" ở `/studio` (19.3), không job nền.                                                                                                                   | 19.3         | `pages/studio/index.tsx` (mới)                                                                        | P7    |
+
+---
+
+## 20. Hiệu năng, SEO & khả năng tiếp cận
+
+### 20.1. Hiệu năng - số đo P1 làm mốc
+
+Lighthouse 12 di động (P1, máy tải cao - số thô): `/` 65 (LCP 3,1 s), `/apps` 80, `/blog` 89, `/docs` 59 (LCP 3,2 s);
+CLS ≈ 0; JS ≈ 136 KiB nén/trang, ~30 KiB không dùng. Ngân sách đích (đo trên máy rảnh hoặc Lighthouse CI):
+
+| Chỉ số (di động, trang công khai) | Ngân sách                     |
+| --------------------------------- | ----------------------------- |
+| LCP                               | ≤ 2,5 s                       |
+| CLS                               | ≤ 0,05                        |
+| TBT                               | ≤ 300 ms                      |
+| JS đầu trang (nén)                | ≤ 140 KiB (không tăng so P1)  |
+| Điểm Hiệu năng                    | ≥ 80 (`/`, `/docs` hiện dưới) |
+
+v1.0 "≤ 120 KB, ưu tiên Server Components": Pages Router không có RSC; thay bằng `next/dynamic` cho thành phần nặng
+chỉ mở khi cần (bảng lệnh Ctrl+K, trình soạn Tiptap chỉ ở Studio, lightbox). Trang chủ: băng chuyền dừng tự chạy
+(MO-02) và hiện dần không trì hoãn LCP.
+
+### 20.2. Bộ nhớ đệm (F-09 đã đóng ở P1)
+
+Không cache tag/purge theo tag như v1.0. Hiện có: ISR R2 `revalidate` 300 s. Dựng lại theo yêu cầu (`res.revalidate()`)
+CHƯA từng được thử trên OpenNext + R2 ở repo này ⇒ mặc định chấp nhận trễ ≤ 5 phút sau công bố (ghi trong Studio:
+"Hiện công khai trong vòng 5 phút"); P7 CÓ THỂ thử `res.revalidate()` sau `publish` và chỉ giữ nếu đo được trên
+production. Trang theo người dùng: `Cache-Control: private, no-store` (IA-05). Nghiệm thu: công bố ⇒ khách thấy trong ≤ 6
+phút (E2E không làm - cần production; đo tay ở P7).
+
+### 20.3. SEO
+
+| Mục                               | Hiện                                       | Đích                                                                                                                                                       |
+| --------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Metadata, canonical, OG           | có (`lib/seoTitle.ts`, URL prod lúc build) | thêm `seoTitle`/`canonicalUrl`/`ogImageUrl`/`noindex` theo bài (DB-04)                                                                                     |
+| JSON-LD                           | **không có** ở trang nào                   | `WebSite` + `SearchAction` (`/`), `SoftwareApplication` (`/apps/[slug]`), `BlogPosting` (`/blog/[slug]`), `TechArticle` (`/docs/[slug]`), `BreadcrumbList` |
+| `sitemap.xml`, `feed.xml`, robots | có                                         | sitemap thêm trang mới (IA-06); robots `Disallow` tiền tố riêng tư (IA-05)                                                                                 |
+| Đổi slug                          | 404                                        | 308 qua `PostSlugRedirect` (DB-05). Không 410/451 riêng: nội dung gỡ trả 404 (takedown không công bố lý do)                                                |
+| Đa ngôn ngữ                       | -                                          | ✖ (site một ngôn ngữ)                                                                                                                                      |
+
+### 20.4. Khả năng tiếp cận - WCAG 2.2 AA
+
+Chương 5-13 đã giao từng lỗi axe (F-P1-05/06/07/09/10/11) cho phase. Ở đây chỉ chốt cổng: axe-core trong E2E cho
+các trang mỗi phase chạm, ngưỡng 0 critical + 0 serious (PR-07); kích thước đích ≥ 24×24 px (2.5.8); `lang="vi"`;
+một `h1`/trang (AdminLayout); không dùng màu làm tín hiệu duy nhất (trạng thái bài có chữ). Kiểm tay bằng NVDA cho
+trình soạn ở P4 (Tiptap) và hộp thoại ở P5.
+
+### 20.5. Yêu cầu
+
+| Mã    | Yêu cầu                                                                                                                                                                                             | Giải quyết    | File sẽ sửa                                                                                                        | Phase |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------ | ----- |
+| PF-01 | Ngân sách 20.1 ghi vào `docs/testing.md`; Lighthouse CI (`@lhci/cli`, chạy trên bản `next start` trong job E2E sẵn có) cho `/`, `/apps`, `/blog`, `/docs` - cảnh báo ở P9, chặn khi ổn định 2 tuần. | rà quét mục 6 | `.github/workflows/ci.yml`, `docs/testing.md`, `lighthouserc.json` (mới)                                           | P9    |
+| PF-02 | `next/dynamic` cho `CommandPalette`, `MarkdownEditor`; JS trang công khai không tăng (so `.next` build-manifest trong CI).                                                                          | 20.1          | `pages/_app.tsx`, `pages/studio/posts/[slug].tsx` (đổi tên ở ED-04)                                                | P4-P5 |
+| PF-03 | JSON-LD theo bảng 20.3 qua một component dùng chung; test kiểm JSON hợp lệ + `@type`.                                                                                                               | PG-*          | `packages/ui/src/components/JsonLd.tsx` (mới), `pages/index.tsx`, `pages/blog/[slug].tsx`, `pages/docs/[slug].tsx` | P6    |
+| PF-04 | axe-core trong Playwright (`@axe-core/playwright`) cho các route của `smoke.spec.js` ở 1280 + 390 px, cả Sáng/Tối; 0 critical/serious.                                                              | PR-07, F-P1-* | `e2e/tests/smoke.spec.js`, `e2e/package.json`                                                                      | P5    |
+| PF-05 | Kiểm `scrollWidth <= innerWidth` ở 390 px cho mọi route công khai trong E2E.                                                                                                                        | F-P1-03       | `e2e/tests/smoke.spec.js`                                                                                          | P5    |
+| PF-06 | Studio ghi rõ độ trễ ISR ("trong vòng 5 phút"); không thêm purge theo tag.                                                                                                                          | 20.2          | `pages/studio/posts/[slug].tsx` (đổi tên ở ED-04)                                                                  | P4    |
+| PF-07 | Ảnh trong bài: `width`/`height` (lấy từ tên khoá hoặc thuộc tính Markdown do trình soạn ghi), `loading="lazy"` trừ ảnh đầu, `decoding="async"`.                                                     | CLS           | `apps/frontend-main/lib/md.ts`, `components/MarkdownEditor.tsx`                                                    | P4    |
+
+---
+
+## 21. Kiểm thử, CI/CD & chuỗi cung ứng
+
+### 21.1. Cổng hiện có (ruleset `main`, đọc qua API 19/11/2026)
+
+Ruleset `main`: `pull_request`, `required_status_checks` (strict), `non_fast_forward`, `deletion`. 14 check bắt buộc -
+CLAUDE.md ghi "13" là trước khi thêm cổng bản quyền:
+
+| Check                                                       | Workflow / job                                 |
+| ----------------------------------------------------------- | ---------------------------------------------- |
+| Lint & format (kèm topology, tokens, font, typecheck, TS 7) | `ci.yml` `lint`                                |
+| WASM con dấu - artifact phải khớp mã nguồn                  | `ci.yml` `wasm`                                |
+| Migrate & test services                                     | `ci.yml` `test`                                |
+| Image backend - dựng + khởi động như Render                 | `ci.yml` `backend-image`                       |
+| E2E - smoke các trang được giữ                              | `ci.yml` (Playwright, `e2e/tests/*.spec.js`)   |
+| Build frontends                                             | `ci.yml` `build` (gói OpenNext)                |
+| Kiểm quy ước                                                | `standards.yml`                                |
+| gitleaks · npm-audit                                        | `security-scan.yml`                            |
+| dependency-review · actionlint · zizmor · trivy-config      | `pr-gates.yml`                                 |
+| Bảo vệ bản quyền                                            | `bao-ve-ban-quyen.yml` (`pull_request_target`) |
+
+Ngoài bắt buộc: CodeQL (`codeql.yml`), Scorecard, `install-scripts.yml`. Action ghim SHA, `permissions` tối thiểu,
+zizmor canh - các mục "CI/CD" của v1.0 đã có.
+
+⚠️ **Cổng bản quyền chặn agent**: mọi PR chạm `.github/workflows/`, `packages/ui/src/components/SiteFooter.tsx`,
+`apps/frontend-main/public/brand/`, `install.sh/.ps1`, dữ liệu ủng hộ (`.github/CODEOWNERS`) cần
+`nguyentrangtinhsu` duyệt. Lộ trình (chương 23) gom các thay đổi đó thành PR RIÊNG, nhỏ, để không chặn phần còn lại.
+
+### 21.2. Chiến lược kiểm thử (đối chiếu v1.0)
+
+| Loại            | v1.0                               | v2.0                                                                                                                                                                                                                               |
+| --------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Đơn vị/tích hợp | Vitest + Testcontainers, phủ ≥ 80% | **Jest + ts-jest** theo workspace trên Postgres dịch vụ của CI (có sẵn). Không đặt ngưỡng phủ % (đo phủ không bắt được loại lỗi đã trả giá ở HANDOFF §0.7); thay bằng **ma trận vai trò × hành động** cho mỗi endpoint mới (CI-02) |
+| E2E             | Playwright, luồng đầy đủ           | Playwright có sẵn; thêm luồng viết → tự lưu → gửi duyệt → duyệt → công khai (P4/P7), báo cáo → takedown (P8). Tài khoản dev có 2FA ⇒ dùng `totpCode()` (bẫy P1)                                                                    |
+| Trực quan       | Chromatic                          | ✖ (trả phí). Storybook ngoài CI - giữ cách kiểm đếm story (`docs/design-system.md`)                                                                                                                                                |
+| a11y            | axe-core                           | PF-04                                                                                                                                                                                                                              |
+| Hiệu năng       | Lighthouse CI + k6 500 RPS         | Lighthouse CI (PF-01). ✖ k6 tải: trang công khai là ISR ở biên Cloudflare; bắn tải vào production đốt hạn mức Workers 100k/ngày                                                                                                    |
+| SAST            | Semgrep, CodeQL, gitleaks          | CodeQL + gitleaks có. Semgrep: G1 ghi "phần lớn đóng" - CÓ THỂ thêm (CI-04)                                                                                                                                                        |
+| Phụ thuộc       | Renovate + osv-scanner/Trivy       | Dependabot + `npm audit --omit=dev` + dependency-review + Trivy config - đủ                                                                                                                                                        |
+| DAST            | ZAP baseline mỗi PR trên staging   | ✖ mỗi PR (không staging). CÓ THỂ: ZAP baseline thủ công trước P9, chạy vào `localhost` dev                                                                                                                                         |
+| RLS             | pgTAP                              | ✖ (không RLS). Trigger chỉ-thêm/chặn xoá cứng đã có test (`softDelete`)                                                                                                                                                            |
+| Mã nguồn        | -                                  | Test quét NGUỒN cho thứ chỉ hỏng trên HTTPS/production (CLAUDE.md bài học 2): CSP, `clientIp`, URL ảnh `media.tsudev.com` (SEC-05)                                                                                                 |
+
+### 21.3. Phát hành
+
+| Thành phần        | Cách phát hành (giữ)                                                                                                                                                                                                 |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend (Worker) | `scripts/deploy-frontend.js` từ máy dev (dời `.env.local`), `XDG_CONFIG_HOME=~/.config/wrangler-tsudev`, thẻ `deploy-YYYY.MM.DD.N`; nghiệm thu `curl -s https://tsudev.com/api/auth/providers` + đo trang sau 1 phút |
+| Backend (Render)  | tự dựng từ `main`; migration lên Neon TRƯỚC merge                                                                                                                                                                    |
+| Cron Worker       | `wrangler deploy` trong `infrastructure/canh-site-cron`                                                                                                                                                              |
+
+v1.0 đòi staging + canary 10% + tự rollback: ✖ (không staging 0đ). Thay: cờ bật/tắt bằng biến môi trường cho khu vực
+mới lớn (`STUDIO_V2=1` ở Worker vars) trong 1-2 tuần đầu P4, rollback = `wrangler rollback` về phiên bản Worker trước
+(ghi Worker ID mỗi lần deploy vào `logs/STATE.md` - đã làm). Migration theo kiểu mở rộng → dùng → thu hẹp; P7/P8 chỉ
+có bước mở rộng (15.3).
+
+### 21.4. Chuỗi cung ứng
+
+`package-lock.json` (npm, không pnpm), `npm ci` trong CI; Dependabot; artifact WASM commit và CI dựng lại so khớp. SBOM:
+CÓ THỂ sinh CycloneDX cho image backend (`npm sbom --sbom-format cyclonedx`, có sẵn trong npm ≥ 10) và đính vào thẻ
+deploy. SLSA L3 cho phần mềm phát hành: thuộc repo từng app (`.standards/docs/DISTRIBUTION_TRUST.md`), không phải
+website.
+
+### 21.5. Yêu cầu
+
+| Mã    | Yêu cầu                                                                                                                   | Giải quyết | File sẽ sửa                                                    | Phase                   |
+| ----- | ------------------------------------------------------------------------------------------------------------------------- | ---------- | -------------------------------------------------------------- | ----------------------- |
+| CI-01 | Cập nhật "13 check" ⇒ 14 (kể cả Bảo vệ bản quyền) trong tài liệu (cuối phiên, không giữa phiên - CLAUDE.md bust cache).   | 21.1       | `CLAUDE.md`, `docs/testing.md`                                 | P4                      |
+| CI-02 | Mỗi endpoint mới có test ma trận vai trò (GUEST..OWNER) × hành động, dùng chung helper.                                   | v1.0 21.1  | `services/content-service/test/*` (helper mới `roleMatrix.ts`) | P4-P8                   |
+| CI-03 | E2E luồng biên tập đầy đủ (P4: viết → tự lưu → gửi duyệt; P7: duyệt → công khai; P8: báo cáo → takedown) có `totpCode()`. | v1.0 21.1  | `e2e/tests/cms.spec.js`, `e2e/tests/helpers/login.js`          | P4/P7/P8                |
+| CI-04 | Semgrep (bộ luật miễn phí `p/owasp-top-ten`, `p/javascript`) chạy mỗi PR, không bắt buộc 2 tuần rồi mới thêm vào ruleset. | G1         | `.github/workflows/security-scan.yml`                          | P9 ⛔ cổng bản quyền    |
+| CI-05 | Lighthouse CI + axe trong job E2E (PF-01, PF-04) - phần sửa workflow tách PR riêng.                                       | PF-01      | `.github/workflows/ci.yml`                                     | P5/P9 ⛔ cổng bản quyền |
+| CI-06 | Cờ `STUDIO_V2` (Worker var) cho P4; gỡ cờ khi P4 chạy ổn 2 tuần.                                                          | 21.3       | `apps/frontend-main/wrangler.jsonc`, `pages/author.tsx`        | P4                      |
+| CI-07 | SBOM CycloneDX của backend đính vào thẻ deploy (CÓ THỂ).                                                                  | v1.0 21.3  | `scripts/deploy-frontend.js`                                   | P9                      |
+
+---
+
+## 22. Sổ quyết định, đính chính, rủi ro & phụ lục
+
+### 22.1. Đính chính chương 1-13 (phát hiện khi đọc mã ở P3 - chương 1-13 không viết lại; lập trình viên theo bảng này)
+
+| Chỗ                                                   | Chương 1-13 ghi                               | Đúng là                                                                                                                             |
+| ----------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 9.2 sơ đồ                                             | SCHEDULED → PUBLISHED "Đến giờ (cron có sẵn)" | Không cron: `postWorkflow.ts` suy lúc đọc (`publishedAt > now`) - 14.4                                                              |
+| 6.3                                                   | "chịu lỗi gõ cần `pg_trgm`"                   | `pg_trgm` + chỉ mục `gin_trgm_ops` đã có; nhánh `word_similarity` không migration (DB-09)                                           |
+| 10.2                                                  | "HIBP k-anonymity nếu chương 17 chọn"         | Đã chạy (`password.ts`) - 17.2                                                                                                      |
+| 11.2                                                  | "xác minh chuỗi băm - chương 17 đánh giá"     | `prevHash` + trigger + hàm kiểm đã có (G8); chỉ thêm báo động (OB-04) và neo R2 CÓ THỂ (SEC-14)                                     |
+| 8.5 / ED-07                                           | ảnh tải qua presign rồi chèn URL              | URL hiện trả về trỏ bucket RIÊNG TƯ ⇒ ảnh không hiện công khai; cần bucket `tsudev-media` + `media.tsudev.com` (SEC-05) TRƯỚC ED-07 |
+| 15.2 / WF-08                                          | cột `featured`                                | `featuredAt DateTime?` (15.2)                                                                                                       |
+| 9.5 / WF-09                                           | "cần cột tuỳ chọn"                            | `notifyOnReview`, `notifyOnDecision` trên `User` (DB-03)                                                                            |
+| CLAUDE.md, chương 21 trước                            | "13 check bắt buộc"                           | 14 (thêm Bảo vệ bản quyền) - CI-01                                                                                                  |
+| 8.6 ảnh OG tĩnh theo chuyên mục trong `public/brand/` | -                                             | Thư mục đó thuộc CODEOWNERS ⇒ PR ⛔ cổng bản quyền; đặt ảnh OG ở `public/og/` (mới) để không chặn P6                                |
+
+### 22.2. Sổ quyết định chương 14-21
+
+| Mã    | Quyết định                                                                     | Thay cho (v1.0)                | Mở lại khi                               |
+| ----- | ------------------------------------------------------------------------------ | ------------------------------ | ---------------------------------------- |
+| RK-01 | Giữ Pages Router, Express, Prisma, Neon, Render free; không tiến trình thứ hai | App Router, Valkey, Meili, K8s | Có ngân sách trả phí                     |
+| RK-02 | Không `/api/v1`, lỗi `{ error, code, requestId }`, phân trang `page/page_size` | `/api/v1`, RFC 9457, cursor    | Có client bên thứ ba dùng API            |
+| RK-03 | Không bảng phiên; "Đăng nhập gần đây" từ `SecurityEvent`                       | `sessions`                     | Tài khoản dùng chung nhiều người         |
+| RK-04 | Không xoá cứng; "xoá nội dung" giữ dòng                                        | job xoá cứng theo lưu giữ      | Luật sư yêu cầu xoá dòng (LG-10)         |
+| RK-05 | Ảnh ở bucket công khai riêng `media.tsudev.com`; bucket phát hành giữ riêng tư | MinIO + imgproxy + ClamAV      | -                                        |
+| RK-06 | Không nới `connect-src` cho `data:` (Turnstile)                                | -                              | Turnstile hỏng chức năng thật            |
+| RK-07 | ASVS 5.0 L2 toàn hệ, không tuyên bố L3                                         | L3 cho auth/admin              | Có pentest độc lập                       |
+| RK-08 | Không staging; cờ Worker var + `wrangler rollback`                             | staging + canary               | Render có service thứ hai miễn phí       |
+| RK-09 | Cloudflare Access cho admin: CÓ THỂ, việc của chủ dự án                        | Zero-Trust bắt buộc            | -                                        |
+| RK-10 | Dữ liệu ở hạ tầng nước ngoài, công bố trong `/privacy`                         | DC tại Việt Nam                | Luật sư kết luận bắt buộc lưu trong nước |
+
+### 22.3. Rủi ro
+
+| Rủi ro                                                     | Khả năng       | Tác động     | Giảm thiểu                                                                                                                                   |
+| ---------------------------------------------------------- | -------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tự lưu 30 s đánh thức Neon liên tục khi viết dài           | Trung bình     | Cao (CU-giờ) | Chỉ lưu máy chủ khi nội dung đổi; trình duyệt giữ localStorage; tác giả viết ban ngày - Neon đằng nào cũng thức; theo dõi `hanMuc.ts` sau P4 |
+| Migration P7/P8 merge trước khi chạy lên Neon ⇒ site trống | Thấp           | Cao          | DB-10, `migrationGate`, agent DỪNG                                                                                                           |
+| Cổng bản quyền chặn PR lớn                                 | Cao            | Trung bình   | Tách thay đổi CODEOWNERS thành PR riêng (chương 23)                                                                                          |
+| Bucket ảnh công khai bị dùng phát tán tệp                  | Thấp           | Trung bình   | Chỉ MEMBER+ ký được, loại + kích thước ký trong URL, magic bytes, cấm SVG; `/admin` liệt kê tệp mới                                          |
+| Resend 100 thư/ngày cạn vì thư duyệt                       | Thấp           | Trung bình   | OB-05 ưu tiên thư bảo mật                                                                                                                    |
+| Mốc pháp lý "kiểm thứ cấp" sai                             | Trung bình     | Trung bình   | LG-10 nhờ luật sư; hằng số SLA một chỗ, đổi được                                                                                             |
+| Không ai nhận báo động (Telegram chưa cấu hình)            | Cao (hiện tại) | Cao          | OB-01 đưa lên đầu P9, nhắc trong `logs/STATE.md` ngay từ P4                                                                                  |
+
+### 22.4. Phụ lục A - ánh xạ form `/author` cũ (v1.0 23.1, chỉnh theo mô hình thật)
+
+| Ô cũ                 | Đích                                                             |
+| -------------------- | ---------------------------------------------------------------- |
+| Tiêu đề, Nội dung    | `Post.title`, `Post.contentMd` (Markdown - ADR-0003, không JSON) |
+| Slug                 | `Post.slug` (+ `PostSlugRedirect` khi đổi sau công bố)           |
+| Tóm tắt              | `Post.excerpt`                                                   |
+| Thẻ                  | `Post.tags` (chip, ED-13) - không bảng `terms`                   |
+| Thời gian đăng       | `Post.publishedAt` (tương lai = hẹn giờ)                         |
+| Ảnh bìa              | `Post.coverImageUrl` (+ `coverCaption`, `coverCredit` ở DB-04)   |
+| Mô tả SEO            | `Post.metaDescription` (+ `seoTitle` ở DB-04)                    |
+| Nguồn tham khảo      | `Post.references` (JSON, có sẵn)                                 |
+| Công bố (ô tích)     | Bỏ (F-01, ED-01); trạng thái qua `transition`                    |
+| Nhóm/Thứ tự tài liệu | `Doc.category`, `Doc.position` (giữ)                             |
+| Lượt xem             | `PostViewDaily` (giữ)                                            |
+
+### 22.5. Phụ lục B - thông điệp (sửa v1.0 23.2 theo quyết định)
+
+| Ngữ cảnh       | Thông điệp                                                                                             |
+| -------------- | ------------------------------------------------------------------------------------------------------ |
+| Tự lưu         | "Đã lưu lúc 19:42" · "Đang lưu..." · "Chưa lưu được - đã giữ bản nháp trên máy này, đang thử lại"      |
+| Gửi duyệt      | "Đã gửi bài cho người duyệt." (+ "Bạn sẽ nhận thư khi có phản hồi" chỉ khi `notifyOnDecision`)         |
+| Kiểm tra chặn  | "Chưa thể gửi duyệt: 2 ảnh thiếu mô tả thay thế." [Đi tới ảnh]                                         |
+| Xoá            | "Đã chuyển vào thùng rác. Khôi phục được trong 30 ngày." [Hoàn tác] (KHÔNG "tự xoá vĩnh viễn" - RK-04) |
+| Công bố        | "Đã công bố. Trang công khai cập nhật trong vòng 5 phút." (PF-06)                                      |
+| Sửa chồng      | "Bài đã được sửa lúc HH:mm bởi X." [Tải bản mới] [Xem khác biệt]                                       |
+| Step-up        | "Vì đây là thay đổi quan trọng, hãy xác nhận lại danh tính của bạn."                                   |
+| Lỗi chung      | "Đã có lỗi xảy ra. Mã tham chiếu: <requestId>. Hãy thử lại hoặc liên hệ contact@tsudev.com."           |
+| Không có quyền | "Bạn không có quyền xem trang này." + liên kết về `/` (`EmptyState forbidden`)                         |
+
+Bỏ "Phiên sắp hết sau 2 phút" (phiên 14 ngày, không phiên Studio riêng - SEC-02).
+
+### 22.6. Phụ lục C - phím tắt
+
+Theo ED-14 + 6.3: `Ctrl/⌘ K` hoặc `/` (bảng lệnh), `Ctrl/⌘ S` (lưu), `Ctrl/⌘ Shift P` (xem trước), `Ctrl/⌘ Enter`
+(hành động chính), `?` (bảng phím), `Esc` (đóng lớp phủ). Bỏ chuỗi `G` rồi `S/A/B/D` của v1.0: phím chữ đơn đụng gõ
+tiếng Việt bằng bộ gõ (Telex dùng chữ cái) - `e2e/tests/vi-ime.spec.js` là bằng chứng repo đã từng trả giá vùng này.
+
+### 22.7. Phụ lục D - danh bạ ứng dụng
+
+Không chép danh sách 10 app của v1.0: nguồn sự thật là `packages/ui/src/lib/ecosystem.ts` (+ catalog sinh tự động),
+không phải bảng `products` (11.2, PR-04).
+
+---
+
+## 23. Lộ trình P4-P9 và nghiệm thu
+
+Luật chung (phiếu `20261119-65` mục 0): mỗi phase MỘT phiên; PR nhỏ theo thứ tự dưới; mỗi PR qua 14 check; deploy
+frontend bằng `scripts/deploy-frontend.js` + thẻ `deploy-YYYY.MM.DD.N`; migration ⛔ Neon do chủ dự án chạy TRƯỚC
+merge; PR chạm CODEOWNERS ⛔ cổng bản quyền tách riêng. Yêu cầu dài hạn áp dụng MỌI phase (không liệt kê lại):
+PR-01..09, AR-01, AR-02, AR-06, API-01, API-05, SEC-03, CI-02, DS-01, DS-07, MO-01, LG-09; giữ nguyên (không việc mới)
+MD-06, MD-07.
+
+### P4 - Studio giai đoạn A (frontend + backend nhỏ, KHÔNG migration)
+
+Mã: PG-01, ED-01, AD-03, SEC-06 (đầu) · IA-02, IA-04, DS-02, DS-03, DS-06, DS-08, UI-08, PG-02, PG-03, ED-02..ED-18,
+MD-11..MD-14, MD-17, MD-18 (phần P4), MD-21, MD-22, MD-23, MD-24, MD-30..MD-36 · AR-05, AR-07 · API-02, API-03, API-04
+(409), API-07 · SEC-05, SEC-07, SEC-11 · OB-02 · PF-02, PF-06, PF-07 · CI-01, CI-03 (phần P4), CI-06.
+
+| PR  | Nội dung                                                                                                                            | Mã chính                                              | Ghi chú                                                                                                                                    |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 4.1 | Vá nhanh: bỏ tích "Công bố" mặc định ở `/author` và `/admin/projects`; `/debug/boom` chỉ dev                                        | ED-01, AD-03, SEC-11                                  | Deploy ngay                                                                                                                                |
+| 4.2 | Bộ vẽ `marked` dùng chung + lọc HTML + test khứ hồi/XSS; `frame-src` video                                                          | PG-01, SEC-06, SEC-07, PF-07                          | Sửa F-P1-01 (P0)                                                                                                                           |
+| 4.3 | Storage: loại/kích thước/`ContentLength`, khoá do máy chủ sinh, `ownerId`, `/api/files` theo chủ, `/api/upload` ADMIN+; `requestId` | SEC-05, API-07, API-02, OB-02                         | 👤 trước merge: tạo bucket `tsudev-media` + miền `media.tsudev.com` + Transform Rule; cập nhật `docs/free-tier.md`, `config/topology.json` |
+| 4.4 | Backend tự lưu: `autosave`, gộp revision 10 phút, 409 theo `updatedAt`, `GET /api/author/tags`, lọc danh sách                       | ED-08, ED-10, ED-13, API-03, API-04                   | Test ma trận vai trò                                                                                                                       |
+| 4.5 | `WorkspaceLayout` + `/author*` → `/studio*` (308) + danh sách bài/tài liệu tách trang                                               | ED-02..ED-04, IA-02, IA-04                            | Sau cờ `STUDIO_V2` (CI-06)                                                                                                                 |
+| 4.6 | Trình soạn: menu `/`, menu nổi, bảng, callout, tải ảnh WebP + alt bắt buộc, xem trước, Kiểm tra, phím tắt, cảnh báo rời trang       | ED-05..ED-07, ED-09, ED-11, ED-12, ED-14..ED-18, MD-* | `next/dynamic` cho trình soạn (PF-02)                                                                                                      |
+| 4.7 | E2E viết → tự lưu → gửi duyệt (có `totpCode()`), ảnh chụp 2 chế độ; gỡ cờ sau 2 tuần ổn định                                        | CI-03, CI-06                                          | -                                                                                                                                          |
+
+Nghiệm thu: E2E 4.7 xanh; ảnh tải lên hiện trên `/blog/[slug]` ẩn danh ở production; axe 0 critical/serious trên
+`/studio*`; không trang nào cuộn ngang 390 px; JS trang công khai không tăng; `curl /api/auth/providers` đúng.
+
+### P5 - App shell + Settings + gác quyền Admin
+
+Mã: IA-01, IA-05, IA-07, DS-04, UI-01..UI-06, UI-09, PG-04, ST-01..ST-07, AD-01, AD-02, AD-04, AD-05, MD-01..MD-03,
+MD-05, MD-09, MD-10, MD-19, MO-02, MO-04, DB-08, SEC-02, SEC-04, PF-04, PF-05 · ⛔ UI-07, CI-05 (phần axe).
+
+| PR  | Nội dung                                                                                               | Mã chính                                        | Ghi chú                                           |
+| --- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------- | ------------------------------------------------- |
+| 5.1 | `RoleGate` mọi trang admin + `AdminLayout` có `h1`; `X-Robots-Tag`/`no-store` tiền tố riêng tư         | AD-01, AD-02, IA-05                             | Sửa F-P1-02 (vá sớm)                              |
+| 5.2 | Header mới + menu tài khoản + `CommandPalette` (Ctrl+K) + `/search` dùng combobox chung                | UI-01..UI-06, UI-09, IA-01, MD-01..MD-03        | -                                                 |
+| 5.3 | `SettingsLayout` 8 mục, `StickyBar`, tách trang, "Đăng nhập gần đây", `ConfirmDialog` thay `confirm()` | ST-01..ST-07, DB-08, AD-04, MD-05, MD-09, MD-10 | Endpoint `security/logins`, `connected`           |
+| 5.4 | Phiên 14 ngày; BFF kiểm `Origin`                                                                       | SEC-02, SEC-04                                  | Thay đổi vùng xác thực - đọc `docs/auth.md` trước |
+| 5.5 | axe + kiểm cuộn ngang trong `smoke.spec.js` (phần spec, KHÔNG workflow)                                | PF-04, PF-05                                    | -                                                 |
+| 5.6 | ⛔ Chân trang (`SiteFooter.tsx`) + workflow nếu cần                                                    | UI-07, CI-05                                    | PR riêng, chờ chủ sở hữu duyệt                    |
+
+Nghiệm thu: `alice`/`bob` không thấy form admin (E2E); `/settings/profile` axe 0 lỗi nghiêm trọng (F-P1-05); Ctrl+K
+tìm không dấu; header di động không cuộn ngang.
+
+### P6 - Trang công khai
+
+Mã: IA-06, DS-05, PG-05..PG-14, MD-04, MO-03, AR-04, DB-09, PF-03, SEC-12 (tạo tệp).
+
+| PR  | Nội dung                                                        | Mã chính                   |
+| --- | --------------------------------------------------------------- | -------------------------- |
+| 6.1 | `/apps/[slug]` + `/install` (ISR, từ `ecosystem.ts` + releases) | PG-05..PG-08, IA-06, AR-04 |
+| 6.2 | Docs 3 cột, blog theo chuyên mục, `/changelog` + RSS            | PG-09..PG-11               |
+| 6.3 | `/security` + `security.txt`; trang lỗi; `/ung-ho` a11y         | PG-12..PG-14, SEC-12       |
+| 6.4 | JSON-LD dùng chung; "Có phải bạn tìm..." (`word_similarity`)    | PF-03, DB-09               |
+
+Nghiệm thu: `test/isrPages.test.ts` xanh với trang mới; JSON-LD hợp lệ (test + Rich Results thủ công); tắt backend thì
+trang đã cache vẫn 200; ảnh OG ở `public/og/` (không `public/brand/` - 22.1).
+
+### P7 - Quy trình duyệt mở rộng (⛔ Neon)
+
+Mã: IA-03, WF-01..WF-10, MD-15, MD-16, MD-18 (phần P7), DB-01..DB-05, DB-07, DB-10, AR-03, API-04 (`If-Match`),
+SEC-01, OB-05, OB-08, CI-03 (phần P7).
+
+| PR  | Nội dung                                                                                                             | Mã chính                    | Ghi chú                                             |
+| --- | -------------------------------------------------------------------------------------------------------------------- | --------------------------- | --------------------------------------------------- |
+| 7.1 | Migration M1 + M2 + `db:generate` + test                                                                             | DB-01..DB-05, DB-10         | ⛔ DỪNG: chủ dự án `db:migrate` lên Neon, rồi merge |
+| 7.2 | Máy trạng thái mới, `contentChecks` phía máy chủ (422), nhãn, sửa nhỏ, bỏ qua hàng duyệt có lý do, 2FA cho MODERATOR | WF-01, WF-03..WF-06, SEC-01 | Sau 7.1                                             |
+| 7.3 | Thùng rác + khôi phục + "xoá nội dung" (OWNER); `If-Match`; slug redirect                                            | WF-02, WF-07, DB-05, DB-07  | -                                                   |
+| 7.4 | `/studio/review` (308 từ `/admin/review`) + khác biệt + Sức khoẻ nội dung                                            | WF-10, IA-03, OB-08         | -                                                   |
+| 7.5 | Thư thông báo + tuỳ chọn + đếm Resend                                                                                | WF-09, DB-03, OB-05         | -                                                   |
+| 7.6 | Việc dọn vào nhịp cron `23 1,13`                                                                                     | AR-03                       | Sửa `canh-site-cron` - deploy Worker cron           |
+
+Nghiệm thu: E2E viết → gửi → trả lại → gửi lại → duyệt → công khai; cạnh sai 409; thiếu alt ⇒ 422; nhãn hiện trên
+`/blog/[slug]`; `/health` + trang công khai sống sau migration; Neon CU-giờ không tăng bất thường tuần đầu.
+
+### P8 - Admin, kiểm duyệt, tuân thủ (⛔ Neon)
+
+Mã: AD-06, AD-07, ST-08, MD-08, MD-20, DB-06, API-06, SEC-10, LG-01..LG-08, CI-03 (phần P8).
+
+| PR  | Nội dung                                                                                    | Mã chính                           | Ghi chú                   |
+| --- | ------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------- |
+| 8.1 | Migration M3 (`ContentReport`, `TakedownRequest`, `termsVersion`)                           | DB-06                              | ⛔ DỪNG như 7.1           |
+| 8.2 | Báo cáo nội dung (BFF riêng + Turnstile) + `/admin/moderation` + SLA                        | MD-08, MD-20, AD-06, API-06, LG-05 | -                         |
+| 8.3 | `/admin/audit` hợp nhất 3 nguồn                                                             | AD-07                              | -                         |
+| 8.4 | Xuất dữ liệu tự phục vụ + công cụ cho cơ quan có thẩm quyền; cảnh báo đăng nhập lạ          | ST-08, LG-04, LG-08, SEC-10        | step-up bắt buộc          |
+| 8.5 | Trang pháp lý: viện dẫn 18.1, phiên bản, chấp nhận lại, bảng dữ liệu/lưu giữ; dọn theo 18.3 | LG-01..LG-03, LG-06                | 👤 LG-07, LG-10 song song |
+
+Nghiệm thu: diễn tập takedown đạt SLA trên dev; `legalClaims.test.ts` xanh; tệp xuất JSON chứa đúng dữ liệu của chính
+người yêu cầu (test IDOR); `TrustAuditLog` có dòng cho mọi đổi trạng thái vụ việc.
+
+### P9 - Giám sát & cứng hoá
+
+Mã: SEC-08, SEC-09, SEC-12 (kiểm hạn), SEC-14, SEC-15, OB-04, OB-06, OB-07, PF-01, CI-07 · 👤 OB-01, OB-03, SEC-13 ·
+⛔ CI-04, CI-05.
+
+| PR  | Nội dung                                                         | Mã chính             | Ghi chú                       |
+| --- | ---------------------------------------------------------------- | -------------------- | ----------------------------- |
+| 9.0 | 👤 Telegram báo động, uptime ngoài, (tuỳ chọn) Cloudflare Access | OB-01, OB-03, SEC-13 | Agent soạn hướng dẫn; làm ĐẦU |
+| 9.1 | CSP `report-to` + endpoint, Trusted Types Report-Only            | SEC-08, SEC-09       | -                             |
+| 9.2 | Kiểm chuỗi băm theo lịch + neo R2                                | OB-04, SEC-14        | -                             |
+| 9.3 | Runbook, RPO/RTO, bảng tự kiểm ASVS L2                           | OB-06, OB-07, SEC-15 | Tài liệu                      |
+| 9.4 | ⛔ Lighthouse CI + Semgrep trong workflow                        | PF-01, CI-04, CI-05  | PR riêng, chủ sở hữu duyệt    |
+| 9.5 | SBOM vào thẻ deploy (tuỳ chọn)                                   | CI-07                | -                             |
+
+Nghiệm thu: securityheaders.com + Mozilla Observatory A+ (đo trước/sau, `curl -I`); báo động thử tới Telegram;
+Lighthouse di động `/` và `/docs` ≥ 80 trên máy rảnh; bảng ASVS không còn mục "thiếu" chưa có mã.
+
+### 23.1. Definition of Done (mọi PR P4-P9)
+
+- [ ] Mã yêu cầu ghi trong tiêu đề/mô tả PR; mỗi mã có test hoặc bằng chứng đo (PR-09).
+- [ ] Kiểm quyền phía máy chủ + test ma trận vai trò; thao tác đổi trạng thái/bảo mật có dòng nhật ký.
+- [ ] Trạng thái rỗng/đang tải/lỗi được vẽ; thông điệp tiếng Việt theo 22.5; ngày qua `lib/format.ts`; chỉ `-`.
+- [ ] 390 / 768 / 1280 px, Sáng + Tối; axe 0 critical/serious trên trang chạm; tôn trọng giảm chuyển động.
+- [ ] Không tăng JS trang công khai; không thêm dịch vụ/tiến trình tính tiền (AR-01).
+- [ ] Không log bí mật/URL presign; 0 High/Critical `npm audit --omit=dev`.
+- [ ] Tài liệu cập nhật cùng commit (`docs/*`, ADR nếu đảo quyết định ở 22.2); mục 4 phiếu + `logs/STATE.md` cuối phase.

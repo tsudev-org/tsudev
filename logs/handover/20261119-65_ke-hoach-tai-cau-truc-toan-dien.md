@@ -92,3 +92,12 @@ Ràng buộc chung: không vượt 0đ; mọi PR chạm logo/chân trang/giấy 
   enum), four-eyes chỉ NÊN (OWNER tự công bố + ghi lý do), không chuỗi quyền/RLS, không SSE/Framer Motion/OG động.
   Bẫy cho P4: mỗi lần lưu hiện tạo `PostRevision` ⇒ tự lưu 30 s PHẢI gộp revision (ED-08). Việc chuyển cho P3: cuối
   chương 13. Phase kế tiếp: **P3**.
+- 19/11/2026 - tsudev-55: **P3 xong**. TDD v2.0 chương 14-23 nối vào `docs/thiet-ke/tsu-tdd-v2.md` = bản ngoài repo
+  (2.010 dòng, `cmp` giống hệt). ~90 mã mới (AR-, DB-, API-, SEC-, LG-, OB-, PF-, CI-, RK-), đường dẫn đã kiểm. Phát hiện
+  khi đọc mã: (1) ảnh tải qua presign trỏ bucket R2 RIÊNG TƯ ⇒ không hiện công khai - P4 PR 4.3 cần 👤 tạo bucket
+  `tsudev-media` + miền `media.tsudev.com` TRƯỚC ED-07; (2) presign không giới hạn loại/kích thước, `FileObject.ownerId`
+  không ghi, `GET /api/files` trả tệp của mọi người cho MEMBER (API-07, SEC-05); (3) HIBP, chuỗi băm nhật ký, `pg_trgm`
+  ĐÃ CÓ (đính chính 22.1); (4) ruleset `main` có 14 check (kể cả Bảo vệ bản quyền), không phải 13; (5) Telegram báo động
+  chưa cấu hình (OB-01). Pháp lý (18.1): Luật 116/2025 (hiệu lực 01/07/2026) và Luật 91/2025 (01/01/2026) đã kiểm qua
+  Công báo; NĐ 356/2025, NĐ 330/2026 (19/08/2026), mốc gỡ 24 h/6 h kiểm thứ cấp; LG-10 nhờ luật sư. Migration chốt
+  M1+M2 (P7), M3 (P8), đều cộng dồn. Lộ trình P4-P9 theo PR ở chương 23. Phase kế tiếp: **P4**.
