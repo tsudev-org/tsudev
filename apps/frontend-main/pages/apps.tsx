@@ -124,7 +124,6 @@ export default function AppsPage() {
         description="Mọi ứng dụng và trò chơi của hệ sinh thái TsuDEV ở một chỗ: tìm, lọc theo nền tảng, mở website sản phẩm, tải bản mới nhất hoặc cài nhiều app một lượt bằng một lệnh cho Windows, macOS hay Linux."
       />
       <PageHeader
-        eyebrow="Hệ sinh thái TsuDEV"
         title={
           <>
             Danh sách <span className="tsu-text-gradient">ứng dụng</span>

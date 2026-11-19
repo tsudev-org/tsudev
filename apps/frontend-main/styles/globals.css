@@ -669,3 +669,169 @@ html:not([data-auth-author]) .tsu-auth-author {
 .tsu-user-name::before {
   content: var(--tsu-user-name, 'Tài khoản');
 }
+
+/* ============================================================
+   KHỐI ZICZAC "Có thể thứ bạn cần tìm đang ở đây" (components/HomeShowcase.tsx, 19/11/2026)
+   ============================================================
+   Mỗi thẻ một sắc riêng `--sc` lấy từ token vai trò (không hex) ⇒ đúng ở cả Sáng và Tối.
+   Nền thẻ là quầng màu đó pha rất nhạt vào bề mặt; chữ vẫn là --text-* nên độ tương phản
+   do bảng màu chung bảo đảm. */
+.tsu-sc {
+  --sc: var(--primary);
+  background:
+    radial-gradient(
+      120% 90% at 0% 0%,
+      color-mix(in srgb, var(--sc) 16%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      90% 80% at 100% 100%,
+      color-mix(in srgb, var(--sc) 10%, transparent),
+      transparent 60%
+    ),
+    var(--bg-surface);
+  transition:
+    border-color var(--motion-base) var(--motion-easing),
+    box-shadow var(--motion-base) var(--motion-easing),
+    translate var(--motion-base) var(--motion-easing);
+}
+.tsu-sc-apps {
+  --sc: var(--primary);
+}
+.tsu-sc-docs {
+  --sc: var(--success);
+}
+.tsu-sc-blog {
+  --sc: var(--accent);
+}
+.tsu-sc-games {
+  --sc: var(--warning);
+}
+.tsu-sc:hover,
+.tsu-sc:focus-within {
+  border-color: color-mix(in srgb, var(--sc) 55%, var(--border));
+  box-shadow: 0 18px 50px -24px color-mix(in srgb, var(--sc) 55%, transparent);
+  translate: 0 -3px;
+}
+.tsu-sc-badge {
+  background: color-mix(in srgb, var(--sc) 14%, var(--bg-surface));
+  border: 1px solid color-mix(in srgb, var(--sc) 40%, var(--border));
+  color: var(--text-primary);
+}
+.tsu-sc-badge .tsu-icon {
+  color: inherit;
+}
+.tsu-sc-cta {
+  color: var(--text-link);
+}
+/* Liên kết kéo giãn: cả thẻ bấm được mà không bọc nút bên trong vào <a>. */
+.tsu-sc-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+.tsu-sc:has(.tsu-sc-link:focus-visible) {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* Trượt vào từ phía thẻ lệch về - chỉ khi useScrollReveal đã bật (xem khối SCROLL-REVEAL). */
+[data-reveal='on'] .reveal.reveal-from-left {
+  transform: translateX(-40px);
+}
+[data-reveal='on'] .reveal.reveal-from-right {
+  transform: translateX(40px);
+}
+[data-reveal='on'] .reveal.reveal-from-left.is-in,
+[data-reveal='on'] .reveal.reveal-from-right.is-in {
+  transform: none;
+}
+
+/* Băng chuyền trò chơi */
+.tsu-sc-slide {
+  opacity: 0;
+  transition: opacity 700ms var(--motion-easing);
+}
+.tsu-sc-slide[data-on='true'] {
+  opacity: 1;
+}
+.tsu-sc-pop {
+  animation: tsu-sc-pop 520ms var(--motion-easing-enter) both;
+}
+@keyframes tsu-sc-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.86) rotate(-4deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+.tsu-sc-arrow {
+  display: inline-flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(255 255 255 / 0.3);
+  background: rgb(0 0 0 / 0.45);
+  color: #fff;
+  backdrop-filter: blur(6px);
+  transition: background-color var(--motion-fast) var(--motion-easing);
+}
+.tsu-sc-arrow:hover {
+  background: rgb(0 0 0 / 0.7);
+}
+.tsu-sc-arrow:focus-visible,
+.tsu-sc-dot:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.tsu-sc-dot {
+  height: 0.5rem;
+  width: 0.5rem;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.45);
+  transition:
+    width var(--motion-base) var(--motion-easing),
+    background-color var(--motion-base) var(--motion-easing);
+}
+.tsu-sc-dot[aria-current='true'] {
+  width: 1.25rem;
+  background: #fff;
+}
+/* Logo app lơ lửng nhẹ; thẻ blog xoè ra khi rê chuột. */
+.tsu-sc-float {
+  animation: tsu-sc-float 6s ease-in-out infinite;
+}
+@keyframes tsu-sc-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.tsu-sc-stack {
+  transition: transform var(--motion-base) var(--motion-easing);
+  transform: translateX(calc(var(--k) * 10px)) rotate(calc(var(--k) * -1.5deg));
+}
+.tsu-sc:hover .tsu-sc-stack {
+  transform: translateX(calc(var(--k) * 22px)) rotate(calc(var(--k) * 2deg));
+}
+@media (prefers-reduced-motion: reduce) {
+  .tsu-sc,
+  .tsu-sc-float,
+  .tsu-sc-pop,
+  .tsu-sc-stack,
+  .tsu-sc-slide {
+    animation: none !important;
+    transition: none !important;
+    translate: none !important;
+  }
+}
