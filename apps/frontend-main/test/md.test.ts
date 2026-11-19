@@ -21,7 +21,13 @@ describe('renderMarkdown: ranh giới XSS', () => {
     ['[x](" onmouseover="alert(1))', 'chèn thuộc tính qua nháy kép'],
     ["[x](' onfocus='alert(1))", 'chèn thuộc tính qua nháy đơn'],
   ])('chặn %s (%s)', (input) => {
-    expect(renderMarkdown(input)).not.toMatch(DANGEROUS);
+    // Chỉ xét BÊN TRONG thẻ (ADR-0003 mục 4, P4 PR 4.2): bộ vẽ `marked` theo đúng
+    // CommonMark không coi `[x](" onmouseover=...)` là liên kết (có khoảng trắng
+    // trong đích) nên in nó thành VĂN BẢN đã thoát - vô hại, nhưng chữ
+    // "onmouseover=" nằm trong phần văn bản và regex quét cả chuỗi khớp nhầm.
+    // Bất biến an ninh không đổi: không thẻ nào mang URL/thuộc tính thực thi.
+    const tags = (renderMarkdown(input).match(/<[a-z][^>]*>/gi) ?? []).join('');
+    expect(tags).not.toMatch(DANGEROUS);
   });
 
   test('thẻ HTML thô bị thoát, không được thực thi', () => {

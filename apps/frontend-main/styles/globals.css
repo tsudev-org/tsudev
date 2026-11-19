@@ -634,6 +634,99 @@
   color: var(--text-muted);
   margin: 1em 0;
 }
+/* ADR-0003 (P4 PR 4.2): khối mới của bộ vẽ `marked` - lib/md.ts. */
+.prose-tsu ol ol,
+.prose-tsu ul ul,
+.prose-tsu ol ul,
+.prose-tsu ul ol {
+  margin: 0.25em 0;
+}
+.prose-tsu hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 2em 0;
+}
+.prose-tsu del {
+  text-decoration: line-through;
+}
+.prose-tsu li > input[type='checkbox'] {
+  margin-right: 0.5em;
+  vertical-align: middle;
+}
+.prose-tsu .md-img,
+.prose-tsu .md-video {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+}
+.prose-tsu .md-figure {
+  margin: 1.5em 0;
+}
+.prose-tsu .md-figure figcaption {
+  margin-top: 0.5em;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-align: center;
+}
+/* Nhúng video 16:9, co theo khung; không bao giờ đẩy trang cuộn ngang. */
+.prose-tsu .md-embed {
+  margin: 1.5em 0;
+  aspect-ratio: 16 / 9;
+  max-width: 100%;
+}
+.prose-tsu .md-embed iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: var(--radius-md);
+}
+/* Hộp ghi chú `> [!NOTE]` - viền trái theo vai trò trạng thái, nền tint. */
+.prose-tsu .md-callout {
+  --callout: var(--info);
+  --callout-tint: var(--info-tint);
+  --callout-ink: var(--info-ink);
+  margin: 1.25em 0;
+  padding: var(--sp-3) var(--sp-4);
+  border-left: 3px solid var(--callout);
+  background: var(--callout-tint);
+  border-radius: var(--radius-md);
+}
+.prose-tsu .md-callout > :last-child {
+  margin-bottom: 0;
+}
+.prose-tsu .md-callout-title {
+  margin: 0 0 0.25em;
+  font-weight: var(--fw-semibold);
+  color: var(--callout-ink);
+}
+.prose-tsu .md-callout-tip {
+  --callout: var(--success);
+  --callout-tint: var(--success-tint);
+  --callout-ink: var(--success-ink);
+}
+.prose-tsu .md-callout-important {
+  --callout: var(--primary);
+  --callout-tint: var(--bg-subtle);
+  --callout-ink: var(--text-primary);
+}
+.prose-tsu .md-callout-warning {
+  --callout: var(--warning);
+  --callout-tint: var(--warning-tint);
+  --callout-ink: var(--warning-ink);
+}
+.prose-tsu .md-callout-caution {
+  --callout: var(--danger);
+  --callout-tint: var(--danger-tint);
+  --callout-ink: var(--danger-ink);
+}
+/* Bảng rộng cuộn trong khung riêng (390 px không cuộn ngang cả trang). */
+.prose-tsu .md-table {
+  overflow-x: auto;
+  margin: 1em 0;
+}
+.prose-tsu .md-table table {
+  margin: 0;
+}
 /* Bảng trong bài: container bo lg, header nền subtle, phân cách hàng 1px (§5). */
 .prose-tsu table {
   width: 100%;

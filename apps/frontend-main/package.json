@@ -24,6 +24,7 @@
     "@tsudev/search": "*",
     "@tsudev/types": "*",
     "dotenv": "^18.0.10",
+    "marked": "17.0.6",
     "next": "16.4.6",
     "next-auth": "^4.24.15",
     "react": "^19.3.1",
@@ -46,6 +47,9 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/.next/",
       "<rootDir>/.open-next/"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^marked$": "<rootDir>/../../node_modules/marked/lib/marked.umd.js"
+    }
   }
 }

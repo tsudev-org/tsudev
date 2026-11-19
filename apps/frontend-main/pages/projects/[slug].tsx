@@ -32,9 +32,16 @@ type ProjectDetailProps = {
   releases: ProjectRelease[];
   failed: boolean;
   slug: string;
+  html: string;
 };
 
-export default function ProjectDetail({ project, releases, failed, slug }: ProjectDetailProps) {
+export default function ProjectDetail({
+  project,
+  releases,
+  failed,
+  slug,
+  html,
+}: ProjectDetailProps) {
   const retrying = useRecoverBuildPlaceholder(failed);
   const [moTai, setMoTai] = useState(false);
   if (failed)
@@ -137,10 +144,7 @@ export default function ProjectDetail({ project, releases, failed, slug }: Proje
         <div className="grid md:grid-cols-[minmax(0,1fr)_20rem] gap-10 items-start">
           <div>
             {project.descriptionMd ? (
-              <div
-                className="prose-tsu"
-                dangerouslySetInnerHTML={{ __html: renderMarkdown(project.descriptionMd) }}
-              />
+              <div className="prose-tsu" dangerouslySetInnerHTML={{ __html: html }} />
             ) : (
               <p className="text-fg-muted">Chưa có mô tả chi tiết.</p>
             )}
@@ -225,5 +229,8 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
   if (!r.failed && !project) return { notFound: true, revalidate };
   // `rRel.failed` KHÔNG giữ bản cũ: dự án vẫn đọc được thì trang vẫn có giá trị,
   // chỉ thiếu khu tải về. Để nó chặn cả lượt dựng lại là đánh đổi sai.
-  return { revalidate, props: { failed: r.failed, project, releases: rRel.data, slug } };
+  // HTML vẽ ở SERVER (ADR-0003, PR 4.2): `marked` chỉ chạy trong getStaticProps nên
+  // Next bỏ nó khỏi gói JS trình duyệt - trang đọc công khai không nặng thêm.
+  const html = project?.descriptionMd ? renderMarkdown(project.descriptionMd) : '';
+  return { revalidate, props: { failed: r.failed, project, releases: rRel.data, slug, html } };
 }
