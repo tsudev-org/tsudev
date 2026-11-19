@@ -1,5 +1,11 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên kế tiếp BẮT ĐẦU Ở ĐÂY** (19/11/2026, sau phiên tsudev-55 - P3 xong): phiếu
+> [`20261119-65`](handover/20261119-65_ke-hoach-tai-cau-truc-toan-dien.md) mục 4 - phase kế tiếp **P4** (Studio giai
+> đoạn A). Kế hoạch PR 4.1-4.7 ở chương 23 của `docs/thiet-ke/tsu-tdd-v2.md`; đọc 22.1 (đính chính) trước. ⚠️ PR 4.3
+> cần chủ dự án tạo bucket R2 `tsudev-media` + miền `media.tsudev.com` (ảnh trong bài, SEC-05) trước khi merge.
+> 🔔 Kênh báo động Telegram vẫn chưa cấu hình (OB-01). Không khoá, không tác vụ nền.
+
 > **Phiên kế tiếp BẮT ĐẦU Ở ĐÂY** (19/11/2026, sau phiên tsudev-54 - P2 xong): phiếu
 > [`20261119-65`](handover/20261119-65_ke-hoach-tai-cau-truc-toan-dien.md) mục 4 - phase kế tiếp **P3** (TDD v2.0 chương
 > 14-23, viết nối vào `docs/thiet-ke/tsu-tdd-v2.md` + bản ngoài repo, giữ hai bản giống nhau). Danh sách việc P2 chuyển
