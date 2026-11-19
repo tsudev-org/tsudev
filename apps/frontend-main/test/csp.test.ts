@@ -112,8 +112,12 @@ describe('middleware ép CSP (băm + nonce) ở production', () => {
       .split(';')
       .map((d) => d.trim())
       .find((d) => d.startsWith('frame-src'));
-    // Đúng MỘT nguồn: mở rộng frame-src là mở đường nhúng trang lạ vào tsudev.com.
-    expect(frame).toBe('frame-src https://challenges.cloudflare.com');
+    // Đúng danh sách này: mở rộng frame-src là mở đường nhúng trang lạ vào
+    // tsudev.com. Hai nguồn video là SEC-07 (ADR-0003) - `lib/md.ts` chỉ sinh
+    // iframe tới đúng hai origin đó (`test/mdRoundTrip.test.ts`).
+    expect(frame).toBe(
+      'frame-src https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com'
+    );
   });
 
   test('băm hard-code trong proxy.ts khớp THEME_SCRIPT (drift-guard)', () => {

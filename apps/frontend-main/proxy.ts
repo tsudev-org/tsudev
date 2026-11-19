@@ -53,6 +53,10 @@ const THEME_SCRIPT_HASH = 'sha256-KnyzKcJJcx7wHrdtAyMIfFXoQKA8+GUVxgpe4LsH6uU=';
 const CF_INSIGHTS = 'https://static.cloudflareinsights.com';
 // P1.7 Turnstile: script widget + iframe thử thách đều ở origin này.
 const CF_TURNSTILE = 'https://challenges.cloudflare.com';
+// SEC-07 (ADR-0003): khung nhúng video trong bài. `lib/md.ts` chỉ sinh iframe
+// trỏ ĐÚNG hai origin này (YouTube chế độ không cookie + Vimeo player), nên
+// frame-src mở đúng hai origin đó và không gì khác. `test/csp.test.ts` canh.
+const VIDEO_FRAMES = 'https://www.youtube-nocookie.com https://player.vimeo.com';
 
 function newNonce(): string {
   const bytes = new Uint8Array(16);
@@ -66,7 +70,7 @@ function buildCsp(nonce: string): string {
   return [
     "default-src 'self'",
     `script-src 'self' '${THEME_SCRIPT_HASH}' 'nonce-${nonce}' ${CF_INSIGHTS} ${CF_TURNSTILE}`,
-    `frame-src ${CF_TURNSTILE}`,
+    `frame-src ${CF_TURNSTILE} ${VIDEO_FRAMES}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self' data:",

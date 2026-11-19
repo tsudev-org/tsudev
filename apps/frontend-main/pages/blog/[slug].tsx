@@ -29,9 +29,10 @@ type BlogPostProps = {
   failed: boolean;
   slug: string;
   toc: TocItem[];
+  html: string;
 };
 
-export default function BlogPost({ post, related, failed, slug, toc }: BlogPostProps) {
+export default function BlogPost({ post, related, failed, slug, toc, html }: BlogPostProps) {
   const retrying = useRecoverBuildPlaceholder(failed);
   useGhiLuotXem(post && !failed ? slug : null);
   // Hai nhánh, không một nhánh. Mã trạng thái tương ứng đã được đặt ở
@@ -124,7 +125,7 @@ export default function BlogPost({ post, related, failed, slug, toc }: BlogPostP
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
           <div
             className="prose-tsu order-2 lg:order-1 min-w-0"
-            dangerouslySetInnerHTML={{ __html: renderMarkdown(post.contentMd || '') }}
+            dangerouslySetInnerHTML={{ __html: html }}
           />
           <aside className="order-1 lg:order-2 lg:sticky lg:top-20">
             <TableOfContents items={toc} />
@@ -212,12 +213,15 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
   // Mục lục dựng ở SERVER: dựng ở client thì nó nháy vào sau khi bài đã hiện,
   // và bố cục hai cột nhảy một nhịp ở mỗi lần tải trang.
   const toc = extractHeadings(post?.contentMd || '');
+  // HTML vẽ ở SERVER (ADR-0003, PR 4.2): `marked` chỉ chạy trong getStaticProps nên
+  // Next bỏ nó khỏi gói JS trình duyệt - trang đọc công khai không nặng thêm.
+  const html = renderMarkdown(post?.contentMd || '');
   const related: RelatedPost[] = (rRecent.data || [])
     .filter((p) => p.slug !== post?.slug)
     .slice(0, 3)
     .map((p) => ({ slug: p.slug, title: p.title, excerpt: p.excerpt ?? null }));
   return {
     revalidate,
-    props: { failed: r.failed, post, related, slug: routeParam(params, 'slug'), toc },
+    props: { failed: r.failed, post, related, slug: routeParam(params, 'slug'), toc, html },
   };
 }

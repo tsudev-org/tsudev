@@ -20,9 +20,10 @@ type DocPageProps = {
   failed: boolean;
   slug: string;
   toc: TocItem[];
+  html: string;
 };
 
-export default function DocPage({ doc, siblings, failed, slug, toc }: DocPageProps) {
+export default function DocPage({ doc, siblings, failed, slug, toc, html }: DocPageProps) {
   const retrying = useRecoverBuildPlaceholder(failed);
   if (failed)
     return (
@@ -118,10 +119,7 @@ export default function DocPage({ doc, siblings, failed, slug, toc }: DocPagePro
             </aside>
           )}
           <article className="order-2 lg:order-1 xl:order-0 min-w-0">
-            <div
-              className="prose-tsu"
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(doc.contentMd || '') }}
-            />
+            <div className="prose-tsu" dangerouslySetInnerHTML={{ __html: html }} />
             {(prev || next) && (
               <nav aria-label="Tài liệu kế tiếp" className="mt-12 grid gap-3 sm:grid-cols-2">
                 {prev ? (
@@ -189,12 +187,15 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
   // Mục lục dựng ở SERVER: dựng ở client thì nó nháy vào sau khi bài đã hiện,
   // và bố cục hai cột nhảy một nhịp ở mỗi lần tải trang.
   const toc = extractHeadings(doc?.contentMd || '');
+  // HTML vẽ ở SERVER (ADR-0003, PR 4.2): `marked` chỉ chạy trong getStaticProps nên
+  // Next bỏ nó khỏi gói JS trình duyệt - trang đọc công khai không nặng thêm.
+  const html = renderMarkdown(doc?.contentMd || '');
   const cat = (doc?.category || 'general').toLowerCase();
   const siblings: SiblingDoc[] = (rList.data || [])
     .filter((d) => (d.category || 'general').toLowerCase() === cat)
     .map((d) => ({ slug: d.slug, title: d.title }));
   return {
     revalidate,
-    props: { failed: r.failed, doc, siblings, slug: routeParam(params, 'slug'), toc },
+    props: { failed: r.failed, doc, siblings, slug: routeParam(params, 'slug'), toc, html },
   };
 }

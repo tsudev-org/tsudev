@@ -83,6 +83,10 @@ chúng), không canh **độ đủ cú pháp** so với trình soạn. Giai đo�
 - Gói JS: `marked` ~40 KB min (chưa nén), đã nằm trong gói `/author` (qua Tiptap) - nay thêm vào gói trang đọc. Trang
   đọc ISR vẽ HTML ở máy chủ; nếu đo thấy tăng đáng kể ở trình duyệt, P9 tách phần vẽ chỉ chạy trong
   `getStaticProps` (props mang HTML đã vẽ).
+- **Đã làm ở P4 PR 4.2 (19/11/2026)**: ba trang đọc (`/blog/[slug]`, `/docs/[slug]`, `/projects/[slug]`) vẽ HTML
+  trong `getStaticProps` và nhận qua prop `html`, nên `marked` KHÔNG vào gói JS trình duyệt của chúng (đo bằng
+  `next build`: không chunk nào của ba trang chứa `marked`; chỉ `/author` - vốn đã có qua Tiptap). Jest chạy CJS nên
+  `package.json` ánh xạ `marked` sang bản UMD cùng gói (`moduleNameMapper`).
 - Tìm kiếm (`searchBodyNorm`), so khác biệt phiên bản, `feed.xml`: không đổi.
 - Muốn thêm cú pháp mới về sau: chỉ nhận nếu (a) `marked` hiểu hoặc là phần mở rộng không làm hỏng hiển thị ở
   công cụ Markdown khác, (b) có ca trong test khứ hồi, (c) qua lớp an toàn ở mục 4.
