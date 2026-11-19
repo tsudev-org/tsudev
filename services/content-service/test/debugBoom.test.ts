@@ -1,8 +1,19 @@
 // Giữ tệp là MODULE (scope riêng), tránh trùng tên biến top-level với test khác.
 export {}
 
+import crypto from 'node:crypto'
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const request = require('supertest')
+
+// Ở production content-service TỪ CHỐI nạp khi thiếu khoá ký (cố ý). CI không có
+// `.env` của máy dev ⇒ cấp một khoá Ed25519 dùng-một-lần cho riêng test này.
+const TEST_SIGNING_KEY = Buffer.from(
+  crypto
+    .generateKeyPairSync('ed25519')
+    .privateKey.export({ format: 'pem', type: 'pkcs8' })
+    .toString()
+).toString('base64')
 
 /**
  * SEC-11: `/debug/boom` là cò nổ CỐ Ý để nghiệm thu đường cảnh báo. Nó không cần
@@ -14,7 +25,7 @@ const loadApp = (env: Record<string, string | undefined>) => {
   const saved = { ...process.env }
   // EMBEDDED=1: ở NODE_ENV=production module tự mở cổng nếu không nhúng; như
   // backend-bundle, test chỉ cần `app`, không cần cổng.
-  Object.assign(process.env, { EMBEDDED: '1' }, env)
+  Object.assign(process.env, { EMBEDDED: '1', RELEASE_SIGNING_KEY: TEST_SIGNING_KEY }, env)
   process.env.INTERNAL_IDENTITY_SECRET =
     process.env.INTERNAL_IDENTITY_SECRET || 'khoa-test-du-dai-cho-hmac-256-bit!!'
   let app: unknown
@@ -24,6 +35,10 @@ const loadApp = (env: Record<string, string | undefined>) => {
   process.env = saved
   return app
 }
+
+// Mỗi ca nạp lại TOÀN BỘ content-service (isolateModules); lần nạp lạnh đầu
+// tiên (ts-jest biên dịch) vượt trần 5 s mặc định trên máy chậm.
+jest.setTimeout(60_000)
 
 describe('SEC-11 - /debug/boom chỉ tồn tại ngoài production', () => {
   test('ngoài production: route có và trả 500', async () => {

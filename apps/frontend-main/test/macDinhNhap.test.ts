@@ -12,7 +12,7 @@ const emptyBlock = (file: string): string => {
   const src = readFileSync(join(__dirname, '..', file), 'utf8');
   const m = src.match(/const EMPTY[^=]*=\s*\{([\s\S]*?)\n\};/);
   if (!m) throw new Error(`không tìm thấy hằng EMPTY trong ${file}`);
-  return m[1];
+  return m[1] as string;
 };
 
 describe('ED-01 / AD-03 - form tạo mới mặc định là Nháp', () => {
