@@ -1,0 +1,46 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+
+import { clientIp } from './clientIp';
+import { IDENTITY } from './services';
+
+/**
+ * PRO-B (ADR-0002): proxy CÔNG KHAI tới máy chủ quyền lợi của auth-service (`/ent/*`).
+ *
+ *   GET /api/me/entitlements          → /ent/me       (access token OIDC, scope tsudev.entitlements)
+ *   GET /api/rp/entitlements/{sub}    → /ent/rp/{sub} (private_key_jwt của máy chủ RP)
+ *
+ * Service tự xác thực từng request - proxy chỉ chuyển ĐÚNG các header cần, không kèm
+ * cookie phiên tsudev và không kèm INTERNAL_API_TOKEN (người gọi không phải BFF).
+ * IP thật lấy từ CF-Connecting-IP (lib/clientIp.ts) cho giới hạn tần suất của service.
+ */
+const PASS_REQ = ['authorization', 'x-tsu-installation', 'x-tsu-platform', 'user-agent'];
+
+export async function proxyEntitlement(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  upstream: string
+): Promise<void> {
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET');
+    res.status(405).json({ error: 'method_not_allowed' });
+    return;
+  }
+  const headers: Record<string, string> = {};
+  for (const h of PASS_REQ) {
+    const v = req.headers[h];
+    if (typeof v === 'string' && v.length <= 4096) headers[h] = v;
+  }
+  const ip = clientIp(req.headers, req.socket?.remoteAddress);
+  if (ip) headers['x-forwarded-for'] = ip;
+  res.setHeader('Cache-Control', 'no-store');
+  try {
+    const up = await fetch(`${IDENTITY}${upstream}`, { headers, redirect: 'manual' });
+    const ct = up.headers.get('content-type');
+    if (ct) res.setHeader('Content-Type', ct);
+    const ra = up.headers.get('retry-after');
+    if (ra) res.setHeader('Retry-After', ra);
+    res.status(up.status).send(Buffer.from(await up.arrayBuffer()));
+  } catch {
+    res.status(502).json({ error: 'entitlements_unavailable' });
+  }
+}

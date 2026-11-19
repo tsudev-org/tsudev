@@ -72,6 +72,7 @@ import {
   verifyTotp,
 } from './totp'
 import { deviceLabel, shouldAlertNewDevice } from './device'
+import { entitlementRouter } from './entitlementRoutes'
 import {
   sendMail,
   verifyEmailHtml,
@@ -109,6 +110,10 @@ app.use((req, res, next) => {
 })
 
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'auth-service' }))
+
+// PRO-B (ADR-0002): máy chủ quyền lợi - công khai cho app/máy chủ RP, NGOÀI `/api` (như
+// `/oidc`), mỗi route tự xác thực bằng access token OIDC hoặc private_key_jwt.
+app.use('/ent', entitlementRouter)
 
 // ---------------------------------------------------------------------------
 // Cổng nội bộ

@@ -1,8 +1,10 @@
 # ADR-0002: Máy chủ quyền lợi dùng chung (Pro / Ủng hộ / huy hiệu) đặt trong auth-service
 
 - **Ngày**: 19/11/2026 (phiên điều phối projects-d2, phase **T5** của phiếu `~/projects/logs/handover/20261119-01`)
-- **Trạng thái**: ĐỀ XUẤT - chờ phiên tsudev triển khai; chủ dự án đã chốt các ràng buộc ở tsudev-standards v3.8.0
-  `docs/PRODUCT_POLICY.md` mục 3-4 (không quảng cáo; Pro tháng/năm + Ủng hộ; Play Billing cho bản Play; huy hiệu)
+- **Trạng thái**: **ĐÃ CHẤP NHẬN** (20/11/2026, phiên điều phối projects-33, phase PRO-B của phiếu
+  `~/projects/logs/handover/20261119-PRO1_*`) - có bổ sung (b1)-(b3) ở mục "Bổ sung PRO1" cuối tài liệu, khớp
+  tsudev-standards **v3.9.0** `docs/PRODUCT_POLICY.md` mục 7 (hợp đồng chung 7.4). Triển khai theo 3 bước: **B1 ĐÃ
+  LÀM** (sổ cái + JWS + kênh RP + mã cài đặt), B2 (Play), B3 (trang `/pro`, VietQR, quản trị, huy hiệu)
 
 ## Bối cảnh
 
@@ -105,3 +107,44 @@ purchaseToken}` ⇒ server gọi Play Developer API (`purchases.subscriptionsv2.
 - Test bắt buộc trước khi gộp: biên nhận giả / sai chữ ký / `obfuscatedExternalAccountId` khác tài khoản ⇒ 4xx và
   không ghi sự kiện; RTDN JWT sai `aud` ⇒ 401; JWS quyền lợi hết `exp` ⇒ app coi là miễn phí; `foldEvents` có test
   bảng (mua, gia hạn, huỷ, hoàn tiền, ủng hộ hai lần).
+
+## Bổ sung PRO1 (20/11/2026) - thay chỗ nào mâu thuẫn ở trên
+
+1. **JWS quyền lợi** đúng hợp đồng PRODUCT_POLICY 7.4: header `{alg: ES256, typ: "tsu-ent+jwt", kid}` (`kid` = `kid`
+   của khoá OIDC trong JWKS), payload `iss, sub, aud, iat, exp (= iat + 7 ngày), pro_until, pro_source, donor, badge,
+devices_30d`. `iss` = issuer OIDC **`https://tsudev.com/oidc`**, khoá kiểm ở **`https://tsudev.com/oidc/jwks`**
+   (lấy từ discovery `https://tsudev.com/oidc/.well-known/openid-configuration`). Thân trả về `{"jws": "<compact>"}`,
+   `Cache-Control: no-store`. **Bỏ** claim `tsu_ent` trong ID token (mục 3 cũ): một nguồn duy nhất là endpoint, ID
+   token không phình và không cũ.
+2. **Đường công khai** (auth-service gắn ở `/ent`, NGOÀI cổng `INTERNAL_API_TOKEN` như `/oidc`; Next proxy ở
+   `apps/frontend-main/lib/entitlementProxy.ts`):
+   - `GET /api/me/entitlements` → `/ent/me`: Bearer access token OIDC có scope `tsudev.entitlements` (scope mới của
+     provider; client chỉ xin được khi `OAuthClient.scopes` có nó). Thiếu scope ⇒ `403 insufficient_scope`. `aud` =
+     client của token.
+   - (b1) `GET /api/rp/entitlements/{sub}` → `/ent/rp/{sub}`: máy chủ RP gửi `Authorization: Bearer <client
+assertion>` - JWT ES256 kiểu `private_key_jwt` (RFC 7523): `iss` = `sub` = `client_id`, `aud` =
+     `https://tsudev.com/api/rp/entitlements` (khớp tuyệt đối), `exp` ≤ 300 giây, `jti` dùng một lần. Khoá công khai
+     ở cột mới `OAuthClient.rpPublicJwk` (JWK EC P-256 KHÔNG có `d`; NULL = client không có kênh RP). Chỉ trả cho `sub`
+     có Grant OIDC còn hạn với đúng client đó; `sub` lạ và `sub` chưa cấp quyền trả CÙNG `404 unknown_subject`.
+     Đăng ký khoá cho một RP: RP sinh cặp khoá, gửi JWK công khai; OWNER chạy
+     `UPDATE "OAuthClient" SET "rpPublicJwk" = '<jwk>'::jsonb WHERE id = '<client_id>'` (+ thêm `tsudev.entitlements`
+     vào `scopes` nếu app cũng gọi `/api/me/entitlements`).
+   - `POST /api/rp/entitlements/play` (biên nhận Play do RP chuyển tiếp) - bước **B2**, cùng xác thực b1.
+3. (b2) **Mã cài đặt**: header `X-Tsu-Installation` (22 ký tự base64url) + tuỳ chọn `X-Tsu-Platform`; bảng
+   `AppInstallation {userId, clientId, installationIdHash, platform, firstSeenAt, lastSeenAt}`, chỉ lưu
+   HMAC-SHA-256 (khoá suy từ `INTERNAL_IDENTITY_SECRET`, nhãn `tsudev-installation-v1`); `devices_30d` = số mã của
+   cùng (tài khoản, client) thấy trong 30 ngày; bản ghi quá 90 ngày bị xoá khi tài khoản đó gọi lại. Header sai định
+   dạng ⇒ bỏ qua.
+4. **Gộp sổ cái theo nguồn**: mỗi nguồn (`play`/`appstore`/`web`, sự kiện quản trị không nguồn = nhóm `admin`) giữ mốc
+   của sự kiện mới nhất của nguồn đó; Pro tổng = mốc lớn nhất ⇒ hoàn tiền ở Play không xoá Pro mua trên web.
+   `admin.revoke` đặt mọi nguồn về mốc của nó. `EntitlementEvent` có thêm `proSource`, `donation`. Ghi sự kiện chỉ qua
+   `recordEvent` (một giao dịch: chèn sự kiện + tính lại `Entitlement`; trùng `(kind, externalId)` ⇒ bỏ qua).
+5. **Bước còn lại**:
+   - **B2 - Google Play**: `POST /api/me/entitlements/play` + `/api/rp/entitlements/play`, Play Developer API
+     (`subscriptionsv2.get`, `products.get`, `acknowledge`), `obfuscatedAccountId` = base64url(SHA-256(`tsudev-pro|` +
+     `sub`)), RTDN qua Pub/Sub push (kiểm JWT OIDC của Google). Cần 👤: tài khoản dịch vụ Play (JSON) + topic Pub/Sub.
+   - **B3 - web**: trang `tsudev.com/pro` + `tsudev.com/ung-ho?app=` (giá 49.000 ₫/tháng, 490.000 ₫/năm; ủng hộ
+     20/50/100/200 nghìn; điều khoản thuê bao trước nút mua), `PaymentIntent` + VietQR `TSU <mã 8 ký tự>`, trang quản
+     trị xác nhận (2FA, ghi `actorId`), **Tài khoản → Huy hiệu** (`badgeDisplay`), dùng component PRO-C.
+6. **Vận hành**: migration `20261120090000_quyen_loi_pro_ung_ho` chỉ THÊM bảng/enum/cột NULL - chạy
+   `npm run db:migrate` với `DATABASE_URL` production TRƯỚC khi gộp (cổng `migrationGate` chặn khởi động khi lệch).
