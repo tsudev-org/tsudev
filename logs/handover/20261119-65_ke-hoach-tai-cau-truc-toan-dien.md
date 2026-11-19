@@ -84,3 +84,11 @@ Ràng buộc chung: không vượt 0đ; mọi PR chạm logo/chân trang/giấy 
   chặn); F-P1-03 trang chủ cuộn ngang 24 px ở 390 px; F-P1-05 axe critical ở `/settings/profile`. F-09 đóng (không tái
   hiện), F-03 sai. Bẫy cho phase sau: `tsudev`/`bob` ở DB dev có 2FA - E2E đăng nhập cần `totpCode()` của auth-service;
   số Lighthouse dao động theo tải máy. Phase kế tiếp: **P2**.
+- 19/11/2026 - tsudev-54: **P2 xong**. TDD v2.0 chương 1-13 ở `~/.markdown-tai-lieu-ky-thuat/tsudev/20261119-TsuDEV_Thiet-ke-ky-thuat_Tai-cau-truc-he-thong_v2.0.md`
+  = `docs/thiet-ke/tsu-tdd-v2.md` (1.013 dòng, hai bản giống hệt). ~120 yêu cầu có mã (PR-, IA-, DS-, UI-, PG-, ED-, WF-,
+  ST-, AD-, MD-, MO-), mỗi yêu cầu dẫn F-xx/F-P1-xx + file sẽ sửa (đã kiểm tồn tại) + phase. Quyết định đáng chú ý:
+  giữ Pages Router (vỏ `getLayout`), `/author*` → `/studio*` bằng 308, `page`/`page_size` theo DATA_TABLE (không
+  `per_page`), giữ disclosure cho menu (không `role=menu`), mega-menu bấm-để-mở, TRASH = `deletedAt` có sẵn (không
+  enum), four-eyes chỉ NÊN (OWNER tự công bố + ghi lý do), không chuỗi quyền/RLS, không SSE/Framer Motion/OG động.
+  Bẫy cho P4: mỗi lần lưu hiện tạo `PostRevision` ⇒ tự lưu 30 s PHẢI gộp revision (ED-08). Việc chuyển cho P3: cuối
+  chương 13. Phase kế tiếp: **P3**.
