@@ -81,7 +81,8 @@ const EMPTY: PostForm = {
   excerpt: '',
   tags: '',
   contentMd: '',
-  published: true,
+  // ED-01 (F-01): mặc định là Nháp - người viết phải CHỦ ĐỘNG tích "Công bố".
+  published: false,
   publishedAt: '',
   coverImageUrl: '',
   metaDescription: '',
