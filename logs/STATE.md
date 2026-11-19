@@ -1,5 +1,9 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PRO1 (chưa làm)**: phiếu [`20261119-PRO1`](handover/20261119-PRO1_luu-cuc-bo-pro-dong-bo.md) do phiên
+> qulythuchi-b2 mở - lưu cục bộ mặc định, Pro mới có đồng bộ đám mây; repo này gánh PRO-B (kênh RP ↔ máy chủ quyền lợi,
+> `AppInstallation`, trang `/pro`). Chờ tsudev-standards v3.9.0 (PRO-A); không chen vào phase P4-P9 của phiếu 65.
+
 > **Phiên kế tiếp BẮT ĐẦU Ở ĐÂY** (19/11/2026, sau phiên tsudev-55 - P3 xong): phiếu
 > [`20261119-65`](handover/20261119-65_ke-hoach-tai-cau-truc-toan-dien.md) mục 4 - phase kế tiếp **P4** (Studio giai
 > đoạn A). Kế hoạch PR 4.1-4.7 ở chương 23 của `docs/thiet-ke/tsu-tdd-v2.md`; đọc 22.1 (đính chính) trước. ⚠️ PR 4.3
