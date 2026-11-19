@@ -77,3 +77,10 @@ Ràng buộc chung: không vượt 0đ; mọi PR chạm logo/chân trang/giấy 
 ## 4. Kết quả xử lý (mỗi phase ghi một dòng)
 
 - 19/11/2026 - tsudev-64: mở phiếu; kiểm kê mục 1. Phase kế tiếp: **P1**.
+- 19/11/2026 - tsudev-ab: **P1 xong**. `docs/thiet-ke/ra-quet-20261119.md` (33 route × 1280/390 × Sáng/Tối, khách
+  production + OWNER/AUTHOR/MEMBER ở dev, axe, header, Lighthouse) + **ADR-0003** (giữ Markdown GFM, bộ vẽ công khai
+  chuyển sang `marked` dùng chung với trình soạn). Phát hiện chính: F-P1-01 trang công khai không vẽ nghiêng/gạch/H4/
+  danh sách số/bảng/trích dẫn mà trình soạn cho chèn (P0, đầu P4); F-P1-02 MEMBER thấy giao diện 4 trang admin (API vẫn
+  chặn); F-P1-03 trang chủ cuộn ngang 24 px ở 390 px; F-P1-05 axe critical ở `/settings/profile`. F-09 đóng (không tái
+  hiện), F-03 sai. Bẫy cho phase sau: `tsudev`/`bob` ở DB dev có 2FA - E2E đăng nhập cần `totpCode()` của auth-service;
+  số Lighthouse dao động theo tải máy. Phase kế tiếp: **P2**.

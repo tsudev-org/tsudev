@@ -1,5 +1,10 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> **Phiên kế tiếp BẮT ĐẦU Ở ĐÂY** (19/11/2026, sau phiên tsudev-ab - P1 xong): phiếu
+> [`20261119-65`](handover/20261119-65_ke-hoach-tai-cau-truc-toan-dien.md) mục 4 - phase kế tiếp **P2** (TDD v2.0 chương
+> 1-13). Đầu vào mới: `docs/thiet-ke/ra-quet-20261119.md` + `docs/adr/0003-dinh-dang-noi-dung.md`. Không khoá, không
+> tác vụ nền.
+
 > **Phiên kế tiếp BẮT ĐẦU Ở ĐÂY** (19/11/2026, sau phiên tsudev-64): kế hoạch tái cấu trúc toàn diện chia 9 phase ở
 > phiếu [`20261119-65`](handover/20261119-65_ke-hoach-tai-cau-truc-toan-dien.md). Mỗi phiên làm ĐÚNG MỘT phase, bắt đầu
 > từ phase ghi ở mục 4 của phiếu (hiện: **P1 - rà quét sâu**). Không khoá, không tác vụ nền.
