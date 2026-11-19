@@ -133,7 +133,10 @@ const clean = async () => {
 
 // `oidc-provider` là ESM thuần - jest (CJS) không nạp được, nên `initOidc` chỉ chạy trong
 // test/oidc.node.test.mjs. Ở đây thay khoá ký bằng một khoá ES256 sinh tạm.
-const SIGNER = { key: crypto.generateKeyPairSync('ec', { namedCurve: 'P-256' }).privateKey, kid: 'test-kid' }
+const SIGNER = {
+  key: crypto.generateKeyPairSync('ec', { namedCurve: 'P-256' }).privateKey,
+  kid: 'test-kid',
+}
 const signerPub = () => crypto.createPublicKey(SIGNER.key)
 
 const assertion = (o: Record<string, unknown> = {}, key = rpKeys.privateKey, alg = 'ES256') => {
@@ -221,7 +224,10 @@ describe('GET /ent/me', () => {
       clientId: CLIENT,
       scopes: ['openid', 'tsudev.entitlements'],
     })
-    const ids = [crypto.randomBytes(16).toString('base64url'), crypto.randomBytes(16).toString('base64url')]
+    const ids = [
+      crypto.randomBytes(16).toString('base64url'),
+      crypto.randomBytes(16).toString('base64url'),
+    ]
     let last: Record<string, unknown> = {}
     for (const id of [...ids, ids[0]]) {
       const r = await request(app)
@@ -267,11 +273,19 @@ describe('GET /ent/me', () => {
 describe('sổ cái + JWS phản ánh Pro', () => {
   it('ghi trùng (kind, externalId) ⇒ không ghi lại; JWS có pro + badge', async () => {
     const until = new Date(Date.now() + 30 * DAY)
-    const e = { userId, kind: 'web.vietqr', externalId: 'TSU-TEST0001', proUntil: until, proSource: 'web' }
+    const e = {
+      userId,
+      kind: 'web.vietqr',
+      externalId: 'TSU-TEST0001',
+      proUntil: until,
+      proSource: 'web',
+    }
     expect(await ent.recordEvent(e)).toBe(true)
     expect(await ent.recordEvent(e)).toBe(false)
     expect(await prisma.entitlementEvent.count({ where: { userId } })).toBe(1)
-    const r = await request(app).get(`/ent/rp/${userId}`).set('Authorization', `Bearer ${assertion()}`)
+    const r = await request(app)
+      .get(`/ent/rp/${userId}`)
+      .set('Authorization', `Bearer ${assertion()}`)
     expect(r.status).toBe(200)
     const p = ent.verifyEs256(r.body.jws, signerPub()).payload
     expect(p).toMatchObject({ aud: CLIENT, pro_source: 'web', badge: 'pro' })

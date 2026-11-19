@@ -77,7 +77,15 @@ async function issue(
     loadState(sub),
     countDevices30d(sub, clientId, now),
   ])
-  const claims = buildClaims({ iss: oidcIssuer(), sub, aud: clientId, now, state, display, devices30d })
+  const claims = buildClaims({
+    iss: oidcIssuer(),
+    sub,
+    aud: clientId,
+    now,
+    state,
+    display,
+    devices30d,
+  })
   res.json({ jws: signJws(claims, signer) })
 }
 

@@ -131,7 +131,10 @@ export function signJws(
 ): string {
   const head = b64({ alg: 'ES256', typ: 'tsu-ent+jwt', kid: signer.kid })
   const input = `${head}.${b64(payload)}`
-  const sig = cryptoSign('sha256', Buffer.from(input), { key: signer.key, dsaEncoding: 'ieee-p1363' })
+  const sig = cryptoSign('sha256', Buffer.from(input), {
+    key: signer.key,
+    dsaEncoding: 'ieee-p1363',
+  })
   return `${input}.${sig.toString('base64url')}`
 }
 
