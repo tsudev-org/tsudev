@@ -49,8 +49,9 @@
 
 **Bạn là agent AI:**
 1. [`AGENT_PROTOCOL.md`](AGENT_PROTOCOL.md) - toàn bộ quy trình phiên làm việc
-2. [`SECURITY_BASELINE.md`](SECURITY_BASELINE.md) mục 12 - ranh giới của agent
-3. [`LANGUAGE_SELECTION.md`](LANGUAGE_SELECTION.md) mục 8 - ràng buộc khi chọn stack
+2. [`KNOWLEDGE_BASE.md`](KNOWLEDGE_BASE.md) - kho tri thức AKB: `akb start` đầu phiên, `akb search` trước khi tự mò, `akb sync` cuối phiên
+3. [`SECURITY_BASELINE.md`](SECURITY_BASELINE.md) mục 12 - ranh giới của agent
+4. [`LANGUAGE_SELECTION.md`](LANGUAGE_SELECTION.md) mục 8 - ràng buộc khi chọn stack
 
 **Bạn đang làm chức năng nội dung:**
 1. [`RICH_TEXT_EDITOR.md`](RICH_TEXT_EDITOR.md) - trình soạn thảo ngang Word
@@ -63,6 +64,7 @@
 | [`../AGENTS.md`](../AGENTS.md) | Điểm vào bắt buộc, nguyên tắc chung | Bất khả xâm phạm |
 | [`../SECURITY.md`](../SECURITY.md) | Chính sách và kênh báo lỗ hổng | Bất khả xâm phạm |
 | [`AGENT_PROTOCOL.md`](AGENT_PROTOCOL.md) | Phiên làm việc, khóa file, bàn giao | Bất khả xâm phạm |
+| [`KNOWLEDGE_BASE.md`](KNOWLEDGE_BASE.md) | Kho tri thức agent ngoài repo (AKB): cấu trúc, schema, CLI `akb`, lint | Bất khả xâm phạm |
 | [`SECURITY_BASELINE.md`](SECURITY_BASELINE.md) | Chuẩn bảo mật kỹ thuật | Bất khả xâm phạm |
 | [`GITIGNORE_POLICY.md`](GITIGNORE_POLICY.md) | Duy trì `.gitignore` | Bất khả xâm phạm |
 | [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md) | Nhánh, commit, PR, phát hành | Bất khả xâm phạm |
@@ -88,6 +90,7 @@
 | [`templates/HANDOVER.md`](templates/HANDOVER.md) | Mẫu phiếu bàn giao | Mẫu |
 | [`templates/ADR.md`](templates/ADR.md) | Mẫu ghi quyết định kiến trúc | Mẫu |
 | [`templates/SECURITY_REVIEW.md`](templates/SECURITY_REVIEW.md) | Mẫu phiếu rà soát bảo mật | Mẫu |
+| [`templates/TRUST_TICKET.md`](templates/TRUST_TICKET.md) | Mẫu phiếu tin cậy phát hành `logs/trust/TRUST.md` (ký, kênh, hồ sơ nền tảng, pháp lý, nghiệm thu) | Mẫu |
 
 ## Ngoài thư mục docs
 
