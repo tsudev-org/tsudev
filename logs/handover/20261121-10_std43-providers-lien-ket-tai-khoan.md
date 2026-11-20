@@ -28,7 +28,7 @@
    20:30 ⇒ không trùng deploy). Tự hết sau ~2 phút. Vá giảm thiểu #353 (`f0f42a2`, `deploy-2026.11.21.3` Worker
    `c63a04fc`): proxy đệm discovery + JWKS (mới 5 phút, bản cũ tới 24 giờ khi upstream 429/5xx), không có bản cũ ⇒
    503 JSON + `Retry-After`. `/oidc/auth`, `/oidc/token` vẫn phụ thuộc Render - RP cần thử lại có backoff.
-   AKB `dieu-phoi#ISS-20261120-1459-46b8` ⇒ mitigated. Đã báo qulythuchi-5d đo lại.
+   AKB `dieu-phoi#ISS-20261120-1459-46b8` ⇒ workaround. Đã báo qulythuchi-5d đo lại.
    - Bẫy nhỏ: bản dựng sửa `apps/frontend-main/next-env.d.ts` ⇒ `deploy-frontend.js` bỏ gắn thẻ; `git checkout` tệp
      đó rồi `node scripts/release-tag.js --from-deploy`.
 
