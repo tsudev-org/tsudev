@@ -1,4 +1,4 @@
-# PHÂN PHỐI VÀ CÀI ĐẶT BẰNG LỆNH (v1.0.0)
+# PHÂN PHỐI VÀ CÀI ĐẶT BẰNG LỆNH (v1.1.0)
 
 > Mọi app/tool tsudev có bản cài cho máy tính `SHOULD` cài được bằng **một lệnh terminal** qua trình quản lý gói
 > chính thống của từng hệ điều hành, với gói do chính tsudev đóng gói, ký và kiểm. Tài liệu này quy định kênh,
@@ -28,12 +28,48 @@ sẽ thành bản cũ có lỗ hổng mà người dùng vẫn tải.
 | --- | --- | --- |
 | winget `PackageIdentifier` | `tsudev.<TenSanPham>` | `tsudev.TrafficMonitor`, `tsudev.Files` |
 | Scoop, Homebrew, APT, RPM | `tsudev-<ten>` chữ thường, gạch nối ASCII | `tsudev-trafficmonitor`, `tsudev-files` |
+| Scoop, Homebrew, APT, RPM - sản phẩm có **thương hiệu riêng** (mục 2.1) | tên thương hiệu chữ thường, gạch nối ASCII | `tsuswico`, `tsucontact`, `lotus-share` |
 | Android `applicationId` | `com.tsudev.<ten>` | `com.tsudev.lotus` |
 
 - Mã đã công bố **MUST NOT** đổi, kể cả khi sai khuôn (`tsudev.SWICO`, `tsudev.cwico` giữ nguyên): đổi mã làm
   máy đã cài mất đường cập nhật. Đây là cùng lý do với quy tắc tên repo cũ ở `GIT_WORKFLOW.md`.
 - Tên gói Linux có tiền tố `tsudev-` để không đụng gói của dự án gốc (vd. `trafficmonitor`, `localsend`).
 - Phiên bản gói = phiên bản bản phát hành theo [`VERSIONING.md`](VERSIONING.md) mục 2 (`YY.M.DDNN`).
+
+### 2.1. Tên gói theo thương hiệu riêng (từ v1.1.0)
+
+- Sản phẩm có thương hiệu riêng **được chủ dự án duyệt** (dòng Tsu: `tsuswico`, `tsucwico`, `tsucontact`, `tsufiles`;
+  thương hiệu độc lập: `lotus-share`) `MAY` dùng tên thương hiệu làm tên gói thay khuôn `tsudev-<ten>`.
+- Tên gói theo thương hiệu `MUST`: chữ thường, chỉ `a-z`, `0-9`, gạch nối ASCII; `MUST NOT` trùng tên gói của bản phân
+  phối (Debian/Ubuntu/Fedora), của Homebrew core/cask chính thức, hay của dự án gốc khi là bản fork. Kiểm trước khi
+  công bố: `apt-cache policy <ten>`, `dnf info <ten>`, `brew info --cask <ten>`, `scoop search <ten>` trên máy sạch.
+- Tên `MUST` được ghi đích danh ở repo kho gói (`tsudev-org/linux-packages` `products.json` khóa `tenRieng`) và trong
+  `packaging/package.json` của sản phẩm. Không ghi đích danh thì CI kho gói dùng khuôn `tsudev-<ten>`.
+- Tên gói **mới** chọn thương hiệu ngay từ đầu thì không có gì để chuyển. Sản phẩm **đã công bố** gói theo khuôn cũ mà
+  muốn đổi sang tên thương hiệu thì `MUST` theo mục 2.2.
+
+### 2.2. Đổi tên gói đã công bố (từ v1.1.0)
+
+Nguyên tắc: **máy đã cài bằng tên cũ `MUST` tiếp tục nhận bản mới mà người dùng không phải làm gì**, giống quy tắc tên
+repo cũ ở `GIT_WORKFLOW.md`. Đổi tên gói không bao giờ là "xoá tên cũ, tạo tên mới".
+
+| Kênh | Cách làm bắt buộc | Không đủ / cấm |
+| --- | --- | --- |
+| APT | Mỗi bản phát hành kèm gói **chuyển tiếp rỗng** tên cũ, cùng phiên bản: `Depends: <ten-moi> (>= V)`, `Section: oldlibs`. Bản rỗng thay bản cũ nên tệp cũ tự được gỡ; `Replaces:`/`Breaks:` chỉ cần khi hai gói dùng chung đường dẫn tệp | Chỉ thêm `Provides:` ở gói mới - `apt upgrade` không tự chuyển máy đã cài |
+| RPM | Gói mới khai `Provides: <ten-cu> = V` + `Obsoletes: <ten-cu> < V` (nfpm: `provides` + `replaces`), theo Fedora Packaging Guidelines "Renaming/Replacing" | Thiếu `Provides:` - gói khác `Requires: <ten-cu>` sẽ gãy |
+| Homebrew (tap riêng) | **Giữ** cask tên cũ, `deprecate! date: ..., because: "is renamed to <moi>", replacement_cask: "<moi>"`, vẫn trỏ bản mới | `cask_renames.json` - với tap bên thứ ba **không** chuyển máy đã cài (đã thử 12/11/2026, CI đỏ) |
+| Scoop | **Giữ** manifest tên cũ, vẫn trỏ bản mới (cùng `autoupdate`), `notes` ghi lệnh chuyển: `scoop uninstall <cu>; scoop install tsudev/<moi>` | Xoá manifest cũ - `scoop update` báo "không tìm thấy" và máy cài dừng ở bản cũ |
+| winget | Mã đã được **duyệt vào `winget-pkgs`** `MUST NOT` đổi (winget không có cơ chế đổi tên chuyển máy đã cài; `tsudev.SWICO`, `tsudev.cwico` giữ nguyên). Mã **chưa từng được duyệt** `MAY` thay bằng mã mới (`tsudev.Lotus` thành `tsudev.LotusShare`) | Mở PR đổi `PackageIdentifier` của gói đã duyệt |
+| Android | `applicationId` **không bao giờ đổi** (Play và mọi trình cập nhật coi là app khác); chỉ đổi tên hiển thị | - |
+
+- Danh sách tên cũ `MUST` ghi trong `packaging/package.json` khóa `linux.formerNames` (và tương đương cho Scoop/Homebrew
+  của sản phẩm) để CI sinh gói chuyển tiếp, không gõ tay.
+- CI kho gói `MUST` kiểm **đường nâng cấp thật từ bản cũ**: cài gói tên cũ ở phiên bản cũ đã công bố rồi chạy
+  `apt upgrade` / `dnf upgrade` / `brew upgrade` / `scoop update`, kết quả phải ra gói tên mới và không còn tệp mồ côi
+  của gói cũ. Ít nhất: Ubuntu LTS mới nhất, Debian ổn định, Fedora mới nhất, macOS, Windows.
+- Gói tên cũ `MUST` được giữ và tiếp tục nhận bản mới **tối thiểu 12 tháng** sau khi đổi tên; gỡ hẳn sau đó cần đề xuất
+  được duyệt và một bản phát hành cuối ghi rõ lệnh chuyển. Tên cũ `MUST NOT` bị dùng lại cho gói khác, kể cả sau khi gỡ.
+- Trang Tải về và `/apps` (mục 8) chỉ in tên **mới**; tên cũ chỉ xuất hiện trong ghi chú chuyển đổi.
 
 ## 3. Một nguồn khai báo: `packaging/package.json` trong repo sản phẩm
 
@@ -126,6 +162,7 @@ Repo private (không có Actions miễn phí đủ dùng) chạy cùng các bư�
 ## 9. Checklist trước khi công bố một kênh
 
 - [ ] `packaging/package.json` hợp lệ, tên gói đúng mục 2.
+- [ ] Gói đổi tên: tên cũ còn nhận bản mới theo bảng mục 2.2, CI kiểm đường nâng cấp từ bản cũ xanh.
 - [ ] `SHA256SUMS` và chứng thực build có trên Release.
 - [ ] Manifest kênh ghim SHA-256, sinh tự động.
 - [ ] Job `verify-install` xanh trên cả ba hệ điều hành liên quan.

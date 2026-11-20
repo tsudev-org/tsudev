@@ -14,7 +14,10 @@ import type { Provider } from 'next-auth/providers/index';
 
 import { IDENTITY, internalHeaders } from '../../../lib/services';
 import { identityHeaders } from '../../../lib/identity';
-import { SESSION_COOKIE_NAME } from '../../../lib/sessionCookie';
+import { SESSION_COOKIE_NAME, readSessionToken } from '../../../lib/sessionCookie';
+import { usernameFromToken } from '../../../lib/identity';
+import { LINK_INTENT_COOKIE, verifyLinkIntent } from '../../../lib/linkIntent';
+import type { JWT } from 'next-auth/jwt';
 
 /**
  * Xác thực do codebase tự quản lý.
@@ -410,10 +413,20 @@ type SignInParams = Parameters<NonNullable<NonNullable<NextAuthOptions['callback
  */
 async function oauthSignIn(
   { user, account, profile }: SignInParams,
-  fwd: Record<string, string>
+  fwd: Record<string, string>,
+  link: { provider: string; token: JWT } | null = null
 ): Promise<boolean | string> {
   if (!account || account.provider === 'credentials' || account.provider === 'passkey') {
     return true;
+  }
+  // Nhánh LIÊN KẾT (STD43): người đang đăng nhập bấm "Liên kết" ở /settings/security.
+  // Trả về chuỗi URL ⇒ next-auth chuyển hướng mà KHÔNG đổi phiên - người dùng ở lại đúng
+  // tài khoản của mình, kể cả khi email bên thứ ba khác hẳn.
+  if (link && link.provider === account.provider) {
+    const code = await linkOAuthAccount(link.token, account.provider, account.providerAccountId);
+    return code === 'ok'
+      ? `/settings/security?linked=${account.provider}#lien-ket`
+      : `/settings/security?link_error=${code}#lien-ket`;
   }
   if (account.provider === 'github' || account.provider === 'google') {
     const { email, emailVerified } = await resolveOAuthEmail(
@@ -442,13 +455,62 @@ async function oauthSignIn(
   return true;
 }
 
+/**
+ * Gắn (provider, providerAccountId) vào tài khoản của phiên `token` ở auth-service.
+ * Trả 'ok' hoặc mã lỗi ngắn cho trang Bảo mật hiển thị (không bao giờ ném).
+ */
+async function linkOAuthAccount(
+  token: JWT,
+  provider: string,
+  providerAccountId: string
+): Promise<string> {
+  try {
+    const res = await fetch(`${IDENTITY}/api/identity/oauth/link`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...internalHeaders(),
+        ...(await identityHeaders(token)),
+      },
+      body: JSON.stringify({ provider, providerAccountId }),
+    });
+    if (res.ok) return 'ok';
+    const body = (await res.json().catch(() => ({}))) as { error?: unknown };
+    return typeof body.error === 'string' && /^[a-z_]{1,40}$/.test(body.error)
+      ? body.error
+      : 'link_failed';
+  } catch {
+    return 'link_failed';
+  }
+}
+
+/**
+ * Ý định liên kết của REQUEST NÀY, chỉ ở chặng callback OAuth: cookie hợp lệ + phiên
+ * đang đăng nhập đúng người ghi trong cookie. Thiếu một điều kiện ⇒ null ⇒ luồng đăng
+ * nhập thường, như trước STD43.
+ */
+async function linkContext(req: NextApiRequest): Promise<{ provider: string; token: JWT } | null> {
+  const parts = Array.isArray(req.query.nextauth) ? req.query.nextauth : [];
+  if (parts[0] !== 'callback') return null;
+  const raw = req.cookies?.[LINK_INTENT_COOKIE];
+  if (!raw) return null;
+  const intent = await verifyLinkIntent(process.env.NEXTAUTH_SECRET || '', raw);
+  if (!intent || parts[1] !== intent.provider) return null;
+  const token = await readSessionToken(req);
+  if (!token || usernameFromToken(token) !== intent.username) return null;
+  return { provider: intent.provider, token };
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const fwd = callerHeaders(req);
+  const link = await linkContext(req);
+  // Cookie ý định được trang Bảo mật xoá (DELETE /api/account-link) khi quay về; tự hết
+  // hạn sau 10 phút nếu không. Dùng lại trong hạn chỉ là liên kết lại chính cặp đó (idempotent).
   return NextAuth(req, res, {
     ...authOptions,
     callbacks: {
       ...authOptions.callbacks,
-      signIn: (params) => oauthSignIn(params, fwd),
+      signIn: (params) => oauthSignIn(params, fwd, link),
     },
   });
 }

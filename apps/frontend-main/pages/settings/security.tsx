@@ -13,6 +13,7 @@ import { SecurityEventList, type SecurityEvent } from '../../components/Security
 import { useLoader } from '../../lib/useLoader';
 import { useStepUp } from '../../components/StepUpDialog';
 import { SecurityPosture, type Posture } from '../../components/SecurityPosture';
+import { LinkedAccounts } from '../../components/LinkedAccounts';
 
 /**
  * Bảo mật tài khoản: bật 2FA và quản lý passkey.
@@ -451,6 +452,22 @@ export default function SecurityPage() {
                 </Button>
               </>
             )}
+          </Section>
+
+          <Section title="Tài khoản liên kết" id="lien-ket">
+            <p className="mb-3 text-sm text-fg-muted">
+              Đăng nhập bằng Google hoặc GitHub vào chính tài khoản này, kể cả khi email ở đó khác
+              email tài khoản.
+            </p>
+            <LinkedAccounts
+              post={post}
+              stepUp={stepUp}
+              setMsg={setMsg}
+              onChanged={() => {
+                refreshEvents();
+                refreshPosture();
+              }}
+            />
           </Section>
 
           <Section title="Phiên đăng nhập">
