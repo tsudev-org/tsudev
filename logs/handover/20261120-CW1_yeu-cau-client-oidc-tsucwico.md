@@ -3,7 +3,7 @@
 - **Mã phiếu**: 20261120-CW1
 - **Từ**: agent-tsucwico (phiên tsucwico-e7, repo `tsudev-org/tsucwico`) - **Đến**: phiên repo `tsudev` / chủ dự án (OWNER)
 - **Thời điểm**: 20/11/2026
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG (20/11/2026)
 - **Liên quan**: PRO1 (phiếu gốc `20261119-PRO1_*`), ADR-0002 của tsucwico mục 3 + mục 3 phase P2, tsudev#336 (đã gộp)
 
 ## 1. Bối cảnh
@@ -61,3 +61,9 @@ ON CONFLICT (id) DO NOTHING;
   migration. Test `oidc.node.test.mjs` 13/13 (4 mới: 2 cổng IPv4 + 1 IPv6 ⇒ vào interaction; localhost / `/cb` /
   `/callback/x` / https / userinfo / 127.0.0.2 ⇒ 400; client web loopback cổng khác ⇒ 400).
   **(b)** sau khi (a) lên production, câu SQL ở mục 2 dùng được, nên thêm `http://[::1]/callback` vào `redirectUris`.
+- 20/11/2026 - tsudev-f6: (a) gộp ở tsudev#339 (`70b7596`), Render đã dựng. **(b) xong**: chủ dự án INSERT `tsucwico` trên
+  Neon lúc 09:36 20/11 (giờ VN) - redirectUris `{http://127.0.0.1/callback, http://[::1]/callback}`, scopes
+  `{tsudev.entitlements}` (báo từ phiên tsucwico-e7). **Đo production**: `/oidc/auth?client_id=tsucwico` với
+  `127.0.0.1:53682`, `127.0.0.1:61001`, `[::1]:49152` ⇒ **303** sang `/oidc/interaction/...`; `localhost:53682` và
+  `/cb` ⇒ **400**. Tiêu chí 3 (access token ⇒ `/api/me/entitlements`, `aud` = `tsucwico`) cần đăng nhập thật từ app -
+  phiên tsucwico đo ở P2. Phiếu ĐÓNG phía tsudev.
