@@ -36,6 +36,13 @@ const AREAS = [
     ownerOnly: true,
   },
   {
+    href: '/admin/thanh-toan',
+    title: 'Đối soát thanh toán',
+    desc: 'Xác nhận chuyển khoản VietQR (mã TSU) cho Pro và ủng hộ có huy hiệu. Chỉ chủ sở hữu, bắt buộc 2FA.',
+    ready: true,
+    ownerOnly: true,
+  },
+  {
     href: '/admin/security',
     title: 'Nhật ký bảo mật',
     desc: 'Sự kiện bảo mật xuyên tài khoản: đăng nhập, đổi mật khẩu/email, 2FA, passkey, đổi vai trò.',

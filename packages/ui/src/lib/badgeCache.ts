@@ -1,0 +1,60 @@
+import type { TsuBadgeValue } from '../components/TsuBadge';
+
+/**
+ * Huy hiệu của CHÍNH người đang đăng nhập, cho menu tài khoản ở đầu trang (PRO-B bước B3).
+ *
+ * Nguồn: `POST /api/account/pay/status` (auth-service áp `badgeDisplay` ở máy chủ, nên giá trị
+ * đã là thứ người dùng chọn cho hiện). Đệm trong sessionStorage 10 phút để mỗi lần chuyển
+ * trang không tốn một lượt gọi backend (Render free + Neon ngủ); trang Tài khoản → Huy hiệu
+ * ghi đè bộ đệm ngay khi đổi lựa chọn.
+ *
+ * Gắn với `user` (tên phiên) - đổi tài khoản trong cùng tab không hiện huy hiệu của người
+ * trước. Chỉ để VẼ, không phải cổng quyền.
+ */
+export const BADGE_CACHE_KEY = 'tsu.badge';
+export const BADGE_CACHE_TTL_MS = 10 * 60_000;
+
+type Cached = { u: string; b: TsuBadgeValue; t: number };
+
+const VALUES: readonly TsuBadgeValue[] = ['pro', 'donor', 'both', 'none'];
+
+export function readBadgeCache(user: string, now = Date.now()): TsuBadgeValue | null {
+  try {
+    const c = JSON.parse(window.sessionStorage.getItem(BADGE_CACHE_KEY) || 'null') as Cached | null;
+    if (!c || c.u !== user || !VALUES.includes(c.b)) return null;
+    if (!(now - c.t >= 0 && now - c.t < BADGE_CACHE_TTL_MS)) return null;
+    return c.b;
+  } catch {
+    return null;
+  }
+}
+
+export function writeBadgeCache(user: string, badge: TsuBadgeValue | null): void {
+  try {
+    if (badge && VALUES.includes(badge))
+      window.sessionStorage.setItem(
+        BADGE_CACHE_KEY,
+        JSON.stringify({ u: user, b: badge, t: Date.now() } satisfies Cached)
+      );
+    else window.sessionStorage.removeItem(BADGE_CACHE_KEY);
+  } catch {
+    /* chế độ riêng tư / iframe sandbox */
+  }
+}
+
+/** Gọi máy chủ; lỗi mạng/backend ngủ ⇒ null (không vẽ huy hiệu, không báo lỗi ở header). */
+export async function fetchOwnBadge(signal?: AbortSignal): Promise<TsuBadgeValue | null> {
+  try {
+    const r = await fetch('/api/account/pay/status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
+      signal,
+    });
+    if (!r.ok) return null;
+    const b = ((await r.json()) as { badge?: unknown })?.badge;
+    return VALUES.includes(b as TsuBadgeValue) ? (b as TsuBadgeValue) : null;
+  } catch {
+    return null;
+  }
+}
