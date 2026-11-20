@@ -2,7 +2,7 @@
 
 - **Người lập**: phiên `tsuswico-57`, 20/11/2026, theo yêu cầu trực tiếp của chủ dự án (đồng bộ logo/favicon các
   sản phẩm trên tsudev.com).
-- **Người làm**: phiên tsudev. **Trạng thái**: MỞ.
+- **Người làm**: phiên tsudev. **Trạng thái**: ĐÓNG mã (20/11/2026) - chờ deploy frontend.
 - **Phiếu con**: `qulythuchi/logs/handover/20261120-LG1_*`, `sound-db/logs/handover/20261120-LG1_*`,
   `tsucwico/logs/handover/20261120-LG1_*` (cwico chỉ đổi app, logo website giữ nguyên - không việc gì ở đây).
 
@@ -32,4 +32,10 @@
 
 ## 3. Kết quả
 
-(phiên tsudev điền, rồi đổi trạng thái ĐÓNG)
+- 20/11/2026, phiên điều phối tsudev-2cce: cả hai website đã phục vụ logo (200, PNG 512x512) ⇒ dùng thẳng URL, không
+  qua `source/eco/`. Đo thực tế: logo Quly Thu Chi trên website vẫn là ô nền TRẮNG đục (chỉ 4 góc trong suốt) ⇒
+  `mode: 'no-white'` thay vì `as-is`; logo Sound Db là ô navy bo góc sẵn, ĐÃ bỏ dấu ✦ ⇒ `as-is`.
+- `eco/qulythuchi.webp` sha256 nguồn `9d0d428e26bbed3f…`; `eco/sounddb.webp` sha256 nguồn `ab0fa525f83ef52e…`.
+- `ecosystem.ts`: thêm `logo` cho hai mục, sửa ghi chú; `packages/ui` test 280/280 xanh. Xem ở nền #0A0A0A và
+  trắng: đọc được cả hai chế độ (ví navy của Quly Thu Chi hơi chìm trên nền Tối, mũi tên xanh giữ hình).
+- Còn: deploy frontend (`scripts/deploy-frontend.js`, cần chủ dự án duyệt) rồi nhìn `/apps` sáng/tối.
