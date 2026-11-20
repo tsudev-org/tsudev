@@ -1,5 +1,8 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **Điều phối tsudev-09 (21/11/2026)**: `.standards` v4.2.0 toàn hệ (11 repo gộp, tsufiles#123 chờ CI), BP tsusync 16955. Phiếu [`20261121-09`](handover/20261121-09_dieu-phoi-standards-v4-2-0-bp-tsusync.md) mục 3-4. Thư nhắc Pro
+> 01:23 UTC 21/11 chưa kiểm. Không khoá, không tác vụ nền.
+
 > 🔔 **PRO1 - PRO-B bước B1 (20/11/2026, phiên điều phối projects-33)**: tsudev-standards **v3.9.0** đã phát hành
 > (PRO-A). Nhánh `feat/pro-b-may-chu-quyen-loi`: ADR-0002 ĐÃ CHẤP NHẬN + mục "Bổ sung PRO1"; migration
 > `20261120090000_quyen_loi_pro_ung_ho` (Entitlement, EntitlementEvent, PaymentIntent, AppInstallation,
