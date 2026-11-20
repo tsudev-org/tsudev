@@ -10,7 +10,8 @@ export type PlanKind =
   'pro_month' | 'pro_year' | 'donate_20k' | 'donate_50k' | 'donate_100k' | 'donate_200k';
 
 export const PLAN_LABEL: Record<PlanKind, string> = {
-  pro_month: 'TsuDEV Pro - 1 tháng',
+  /** Gói tháng đã bỏ (PRO2) - nhãn còn để /admin/thanh-toan hiện ý định tạo trước đó. */
+  pro_month: 'TsuDEV Pro - 1 tháng (gói cũ)',
   pro_year: 'TsuDEV Pro - 1 năm',
   donate_20k: 'Ủng hộ 20.000 ₫',
   donate_50k: 'Ủng hộ 50.000 ₫',
@@ -113,5 +114,6 @@ export async function payCall<T = Record<string, unknown>>(
  * Điều khoản kênh web, đứng TRƯỚC nút mua (khuôn PRODUCT_POLICY 7.5). Web là trả trước từng kỳ,
  * KHÔNG tự gia hạn ⇒ không dùng câu "tự gia hạn" của thuê bao cửa hàng.
  */
-export const webTerms = (price: number, period: string) =>
-  `TsuDEV Pro ${vnd(price)}/${period}, trả trước một kỳ, không tự gia hạn. Muốn dùng tiếp thì mua thêm kỳ mới tại tsudev.com/pro, thời gian được cộng dồn; quyền Pro dùng tới hết kỳ đã trả.`;
+/** Điều khoản đứng TRƯỚC nút mua - NGUYÊN VĂN PRODUCT_POLICY 7.5 (v4.0.0), `test/proTerms.test.ts` canh. */
+export const webTerms = (price: number) =>
+  `TsuDEV Pro ${vnd(price)} cho 1 năm, KHÔNG tự gia hạn. Gia hạn sớm được cộng thêm 1 năm vào thời hạn còn lại. Hết hạn mà chưa gia hạn, ứng dụng trở về bản miễn phí và ngừng đồng bộ lên đám mây; dữ liệu trên thiết bị vẫn giữ nguyên, bản sao trên đám mây còn tải về được 90 ngày rồi bị xoá.`;

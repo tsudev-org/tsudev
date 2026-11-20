@@ -1,4 +1,4 @@
-# NHẬN DIỆN HỆ SINH THÁI TSUDEV (v3.1.0)
+# NHẬN DIỆN HỆ SINH THÁI TSUDEV (v3.1.2)
 
 > `https://tsudev.com` là nhà chung của mọi dịch vụ, sản phẩm và công cụ trong hệ
 > sinh thái. Tài liệu này quy định mọi project **tự khai mình thuộc về đâu** như
@@ -86,7 +86,7 @@ Mọi repo thuộc hệ sinh thái `MUST` có:
 <meta name="twitter:card" content="summary_large_image" />
 ```
 
-- `og:site_name` `MUST` là chuỗi `tsudev` ở **mọi** sản phẩm, kể cả sản phẩm có
+- `og:site_name` `MUST` là chuỗi `TsuDEV` (từ v3.8.0, mục 3) ở **mọi** sản phẩm, kể cả sản phẩm có
   tên miền riêng. Đó là thứ nối các sản phẩm lại với nhau khi được chia sẻ.
 - Khuôn tiêu đề `MUST` đúng thứ tự trên. Trang chủ của sản phẩm rút gọn thành
   `{Tên sản phẩm} | TsuDEV`.
@@ -202,7 +202,10 @@ sẻ localStorage, nhưng cùng khóa và cùng hành vi giữ trải nghiệm n
 > **Từ v3.8.0 (quyết định chủ dự án 16/11 và 19/11/2026; nhận đề xuất tsudev-standards#55):** bảng **đen tuyền +
 > xanh logo** thay bảng tím. Biểu tượng (kể cả biểu tượng nền tảng Windows/Linux/Android/macOS và nhóm icon "thông
 > tin") `MUST` dùng sắc xanh của logo, KHÔNG còn tím. Ngoại lệ **đã chốt** (chủ dự án 11/11, xác nhận lại 19/11/2026): lotus.tsudev.com
-> giữ **tím hoa sen** cho khớp logo Lotus Share - KHÔNG đổi sang xanh. Logo `logo-tsudev.png` giữ nguyên (không vẽ lại
+> giữ **tím hoa sen** cho khớp logo Lotus Share - KHÔNG đổi sang xanh. Ngoại lệ **đã chốt** thứ hai (chủ dự án
+> 19/11/2026, mở rộng ở v3.8.3): **TsuFiles** - cả kiểu giao diện **"Cú đêm"** trong app LẪN website
+> **files.tsudev.com** - dùng **đen tuyền + tím logo cú** (bảng 4.2.1) cho khớp logo con cú. Thẻ TsuFiles trên
+> tsudev.com/apps và mọi chỗ thuộc tsudev.com vẫn theo bảng xanh. Logo `logo-tsudev.png` giữ nguyên (không vẽ lại
 > chữ "TsuDEV" trong ảnh - quyết định 19/11/2026); `alt` vẫn là `TsuDEV`.
 
 Website trong hệ sinh thái dùng **đen tuyền + xanh logo** (xanh lơ ~`#30C8F0` → xanh dương chữ "dev" ~`#1E90FF` của
@@ -222,6 +225,26 @@ sửa `.standards/`. Mọi cặp chữ/nền đạt WCAG AA. Nguồn đang chạ
 | icon nhóm "thông tin" `icon-info` (gồm biểu tượng nền tảng) / điều hướng `icon-nav` | `#60A5FA` / `#7DD3FC` | `#0369A1` / `#0757A3` |
 
 Ở chế độ Tối chữ trên nút xanh là **mực đen**: xanh lơ không đạt 4.5:1 dưới chữ trắng. Viền nút phụ và ô nhập là `border-control` (3:1), không phải `border-strong`.
+
+#### 4.2.1. Bảng đen tuyền + tím logo cú (chỉ TsuFiles - files.tsudev.com và kiểu "Cú đêm" của app)
+
+Lấy mẫu từ `tsufiles-mark-512.png` (19/11/2026): tím sẫm ~`#5E28B5`, tím chính ~`#8339FA`, tím sáng ~`#AA73F3`, điểm
+sáng ~`#D8B4FC`. Dùng lại bảng tím đã kiểm WCAG AA của v3.4.0 (gần trùng mẫu logo); token nền/viền/chữ như bảng xanh ở
+trên, chỉ các vai trò dưới đây khác:
+
+| Vai trò (token) | Tối (mặc định theo hệ thống) | Sáng |
+| --- | --- | --- |
+| `text-link` | `#C4A1FF` | `#6D28D9` |
+| `primary` / `primary-hover` / `primary-active` | `#A970FF` / `#BB8CFF` / `#9A5CF5` | `#7C3AED` / `#6D28D9` / `#5B21B6` |
+| `on-primary` | `#0A0A0A` (mực đen) | `#FFFFFF` |
+| `focus-ring` | `#A970FF` | `#7C3AED` |
+| nhấn phụ `accent` / quầng `glow` | `#D8B4FC` / `rgba(169,112,255,0.16)` | `#5E28B5` / `rgba(124,58,237,0.10)` |
+| `icon-info` (gồm biểu tượng nền tảng) / `icon-nav` | `#C4A1FF` / `#D8B4FC` | `#6D28D9` / `#5B21B6` |
+
+- Đo 19/11/2026: thấp nhất 4.92:1 (mực đen trên `primary-active` tối), còn lại 5.46-11.18:1.
+- Mọi cặp chữ/nền `MUST` đạt WCAG AA (đo lại bằng `scripts/check-contrast.mjs` khi đổi một giá trị); không quầng
+  chuyển động; một quầng tím **tĩnh** ở đỉnh trang thay cho quầng xanh lơ.
+- `og-image.png`, `theme_color` của manifest, favicon dùng cùng sắc tím; `og:site_name` vẫn là `TsuDEV`.
 
 Ngôn ngữ thiết kế (tham khảo supabase.com, không chép logo/chữ/ảnh):
 
