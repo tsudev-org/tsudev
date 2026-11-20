@@ -7,6 +7,7 @@ import { callerIp } from './throttle'
 import {
   buildClaims,
   countDevices30d,
+  dpopBinding,
   loadState,
   mayQueryStatusFor,
   parseInstallationId,
@@ -18,7 +19,6 @@ import {
   subjectStatuses,
   touchInstallation,
   verifyClientAssertion,
-  verifyDpopProof,
 } from './entitlements'
 
 /**
@@ -116,21 +116,18 @@ entitlementRouter.get('/me', (req, res, next) => {
       return void res.status(403).json({ error: 'insufficient_scope', scope: ENTITLEMENT_SCOPE })
     }
     const now = new Date()
-    // DPoP (RFC 9449, PRO2): có header ⇒ PHẢI hợp lệ (sai ⇒ 401, không âm thầm bỏ `cnf`);
-    // không có ⇒ JWS như cũ. Access token không gắn khoá; chỉ JWS mang `cnf.jkt`.
-    const dpop = req.headers.dpop
-    let jkt: string | null = null
-    if (dpop !== undefined) {
-      if (typeof dpop !== 'string' || dpop.includes(',')) {
-        return void res.status(400).json({ error: 'invalid_dpop_proof' })
-      }
-      jkt = verifyDpopProof(dpop, { htm: 'GET', htu: meEntitlementsHtu(), accessToken: token, now })
-      if (!jkt) {
-        res.setHeader('WWW-Authenticate', 'DPoP error="invalid_dpop_proof"')
-        return void res.status(401).json({ error: 'invalid_dpop_proof' })
-      }
+    // DPoP (RFC 9449, PRO2): access token không gắn khoá; chỉ JWS mang `cnf.jkt`.
+    const bind = dpopBinding(req.headers.dpop, {
+      htm: 'GET',
+      htu: meEntitlementsHtu(),
+      accessToken: token,
+      now,
+    })
+    if (!bind.ok) {
+      if (bind.status === 401) res.setHeader('WWW-Authenticate', 'DPoP error="invalid_dpop_proof"')
+      return void res.status(bind.status).json({ error: 'invalid_dpop_proof' })
     }
-    await issue(res, t.accountId, t.clientId, req, now, jkt)
+    await issue(res, t.accountId, t.clientId, req, now, bind.jkt)
   })().catch(next)
 })
 

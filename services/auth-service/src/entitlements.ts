@@ -396,17 +396,20 @@ export async function subjectStatuses(
   clientId: string,
   subs: string[]
 ): Promise<Record<string, SubjectStatus>> {
-  const out: Record<string, SubjectStatus> = {}
+  // Map + Object.fromEntries: `sub` do người gọi gửi (kể cả `__proto__`) không bao giờ là
+  // khoá gán vào một object thường - không chạm được prototype.
+  const out = new Map<string, SubjectStatus>()
   const valid = [...new Set(subs.filter((s) => SUB_RE.test(s)))]
-  for (const s of subs) out[s] = { status: 'unknown_subject' }
-  if (!valid.length) return out
+  for (const s of subs) out.set(s, { status: 'unknown_subject' })
+  const done = () => Object.fromEntries(out)
+  if (!valid.length) return done()
   const granted = (
     await prisma.rpSubject.findMany({
       where: { clientId, sub: { in: valid } },
       select: { sub: true },
     })
   ).map((r) => r.sub)
-  if (!granted.length) return out
+  if (!granted.length) return done()
   const [deleted, users] = await Promise.all([
     prisma.deletedSubject.findMany({ where: { sub: { in: granted } }, select: { sub: true } }),
     prisma.user.findMany({
@@ -414,12 +417,12 @@ export async function subjectStatuses(
       select: { id: true, entitlement: { select: { proUntil: true } } },
     }),
   ])
-  for (const d of deleted) out[d.sub] = { status: 'deleted' }
+  for (const d of deleted) out.set(d.sub, { status: 'deleted' })
   for (const u of users) {
     const p = u.entitlement?.proUntil
-    out[u.id] = { status: 'ok', pro_until: p ? Math.floor(p.getTime() / 1000) : 0 }
+    out.set(u.id, { status: 'ok', pro_until: p ? Math.floor(p.getTime() / 1000) : 0 })
   }
-  return out
+  return done()
 }
 
 let lastPurge = 0
@@ -516,4 +519,21 @@ export function verifyDpopProof(
   const jkt = jwkThumbprint({ crv: 'P-256', kty: 'EC', x: jwk.x, y: jwk.y })
   if (!claimJti(`dpop:${jkt}`, p.jti, p.iat + DPOP_IAT_SKEW_S, nowS)) return null
   return jkt
+}
+
+export type DpopBinding = { ok: true; jkt: string | null } | { ok: false; status: 400 | 401 }
+
+/**
+ * Header `DPoP` của một yêu cầu ⇒ khoá gắn vào JWS. Không có header ⇒ `jkt: null` (JWS như
+ * cũ - DPoP là `SHOULD` ở 7.4). Có mà sai ⇒ từ chối, KHÔNG âm thầm cấp JWS thiếu `cnf`.
+ * Nhiều header `DPoP` (Node nối bằng dấu phẩy) ⇒ 400 (RFC 9449 4.3 mục 1).
+ */
+export function dpopBinding(
+  header: unknown,
+  a: { htm: string; htu: string; accessToken: string; now: Date }
+): DpopBinding {
+  if (header === undefined) return { ok: true, jkt: null }
+  if (typeof header !== 'string' || header.includes(',')) return { ok: false, status: 400 }
+  const jkt = verifyDpopProof(header, a)
+  return jkt ? { ok: true, jkt } : { ok: false, status: 401 }
 }

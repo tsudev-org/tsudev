@@ -461,3 +461,14 @@ describe('DPoP cho GET /ent/me', () => {
     expect((await me(p)).status).toBe(401)
   })
 })
+
+describe('chống ghi vào prototype', () => {
+  it('sub `__proto__` / `constructor` chỉ là khoá dữ liệu', async () => {
+    const r = await status({ client_id: CLIENT, subs: ['__proto__', 'constructor', ids.fresh] })
+    expect(r.status).toBe(200)
+    expect(Object.keys(r.body.results).sort()).toEqual(
+      ['__proto__', 'constructor', ids.fresh].sort()
+    )
+    expect(({} as Record<string, unknown>).status).toBeUndefined()
+  })
+})
