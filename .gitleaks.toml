@@ -33,6 +33,15 @@ regexes = [
   '''^mat-khau-moi-du-dai-p1-2026$''',
 ]
 
+# Purchase token giả của test kênh Google Play (B2, 20/11/2026). Token Play thật chỉ đi trong body request
+# từ app, không bao giờ nằm trong repo; tài khoản dịch vụ của test sinh khoá RSA lúc chạy.
+[[allowlists]]
+description = "Fixture purchase token giả của test /api/rp/entitlements/play"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''^services/auth-service/test/entitlementPlay\.test\.ts$''']
+regexes = ['''^tok-abcdefghijklmnop\.1234$''']
+
 # Test Rust của trust-crypto dựng PEM bằng format!("-----BEGIN PRIVATE KEY-----\n{b64}...").
 # Thân khoá là placeholder `{b64}` của Rust, không có vật liệu khoá nào trong mã nguồn.
 # Ghim vào đúng chuỗi mở đầu bằng `{b64}` - một khoá PEM thật không bao giờ có thân đó.
