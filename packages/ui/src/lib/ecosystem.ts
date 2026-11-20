@@ -48,6 +48,12 @@ export type EcoApp = {
   platforms: EcoPlatform[];
   /** Trang sản phẩm riêng - mở tab mới. */
   website?: string;
+  /**
+   * Tên miền CŨ của website vẫn sống (chuyển hướng về `website`). Chỉ để ghép gói ở kho
+   * mà bản đã phát hành còn mang `homepage` cũ - kho APT/RPM chỉ dựng lại gói khi app có
+   * phiên bản mới. Không hiện ra giao diện.
+   */
+  oldWebsites?: readonly string[];
   /** Trang phát hành mới nhất (GitHub Releases) - mở tab mới. */
   releases?: string;
   /** Mã gói winget ĐÃ có trong microsoft/winget-pkgs. */
@@ -99,10 +105,18 @@ const sameSite = (a?: string, b?: string) =>
  * microsoft/winget-pkgs, không có catalog của mình.
  */
 function withCatalog<
-  T extends { website?: string; pkg?: string; pkgArch?: string; scoop?: string; brew?: string },
+  T extends {
+    website?: string;
+    oldWebsites?: readonly string[];
+    pkg?: string;
+    pkgArch?: string;
+    scoop?: string;
+    brew?: string;
+  },
 >(item: T): T {
+  const sites = [item.website, ...(item.oldWebsites ?? [])];
   const find = (list: readonly { name: string; homepage: string; arch: readonly string[] }[]) =>
-    list.find((p) => sameSite(p.homepage, item.website));
+    list.find((p) => sites.some((w) => sameSite(p.homepage, w)));
   const pkg = find(PKG_CATALOG.pkg);
   const scoop = find(PKG_CATALOG.scoop);
   const brew = find(PKG_CATALOG.brew);
@@ -232,7 +246,9 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       tagline: 'Máy đo âm thanh chính xác: dB, phổ FFT, octave, cao độ - có cả bản chạy trên web.',
       category: 'utility',
       platforms: ['android', 'apple', 'windows', 'linux'],
-      website: 'https://sounddb.tsudev.com',
+      // Tên miền đổi 20/11/2026 (sound-db ADR-0007, phiếu SDB2); tên cũ giữ vĩnh viễn qua chuyển hướng.
+      website: 'https://sound.tsudev.com',
+      oldWebsites: ['https://sounddb.tsudev.com'],
       releases: 'https://github.com/tsudev-org/sound-db/releases/latest',
       openSource: true,
       logo: '/eco/sounddb.webp',
