@@ -73,6 +73,7 @@ import {
 } from './totp'
 import { deviceLabel, shouldAlertNewDevice } from './device'
 import { entitlementRouter } from './entitlementRoutes'
+import { proReminderRouter } from './proReminders'
 import { payAdminRouter, payRouter } from './paymentRoutes'
 import {
   sendMail,
@@ -114,6 +115,9 @@ app.get('/health', (req, res) => res.json({ status: 'ok', service: 'auth-service
 
 // PRO-B (ADR-0002): máy chủ quyền lợi - công khai cho app/máy chủ RP, NGOÀI `/api` (như
 // `/oidc`), mỗi route tự xác thực bằng access token OIDC hoặc private_key_jwt.
+// PRO2 2.4: thư nhắc gia hạn - `/run` cho cron (tự kiểm INTERNAL_API_TOKEN), `/unsubscribe`
+// công khai (HMAC trong link). Gắn TRƯỚC `/ent` để không bị giới hạn tần suất của quyền lợi.
+app.use('/ent/reminders', proReminderRouter)
 app.use('/ent', entitlementRouter)
 
 // ---------------------------------------------------------------------------

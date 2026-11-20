@@ -102,7 +102,8 @@ export async function sendMail(
   to: string,
   subject: string,
   html: string,
-  kind = 'unknown'
+  kind = 'unknown',
+  headers?: Record<string, string>
 ): Promise<MailResult> {
   const key = process.env.RESEND_API_KEY
   if (!key) {
@@ -136,7 +137,15 @@ export async function sendMail(
       headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
       // `text` đi kèm `html` chứ không thay thế: Resend gửi thư nhiều phần và
       // bên nhận tự chọn phần đọc được.
-      body: JSON.stringify({ from: from(), to, subject, html, text: htmlToText(html) }),
+      // `headers` (tuỳ chọn): ví dụ List-Unsubscribe của thư nhắc Pro (RFC 8058).
+      body: JSON.stringify({
+        from: from(),
+        to,
+        subject,
+        html,
+        text: htmlToText(html),
+        ...(headers ? { headers } : {}),
+      }),
     })
     if (!res.ok) {
       const body = await res.text().catch(() => '')

@@ -3,11 +3,12 @@
 Một Cloudflare Worker có lịch, **0đ**, **không có kết nối Postgres** - tức nó vẫn
 chạy đúng lúc database chết. Hai việc:
 
-| Nhịp cron (UTC)     | Gọi gì                                    | Chạm DB? | Vì sao                                              |
-| ------------------- | ----------------------------------------- | -------- | --------------------------------------------------- |
-| `*/5 0-17,23 * * *` | `GET {BACKEND_URL}/health`                | Không    | Render free ngủ sau ~15 phút không có request       |
-| `23 1,13 * * *`     | đếm nội dung thật của `SITE_URL` (`/dem`) | Không    | "site trả 200 mà trống" - sự cố từng sống HAI THÁNG |
-| `23 1,13 * * *`     | hạn mức compute Neon (API điều khiển)     | Không    | cảnh báo TRƯỚC khi cạn 100 CU-giờ (§6.7)            |
+| Nhịp cron (UTC)          | Gọi gì                                    | Chạm DB? | Vì sao                                                                                      |
+| ------------------------ | ----------------------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `*/5 0-17,23 * * *`      | `GET {BACKEND_URL}/health`                | Không    | Render free ngủ sau ~15 phút không có request                                               |
+| `23 1,13 * * *`          | đếm nội dung thật của `SITE_URL` (`/dem`) | Không    | "site trả 200 mà trống" - sự cố từng sống HAI THÁNG                                         |
+| `23 1,13 * * *`          | hạn mức compute Neon (API điều khiển)     | Không    | cảnh báo TRƯỚC khi cạn 100 CU-giờ (§6.7)                                                    |
+| `23 1 * * *` (lượt sáng) | `POST {BACKEND_URL}/ent/reminders/run`    | Có       | thư nhắc gia hạn Pro (PRO2 2.4) - mỗi mốc tối đa 1 thư, ≤ 80 thư/lượt (Resend 0đ: 100/ngày) |
 
 Cả hai nghỉ 01:00-06:00 giờ Việt Nam (`0-17,23` UTC) để giữ giờ instance Render
 dưới 750/tháng. Chi tiết và các hạn mức: [`docs/free-tier.md`](../../docs/free-tier.md).

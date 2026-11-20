@@ -67,6 +67,7 @@ import { doNoiDung, thanhDong } from './demNoiDung';
 import { danhGiaNeon, type NeonProject } from './hanMuc';
 import { dienGiai, goiKiemToanVen } from './kiemToanVen';
 import { gopLuotXem, type D1Like } from './luotXem';
+import { GIO_NHAC_UTC, goiNhacPro } from './nhacPro';
 
 /** Nhịp ĐO NỘI DUNG. Phải TRÙNG NGUYÊN VĂN một phần tử trong `triggers.crons`. */
 const CRON_DEM_NOI_DUNG = '23 1,13 * * *';
@@ -276,6 +277,20 @@ async function kiemToanVenPhatHanh(env: Env): Promise<void> {
   if (noiDung) await baoDong(env, 'Toàn vẹn bản phát hành', noiDung);
 }
 
+/** Thư nhắc gia hạn Pro (PRO2 2.4) - chỉ lượt sáng của nhịp thưa. */
+async function nhacGiaHanPro(env: Env, luc: number): Promise<void> {
+  if (new Date(luc).getUTCHours() !== GIO_NHAC_UTC) return;
+  const kq = await goiNhacPro(env.BACKEND_URL, env.INTERNAL_API_TOKEN);
+  if (!kq.chay) console.error(`[cron] thư nhắc Pro: BỎ QUA - ${kq.lyDo}`);
+  else if (!kq.ok) {
+    console.error(`[cron] thư nhắc Pro: HỎNG - ${kq.lyDo}`);
+    await baoDong(env, 'Thư nhắc gia hạn Pro', `Lượt thư nhắc KHÔNG chạy được: ${kq.lyDo}`);
+  } else
+    console.log(
+      `[cron] thư nhắc Pro: ${kq.sent} gửi, ${kq.failed} hỏng, ${kq.skipped} bỏ qua / ${kq.candidates}`
+    );
+}
+
 export default {
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
     // HAI nhịp, và sự khác nhau giữa chúng là CHẠM DATABASE hay không:
@@ -293,6 +308,7 @@ export default {
             canhHanMucNeon(env),
             kiemToanVenPhatHanh(env),
             gopLuotXemBai(env),
+            nhacGiaHanPro(env, event.scheduledTime),
           ])
         : keepWarm(env)
     );
