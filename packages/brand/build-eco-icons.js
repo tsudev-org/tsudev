@@ -68,7 +68,7 @@ const SOURCES = {
   // Phiếu 20261120-LG1: Quly Thu Chi phục vụ logo trên ô nền TRẮNG đục (chỉ góc trong suốt) ⇒ 'no-white';
   // Sound Db là ô nền navy bo góc sẵn, đã bỏ dấu ✦ của công cụ tạo ảnh ⇒ giữ nguyên.
   qulythuchi: { src: 'https://qulythuchi.tsudev.com/brand/logo-qulythuchi.png', mode: 'no-white' },
-  sounddb: { src: 'https://sounddb.tsudev.com/brand/logo-sound-db.png' },
+  sounddb: { src: 'https://sound.tsudev.com/brand/logo-sound-db.png' },
   // Trò chơi: năm game đã phục vụ logo riêng trên website của mình (16/11/2026, phiếu
   // 20261113-04, sinh bởi tsudev-game-kit/tools/sinh-thuong-hieu.mjs - ô nền đặc bo góc sẵn).
   // nuicam3d vẫn dùng tệp gốc tới khi website của nó có /brand/mark-512.png.

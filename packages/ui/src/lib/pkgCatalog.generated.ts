@@ -8,7 +8,7 @@ export const PKG_CATALOG = {
   pkg: [
     {
       name: 'lotus-share',
-      version: '2.0.0-7',
+      version: '26.11.1901-1',
       arch: ['arm64', 'x64'],
       homepage: 'https://lotus.tsudev.com',
     },
@@ -26,7 +26,7 @@ export const PKG_CATALOG = {
     },
     {
       name: 'tsudev-sound-db',
-      version: '26.11.1704-1',
+      version: '26.11.1705-1',
       arch: ['x64'],
       homepage: 'https://sounddb.tsudev.com',
     },
@@ -34,7 +34,7 @@ export const PKG_CATALOG = {
   scoop: [
     {
       name: 'lotus-share',
-      version: '2.0.0-lotus.7',
+      version: '26.11.1901',
       arch: ['any'],
       homepage: 'https://lotus.tsudev.com',
     },
@@ -58,9 +58,9 @@ export const PKG_CATALOG = {
     },
     {
       name: 'tsudev-sound-db',
-      version: '26.11.1704',
+      version: '26.11.1705',
       arch: ['64bit'],
-      homepage: 'https://sounddb.tsudev.com',
+      homepage: 'https://sound.tsudev.com',
     },
     {
       name: 'tsudev-trafficmonitor',
@@ -70,13 +70,13 @@ export const PKG_CATALOG = {
     },
     {
       name: 'tsudisk',
-      version: '26.11.1704',
+      version: '26.11.1801',
       arch: ['64bit'],
       homepage: 'https://disk.tsudev.com',
     },
     {
       name: 'tsuswico',
-      version: '26.8.18.2',
+      version: '26.11.2001',
       arch: ['any'],
       homepage: 'https://swico.tsudev.com',
     },
@@ -84,7 +84,7 @@ export const PKG_CATALOG = {
   brew: [
     {
       name: 'lotus-share',
-      version: '2.0.0-lotus.7',
+      version: '26.11.1901',
       arch: ['any'],
       homepage: 'https://lotus.tsudev.com',
     },
@@ -96,9 +96,9 @@ export const PKG_CATALOG = {
     },
     {
       name: 'tsudev-sound-db',
-      version: '26.11.1704',
+      version: '26.11.1705',
       arch: ['any'],
-      homepage: 'https://sounddb.tsudev.com',
+      homepage: 'https://sound.tsudev.com',
     },
   ],
 } as const;
