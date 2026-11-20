@@ -129,7 +129,18 @@ assertion>` - JWT ES256 kiểu `private_key_jwt` (RFC 7523): `iss` = `sub` = `cl
      Đăng ký khoá cho một RP: RP sinh cặp khoá, gửi JWK công khai; OWNER chạy
      `UPDATE "OAuthClient" SET "rpPublicJwk" = '<jwk>'::jsonb WHERE id = '<client_id>'` (+ thêm `tsudev.entitlements`
      vào `scopes` nếu app cũng gọi `/api/me/entitlements`).
-   - `POST /api/rp/entitlements/play` (biên nhận Play do RP chuyển tiếp) - bước **B2**, cùng xác thực b1.
+   - `POST /api/rp/entitlements/play` (biên nhận Play do RP chuyển tiếp) - bước **B2**, ĐÃ LÀM (phiếu QT5) →
+     `/ent/play`: client assertion như b1 nhưng `aud` = `https://tsudev.com/api/rp/entitlements/play`; thân
+     `{client_id, sub, packageName, productId, purchaseToken}`; `client_id` = client đã xác thực, `packageName` phải nằm
+     trong `PLAY_PACKAGES` của client đó, `sub` phải có Grant với client. Xác minh bằng Play Developer API
+     (`services/auth-service/src/playBilling.ts`, tài khoản dịch vụ `PLAY_SERVICE_ACCOUNT_JSON`):
+     `tsudev_pro` = CHỈ gói trả trước (`prepaidPlan`, base plan `nam` = 12 tháng) qua `subscriptionsv2.get`; mốc mới =
+     max(`pro_until`, bây giờ) + 12 tháng (nạp thêm khi còn hạn = gia hạn sớm); `ung_ho_<n>k` = ủng hộ qua
+     `products.get` (app tự consume). `obfuscatedExternalAccountId` phải bằng base64url(SHA-256(`tsudev-pro|` + `sub`)).
+     Sổ cái `play.purchase`, `externalId` = SHA-256(`token|orderId`) - mỗi lần thanh toán ghi đúng một lần; ghi TRƯỚC
+     rồi mới acknowledge. Mã trả: 200 `{status: recorded|already_recorded, product, pro_until}`; 400 thân sai/sản phẩm
+     lạ; 409 `purchase_pending`; 422 `purchase_invalid`/`account_mismatch`; 401/403/404 xác thực/phạm vi; 503
+     `play_unavailable` (chưa cấu hình, Google lỗi, acknowledge hỏng - gửi lại an toàn).
 3. (b2) **Mã cài đặt**: header `X-Tsu-Installation` (22 ký tự base64url) + tuỳ chọn `X-Tsu-Platform`; bảng
    `AppInstallation {userId, clientId, installationIdHash, platform, firstSeenAt, lastSeenAt}`, chỉ lưu
    HMAC-SHA-256 (khoá suy từ `INTERNAL_IDENTITY_SECRET`, nhãn `tsudev-installation-v1`); `devices_30d` = số mã của
@@ -140,7 +151,7 @@ assertion>` - JWT ES256 kiểu `private_key_jwt` (RFC 7523): `iss` = `sub` = `cl
    `admin.revoke` đặt mọi nguồn về mốc của nó. `EntitlementEvent` có thêm `proSource`, `donation`. Ghi sự kiện chỉ qua
    `recordEvent` (một giao dịch: chèn sự kiện + tính lại `Entitlement`; trùng `(kind, externalId)` ⇒ bỏ qua).
 5. **Bước còn lại**:
-   - **B2 - Google Play**: `POST /api/me/entitlements/play` + `/api/rp/entitlements/play`, Play Developer API
+   - **B2 - Google Play** (kênh RP đã làm, xem mục 2; còn lại: `POST /api/me/entitlements/play`, RTDN): Play Developer API
      (`subscriptionsv2.get`, `products.get`, `acknowledge`), `obfuscatedAccountId` = base64url(SHA-256(`tsudev-pro|` +
      `sub`)), RTDN qua Pub/Sub push (kiểm JWT OIDC của Google). Cần 👤: tài khoản dịch vụ Play (JSON) + topic Pub/Sub.
    - **B3 - web**: trang `tsudev.com/pro` + `tsudev.com/ung-ho?app=` (giá 49.000 ₫/tháng, 490.000 ₫/năm; ủng hộ

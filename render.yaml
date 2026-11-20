@@ -55,6 +55,14 @@ services:
       # thực trả 401, đúng triệu chứng mà cơ chế này ra đời để chấm dứt.
       - key: INTERNAL_IDENTITY_SECRET
         sync: false
+      # B2 - biên nhận Google Play (POST /api/rp/entitlements/play). JSON tài khoản dịch vụ
+      # (thô hoặc base64) có quyền "Xem thông tin tài chính" + "Quản lý đơn hàng" trên Play
+      # Console. Thiếu ⇒ kênh trả 503 play_unavailable (RP thử lại; không ai mất tiền).
+      - key: PLAY_SERVICE_ACCOUNT_JSON
+        sync: false
+      # client_id=gói Android[,gói];client_id=gói - client RP nào được chuyển biên nhận gói nào.
+      - key: PLAY_PACKAGES
+        value: qulythuchi=com.tsudev.qulythuchi
       # --- nhánh identity (auth-service) ---
       # Mã hoá bí mật TOTP khi lưu. Đổi giá trị này = mọi thiết bị 2FA hỏng.
       - key: TOTP_ENCRYPTION_KEY

@@ -9,6 +9,7 @@ import { IDENTITY } from './services';
  *   GET /api/me/entitlements          → /ent/me       (access token OIDC, scope tsudev.entitlements)
  *   GET /api/rp/entitlements/{sub}    → /ent/rp/{sub} (private_key_jwt của máy chủ RP)
  *   POST /api/rp/entitlements/status  → /ent/status   (PRO2: kênh trạng thái, ADR-0004)
+ *   POST /api/rp/entitlements/play    → /ent/play     (B2: biên nhận Google Play, phiếu QT5)
  *
  * Service tự xác thực từng request - proxy chỉ chuyển ĐÚNG các header cần, không kèm
  * cookie phiên tsudev và không kèm INTERNAL_API_TOKEN (người gọi không phải BFF).

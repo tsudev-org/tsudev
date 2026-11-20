@@ -38,4 +38,11 @@ Content-Type: application/json
 
 ## 4. Kết quả (phiên tsudev điền)
 
--
+- 20/11/2026 tsudev-77fe: B2 làm ĐÚNG hình dạng mục 2 (không đổi tên trường, `aud`, mã trả) - nhánh
+  `feat/b2-play-entitlements`, ADR-0002 mục 2 ghi hợp đồng đầy đủ. Thêm so với mục 2: 409 `purchase_pending` (đang chờ
+  thanh toán), 403 `forbidden_package` (gói không khai trong `PLAY_PACKAGES`), 404 `unknown_subject` (`sub` chưa cấp
+  quyền cho `qulythuchi`), 503 `play_unavailable` kèm `Retry-After` (gửi lại cùng biên nhận là AN TOÀN: sổ cái
+  idempotent theo lần thanh toán, trả 200 `already_recorded`). `tsudev_pro` chỉ nhận gói TRẢ TRƯỚC base plan `nam`.
+- Mục 3.2 ✅: nạp thêm khi còn hạn cộng dồn `max(pro_until, now) + 12 tháng`.
+- Mục 3.3: CHƯA lên production - cần 👤 (a) tài khoản dịch vụ Play có quyền xem tài chính + quản lý đơn hàng, đặt
+  `PLAY_SERVICE_ACCOUNT_JSON` ở Render; (b) gộp PR + deploy backend. Khi xong phiên tsudev sẽ báo để thử đầu-cuối.
