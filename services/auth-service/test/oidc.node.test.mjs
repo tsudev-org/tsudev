@@ -27,6 +27,8 @@ const stamp = Date.now();
 const USER = `test-oidc-${stamp}`;
 const CLIENT = `site-thu-${stamp}`;
 const REDIRECT = 'https://site-thu.tsudev.com/callback';
+const NATIVE = `app-thu-${stamp}`;
+const WEBLOOP = `web-loop-${stamp}`;
 
 before(async () => {
   // Cổng ngẫu nhiên PHẢI biết trước khi dựng provider (issuer là URL tuyệt đối).
@@ -56,13 +58,31 @@ before(async () => {
       scopes: ['profile', 'email', 'tsudev.entitlements'],
     },
   });
+  // Phiếu 20261120-CW1: app desktop đăng ký loopback KHÔNG cổng ⇒ native, cổng bất kỳ.
+  await prisma.oAuthClient.create({
+    data: {
+      id: NATIVE,
+      name: 'App thử',
+      redirectUris: ['http://127.0.0.1/callback', 'http://[::1]/callback'],
+      scopes: ['tsudev.entitlements'],
+    },
+  });
+  // Client web có redirect loopback CÓ cổng (kiểu dev) - phải giữ khớp tuyệt đối.
+  await prisma.oAuthClient.create({
+    data: {
+      id: WEBLOOP,
+      name: 'Web loopback',
+      redirectUris: ['http://127.0.0.1:3000/callback'],
+      scopes: [],
+    },
+  });
 });
 
 after(async () => {
   await prisma.oidcPayload.deleteMany({
     where: { payload: { path: ['accountId'], equals: userId } },
   });
-  await prisma.oAuthClient.deleteMany({ where: { id: CLIENT } });
+  await prisma.oAuthClient.deleteMany({ where: { id: { in: [CLIENT, NATIVE, WEBLOOP] } } });
   await prisma.user.deleteMany({ where: { id: userId } });
   await prisma.$disconnect();
   server?.close();
@@ -310,4 +330,67 @@ test('quyền lợi: access token có scope tsudev.entitlements ⇒ JWS kiểm �
   assert.equal(payload.sub, userId);
   assert.equal(payload.aud, CLIENT);
   assert.equal(payload.badge, 'none');
+});
+
+/** /oidc/auth với client + redirect cho trước; trả mã HTTP và Location. */
+async function authStatus(clientId, redirectUri) {
+  const { challenge } = pkce();
+  const q = new URLSearchParams({
+    client_id: clientId,
+    response_type: 'code',
+    redirect_uri: redirectUri,
+    scope: 'openid tsudev.entitlements',
+    code_challenge: challenge,
+    code_challenge_method: 'S256',
+    state: 'st',
+    nonce: 'n',
+  });
+  const r = await get(`/oidc/auth?${q}`);
+  return { status: r.status, location: r.headers.get('location') || '' };
+}
+
+test('client native loopback (RFC 8252 7.3): cổng bất kỳ ⇒ vào màn đăng nhập', async () => {
+  for (const uri of [
+    'http://127.0.0.1:53682/callback',
+    'http://127.0.0.1:61001/callback',
+    'http://[::1]:49152/callback',
+  ]) {
+    const r = await authStatus(NATIVE, uri);
+    assert.ok([302, 303].includes(r.status), `${uri} ⇒ ${r.status}`);
+    assert.match(r.location, /\/oidc\/interaction\//, uri);
+  }
+});
+
+test('client native: localhost / path khác / https / userinfo ⇒ 400 tại chỗ', async () => {
+  for (const uri of [
+    'http://localhost:53682/callback',
+    'http://127.0.0.1:53682/cb',
+    'http://127.0.0.1:53682/callback/x',
+    'https://127.0.0.1:53682/callback',
+    'http://evil@127.0.0.1:53682/callback',
+    'http://127.0.0.2:53682/callback',
+  ]) {
+    const r = await authStatus(NATIVE, uri);
+    assert.equal(r.status, 400, uri);
+    assert.equal(r.location, '', uri);
+  }
+});
+
+test('client web có redirect loopback: cổng khác ⇒ 400 (không nới quy tắc cho web)', async () => {
+  assert.ok(
+    [302, 303].includes((await authStatus(WEBLOOP, 'http://127.0.0.1:3000/callback')).status)
+  );
+  assert.equal((await authStatus(WEBLOOP, 'http://127.0.0.1:3001/callback')).status, 400);
+});
+
+test('isLoopbackNative: chỉ loopback IP, không cổng, không localhost', () => {
+  const { isLoopbackNative } = require('../dist/oidc.js');
+  assert.equal(isLoopbackNative(['http://127.0.0.1/callback']), true);
+  assert.equal(isLoopbackNative(['http://127.0.0.1/callback', 'http://[::1]/callback']), true);
+  assert.equal(isLoopbackNative([]), false);
+  assert.equal(isLoopbackNative(['http://127.0.0.1:8080/callback']), false);
+  assert.equal(isLoopbackNative(['http://localhost/callback']), false);
+  assert.equal(isLoopbackNative(['http://127.0.0.1/callback', 'https://a.tsudev.com/cb']), false);
+  assert.equal(isLoopbackNative(['http://127.0.0.1/callback?x=1']), false);
+  assert.equal(isLoopbackNative(['http://u@127.0.0.1/callback']), false);
 });

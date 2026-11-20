@@ -13,7 +13,10 @@ import type { Prisma } from '@prisma/client'
  *   - CHỈ Authorization Code + PKCE S256. Không implicit, không hybrid, không
  *     password grant, không dynamic registration.
  *   - Client CÔNG KHAI (`token_endpoint_auth_method: none`), đọc từ bảng `OAuthClient`;
- *     redirect URI khớp TUYỆT ĐỐI (thư viện so chuỗi nguyên vẹn).
+ *     redirect URI khớp TUYỆT ĐỐI (thư viện so chuỗi nguyên vẹn). Ngoại lệ DUY NHẤT: app
+ *     native (desktop) mà MỌI redirect là `http://127.0.0.1/...` hoặc `http://[::1]/...` không
+ *     ghi cổng ⇒ `application_type: native`, thư viện bỏ qua cổng loopback (RFC 8252 mục 7.3)
+ *     nhưng vẫn so khớp nguyên vẹn phần còn lại - `localhost` hay path khác vẫn bị từ chối.
  *   - Khoá ký ES256 RIÊNG (`OIDC_SIGNING_JWK`) - không dùng chung khoá ký bản phát hành.
  *   - Refresh token xoay vòng; dùng lại token đã xoay ⇒ thư viện thu hồi cả grant.
  *   - Đổi `sessionVersion` ⇒ trigger Postgres xoá mọi trạng thái OIDC của người đó
@@ -127,12 +130,43 @@ export async function findAccessToken(
   return { accountId: t.accountId, clientId: t.clientId, scopes: String(t.scope || '').split(' ') }
 }
 
+/**
+ * Client native loopback (RFC 8252 mục 7.3, phiếu 20261120-CW1 - Tsu Cwico): CÓ redirect và MỌI
+ * redirect là `http://127.0.0.1` hoặc `http://[::1]`, KHÔNG ghi cổng, không query/fragment.
+ * Không ghi cổng là cách đăng ký nói "cổng bất kỳ" một cách tường minh; client web giữ quy tắc
+ * khớp tuyệt đối. `localhost` cố ý không được tính (nó phân giải được ra ngoài loopback).
+ * Không cần cột mới: hình dạng redirect đã nói đủ client là gì.
+ */
+export function isLoopbackNative(uris: readonly string[]): boolean {
+  return (
+    uris.length > 0 &&
+    uris.every((u) => {
+      try {
+        const x = new URL(u)
+        return (
+          x.protocol === 'http:' &&
+          (x.hostname === '127.0.0.1' || x.hostname === '[::1]') &&
+          x.port === '' &&
+          !x.search &&
+          !x.hash &&
+          !x.username &&
+          !x.password &&
+          u.startsWith(`http://${x.hostname}/`)
+        )
+      } catch {
+        return false
+      }
+    })
+  )
+}
+
 async function clientMetadata(id: string): Promise<Record<string, unknown> | undefined> {
   const c = await prisma.oAuthClient.findUnique({ where: { id } })
   if (!c || c.disabledAt) return undefined
   return {
     client_id: c.id,
     client_name: c.name,
+    application_type: isLoopbackNative(c.redirectUris) ? 'native' : 'web',
     redirect_uris: c.redirectUris,
     post_logout_redirect_uris: c.postLogoutRedirectUris,
     token_endpoint_auth_method: 'none',
