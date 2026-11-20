@@ -15,6 +15,7 @@ phiên bản app của hệ tsudev); các thẻ `vYYYY.MM.DD.N` cũ giữ nguyê
 <https://github.com/tsudev-org/tsudev/tags>. Mỗi thẻ một dòng dưới đây. _English: every production deployment is
 tagged; the tag message lists the merged pull requests, and each line below summarises one tagged deployment._
 
+- deploy-2026.11.21.3 - 21/11/2026 - Đăng nhập chung (OIDC) chịu được lúc máy chủ phụ bị chặn tạm: discovery và JWKS được đệm, lỗi tạm trả 503 kèm Retry-After thay vì trang HTML (#353).
 - deploy-2026.11.21.2 - 21/11/2026 - `GET /api/v1/auth/providers` cho RP dựng nút đăng nhập; trang Bảo mật có mục Tài khoản liên kết (liên kết/gỡ Google, GitHub); bộ quy ước v4.3.0 (#351).
 - deploy-2026.11.21.1 - 21/11/2026 - Sound Db trên /apps sang `sound.tsudev.com` (logo, website, kho gói Scoop/Homebrew), trường `oldWebsites` giữ lệnh cài Linux khi gói còn homepage cũ (#348); thanh toán VietQR: test dòng QR byte-chính-xác (#346) và vòng thử lại trùng mã P2002 (#347).
 - deploy-2026.11.19.7 - 19/11/2026 - Bộ vẽ Markdown dùng chung `marked` 17 với trình soạn: trang công khai vẽ đúng nghiêng, gạch, H4, danh sách số/lồng, trích dẫn, bảng, chú thích ảnh, hộp ghi chú, nhúng YouTube/Vimeo (`frame-src` mở đúng hai nguồn); HTML vẽ trong `getStaticProps` nên `marked` không vào gói trình duyệt (#334).
