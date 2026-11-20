@@ -7,7 +7,7 @@
 // đổi sessionVersion ⇒ token chết (trigger Postgres).
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, createPublicKey, randomBytes } from 'node:crypto';
 import { createRequire } from 'node:module';
 
 process.env.NODE_ENV = 'test';
@@ -49,7 +49,12 @@ before(async () => {
     })
   ).id;
   await prisma.oAuthClient.create({
-    data: { id: CLIENT, name: 'Site thử', redirectUris: [REDIRECT] },
+    data: {
+      id: CLIENT,
+      name: 'Site thử',
+      redirectUris: [REDIRECT],
+      scopes: ['profile', 'email', 'tsudev.entitlements'],
+    },
   });
 });
 
@@ -82,13 +87,13 @@ const tokenReq = (params) =>
   });
 
 /** Chạy trọn luồng tới lúc có mã ủy quyền; trả { code, verifier }. */
-async function authorize() {
+async function authorize(scope = 'openid profile email offline_access') {
   const { verifier, challenge } = pkce();
   const q = new URLSearchParams({
     client_id: CLIENT,
     response_type: 'code',
     redirect_uri: REDIRECT,
-    scope: 'openid profile email offline_access',
+    scope,
     code_challenge: challenge,
     code_challenge_method: 'S256',
     state: 'st',
@@ -263,4 +268,46 @@ test('idp_hint (QT4): google/github trả về khi chưa đăng nhập; giá tr�
   // Không có cookie interaction ⇒ null, không lỗi 500.
   const r = await fetch(`${base}/api/identity/oidc-hint`, { method: 'POST' });
   assert.deepEqual(await r.json(), { hint: null });
+});
+
+// PRO-B (ADR-0002): access token THẬT của provider ⇒ /ent/me trả JWS ký bằng đúng khoá
+// công bố ở JWKS (cùng `kid`), `aud` = client. Không scope ⇒ 403.
+test('quyền lợi: access token có scope tsudev.entitlements ⇒ JWS kiểm được bằng JWKS', async () => {
+  const tokenFor = async (scope) => {
+    const { code, verifier } = await authorize(scope);
+    const r = await tokenReq({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: REDIRECT,
+      code_verifier: verifier,
+    });
+    assert.equal(r.status, 200, await r.clone().text());
+    return (await r.json()).access_token;
+  };
+  const without = await tokenFor('openid profile');
+  const r403 = await fetch(`${base}/ent/me`, { headers: { authorization: `Bearer ${without}` } });
+  assert.equal(r403.status, 403);
+
+  const at = await tokenFor('openid tsudev.entitlements');
+  const r = await fetch(`${base}/ent/me`, { headers: { authorization: `Bearer ${at}` } });
+  assert.equal(r.status, 200, await r.clone().text());
+  const { jws } = await r.json();
+  const [h, b] = jws.split('.');
+  const header = JSON.parse(Buffer.from(h, 'base64url').toString());
+  const payload = JSON.parse(Buffer.from(b, 'base64url').toString());
+  const { keys } = await (await get('/oidc/jwks')).json();
+  const jwk = keys.find((k) => k.kid === header.kid);
+  assert.ok(jwk, 'kid của JWS phải có trong JWKS');
+  const { verify } = require('node:crypto');
+  const ok = verify(
+    'sha256',
+    Buffer.from(`${h}.${b}`),
+    { key: createPublicKey({ key: jwk, format: 'jwk' }), dsaEncoding: 'ieee-p1363' },
+    Buffer.from(jws.split('.')[2], 'base64url')
+  );
+  assert.ok(ok);
+  assert.equal(payload.iss, `${base}/oidc`);
+  assert.equal(payload.sub, userId);
+  assert.equal(payload.aud, CLIENT);
+  assert.equal(payload.badge, 'none');
 });

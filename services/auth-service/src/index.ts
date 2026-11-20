@@ -72,6 +72,8 @@ import {
   verifyTotp,
 } from './totp'
 import { deviceLabel, shouldAlertNewDevice } from './device'
+import { entitlementRouter } from './entitlementRoutes'
+import { payAdminRouter, payRouter } from './paymentRoutes'
 import {
   sendMail,
   verifyEmailHtml,
@@ -109,6 +111,10 @@ app.use((req, res, next) => {
 })
 
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'auth-service' }))
+
+// PRO-B (ADR-0002): máy chủ quyền lợi - công khai cho app/máy chủ RP, NGOÀI `/api` (như
+// `/oidc`), mỗi route tự xác thực bằng access token OIDC hoặc private_key_jwt.
+app.use('/ent', entitlementRouter)
 
 // ---------------------------------------------------------------------------
 // Cổng nội bộ
@@ -790,6 +796,9 @@ app.use('/api/identity/security', auth)
 // Vòng đời tài khoản (vô hiệu hoá / hẹn xoá).
 app.use('/api/identity/account', auth)
 app.use('/api/identity/oidc', auth)
+// PRO-B bước B3: mua Pro / ủng hộ bằng VietQR + OWNER xác nhận (paymentRoutes.ts).
+app.use('/api/identity/pay', auth, payRouter)
+app.use('/api/identity/payadmin', auth, payAdminRouter)
 
 /** Số ngày ân hạn trước khi tài khoản hẹn-xoá bị purge vĩnh viễn. */
 const ACCOUNT_DELETION_GRACE_MS = 30 * 24 * 60 * 60 * 1000

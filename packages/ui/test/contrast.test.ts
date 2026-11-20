@@ -119,6 +119,13 @@ const PAIRS: Array<[string, string, number, string]> = [
   ['--warning-ink', '--warning-tint', 4.5, 'chữ trên nhãn cảnh báo'],
   ['--danger-ink', '--danger-tint', 4.5, 'chữ trên nhãn lỗi'],
   ['--info-ink', '--info-tint', 4.5, 'chữ trên nhãn thông tin'],
+  // Huy hiệu Pro / Ủng hộ (TsuBadge, PRO-C): chữ PRO trên CẢ HAI đầu dải chuyển sắc, chữ +
+  // tim Ủng hộ trên nền của nó; viền Ủng hộ là thành phần giao diện (3:1) trên nền trang.
+  ['--badge-pro-ink', '--badge-pro-from', 4.5, 'chữ PRO trên đầu sáng của huy hiệu'],
+  ['--badge-pro-ink', '--badge-pro-to', 4.5, 'chữ PRO trên đầu tối của huy hiệu'],
+  ['--badge-donor-ink', '--badge-donor-bg', 4.5, 'chữ Ủng hộ trên nền huy hiệu'],
+  ['--badge-donor-border', '--bg-base', 3, 'viền huy hiệu Ủng hộ trên nền trang'],
+  ['--badge-donor-border', '--bg-surface', 3, 'viền huy hiệu Ủng hộ trên card'],
 
   // Khối "không tải được nội dung" của EmptyState đặt chữ THƯỜNG (không phải
   // nhãn) lên nền tint cảnh báo. Cặp này khác bốn cặp -ink/-tint ngay trên: ở

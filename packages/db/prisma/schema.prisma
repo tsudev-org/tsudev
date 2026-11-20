@@ -104,6 +104,12 @@ model User {
 
   emailAliases EmailAlias[]
 
+  // PRO-B (ADR-0002): quyền lợi Pro/Ủng hộ + đếm thiết bị. Xoá tài khoản ⇒ cascade.
+  entitlement      Entitlement?
+  entitlementLog   EntitlementEvent[]
+  paymentIntents   PaymentIntent[]
+  appInstallations AppInstallation[]
+
   /// Trang quản trị lọc và sắp theo ba trục này. Không có chỉ mục thì mỗi lần
   /// lọc là một lượt quét toàn bảng.
   @@index([lastLoginAt])
@@ -812,6 +818,95 @@ model OidcPayload {
   @@index([expiresAt])
 }
 
+// ---------------------------------------------------------------------------
+// PRO-B - máy chủ quyền lợi dùng chung (docs/adr/0002-may-chu-quyen-loi.md,
+// tsudev-standards PRODUCT_POLICY mục 3.4, 4, 7). `Entitlement` là bản tổng hợp
+// tính lại từ sổ cái `EntitlementEvent` bằng hàm thuần `foldEvents`.
+// ---------------------------------------------------------------------------
+enum EntitlementSource {
+  play
+  appstore
+  web
+}
+
+enum BadgeDisplay {
+  AUTO
+  PRO
+  DONOR
+  BOTH
+  HIDDEN
+}
+
+model Entitlement {
+  userId       String             @id
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// NULL = chưa từng Pro; <= now() = hết hạn.
+  proUntil     DateTime?
+  proSource    EntitlementSource?
+  /// Vĩnh viễn sau lần ủng hộ ĐÃ XÁC NHẬN đầu tiên.
+  donorSince   DateTime?
+  badgeDisplay BadgeDisplay       @default(AUTO)
+  updatedAt    DateTime           @updatedAt
+}
+
+/// Sổ cái chỉ-ghi-thêm. Không có đường xoá ngoài cascade xoá tài khoản.
+model EntitlementEvent {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// play.purchase | play.rtdn | play.voided | web.vietqr | web.donate | admin.adjust | admin.revoke
+  kind       String
+  /// purchaseToken (băm SHA-256) / mã đối soát VietQR. Idempotent theo (kind, externalId).
+  externalId String?
+  /// Mốc Pro mới mà sự kiện này đặt (NULL = không đổi Pro). Thu hồi ⇒ mốc trong quá khứ.
+  proUntil   DateTime?
+  proSource  EntitlementSource?
+  /// Sự kiện ủng hộ đã xác nhận.
+  donation   Boolean   @default(false)
+  /// Quản trị viên xác nhận (web.vietqr / admin.*).
+  actorId    String?
+  createdAt  DateTime  @default(now())
+
+  @@unique([kind, externalId])
+  @@index([userId, createdAt])
+}
+
+/// Mã nội dung chuyển khoản "TSU <code>" cho VietQR (PRO-B3 dùng).
+model PaymentIntent {
+  code        String    @id
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// pro_month | pro_year | donate_20k | donate_50k | donate_100k | donate_200k
+  kind        String
+  amountVnd   Int
+  /// pending | confirmed | expired | rejected
+  status      String    @default("pending")
+  /// client_id của app mở luồng mua (?app=), để báo lại đúng app.
+  clientId    String?
+  expiresAt   DateTime
+  confirmedBy String?
+  confirmedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@index([status, expiresAt])
+}
+
+/// Mã cài đặt (AUTH_AND_ACCOUNT 14.3) - chỉ lưu HMAC-SHA-256, không bao giờ mã thô.
+model AppInstallation {
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId           String
+  installationIdHash String
+  /// android | ios | windows | macos | linux | web | other
+  platform           String   @default("other")
+  firstSeenAt        DateTime @default(now())
+  lastSeenAt         DateTime @default(now())
+
+  @@id([userId, clientId, installationIdHash])
+  @@index([lastSeenAt])
+}
+
 /// Site con đăng ký đăng nhập bằng tài khoản TsuDEV (P4). Chỉ client CÔNG KHAI:
 /// Authorization Code + PKCE S256, không client secret, redirect URI khớp TUYỆT ĐỐI.
 /// Tạo bằng seed/OWNER - không có đường tự đăng ký (dynamic registration TẮT).
@@ -822,6 +917,9 @@ model OAuthClient {
   postLogoutRedirectUris String[]  @default([])
   /// Phạm vi được phép xin, ngoài `openid`.
   scopes                 String[]  @default(["profile", "email"])
+  /// PRO-B (b1): JWK CÔNG KHAI EC P-256 của máy chủ RP, dùng kiểm `private_key_jwt`
+  /// ở kênh máy chủ ↔ máy chủ `/api/rp/entitlements/*`. NULL = client không có kênh RP.
+  rpPublicJwk            Json?
   createdAt              DateTime  @default(now())
   disabledAt             DateTime?
 }

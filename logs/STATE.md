@@ -1,8 +1,11 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
-> 🔔 **PRO1 (chưa làm)**: phiếu [`20261119-PRO1`](handover/20261119-PRO1_luu-cuc-bo-pro-dong-bo.md) do phiên
-> qulythuchi-b2 mở - lưu cục bộ mặc định, Pro mới có đồng bộ đám mây; repo này gánh PRO-B (kênh RP ↔ máy chủ quyền lợi,
-> `AppInstallation`, trang `/pro`). Chờ tsudev-standards v3.9.0 (PRO-A); không chen vào phase P4-P9 của phiếu 65.
+> 🔔 **PRO1 - PRO-B bước B1 (20/11/2026, phiên điều phối projects-33)**: tsudev-standards **v3.9.0** đã phát hành
+> (PRO-A). Nhánh `feat/pro-b-may-chu-quyen-loi`: ADR-0002 ĐÃ CHẤP NHẬN + mục "Bổ sung PRO1"; migration
+> `20261120090000_quyen_loi_pro_ung_ho` (Entitlement, EntitlementEvent, PaymentIntent, AppInstallation,
+> `OAuthClient.rpPublicJwk`); `/ent/me` + `/ent/rp/{sub}` (proxy `/api/me/entitlements`, `/api/rp/entitlements/{sub}`).
+> ⚠️ Chạy migration trên Neon TRƯỚC khi gộp (migrationGate). Còn B2 (Play - cần 👤 tài khoản dịch vụ) và B3 (`/pro`,
+> VietQR, quản trị, Huy hiệu) - ADR-0002 mục "Bổ sung PRO1" khoản 5. Không chen vào phase P4-P9 của phiếu 65.
 
 > **Phiên kế tiếp BẮT ĐẦU Ở ĐÂY** (19/11/2026, sau phiên tsudev-55 - P3 xong): phiếu
 > [`20261119-65`](handover/20261119-65_ke-hoach-tai-cau-truc-toan-dien.md) mục 4 - phase kế tiếp **P4** (Studio giai
