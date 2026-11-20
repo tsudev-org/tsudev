@@ -192,6 +192,55 @@ describe('người dùng tạo ý định', () => {
     const other = await call('pay/status', OWNER)
     expect(other.body.intents).toEqual([])
   }, 20000)
+
+  // Mã 40 bit nên va chạm thật gần như không xảy ra trong test - giả lập lỗi P2002 của Prisma
+  // ở lần ghi để khoá vòng thử lại: trùng mã ⇒ thử mã KHÁC; hết 5 lần ⇒ 503 code_collision;
+  // lỗi khác ⇒ không nuốt, không thử lại.
+  describe('va chạm mã (P2002)', () => {
+    const p2002 = () => Object.assign(new Error('Unique constraint failed'), { code: 'P2002' })
+    afterEach(() => jest.restoreAllMocks())
+
+    test('trùng mã hai lần ⇒ thử lại với mã mới, vẫn 201', async () => {
+      const real = prisma.paymentIntent.create.bind(prisma.paymentIntent)
+      const codes: string[] = []
+      let n = 0
+      jest.spyOn(prisma.paymentIntent, 'create').mockImplementation(((args: {
+        data: { code: string }
+      }) => {
+        codes.push(args.data.code)
+        if (++n <= 2) return Promise.reject(p2002())
+        return real(args)
+      }) as never)
+      const r = await call('pay/create', MEMBER, { kind: 'donate_20k' })
+      expect(r.status).toBe(201)
+      expect(codes).toHaveLength(3)
+      expect(r.body.code).toBe(codes[2])
+      for (const c of codes) expect(c).toMatch(CODE_RE)
+    }, 20000)
+
+    test('trùng mã cả 5 lần ⇒ 503 code_collision, không để lại ý định nào', async () => {
+      const spy = jest
+        .spyOn(prisma.paymentIntent, 'create')
+        .mockImplementation((() => Promise.reject(p2002())) as never)
+      const r = await call('pay/create', MEMBER, { kind: 'pro_year' })
+      expect(r.status).toBe(503)
+      expect(r.body.error).toBe('code_collision')
+      expect(spy).toHaveBeenCalledTimes(5)
+      jest.restoreAllMocks()
+      expect(await prisma.paymentIntent.count({ where: { userId: await idOf(MEMBER) } })).toBe(0)
+    }, 20000)
+
+    test('lỗi KHÁC P2002 ⇒ không thử lại, không trả code_collision', async () => {
+      const spy = jest
+        .spyOn(prisma.paymentIntent, 'create')
+        .mockImplementation((() =>
+          Promise.reject(Object.assign(new Error('db down'), { code: 'P1001' }))) as never)
+      const r = await call('pay/create', MEMBER, { kind: 'pro_year' })
+      expect(r.status).toBeGreaterThanOrEqual(500)
+      expect(r.body.error).not.toBe('code_collision')
+      expect(spy).toHaveBeenCalledTimes(1)
+    }, 20000)
+  })
 })
 
 describe('OWNER xác nhận', () => {
