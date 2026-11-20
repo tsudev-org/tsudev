@@ -77,3 +77,5 @@
 - Không xoá dữ liệu trên thiết bị trong bất kỳ trường hợp nào.
 
 ## 5. Kết quả xử lý (mỗi phiên ghi một dòng)
+
+- 20/11/2026 tsudev-9d: PR #341 - kênh trạng thái (2.2, test 43/43), DPoP cnf.jkt (2.3), /pro chỉ 1 năm + nguyên văn 7.5, sync v4.0.0, ADR-0004. Migration 20261120140000 chờ chủ dự án chạy lên Neon trước merge. Còn: thư nhắc 2.4, băng nhắc 7 ngày + "Pro tới" trên web, B2 Play.
