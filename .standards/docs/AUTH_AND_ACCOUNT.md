@@ -1,4 +1,4 @@
-# XÁC THỰC VÀ KIẾN TRÚC TÀI KHOẢN - mọi project/tool/phần mềm tsudev (v3.1.0)
+# XÁC THỰC VÀ KIẾN TRÚC TÀI KHOẢN - mọi project/tool/phần mềm tsudev (v3.2.0)
 
 > Đăng nhập, đăng ký, liên kết nhà cung cấp, trạng thái tài khoản, và cơ chế
 > **Xác minh tài khoản**. Đây là chuẩn bắt buộc, không phải gợi ý.
@@ -13,7 +13,7 @@
 
 1. [Phạm vi và ba hạng sản phẩm](#1-phạm-vi-và-ba-hạng-sản-phẩm)
 2. [Kiến trúc danh tính của hệ sinh thái](#2-kiến-trúc-danh-tính-của-hệ-sinh-thái)
-3. [Ba lối vào bắt buộc](#3-ba-lối-vào-bắt-buộc)
+3. [Ba lối vào bắt buộc](#3-ba-lối-vào-bắt-buộc) (+ Apple có điều kiện, mục 3.2)
 4. [Luồng OIDC và OAuth](#4-luồng-oidc-và-oauth)
 5. [Gộp và liên kết tài khoản](#5-gộp-và-liên-kết-tài-khoản)
 6. [Đăng ký](#6-đăng-ký)
@@ -73,11 +73,11 @@ sinh thái là **một**, ở `tsudev.com` (mục 2).
 
 - `tsudev.com` là **Nhà cung cấp danh tính** (IdP) duy nhất của hệ sinh thái.
   Mọi project khác là **bên tin cậy** (Relying Party, RP).
-- Google và GitHub là **nhà cung cấp liên kết**: chúng nối vào IdP, **không** nối
+- Google, GitHub (và Apple, mục 3.2) là **nhà cung cấp liên kết**: chúng nối vào IdP, **không** nối
   thẳng vào từng project. Nhờ vậy một người dùng đăng nhập bằng Google ở
   `tsudev.com` và ở `tsudev-cwico` là **cùng một tài khoản**, cùng một trạng thái
   xác minh, cùng một hồ sơ.
-- `MUST NOT` khai báo OAuth app của Google/GitHub riêng cho từng project. Mỗi
+- `MUST NOT` khai báo OAuth app của Google/Apple/GitHub riêng cho từng project. Mỗi
   `client_id` thừa là một bề mặt tấn công thừa và một danh tính bị tách đôi.
 - Điểm cuối chuẩn `MUST` công bố tại
   `https://tsudev.com/.well-known/openid-configuration`. RP `MUST` đọc cấu hình
@@ -104,6 +104,7 @@ Mọi màn hình đăng nhập của hạng A và B `MUST` có đủ và **đún
 | Thứ tự | Lối vào | Ghi chú |
 | --- | --- | --- |
 | 1 | **Tiếp tục với Google** | Nút có logo Google chính chủ, nền trắng, viền `border-strong` |
+| (2) | **Tiếp tục với Apple** | Lối vào có điều kiện, mục 3.2. Nút theo Apple Human Interface Guidelines: logo Apple chính chủ, nền đen ở chế độ Sáng, nền trắng ở chế độ Tối, cùng cỡ với nút Google |
 | 2 | **Tiếp tục với GitHub** | Nút có logo GitHub chính chủ, nền đen ở chế độ Sáng, nền `bg-surface` viền sáng ở chế độ Tối |
 | 3 | **Tài khoản tsudev** | Email + mật khẩu; tài khoản đã đăng ký tại `tsudev.com` |
 
@@ -112,10 +113,11 @@ Mọi màn hình đăng nhập của hạng A và B `MUST` có đủ và **đún
 - `MUST` ghi nhớ lối vào lần trước và đánh dấu "Lần trước bạn dùng cách này" -
   đây là biện pháp chống việc người dùng vô tình tạo tài khoản thứ hai, hiệu quả
   hơn mọi lời cảnh báo.
-- `MUST NOT` bắt buộc liên kết Google/GitHub. Tài khoản tsudev thuần email luôn
+- `MUST NOT` bắt buộc liên kết Google/Apple/GitHub. Tài khoản tsudev thuần email luôn
   `MUST` là lối vào đủ dùng.
-- `MUST NOT` thêm nhà cung cấp thứ tư (Facebook, X, Zalo, ...) mà không có đề xuất
-  được duyệt theo [`SYNC.md`](SYNC.md) và cập nhật chính tài liệu này.
+- `MUST NOT` thêm nhà cung cấp khác (Facebook, X, Zalo, ...) ngoài Google, Apple
+  (mục 3.2), GitHub mà không có đề xuất được duyệt theo [`SYNC.md`](SYNC.md) và cập
+  nhật chính tài liệu này.
 
 ### 3.1. Phạm vi quyền xin của nhà cung cấp liên kết
 
@@ -125,10 +127,50 @@ vụ bảo mật thừa.
 | Nhà cung cấp | Phạm vi được phép | Cấm |
 | --- | --- | --- |
 | Google | `openid`, `email`, `profile` | `MUST NOT` xin Drive, Calendar, Contacts |
+| Apple | `name`, `email` | Không có phạm vi rộng hơn; `MUST NOT` yêu cầu người dùng bỏ ẩn email |
 | GitHub | `read:user`, `user:email` | `MUST NOT` xin `repo`, `admin:*`, `write:*` |
 
 Cần quyền rộng hơn cho một tính năng cụ thể thì `MUST` xin **tăng dần** ngay tại
 lúc dùng tính năng đó, không gộp vào lúc đăng nhập.
+
+### 3.2. Đăng nhập với Apple - lối vào có điều kiện (từ v3.2.0)
+
+Lý do: App Store Review Guideline 4.8 - app iOS có đăng nhập bên thứ ba (Google)
+phải kèm "Sign in with Apple" hoặc một lối đăng nhập tương đương về quyền riêng
+tư; người dùng iPhone/Mac quen Apple ID và được ẩn email thật.
+
+| Sản phẩm | Mức |
+| --- | --- |
+| Có bản phát hành qua **App Store** (iOS, iPadOS, macOS) | `MUST` - trên mọi nền tảng của sản phẩm đó, kể cả web, để tài khoản tạo trên iPhone đăng nhập được ở nơi khác |
+| Còn lại (web, Android, Windows, Linux) | `MAY` - bật khi IdP `tsudev.com` đã có Apple |
+
+- Apple cần **Apple Developer Program (99 USD/năm)** cho Services ID và khóa `.p8`.
+  Theo [`FREE_TIER_STACK.md`](FREE_TIER_STACK.md), chỉ trả khi chủ dự án quyết phát
+  hành App Store (lúc đó phí này đã bắt buộc); `MUST NOT` mua riêng chỉ để có nút
+  Apple trên web.
+- IdP chưa cấu hình Apple thì `MUST NOT` hiện nút Apple (nút chết tệ hơn không có nút).
+  Danh sách nhà cung cấp `MUST` lấy từ IdP, không gõ cứng ở RP.
+- Một IdP duy nhất: Apple cấu hình **chỉ ở `tsudev.com`** (mục 2), RP gọi qua
+  `idp_hint=apple`. `MUST NOT` mỗi sản phẩm tự đăng ký Services ID riêng.
+- Bẫy kỹ thuật `MUST` xử lý:
+  - Xin `name email` thì Apple trả về bằng `response_mode=form_post` - callback là
+    **POST liên trang**. Cookie `SameSite=Lax` không đi kèm, nên `state`/`nonce`/PKCE
+    `MUST` lưu phía máy chủ theo khóa `state`, hoặc cookie riêng `SameSite=None; Secure;
+    HttpOnly` sống tối đa 10 phút.
+  - Apple chỉ gửi **tên** ở lần ủy quyền đầu tiên (trong thân POST, không trong
+    `id_token`) ⇒ `MUST` lưu ngay lần đó; thiếu tên thì hỏi người dùng, không chặn.
+  - `client_secret` là JWT ký ES256 bằng khóa `.p8`, hạn tối đa 6 tháng ⇒ `MUST` tự
+    sinh lại theo lịch (vd. mỗi 30 ngày); khóa `.p8` là secret theo
+    [`SECURITY_BASELINE.md`](SECURITY_BASELINE.md).
+  - `email_verified` / `is_private_email` có thể là chuỗi `"true"` hoặc boolean ⇒
+    chuẩn hoá trước khi so.
+  - Xoá tài khoản (mục 12) `MUST` gọi `https://appleid.apple.com/auth/revoke` thu
+    hồi token Apple (Guideline 5.1.1(v)); `MUST` nhận thông báo máy chủ tới máy chủ
+    của Apple (`consent-revoked`, `account-delete`, `email-disabled`/`email-enabled`)
+    và gỡ liên kết / cập nhật email tương ứng.
+  - Email ẩn `@privaterelay.appleid.com` chỉ nhận thư từ tên miền gửi **đã đăng ký**
+    ở mục "Sign in with Apple for Email Communication" của Apple Developer, kèm SPF
+    và DKIM. Chưa đăng ký thì thư xác minh, thư thông báo (mục 5, 8) bị trả lại im lặng.
 
 ---
 
@@ -168,7 +210,11 @@ lúc dùng tính năng đó, không gộp vào lúc đăng nhập.
   Bỏ bước này là lỗ hổng **chiếm tài khoản trước khi nạn nhân đăng ký**: kẻ tấn
   công tạo tài khoản ở nhà cung cấp bên thứ ba bằng email của nạn nhân, đăng nhập
   vào hệ thống trước, rồi ngồi đợi.
-- Tài khoản tsudev thuần email muốn nối thêm Google/GitHub: `MUST` yêu cầu người
+- Apple: email thật trả về với `email_verified` đúng thì gộp như Google. Email ẩn
+  `@privaterelay.appleid.com` coi là **đã xác minh** (Apple chuyển tiếp được thư)
+  nhưng không bao giờ trùng email thật, nên `MUST NOT` đoán gộp theo tên hay thiết
+  bị; người dùng muốn nối thì tự liên kết ở `/tai-khoan/bao-mat` khi đang đăng nhập.
+- Tài khoản tsudev thuần email muốn nối thêm Google/Apple/GitHub: `MUST` yêu cầu người
   dùng **đang đăng nhập** rồi mới nối, ở trang Bảo mật của hồ sơ.
 - `MUST` cho phép **gỡ liên kết**, nhưng `MUST NOT` cho gỡ lối vào cuối cùng. Còn
   đúng một cách vào tài khoản thì nút gỡ `MUST` bị vô hiệu kèm giải thích: "Đặt
@@ -235,9 +281,9 @@ Mục tiêu: người dùng luôn biết **tài khoản mình đang ở trạng 
 | Trạng thái | Điều kiện đạt |
 | --- | --- |
 | **Chưa xác minh** | Mới đăng ký, hoặc vừa đổi email chính và chưa xác nhận địa chỉ mới |
-| **Đã xác minh** | Đã bấm liên kết xác minh còn hạn, hoặc đăng nhập bằng Google/GitHub trả về `email_verified: true` |
+| **Đã xác minh** | Đã bấm liên kết xác minh còn hạn, hoặc đăng nhập bằng Google/Apple/GitHub trả về `email_verified: true` |
 
-Đăng nhập bằng Google hoặc GitHub với email đã xác minh phía nhà cung cấp thì
+Đăng nhập bằng Google, Apple hoặc GitHub với email đã xác minh phía nhà cung cấp thì
 `MUST` đánh dấu **Đã xác minh** ngay, `MUST NOT` bắt xác minh lại. Bắt người dùng
 làm lại việc đã làm là cách nhanh nhất khiến họ bỏ đi.
 
@@ -444,7 +490,7 @@ kiện để chia sẻ liên kết giữa các sản phẩm mà không hỏng.
 /xac-minh/xac-nhan             đích của liên kết trong email
 /tai-khoan                     tổng quan tài khoản
 /tai-khoan/ho-so               hồ sơ cá nhân, ảnh đại diện
-/tai-khoan/bao-mat             mật khẩu, 2FA, liên kết Google/GitHub
+/tai-khoan/bao-mat             mật khẩu, 2FA, liên kết Google/Apple/GitHub
 /tai-khoan/phien               thiết bị và phiên đang đăng nhập
 /tai-khoan/du-lieu             xuất dữ liệu, xóa tài khoản
 ```
@@ -462,6 +508,7 @@ kiện để chia sẻ liên kết giữa các sản phẩm mà không hỏng.
 |          Chưa có tài khoản? Đăng ký ngay          |  14px, liên kết
 |                                                   |
 |  [ (G)  Tiếp tục với Google              ]        |  cao 40px, full width
+|  [ (A)  Tiếp tục với Apple               ]        |  chỉ khi mục 3.2 áp dụng
 |  [ (GH) Tiếp tục với GitHub              ]        |  cao 40px, full width
 |                                                   |
 |  ------------------ hoặc ------------------       |  12px, text-muted
@@ -572,8 +619,11 @@ POST   /api/v1/auth/register            đăng ký bằng email
 POST   /api/v1/auth/login               đăng nhập bằng email
 POST   /api/v1/auth/logout              thu hồi phiên hiện tại
 POST   /api/v1/auth/refresh             xoay vòng token
-GET    /api/v1/auth/providers/{p}       bắt đầu luồng OIDC (p = google|github)
+GET    /api/v1/auth/providers           nhà cung cấp IdP đang bật (RP dựng nút từ đây)
+GET    /api/v1/auth/providers/{p}       bắt đầu luồng OIDC (p = google|apple|github)
 GET    /api/v1/auth/providers/{p}/callback
+POST   /api/v1/auth/providers/apple/callback   Apple form_post (mục 3.2)
+POST   /api/v1/auth/providers/apple/notifications   thông báo máy chủ tới máy chủ của Apple
 POST   /api/v1/auth/verify/resend       gửi lại thư xác minh
 POST   /api/v1/auth/verify/confirm      xác nhận token xác minh
 POST   /api/v1/auth/password/forgot     yêu cầu đặt lại
@@ -641,13 +691,17 @@ danh sách đầy đủ.
 14. Toàn bộ luồng đăng nhập đi hết được chỉ bằng bàn phím.
 15. Mã cài đặt (mục 14.3): sinh một lần, đủ 128 bit, không gửi khi chưa đăng
     nhập; máy chủ chỉ lưu HMAC; người dùng A không đọc được số thiết bị của B.
+16. Apple (khi mục 3.2 áp dụng): callback `form_post` khớp `state` dù không có
+    cookie `SameSite=Lax`; email `@privaterelay.appleid.com` không gộp tự động vào
+    tài khoản có sẵn; thông báo `account-delete` gỡ liên kết; xoá tài khoản gọi
+    `auth/revoke`.
 
 ---
 
 ## 17. Checklist nghiệm thu
 
 - [ ] Đã ghi hạng sản phẩm (A/B/C) vào `README.md`.
-- [ ] Ba lối vào đủ và đúng thứ tự (hạng A, B).
+- [ ] Ba lối vào đủ và đúng thứ tự (hạng A, B); có Apple nếu phát hành App Store (mục 3.2).
 - [ ] Authorization Code + PKCE, có `state` và `nonce`, `redirect_uri` khớp tuyệt đối.
 - [ ] Gộp tài khoản chỉ khi `email_verified` đúng.
 - [ ] Không lộ tài khoản có tồn tại hay không, ở cả ba luồng.
@@ -660,7 +714,7 @@ danh sách đầy đủ.
 - [ ] Hạng C chạy đủ chức năng lõi ở chế độ khách, không gọi mạng ngầm.
 - [ ] Token ngoại tuyến nằm trong kho bí mật của hệ điều hành.
 - [ ] Mã cài đặt ngẫu nhiên 128 bit, không dùng định danh phần cứng (mục 14.3).
-- [ ] Đủ 15 ca kiểm thử ở mục 16.
+- [ ] Đủ các ca kiểm thử ở mục 16 (ca 16 khi bật Apple).
 - [ ] Đường dẫn đúng mục 13.1.
 - [ ] `./scripts/check-standards.sh` đạt.
 

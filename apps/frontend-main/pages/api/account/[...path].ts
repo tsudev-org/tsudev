@@ -52,6 +52,10 @@ const ALLOWED = new Set([
   'passkey/register-verify',
   'passkey/list',
   'passkey/delete',
+  // STD43: tài khoản liên kết. `oauth/link` CỐ Ý không có ở đây - chỉ callback OAuth của
+  // next-auth gọi (sau khi nhà cung cấp xác thực), trình duyệt không được tự khai id.
+  'oauth/list',
+  'oauth/unlink',
   // Quản lý tài khoản & phân quyền - auth-service tự kiểm OWNER (đọc User.role
   // từ DB, không từ claim). Tên hai đoạn vì proxy chặn path quá 2 đoạn.
   'useradmin/list',

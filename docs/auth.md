@@ -197,6 +197,21 @@ host của database trước khi ghi**; đọc dòng đó.
 Mật khẩu truyền qua **biến môi trường**, không phải tham số dòng lệnh: tham số
 nằm trong `ps` và trong lịch sử shell.
 
+### Liên kết Google/GitHub và danh sách nhà cung cấp (STD43, 21/11/2026)
+
+- `GET /api/v1/auth/providers` (công khai, CORS `*`, cache 300s) trả `{ providers: [{ id, name, idp_hint }] }`
+  - CHÍNH mảng provider của NextAuth (`lib/idpProviders.ts`), nên chỉ nhà cung cấp đã đủ biến mới hiện. RP dựng
+    nút từ đây rồi gửi `idp_hint` vào `/oidc/auth` (bộ quy ước v4.3.0 `AUTH_AND_ACCOUNT.md` mục 3.2 + 15). Tập
+    `idp_hint` phải khớp ba nơi (`lib/idpProviders.ts`, `IDP_HINTS` ở auth-service, trang `/oidc/interaction`) -
+    `test/idpProviders.test.ts` canh. Apple chưa bật: chỉ làm khi chủ dự án quyết phát hành App Store.
+- `/settings/security` mục "Tài khoản liên kết": liên kết KHÁC email được, vì callback OAuth gắn vào PHIÊN HIỆN
+  TẠI khi có cookie ý định `tsu-link-intent` (HMAC bằng `NEXTAUTH_SECRET`, 10 phút, `Path=/api/auth`, do
+  `POST /api/account-link` đặt) VÀ username trong cookie trùng phiên. Thiếu một điều kiện ⇒ luồng đăng nhập thường.
+  Callback trả URL chuyển hướng nên phiên KHÔNG đổi.
+- auth-service: `oauth/list` · `oauth/unlink` (step-up nếu có TOTP; từ chối gỡ lối vào cuối cùng - không mật khẩu,
+  không passkey, không liên kết khác) · `oauth/link` (CHỈ BFF gọi từ callback; KHÔNG có trong `ALLOWED` của proxy
+  `/api/account`). Cặp đã thuộc người khác ⇒ 409 `oauth_linked_elsewhere`, không bao giờ chuyển chủ.
+
 ## 6. Xác thực tài khoản theo NĐ 147/2024 - vì sao KHÔNG thu số điện thoại
 
 Quyết định 05/11/2026 (chủ dự án giao agent chọn phương án): tài khoản xác thực

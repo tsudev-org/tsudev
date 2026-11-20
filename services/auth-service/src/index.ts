@@ -177,6 +177,7 @@ const SENSITIVE = [
   '/api/identity/totp/disable',
   '/api/identity/totp/backup-codes',
   '/api/identity/passkey/delete',
+  '/api/identity/oauth/unlink',
   '/api/identity/step-up',
   '/api/identity/verify/code/confirm',
   '/api/identity/verify/code/send',
@@ -1380,6 +1381,105 @@ app.post(
       sendAlert(user, 'Một passkey vừa bị gỡ khỏi tài khoản')
     }
     return res.json({ ok: gone.count === 1 })
+  })
+)
+
+// ---------------------------------------------------------------------------
+// Tài khoản liên kết (STD43, AUTH_AND_ACCOUNT mục 15 `GET/DELETE /me/identities`)
+//
+// `oauth/upsert` chỉ liên kết được khi email bên thứ ba TRÙNG email tài khoản và đã xác
+// minh. Ba route dưới đây cho chính chủ xem, CHỦ ĐỘNG liên kết (kể cả khác email) và gỡ.
+//
+// `oauth/link` KHÔNG mở qua proxy /api/account: chỉ BFF gọi, từ callback OAuth của
+// next-auth, sau khi (1) nhà cung cấp đã xác thực `providerAccountId` và (2) cookie ý định
+// liên kết ký bằng NEXTAUTH_SECRET khớp đúng người đang đăng nhập (lib/linkIntent.ts).
+// ---------------------------------------------------------------------------
+app.use('/api/identity/oauth/list', auth)
+app.use('/api/identity/oauth/link', auth)
+app.use('/api/identity/oauth/unlink', auth)
+
+app.post(
+  '/api/identity/oauth/list',
+  asyncHandler(async (req, res) => {
+    const user = await lookupUser(req)
+    if (!user) return res.status(401).json({ error: 'unauthenticated' })
+    const [accounts, passkeys] = await Promise.all([
+      prisma.oAuthAccount.findMany({
+        where: { userId: user.id },
+        // KHÔNG trả providerAccountId: định danh ổn định ở bên thứ ba, không cần cho giao diện.
+        select: { provider: true, createdAt: true },
+        orderBy: { createdAt: 'asc' },
+      }),
+      prisma.webAuthnCredential.count({ where: { userId: user.id } }),
+    ])
+    return res.json({ accounts, hasPassword: !!user.passwordHash, passkeys })
+  })
+)
+
+app.post(
+  '/api/identity/oauth/link',
+  asyncHandler(async (req, res) => {
+    const user = await lookupUser(req)
+    if (!user) return res.status(401).json({ error: 'unauthenticated' })
+    const provider = str(req.body?.provider, 20)
+    const providerAccountId = str(req.body?.providerAccountId, 200)
+    if (!OAUTH_PROVIDERS.has(provider) || !providerAccountId) {
+      return res.status(400).json({ error: 'invalid_request' })
+    }
+    const existing = await prisma.oAuthAccount.findUnique({
+      where: { provider_providerAccountId: { provider, providerAccountId } },
+      select: { userId: true },
+    })
+    if (existing) {
+      // Đã thuộc chính mình ⇒ idempotent. Thuộc người khác ⇒ từ chối, KHÔNG chuyển chủ:
+      // chuyển là cho người đang đăng nhập cướp lối vào của tài khoản kia.
+      return existing.userId === user.id
+        ? res.json({ ok: true, provider })
+        : res.status(409).json({ error: 'oauth_linked_elsewhere' })
+    }
+    // Mỗi nhà cung cấp tối đa MỘT liên kết/tài khoản: hai GitHub trên một tài khoản chỉ
+    // làm trang Bảo mật khó hiểu và nhân đôi lối vào phải canh.
+    const same = await prisma.oAuthAccount.count({ where: { userId: user.id, provider } })
+    if (same > 0) return res.status(409).json({ error: 'oauth_provider_already_linked' })
+    try {
+      await prisma.oAuthAccount.create({ data: { provider, providerAccountId, userId: user.id } })
+    } catch (e) {
+      if ((e as { code?: string })?.code !== 'P2002') throw e
+      return res.status(409).json({ error: 'oauth_linked_elsewhere' })
+    }
+    logSecurity(user.id, 'oauth_linked', req, { note: provider })
+    sendAlert(user, 'Một tài khoản đăng nhập bên thứ ba vừa được liên kết')
+    return res.json({ ok: true, provider })
+  })
+)
+
+app.post(
+  '/api/identity/oauth/unlink',
+  asyncHandler(async (req, res) => {
+    const user = await lookupUser(req)
+    if (!user) return res.status(401).json({ error: 'unauthenticated' })
+    const provider = str(req.body?.provider, 20)
+    if (!OAUTH_PROVIDERS.has(provider)) return res.status(400).json({ error: 'invalid_request' })
+    if (!(await stepUpIfTotp(req, res, user))) return
+    const [mine, passkeys] = await Promise.all([
+      prisma.oAuthAccount.findMany({ where: { userId: user.id }, select: { provider: true } }),
+      prisma.webAuthnCredential.count({ where: { userId: user.id } }),
+    ])
+    if (!mine.some((a) => a.provider === provider)) {
+      return res.status(404).json({ error: 'not_linked' })
+    }
+    // Không được gỡ LỐI VÀO CUỐI CÙNG: thiếu mật khẩu, passkey và liên kết khác thì người
+    // dùng tự khoá mình ngoài tài khoản (đặt lại mật khẩu cứu được nhưng là lối vòng).
+    const others = mine.filter((a) => a.provider !== provider).length
+    if (!user.passwordHash && passkeys === 0 && others === 0) {
+      return res.status(409).json({ error: 'last_login_method' })
+    }
+    const gone = await prisma.oAuthAccount.deleteMany({ where: { userId: user.id, provider } })
+    if (gone.count > 0) {
+      logSecurity(user.id, 'oauth_unlinked', req, { note: provider })
+      sendAlert(user, 'Một tài khoản đăng nhập bên thứ ba vừa bị gỡ liên kết')
+    }
+    return res.json({ ok: gone.count > 0 })
   })
 )
 
