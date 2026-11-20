@@ -1,4 +1,4 @@
-# NỘP DUYỆT CỬA HÀNG VÀ NỀN TẢNG - QUY TRÌNH AGENT ĐIỀN BIỂU MẪU (v1.0.0)
+# NỘP DUYỆT CỬA HÀNG VÀ NỀN TẢNG - QUY TRÌNH AGENT ĐIỀN BIỂU MẪU (v1.2.0)
 
 > Quyết định chủ dự án 19/11/2026: agent của từng dự án `MUST` có quy trình **đề xuất chủ dự án mở một phiên riêng**
 > trong đó agent **tự mở trình duyệt và tự điền** từng trường của các biểu mẫu nộp duyệt (Google Play Console,
@@ -12,6 +12,21 @@
   **hồ sơ không có lý do bị từ chối đã biết**: đủ trường, khớp với hành vi thật của app, khớp giữa các kênh, đúng chính
   sách tại ngày nộp (mục 3 - kiểm trước khi nộp).
 - Chính sách nền tảng đổi nhanh. Phiên nộp `MUST` đọc lại trang chính sách chính thức và ghi ngày đối chiếu vào hồ sơ.
+
+## 0.1. Điền với tư cách chủ dự án, không ghi "do AI thực hiện" (MUST - chủ dự án 20/11/2026)
+
+Mọi sản phẩm trong hệ TsuDEV do **chủ dự án xây dựng, sở hữu và chịu trách nhiệm**; agent chỉ là công cụ thao tác thay.
+Vì vậy trong mọi biểu mẫu, hồ sơ, mô tả cửa hàng, ghi chú phát hành:
+
+- Người khai / tác giả / nhà phát triển / người liên hệ là **chủ dự án** (lấy từ `docs/store/IDENTITY.md`). Agent điền
+  như chính chủ dự án tự điền.
+- `MUST NOT` tự thêm câu chữ kiểu "do AI thực hiện", "AI-generated", "viết bởi Claude/agent" vào nội dung hồ sơ, mô tả,
+  ảnh, ghi chú phát hành; `MUST NOT` chọn lựa chọn kiểu "Biểu mẫu này do AI/công cụ tự động điền" khi người chịu trách
+  nhiệm và người bấm gửi là chủ dự án (mục 2 bước 5).
+- Câu hỏi về **tính năng thật của app** (ví dụ app có tính năng AI tạo sinh, có tạo nội dung bằng AI cho người dùng
+  không - chính sách nội dung do AI tạo của Google Play) thì trả lời **đúng hành vi thật của bản nộp**, đối chiếu mã như
+  mọi trường khác (mục 0, mục 3). App không có tính năng đó ⇒ "Không", và có mã làm nguồn. Khai sai về tính năng là lý do
+  bị gỡ app, ngược với mục tiêu được duyệt; không chắc ⇒ dừng, hỏi 👤.
 
 ## 1. Khi nào agent đề xuất mở phiên nộp duyệt
 
@@ -32,10 +47,39 @@ khởi động ở docs/store/<kenh>.md mục "Khởi động". Chuẩn bị: đ
 nhận mã 2FA. Agent sẽ tự điền mọi trường; bạn chỉ đăng nhập và bấm nút gửi cuối cùng.
 ```
 
+## 1.1. Sổ định danh - một nguồn cho mọi biểu mẫu (MUST)
+
+Nguyên nhân bị từ chối/treo hồ sơ phổ biến nhất là **giá trị lệch giữa các kênh** (tên khác nhau giữa Play và Store,
+package name không khớp chứng chỉ, URL chính sách quyền riêng tư khác nhau, email hỗ trợ khác). Mỗi repo phát hành
+`MUST` có `docs/store/IDENTITY.md` - mọi tệp `docs/store/<kenh>.md` CHỈ lấy giá trị từ đây:
+
+| Khoá | Quy tắc | Ví dụ (Quly Thu Chi) |
+| --- | --- | --- |
+| Tên hiển thị vi / en | Theo phiếu tên gọi riêng `20261119-TC1`; ≤ 30 ký tự (giới hạn Play); không chứa tên nhãn hiệu người khác | `Quly Thu Chi` |
+| Mô tả ngắn vi / en | ≤ 80 ký tự, không từ ngữ quảng cáo ("số 1", "tốt nhất") | |
+| Android `applicationId` | `com.tsudev.<ma>` - chữ thường, không gạch nối; **không bao giờ đổi** sau lần nộp đầu | `com.tsudev.qulythuchi` |
+| iOS / macOS bundle ID | trùng `applicationId` | |
+| MSIX Identity Name / Publisher display | `tsudev.<Ma>` / `TsuDEV` (Partner Center cấp Publisher CN - chép đúng) | |
+| winget `PackageIdentifier` | `tsudev.<Ma>` (giữ id cũ đã công bố, ví dụ `tsudev.SWICO`) | |
+| Scoop / Homebrew / APT tên gói | `tsu<ma>` hoặc tên đã công bố trong `PACKAGING.md` | |
+| Trang chủ / chính sách quyền riêng tư / điều khoản | `https://<x>.tsudev.com`, `https://tsudev.com/privacy/<ma>`, `https://tsudev.com/terms` | |
+| Email hỗ trợ công khai | hộp thư chung của hệ (không email cá nhân) | |
+| Danh mục, xếp hạng nội dung (đáp án IARC), đối tượng | chọn một lần, dùng cho mọi cửa hàng | |
+| Tờ khai dữ liệu | sinh từ bảng dữ liệu thật trong `docs/threat-model.md` / mã (SDK, quyền) | |
+| Thanh toán | `tsudev_pro` gói `nam`; `ung_ho_20k` … `ung_ho_200k` (`PRODUCT_POLICY.md` 7.4) | |
+
+Phiên nộp `MUST` chạy kiểm chéo trước khi điền: mọi giá trị trong `docs/store/*.md` khớp `IDENTITY.md`, khớp mã
+(`applicationId` trong Gradle, `Identity` trong `Package.appxmanifest`, manifest winget) và khớp trang web công khai.
+Lệch ⇒ sửa nguồn rồi mới điền.
+
 ## 2. Quy trình trong phiên nộp duyệt
 
 **Công cụ:** trình duyệt do agent điều khiển được (tiện ích Claude in Chrome, hoặc Playwright/Chrome DevTools MCP chạy
-hồ sơ trình duyệt riêng). Phiên nộp chạy **một kênh, một sản phẩm** để vừa ngữ cảnh.
+hồ sơ trình duyệt riêng). Trên máy Windows + WSL của tsudev, trình duyệt mặc định cho phiên nộp là
+**Microsoft Edge** với **hồ sơ riêng** (`--user-data-dir` trỏ thư mục `tsudev-edge-nop-duyet`, không dùng hồ sơ cá
+nhân của 👤): agent mở Edge có cổng gỡ lỗi từ xa và điều khiển bằng Playwright `connectOverCDP` (hoặc Playwright
+`channel: "msedge"`). Cách nối đã kiểm chứng (cổng, chế độ mạng WSL) ghi vào AKB `dieu-phoi` ngay phiên đầu tiên làm
+được, các phiên sau `akb search "edge cdp"`. Phiên nộp chạy **một kênh, một sản phẩm** để vừa ngữ cảnh.
 
 1. **Chuẩn bị (trước khi mở trình duyệt):** agent dựng/cập nhật tệp hồ sơ `docs/store/<kenh>.md` trong repo - mỗi
    trường của biểu mẫu một dòng: tên trường đúng như trên trang, giá trị sẽ điền, nguồn (tệp/mã trong repo chứng minh
@@ -52,6 +96,15 @@ hồ sơ trình duyệt riêng). Phiên nộp chạy **một kênh, một sản 
 6. **Ghi lại:** ngày nộp, mã hồ sơ/phiên bản, trạng thái vào `logs/store/<kenh>.md`; lý do từ chối (nếu có) chép
    nguyên văn + cách sửa, để phiên sau không lặp lỗi.
 
+**Tệp hồ sơ `docs/store/<kenh>.md`** - bảng một dòng mỗi trường:
+
+```
+| Trang / modal | Tên trường (đúng chữ trên trang) | Giá trị | Nguồn (IDENTITY.md / tệp mã / URL) | Giới hạn | Ngày đối chiếu chính sách |
+```
+
+Lý do từ chối nhận được ⇒ chép nguyên văn vào `logs/store/<kenh>.md` VÀ tạo `ISS` trong AKB (tag `store-submission`)
+để mọi dự án khác tránh được lỗi đó.
+
 ## 3. Kiểm trước khi nộp (mọi kênh)
 
 - [ ] Tên, mô tả, ảnh khớp với app thật; không hứa tính năng chưa có; không dùng nhãn hiệu người khác trong tên/ảnh.
@@ -61,6 +114,8 @@ hồ sơ trình duyệt riêng). Phiên nộp chạy **một kênh, một sản 
 - [ ] App chạy được không cần tài khoản, hoặc có tài khoản thử cho người duyệt (ghi ở trường "Quyền truy cập app").
 - [ ] Phiên bản, tên tệp, chữ ký đúng `VERSIONING.md` và `DISTRIBUTION_TRUST.md`.
 - [ ] Ngôn ngữ hồ sơ: tiếng Việt + tiếng Anh (cùng nội dung).
+- [ ] Không có câu chữ/lựa chọn "do AI thực hiện"; người khai là chủ dự án; câu hỏi về tính năng AI của app trả lời
+      đúng mã (mục 0.1).
 
 ## 4. Từng kênh
 
@@ -103,6 +158,8 @@ từ bây giờ.
 | SignPath Foundation - đơn xin ký mã nguồn mở | Repo đạt ngưỡng uy tín |
 | Flathub - PR thêm ứng dụng + xác minh tên miền | App Linux có giao diện |
 | winget-pkgs / Scoop / Homebrew | Tự động bằng CI - không cần phiên trình duyệt |
+| OpenSSF Best Practices (bestpractices.dev) | Mọi repo Public: agent điền từng tiêu chí "passing" kèm URL bằng chứng trong repo; 👤 đăng nhập bằng GitHub |
+| Google Search Console / Bing - xác minh tên miền | Một lần cho `tsudev.com` (thuộc tính Domain, DNS TXT qua API Cloudflare); sản phẩm tên miền riêng làm riêng |
 
 ## 5. An toàn của phiên trình duyệt
 
