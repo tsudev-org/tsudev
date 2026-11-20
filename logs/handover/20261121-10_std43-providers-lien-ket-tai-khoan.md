@@ -23,6 +23,15 @@
    RustCrypto (`chacha20poly1305`, `argon2`) - khác mẫu tsusync (libsodium). Thư mục làm việc `~/projects/tsuscan`
    đang ở nhánh `feat/p6-camera` có thay đổi chưa commit (PR tsuscan#9) - không đụng.
 
+4. **Sự cố 429 ở `/oidc/*`** (20:46-20:48 UTC 20/11, qulythuchi-5d báo): Worker → `tsudev-backend.onrender.com`
+   bị lớp Cloudflare trước Render trả 429 "Just a moment..." (gọi thẳng Render cùng lúc 200; Render deploy xong
+   20:30 ⇒ không trùng deploy). Tự hết sau ~2 phút. Vá giảm thiểu #353 (`f0f42a2`, `deploy-2026.11.21.3` Worker
+   `c63a04fc`): proxy đệm discovery + JWKS (mới 5 phút, bản cũ tới 24 giờ khi upstream 429/5xx), không có bản cũ ⇒
+   503 JSON + `Retry-After`. `/oidc/auth`, `/oidc/token` vẫn phụ thuộc Render - RP cần thử lại có backoff.
+   AKB `dieu-phoi#ISS-20261120-1459-46b8` ⇒ workaround. Đã báo qulythuchi-5d đo lại.
+   - Bẫy nhỏ: bản dựng sửa `apps/frontend-main/next-env.d.ts` ⇒ `deploy-frontend.js` bỏ gắn thẻ; `git checkout` tệp
+     đó rồi `node scripts/release-tag.js --from-deploy`.
+
 ## 2. Chưa kiểm được / việc 👤
 
 - Liên kết đầu-cuối thật trên production (bấm "Liên kết GitHub" bằng tài khoản thật) CHƯA thử - cần đăng nhập tài
