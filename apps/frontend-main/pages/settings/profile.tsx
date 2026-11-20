@@ -5,6 +5,7 @@ import { emailGraceRemainingMs } from '@tsudev/types';
 
 import Seo from '../../components/Seo';
 import { Notice } from '../../components/AuthShell';
+import { ProRenewalBannerAuto } from '../../components/ProRenewalBanner';
 import { useLoader } from '../../lib/useLoader';
 import { useStepUp } from '../../components/StepUpDialog';
 
@@ -345,6 +346,8 @@ export default function ProfilePage() {
           Tên hiển thị và giới thiệu là thông tin CÔNG KHAI - chúng xuất hiện dưới mỗi bài viết bạn
           đăng.
         </p>
+
+        <ProRenewalBannerAuto enabled={status === 'authenticated'} />
 
         {msg && (
           <div className="mt-4">

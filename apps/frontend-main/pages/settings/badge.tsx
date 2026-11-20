@@ -4,6 +4,7 @@ import { Badge, Button, Layout, TsuBadge, writeBadgeCache } from '@tsudev/ui';
 import type { BadgeTone } from '@tsudev/ui';
 import Seo from '../../components/Seo';
 import { Notice } from '../../components/AuthShell';
+import ProRenewalBanner from '../../components/ProRenewalBanner';
 import { useLoader } from '../../lib/useLoader';
 import { formatDateTimeVN, formatDateVN } from '../../lib/format';
 import { PLAN_LABEL, STATUS_LABEL, payCall, payErr, previewBadge, vnd } from '../../lib/pay';
@@ -117,6 +118,8 @@ export default function BadgeSettings() {
           </div>
         )}
 
+        <ProRenewalBanner proUntil={me?.proUntil} />
+
         <section
           className="mt-6 rounded-lg border border-line bg-surface p-5"
           aria-labelledby="trang-thai"
@@ -131,7 +134,7 @@ export default function BadgeSettings() {
               <dt className="text-fg-secondary">TsuDEV Pro</dt>
               <dd className="text-fg">
                 {pro ? (
-                  <>Còn hạn tới {formatDateVN(me.proUntil)}</>
+                  <>Pro tới {formatDateVN(me.proUntil)}</>
                 ) : me.proUntil ? (
                   <>Đã hết hạn ngày {formatDateVN(me.proUntil)}</>
                 ) : (
