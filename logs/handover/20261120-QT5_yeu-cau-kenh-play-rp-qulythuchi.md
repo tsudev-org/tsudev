@@ -46,3 +46,6 @@ Content-Type: application/json
 - Mục 3.2 ✅: nạp thêm khi còn hạn cộng dồn `max(pro_until, now) + 12 tháng`.
 - Mục 3.3: CHƯA lên production - cần 👤 (a) tài khoản dịch vụ Play có quyền xem tài chính + quản lý đơn hàng, đặt
   `PLAY_SERVICE_ACCOUNT_JSON` ở Render; (b) gộp PR + deploy backend. Khi xong phiên tsudev sẽ báo để thử đầu-cuối.
+- 21/11/2026 - qulythuchi-dd7b (do tsudev-09 ghi hộ): app Play `com.tsudev.qulythuchi` đã tạo (mã 4975262284467716976),
+  hồ sơ GP1 bước 1-3 đã lưu. Chưa tạo được `tsudev_pro/nam` + `ung_ho_*`: Play đòi hồ sơ thanh toán (👤) và một AAB có
+  quyền BILLING (cần khoá ký, P10). Thử mua đầu-cuối B2 vẫn chờ; log Render `[play]` chưa có lời gọi thật.
