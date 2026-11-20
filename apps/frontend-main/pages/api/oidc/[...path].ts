@@ -4,6 +4,12 @@ import { MAIN_URL } from '@tsudev/ui';
 
 import { IDENTITY } from '../../../lib/services';
 import { upstreamPath } from '../../../lib/identity';
+import {
+  CACHEABLE_PATHS,
+  getCached,
+  isTransientUpstream,
+  putCached,
+} from '../../../lib/oidcPublicCache';
 
 /**
  * P4 OIDC: `https://tsudev.com/oidc/*` (issuer) → auth-service `/oidc/*` trên Render.
@@ -68,6 +74,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch {
     return res.status(413).json({ error: 'Thân request quá lớn' });
   }
+  // Discovery + JWKS: phục vụ từ bộ đệm isolate khi còn mới (lib/oidcPublicCache.ts).
+  const cacheable = req.method === 'GET' && !qs && CACHEABLE_PATHS.has(path);
+  const hit = cacheable ? getCached(path) : null;
+  const sendCached = (doc: { contentType: string; body: Uint8Array }) => {
+    res.setHeader('content-type', doc.contentType);
+    res.setHeader('cache-control', 'public, max-age=300');
+    // Như oidc-provider: hai tài liệu công khai này đọc được từ mọi origin (RP web).
+    res.setHeader('access-control-allow-origin', '*');
+    return res.status(200).send(Buffer.from(doc.body));
+  };
+  if (hit?.fresh) return sendCached(hit.doc);
   try {
     const up = await fetch(`${IDENTITY}/oidc/${path}${qs}`, {
       method: req.method,
@@ -75,14 +92,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       body: body ? new Uint8Array(body) : undefined,
       redirect: 'manual',
     });
+    if (isTransientUpstream(up.status)) {
+      // Lớp Cloudflare trước Render trả 429 + trang HTML "Just a moment..." - KHÔNG chuyển nguyên
+      // văn cho RP (họ nhận HTML ở chỗ chờ JSON). Có bản cũ thì phục vụ; không thì 503 + Retry-After.
+      if (hit) return sendCached(hit.doc);
+      console.error(`[oidc] upstream ${up.status} cho /oidc/${path}`);
+      res.setHeader('Retry-After', '30');
+      res.setHeader('cache-control', 'no-store');
+      return res.status(503).json({
+        error: 'temporarily_unavailable',
+        error_description: 'Dịch vụ đăng nhập tạm bận, thử lại sau.',
+      });
+    }
     for (const h of PASS_RES) {
       const v = up.headers.get(h);
       if (v) res.setHeader(h, v);
     }
     const cookies = up.headers.getSetCookie();
     if (cookies.length) res.setHeader('set-cookie', cookies);
-    res.status(up.status).send(Buffer.from(await up.arrayBuffer()));
+    const buf = new Uint8Array(await up.arrayBuffer());
+    if (cacheable && up.status === 200) putCached(path, up.headers.get('content-type') || '', buf);
+    res.status(up.status).send(Buffer.from(buf));
   } catch {
+    if (hit) return sendCached(hit.doc);
     res.status(502).json({ error: 'Không kết nối được dịch vụ đăng nhập' });
   }
 }
