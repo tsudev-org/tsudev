@@ -67,6 +67,14 @@ const ALLOWED = new Set([
   'alias/create',
   'alias/delete',
   'alias/sync',
+  // PRO-B bước B3: mua Pro / ủng hộ bằng VietQR (của chính mình) + Tài khoản → Huy hiệu.
+  'pay/status',
+  'pay/create',
+  'pay/badge',
+  // Đối soát chuyển khoản - auth-service tự kiểm OWNER + TOTP (đọc vai trò từ DB).
+  'payadmin/list',
+  'payadmin/confirm',
+  'payadmin/reject',
 ]);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

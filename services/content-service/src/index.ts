@@ -2329,6 +2329,22 @@ function postListFilter(q: Request['query']): Prisma.PostWhereInput {
   return where
 }
 
+/**
+ * API-03 (P4): `sort` của danh sách bài tác giả - danh sách TRẮNG theo DATA_TABLE
+ * (`sort=newest` là mặc định). Giá trị lạ ⇒ mặc định, không 400: đây là tham số
+ * URL người dùng sửa tay được, và một liên kết cũ không nên vỡ trang.
+ */
+const AUTHOR_POST_SORTS: Record<string, Prisma.PostOrderByWithRelationInput[]> = {
+  newest: [{ updatedAt: 'desc' }],
+  oldest: [{ updatedAt: 'asc' }],
+  created: [{ createdAt: 'desc' }],
+  title: [{ title: 'asc' }],
+  published: [{ publishedAt: { sort: 'desc', nulls: 'last' } }, { updatedAt: 'desc' }],
+}
+const authorPostSort = (raw: string | undefined): Prisma.PostOrderByWithRelationInput[] =>
+  AUTHOR_POST_SORTS[String(raw ?? '')] ??
+  (AUTHOR_POST_SORTS.newest as Prisma.PostOrderByWithRelationInput[])
+
 /** Đếm theo trạng thái cho thẻ tổng quan /author và các tab lọc. */
 async function statusCounts(base: Prisma.PostWhereInput): Promise<Record<PostStatusName, number>> {
   const rows = await prisma.post.groupBy({ by: ['status'], where: base, _count: { _all: true } })
@@ -2357,9 +2373,88 @@ async function applyStatus(
   return saved
 }
 
-/** Ghi một bản lịch sử nội dung (CHỈ-THÊM). */
-const recordRevision = (postId: string, title: string, contentMd: string, editorId: string) =>
-  prisma.postRevision.create({ data: { postId, title, contentMd, editorId } })
+/** ED-08: cửa sổ gộp bản lịch sử - cùng người sửa trong 10 phút thì cập nhật bản cuối. */
+const REVISION_MERGE_MS = 10 * 60 * 1000
+
+/**
+ * Ghi một bản lịch sử nội dung.
+ *
+ * ED-08 (P4 PR 4.4): trình soạn tự lưu mỗi 30 s, và mỗi lần lưu từng tạo một
+ * `PostRevision` - một buổi viết 1 giờ đẻ ~120 bản, trang lịch sử thành rác. Nay:
+ * bản CUỐI của bài cùng người sửa và tạo chưa quá 10 phút ⇒ CẬP NHẬT bản đó (giữ
+ * `createdAt` - cửa sổ tính từ lúc bản được tạo, nên sửa liên tục vẫn ra tối đa
+ * một bản mỗi 10 phút, không gộp vô hạn). Không migration.
+ *
+ * CHỈ gộp khi người gọi khai `merge: true` (bài đang Nháp) VÀ không có lần chuyển
+ * trạng thái nào kể từ bản cuối. Thiếu điều kiện sau thì bản lịch sử của nội dung
+ * ĐÃ DUYỆT/CÔNG BỐ bị ghi đè nếu tác giả sửa trong 10 phút sau khi bài lên -
+ * mất đúng bản cần nhất khi so khác biệt (cmsWorkflow.test.ts bắt được).
+ * Mặc định KHÔNG gộp: khôi phục bản cũ, sửa bài đã gửi duyệt/công bố luôn thêm bản.
+ */
+async function recordRevision(
+  postId: string,
+  title: string,
+  contentMd: string,
+  editorId: string,
+  { merge = false }: { merge?: boolean } = {}
+) {
+  if (merge) {
+    const last = await prisma.postRevision.findFirst({
+      where: { postId },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, editorId: true, createdAt: true },
+    })
+    const fresh =
+      last &&
+      last.editorId === editorId &&
+      Date.now() - last.createdAt.getTime() < REVISION_MERGE_MS
+    const moved =
+      fresh &&
+      (await prisma.postStatusEvent.count({
+        where: { postId, createdAt: { gt: last.createdAt } },
+      })) > 0
+    if (last && fresh && !moved) {
+      return prisma.postRevision.update({ where: { id: last.id }, data: { title, contentMd } })
+    }
+  }
+  return prisma.postRevision.create({ data: { postId, title, contentMd, editorId } })
+}
+
+/**
+ * ED-10 / API-04 (P4): khoá lạc quan theo `updatedAt`. Client gửi `updatedAt` của
+ * bản nó đã đọc; khác bản hiện tại ⇒ 409 kèm thời điểm + người sửa cuối, để giao
+ * diện hỏi "Tải bản mới / Xem khác biệt / Ghi đè". Không gửi ⇒ không kiểm (tương
+ * thích form cũ). `force: true` chỉ có hiệu lực với MODERATOR+. P7 nâng lên If-Match.
+ */
+async function editConflict(
+  current: Post,
+  body: Record<string, unknown> | undefined,
+  moderator: boolean
+): Promise<Record<string, unknown> | null> {
+  const sent = body?.updatedAt
+  if (sent === undefined || sent === null || sent === '') return null
+  if (body?.force === true && moderator) return null
+  const t = new Date(String(sent))
+  if (!Number.isNaN(t.getTime()) && t.getTime() === current.updatedAt.getTime()) return null
+  const last = await prisma.postRevision.findFirst({
+    where: { postId: current.id },
+    orderBy: { createdAt: 'desc' },
+    select: { editorId: true },
+  })
+  const editor = last?.editorId
+    ? await prisma.user.findUnique({
+        where: { id: last.editorId },
+        select: { username: true, displayName: true },
+      })
+    : null
+  return {
+    error:
+      'Bài đã được sửa ở nơi khác sau khi bạn mở. Tải bản mới hoặc xem khác biệt trước khi lưu.',
+    code: 'edit_conflict',
+    updatedAt: current.updatedAt,
+    lastEditor: editor ? editor.displayName || editor.username : null,
+  }
+}
 
 /**
  * Tương thích trang soạn cũ: thân request mang `published` (bool) thay vì gọi
@@ -2398,7 +2493,7 @@ app.get(
       prisma.post.count({ where }),
       prisma.post.findMany({
         where,
-        orderBy: { updatedAt: 'desc' },
+        orderBy: authorPostSort(qStr(req.query.sort)),
         skip: paging.skip,
         take: paging.take,
       }),
@@ -2513,6 +2608,9 @@ app.patch(
     if (!parsed.ok) return res.status(400).json({ error: parsed.error })
     const data = parsed.data
 
+    const conflict = await editConflict(current, req.body, isModerator(me))
+    if (conflict) return res.status(409).json(conflict)
+
     if (data.slug && data.slug !== current.slug) {
       const clash = await prisma.post.findUnique({ where: { slug: data.slug } })
       if (clash) return res.status(409).json({ error: `slug "${data.slug}" đã tồn tại` })
@@ -2547,7 +2645,9 @@ app.patch(
       },
     })
     if (contentChanged) {
-      await recordRevision(post.id, post.title, post.contentMd, me.id)
+      await recordRevision(post.id, post.title, post.contentMd, me.id, {
+        merge: effectiveStatus(current) === 'DRAFT',
+      })
       // Tác giả sửa bài đang công khai ⇒ gỡ chờ duyệt lại (postWorkflow.editedStatus).
       const next = editedStatus(current.status, moderator)
       if (next !== current.status) {
@@ -2595,6 +2695,100 @@ async function readCategoryId(raw: unknown): Promise<string | null | false | und
   const found = await prisma.category.findUnique({ where: { id }, select: { id: true } })
   return found ? found.id : false
 }
+
+/**
+ * ED-08 (P4 PR 4.4): TỰ LƯU của trình soạn - mỗi 30 s khi nội dung đổi.
+ *
+ * Khác PATCH ở ba điểm có chủ đích: (1) CHỈ cho bài đang Nháp (bài đã gửi duyệt
+ * hay đã công khai mà tự lưu thì một lần gõ dở sẽ đổi bản người duyệt đang đọc,
+ * hoặc gỡ bài khỏi trang công khai theo luật `editedStatus`); (2) chỉ nhận
+ * `title`, `contentMd`, `excerpt` - không slug, không trạng thái, không ngày; (3)
+ * không bao giờ đổi trạng thái. Bản lịch sử gộp theo cửa sổ 10 phút
+ * (`recordRevision`). Trả `updatedAt` mới để lần lưu kế tiếp gửi lại (ED-10).
+ */
+app.post(
+  '/api/author/posts/:slug/autosave',
+  asyncHandler(async (req, res) => {
+    const me = await requireVerifiedAuthor(req, res)
+    if (!me) return
+    const current = await findOwnPost(req.params.slug, me.id)
+    if (!current) return res.status(404).json({ error: 'Không tìm thấy bài của bạn' })
+    if (effectiveStatus(current) !== 'DRAFT') {
+      return res.status(409).json({
+        error: 'Chỉ tự lưu bản Nháp. Bài đã gửi duyệt hoặc đã công bố cần lưu thủ công.',
+        code: 'not_draft',
+        status: effectiveStatus(current),
+      })
+    }
+    const body = (req.body ?? {}) as Record<string, unknown>
+    const parsed = readPostBody(
+      { title: body.title, contentMd: body.contentMd, excerpt: body.excerpt },
+      { partial: true }
+    )
+    if (!parsed.ok) return res.status(400).json({ error: parsed.error, code: 'invalid_body' })
+    const { title, contentMd, excerpt } = parsed.data
+    if (title === undefined && contentMd === undefined && excerpt === undefined) {
+      return res.status(400).json({ error: 'Không có gì để lưu', code: 'invalid_body' })
+    }
+    const conflict = await editConflict(current, body, isModerator(me))
+    if (conflict) return res.status(409).json(conflict)
+
+    const contentChanged =
+      (title !== undefined && title !== current.title) ||
+      (contentMd !== undefined && contentMd !== current.contentMd)
+    const search = buildPostSearch({
+      title: title ?? current.title,
+      excerpt: excerpt !== undefined ? excerpt : current.excerpt,
+      contentMd: contentMd ?? current.contentMd,
+    })
+    const post = await prisma.post.update({
+      where: { id: current.id },
+      data: {
+        ...(title !== undefined ? { title } : {}),
+        ...(contentMd !== undefined ? { contentMd } : {}),
+        ...(excerpt !== undefined ? { excerpt } : {}),
+        ...search,
+      },
+    })
+    if (contentChanged) {
+      await recordRevision(post.id, post.title, post.contentMd, me.id, { merge: true })
+    }
+    res.json({ ok: true, updatedAt: post.updatedAt, status: effectiveStatus(post) })
+  })
+)
+
+/**
+ * ED-13 (P4 PR 4.4): gợi ý thẻ cho ô chip - thẻ đã dùng, đếm số bài, nhiều nhất 10.
+ *
+ * Phạm vi CỐ Ý hẹp: thẻ của bài ĐÃ CÔNG BỐ + bài của CHÍNH người hỏi. Lấy thẻ của
+ * mọi bài thì bản nháp của tác giả khác lộ chủ đề qua ô gợi ý.
+ * `q` so theo tiền tố, không phân biệt hoa thường; ký tự đại diện của LIKE được
+ * thoát (người gõ `%` không được quét cả bảng theo kiểu khác ý).
+ */
+app.get(
+  '/api/author/tags',
+  asyncHandler(async (req, res) => {
+    const me = await requireAuthor(req, res)
+    if (!me) return
+    const q = String(qStr(req.query.q) ?? '')
+      .trim()
+      .slice(0, 50)
+    const like = `${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`
+    const rows = await prisma.$queryRaw<{ tag: string; count: bigint }[]>`
+      SELECT t.tag, COUNT(*) AS count
+      FROM "Post" p, unnest(p.tags) AS t(tag)
+      WHERE p."deletedAt" IS NULL
+        AND (
+          (p.status = 'PUBLISHED' AND (p."publishedAt" IS NULL OR p."publishedAt" <= now()))
+          OR p."authorId" = ${me.id}
+        )
+        AND t.tag ILIKE ${like}
+      GROUP BY t.tag
+      ORDER BY count DESC, t.tag ASC
+      LIMIT 10`
+    res.json({ data: rows.map((r) => ({ tag: r.tag, count: Number(r.count) })) })
+  })
+)
 
 /** Chuyên mục cho trang soạn - cùng dữ liệu với /api/posts/categories, qua proxy author/*. */
 app.get(
