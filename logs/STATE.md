@@ -1,5 +1,10 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **Điều phối tsudev-10 (21/11/2026)**: STD43 mục 1, 2, 4 xong - `.standards` v4.3.0, `GET /api/v1/auth/providers`,
+> liên kết Google/GitHub ở /settings/security (#351, `deploy-2026.11.21.2`). Phiếu
+> [`20261121-10`](handover/20261121-10_std43-providers-lien-ket-tai-khoan.md). Thư nhắc Pro 01:23 UTC 21/11 VẪN chưa
+> kiểm. BP tsuscan hoãn tới bản phát hành đầu. Không khoá, không tác vụ nền.
+
 > 🔔 **Điều phối tsudev-09 (21/11/2026)**: `.standards` v4.2.0 toàn hệ (11 repo gộp, tsufiles#123 chờ CI), BP tsusync 16955. Phiếu [`20261121-09`](handover/20261121-09_dieu-phoi-standards-v4-2-0-bp-tsusync.md) mục 3-4. Thư nhắc Pro
 > 01:23 UTC 21/11 chưa kiểm. Không khoá, không tác vụ nền.
 
