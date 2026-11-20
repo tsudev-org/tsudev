@@ -1,4 +1,10 @@
-import { createHmac, createPublicKey, sign as cryptoSign, verify as cryptoVerify } from 'crypto'
+import {
+  createHash,
+  createHmac,
+  createPublicKey,
+  sign as cryptoSign,
+  verify as cryptoVerify,
+} from 'crypto'
 import type { JsonWebKey, KeyObject } from 'crypto'
 import { prisma } from '@tsudev/db'
 
@@ -96,6 +102,8 @@ export type EntitlementClaims = {
   donor: boolean
   badge: Badge
   devices_30d: number
+  /** PRO2: có khi app gửi bằng chứng DPoP hợp lệ (RFC 9449 6.1). */
+  cnf?: { jkt: string }
 }
 
 export function buildClaims(a: {
@@ -106,9 +114,10 @@ export function buildClaims(a: {
   state: EntState
   display: BadgeDisplay
   devices30d: number
+  jkt?: string | null
 }): EntitlementClaims {
   const iat = Math.floor(a.now.getTime() / 1000)
-  return {
+  const claims: EntitlementClaims = {
     iss: a.iss,
     sub: a.sub,
     aud: a.aud,
@@ -120,6 +129,8 @@ export function buildClaims(a: {
     badge: badgeFor(a.state, a.display, a.now),
     devices_30d: Math.max(0, Math.floor(a.devices30d)),
   }
+  if (a.jkt) claims.cnf = { jkt: a.jkt }
+  return claims
 }
 
 const b64 = (v: unknown): string => Buffer.from(JSON.stringify(v)).toString('base64url')
@@ -347,4 +358,182 @@ export async function subjectGrantedTo(sub: string, clientId: string, now: Date)
     select: { id: true },
   })
   return Boolean(grant)
+}
+
+// ---------------------------------------------------------------------------
+// PRO2 - kênh trạng thái (PRODUCT_POLICY 7.4, ADR-0004): chống xoá nhầm bản sao đám mây
+// ---------------------------------------------------------------------------
+/** Số `sub` tối đa mỗi lần hỏi. */
+export const STATUS_MAX_SUBS = 100
+/** Dấu `sub` đã xoá giữ ít nhất 1 năm (7.4); dọn sau 400 ngày cho dư biên. */
+export const DELETED_SUBJECT_RETENTION_MS = 400 * 24 * 60 * 60 * 1000
+
+export type SubjectStatus =
+  { status: 'ok'; pro_until: number } | { status: 'deleted' } | { status: 'unknown_subject' }
+
+const SUB_RE = /^[A-Za-z0-9_-]{1,64}$/
+
+/**
+ * Client `callerId` có được hỏi cho `clientId` không: chính nó, hoặc `clientId` nằm trong
+ * `statusDelegateFor` của nó (chỉ `tsusync`). Client bị tắt thì không hỏi thay được.
+ */
+export async function mayQueryStatusFor(callerId: string, clientId: string): Promise<boolean> {
+  if (callerId === clientId) return true
+  const c = await prisma.oAuthClient.findUnique({
+    where: { id: callerId },
+    select: { statusDelegateFor: true, disabledAt: true },
+  })
+  return Boolean(c && !c.disabledAt && c.statusDelegateFor.includes(clientId))
+}
+
+/**
+ * Trạng thái của từng `sub` với `clientId`. KHÔNG xét grant OIDC 30 ngày - chỉ xét
+ * `RpSubject` (đã từng cấp quyền). `sub` chưa từng cấp quyền cho client này ⇒
+ * `unknown_subject` dù tài khoản có tồn tại hay đã xoá (không liệt kê được tài khoản).
+ * Chỉ trả `pro_until` - không email/huy hiệu/thiết bị.
+ */
+export async function subjectStatuses(
+  clientId: string,
+  subs: string[]
+): Promise<Record<string, SubjectStatus>> {
+  // Map + Object.fromEntries: `sub` do người gọi gửi (kể cả `__proto__`) không bao giờ là
+  // khoá gán vào một object thường - không chạm được prototype.
+  const out = new Map<string, SubjectStatus>()
+  const valid = [...new Set(subs.filter((s) => SUB_RE.test(s)))]
+  for (const s of subs) out.set(s, { status: 'unknown_subject' })
+  const done = () => Object.fromEntries(out)
+  if (!valid.length) return done()
+  const granted = (
+    await prisma.rpSubject.findMany({
+      where: { clientId, sub: { in: valid } },
+      select: { sub: true },
+    })
+  ).map((r) => r.sub)
+  if (!granted.length) return done()
+  const [deleted, users] = await Promise.all([
+    prisma.deletedSubject.findMany({ where: { sub: { in: granted } }, select: { sub: true } }),
+    prisma.user.findMany({
+      where: { id: { in: granted } },
+      select: { id: true, entitlement: { select: { proUntil: true } } },
+    }),
+  ])
+  for (const d of deleted) out.set(d.sub, { status: 'deleted' })
+  for (const u of users) {
+    const p = u.entitlement?.proUntil
+    out.set(u.id, { status: 'ok', pro_until: p ? Math.floor(p.getTime() / 1000) : 0 })
+  }
+  return done()
+}
+
+let lastPurge = 0
+
+/** Dọn dấu xoá quá hạn giữ + cặp (client, sub) của chúng. Tối đa 1 lần/giờ mỗi tiến trình. */
+export async function purgeDeletedSubjects(now: Date): Promise<void> {
+  if (now.getTime() - lastPurge < 60 * 60 * 1000) return
+  lastPurge = now.getTime()
+  const cutoff = new Date(now.getTime() - DELETED_SUBJECT_RETENTION_MS)
+  const old = await prisma.deletedSubject.findMany({
+    where: { deletedAt: { lt: cutoff } },
+    select: { sub: true },
+    take: 1000,
+  })
+  if (!old.length) return
+  const subs = old.map((o) => o.sub)
+  await prisma.$transaction([
+    prisma.rpSubject.deleteMany({ where: { sub: { in: subs } } }),
+    prisma.deletedSubject.deleteMany({ where: { sub: { in: subs } } }),
+  ])
+}
+
+/** Chỉ cho test. */
+export const _resetPurge = (): void => {
+  lastPurge = 0
+}
+
+// ---------------------------------------------------------------------------
+// PRO2 - DPoP (RFC 9449) cho GET /api/me/entitlements ⇒ `cnf.jkt` trong JWS
+// ---------------------------------------------------------------------------
+/** Lệch giờ tối đa cho `iat` của bằng chứng DPoP (7.4: ±60 giây). */
+export const DPOP_IAT_SKEW_S = 60
+
+/** Thumbprint RFC 7638 của JWK EC: SHA-256 trên JSON thành viên bắt buộc, thứ tự từ điển. */
+export function jwkThumbprint(jwk: { crv: string; kty: string; x: string; y: string }): string {
+  const canon = JSON.stringify({ crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y })
+  return createHash('sha256').update(canon).digest('base64url')
+}
+
+/** Bỏ query/fragment (RFC 9449 4.3: `htu` so không kèm hai phần đó). */
+const stripUri = (u: string): string => u.replace(/[?#].*$/, '')
+
+/**
+ * Kiểm bằng chứng DPoP. Trả `jkt` (thumbprint khoá trong `jwk`) hoặc `null` nếu sai bất
+ * kỳ điều kiện nào: `typ` = `dpop+jwt`, `alg` = ES256, `jwk` EC P-256 công khai, chữ ký,
+ * `htm`, `htu` (không query/fragment), `iat` ±60 giây, `jti` dùng một lần, `ath` =
+ * base64url(SHA-256(access token)) khi có access token.
+ */
+export function verifyDpopProof(
+  proof: string,
+  a: { htm: string; htu: string; accessToken: string; now: Date }
+): string | null {
+  if (typeof proof !== 'string' || proof.length > 4096) return null
+  const parts = proof.split('.')
+  if (parts.length !== 3) return null
+  let header: Record<string, unknown>
+  try {
+    header = JSON.parse(Buffer.from(parts[0] as string, 'base64url').toString('utf8'))
+  } catch {
+    return null
+  }
+  if (!header || header.typ !== 'dpop+jwt' || header.alg !== 'ES256') return null
+  const jwk = header.jwk as Record<string, unknown> | undefined
+  if (
+    !jwk ||
+    typeof jwk !== 'object' ||
+    jwk.kty !== 'EC' ||
+    jwk.crv !== 'P-256' ||
+    typeof jwk.x !== 'string' ||
+    typeof jwk.y !== 'string' ||
+    'd' in jwk
+  ) {
+    return null
+  }
+  let key: KeyObject
+  try {
+    key = createPublicKey({
+      key: { kty: 'EC', crv: 'P-256', x: jwk.x, y: jwk.y } as JsonWebKey,
+      format: 'jwk',
+    })
+  } catch {
+    return null
+  }
+  const v = verifyEs256(proof, key)
+  if (!v) return null
+  const p = v.payload
+  const nowS = Math.floor(a.now.getTime() / 1000)
+  if (p.htm !== a.htm) return null
+  if (typeof p.htu !== 'string' || stripUri(p.htu) !== stripUri(a.htu)) return null
+  if (typeof p.iat !== 'number' || Math.abs(p.iat - nowS) > DPOP_IAT_SKEW_S) return null
+  if (typeof p.jti !== 'string' || !p.jti || p.jti.length > 128) return null
+  const ath = createHash('sha256').update(a.accessToken).digest('base64url')
+  if (p.ath !== ath) return null
+  const jkt = jwkThumbprint({ crv: 'P-256', kty: 'EC', x: jwk.x, y: jwk.y })
+  if (!claimJti(`dpop:${jkt}`, p.jti, p.iat + DPOP_IAT_SKEW_S, nowS)) return null
+  return jkt
+}
+
+export type DpopBinding = { ok: true; jkt: string | null } | { ok: false; status: 400 | 401 }
+
+/**
+ * Header `DPoP` của một yêu cầu ⇒ khoá gắn vào JWS. Không có header ⇒ `jkt: null` (JWS như
+ * cũ - DPoP là `SHOULD` ở 7.4). Có mà sai ⇒ từ chối, KHÔNG âm thầm cấp JWS thiếu `cnf`.
+ * Nhiều header `DPoP` (Node nối bằng dấu phẩy) ⇒ 400 (RFC 9449 4.3 mục 1).
+ */
+export function dpopBinding(
+  header: unknown,
+  a: { htm: string; htu: string; accessToken: string; now: Date }
+): DpopBinding {
+  if (header === undefined) return { ok: true, jkt: null }
+  if (typeof header !== 'string' || header.includes(',')) return { ok: false, status: 400 }
+  const jkt = verifyDpopProof(header, a)
+  return jkt ? { ok: true, jkt } : { ok: false, status: 401 }
 }

@@ -73,8 +73,11 @@ hồ sơ trình duyệt riêng). Phiên nộp chạy **một kênh, một sản 
   512×512, ảnh nổi bật 1024×500, ảnh chụp điện thoại/máy tính bảng), Chính sách quyền riêng tư, **Quyền truy cập ứng
   dụng**, **Quảng cáo** (= Không), **Xếp hạng nội dung** (bảng hỏi IARC), **Đối tượng mục tiêu**, **An toàn dữ liệu**,
   tuyên bố ứng dụng chính phủ / tính năng tài chính / sức khoẻ (thường = Không), danh mục, thông tin liên hệ.
-- Thuê bao Pro: sản phẩm thuê bao với 2 gói cơ sở (tháng, năm); ủng hộ: sản phẩm trong ứng dụng tiêu hao (`PRODUCT_POLICY.md`
-  mục 4.3). Bật RTDN (Pub/Sub) cho máy chủ quyền lợi.
+- Thuê bao Pro: sản phẩm thuê bao `tsudev_pro` với MỘT gói cơ sở **trả trước** `nam` (P1Y, không tự gia hạn - từ bộ
+  quy ước v4.0.0; KHÔNG tạo `thang`); App Store: Non-Renewing Subscription `com.tsudev.pro.nam`; ủng hộ: sản phẩm tiêu hao
+  `ung_ho_20k` … `ung_ho_200k` (`PRODUCT_POLICY.md` mục 4.3, 7.4 - dùng đúng các mã này ở mọi app). Bật RTDN (Pub/Sub)
+  cho máy chủ quyền lợi. Thông báo "nhiều thiết bị chưa có Pro" (`PRODUCT_POLICY.md` mục 7.3) và nhắc gia hạn / hết kỳ Pro (mục 7.6) là
+  ngoại lệ đã duyệt.
 - Đăng ký package name + chứng chỉ ký cho APK ngoài Play (xác minh nhà phát triển Android - `DISTRIBUTION_TRUST.md`
   mục 1.3).
 

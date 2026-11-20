@@ -116,27 +116,29 @@ describe('hàm thuần', () => {
 
 describe('người dùng tạo ý định', () => {
   test('chưa đăng nhập ⇒ 401; gói lạ ⇒ 400', async () => {
-    expect((await call('pay/create', null, { kind: 'pro_month' })).status).toBe(401)
+    expect((await call('pay/create', null, { kind: 'pro_year' })).status).toBe(401)
     expect((await call('pay/create', MEMBER, { kind: 'pro_tron_doi' })).status).toBe(400)
+    // PRO2 (PRODUCT_POLICY 7.2 v4.0.0): gói tháng đã bỏ - không tạo mới được.
+    expect((await call('pay/create', MEMBER, { kind: 'pro_month' })).status).toBe(400)
   }, 20000)
 
   test('tạo đúng giá + hết hạn 72 giờ; bấm lại cùng gói ⇒ CÙNG mã', async () => {
-    const a = await call('pay/create', MEMBER, { kind: 'pro_month', app: 'qulythuchi' })
+    const a = await call('pay/create', MEMBER, { kind: 'pro_year', app: 'qulythuchi' })
     expect(a.status).toBe(201)
     expect(a.body).toMatchObject({
-      kind: 'pro_month',
-      amountVnd: 49000,
+      kind: 'pro_year',
+      amountVnd: 490000,
       status: 'pending',
       app: 'qulythuchi',
     })
     expect(a.body.code).toMatch(CODE_RE)
     const ttl = Date.parse(a.body.expiresAt) - Date.parse(a.body.createdAt)
     expect(Math.abs(ttl - INTENT_TTL_MS)).toBeLessThan(5000)
-    const b = await call('pay/create', MEMBER, { kind: 'pro_month', app: 'qulythuchi' })
+    const b = await call('pay/create', MEMBER, { kind: 'pro_year', app: 'qulythuchi' })
     expect(b.status).toBe(200)
     expect(b.body.code).toBe(a.body.code)
-    const y = await call('pay/create', MEMBER, { kind: 'pro_year' })
-    expect(y.body.amountVnd).toBe(490000)
+    const y = await call('pay/create', MEMBER, { kind: 'donate_50k' })
+    expect(y.body.amountVnd).toBe(50000)
     expect(y.body.code).not.toBe(a.body.code)
   }, 20000)
 
@@ -160,7 +162,7 @@ describe('người dùng tạo ý định', () => {
         },
       })
     }
-    const r = await call('pay/create', MEMBER, { kind: 'pro_month' })
+    const r = await call('pay/create', MEMBER, { kind: 'pro_year' })
     expect(r.status).toBe(429)
     expect(r.body.error).toBe('too_many_pending')
   }, 20000)
@@ -197,7 +199,7 @@ describe('OWNER xác nhận', () => {
     (await call('pay/create', MEMBER, { kind })).body.code as string
 
   test('không phải OWNER / OWNER chưa bật TOTP / claim giả ⇒ chặn', async () => {
-    const code = await create('pro_month')
+    const code = await create('pro_year')
     expect((await call('payadmin/confirm', null, { code })).status).toBe(401)
     expect((await call('payadmin/confirm', MEMBER, { code })).status).toBe(403)
     expect((await call('payadmin/list', MEMBER)).status).toBe(403)
@@ -214,8 +216,8 @@ describe('OWNER xác nhận', () => {
     expect(await prisma.entitlementEvent.count({ where: { userId: await idOf(MEMBER) } })).toBe(0)
   }, 20000)
 
-  test('xác nhận Pro tháng ⇒ Pro 1 tháng, nguồn web, actorId = OWNER; lần 2 ⇒ 409, vẫn 1 sự kiện', async () => {
-    const code = await create('pro_month')
+  test('xác nhận Pro năm ⇒ Pro 1 năm, nguồn web, actorId = OWNER; lần 2 ⇒ 409, vẫn 1 sự kiện', async () => {
+    const code = await create('pro_year')
     const r = await call('payadmin/confirm', OWNER, { code: `TSU ${code.toLowerCase()}` })
     expect(r.status).toBe(200)
     expect(r.body.recorded).toBe(true)
@@ -235,8 +237,37 @@ describe('OWNER xác nhận', () => {
     const st = (await call('pay/status', MEMBER)).body
     expect(st).toMatchObject({ proActive: true, proSource: 'web', badge: 'pro' })
     const days = (Date.parse(st.proUntil) - Date.now()) / 86400000
+    expect(days).toBeGreaterThan(364)
+    expect(days).toBeLessThan(367)
+  }, 20000)
+
+  test('ý định gói tháng tạo TRƯỚC PRO2 vẫn xác nhận được (đã trả 49.000 ₫ ⇒ 1 tháng)', async () => {
+    const uid = await idOf(MEMBER)
+    await prisma.paymentIntent.create({
+      data: {
+        code: 'MNTH0001',
+        userId: uid,
+        kind: 'pro_month',
+        amountVnd: 49000,
+        expiresAt: new Date(Date.now() + 3600_000),
+      },
+    })
+    const r = await call('payadmin/confirm', OWNER, { code: 'MNTH0001' })
+    expect(r.status).toBe(200)
+    const st = (await call('pay/status', MEMBER)).body
+    const days = (Date.parse(st.proUntil) - Date.now()) / 86400000
     expect(days).toBeGreaterThan(27)
     expect(days).toBeLessThan(32)
+  }, 20000)
+
+  test('gia hạn sớm cộng dồn: max(pro_until, now) + 1 năm', async () => {
+    const first = await create('pro_year')
+    expect((await call('payadmin/confirm', OWNER, { code: first })).status).toBe(200)
+    const a = Date.parse((await call('pay/status', MEMBER)).body.proUntil)
+    const second = await create('pro_year')
+    expect((await call('payadmin/confirm', OWNER, { code: second })).status).toBe(200)
+    const b = Date.parse((await call('pay/status', MEMBER)).body.proUntil)
+    expect(new Date(b).toISOString()).toBe(addMonths(new Date(a), 12).toISOString())
   }, 20000)
 
   test('hai lần xác nhận SONG SONG ⇒ đúng một 200 và một sự kiện', async () => {
@@ -268,7 +299,7 @@ describe('OWNER xác nhận', () => {
     })
     expect((await call('payadmin/confirm', OWNER, { code: 'DATE0002' })).status).toBe(200)
 
-    const code = await create('pro_month')
+    const code = await create('pro_year')
     expect((await call('payadmin/reject', OWNER, { code })).status).toBe(200)
     const r = await call('payadmin/confirm', OWNER, { code })
     expect(r.status).toBe(409)
@@ -282,13 +313,13 @@ describe('OWNER xác nhận', () => {
   }, 20000)
 
   test('list: mặc định đang chờ, tìm theo mã', async () => {
-    const code = await create('pro_month')
+    const code = await create('pro_year')
     const l = await call('payadmin/list', OWNER)
     expect(l.status).toBe(200)
     expect(l.body.items.map((i: { code: string }) => i.code)).toContain(code)
     const q = await call('payadmin/list', OWNER, { q: `TSU ${code}` })
     expect(q.body.items).toEqual([
-      expect.objectContaining({ code, username: MEMBER, amountVnd: 49000 }),
+      expect.objectContaining({ code, username: MEMBER, amountVnd: 490000 }),
     ])
   }, 20000)
 })

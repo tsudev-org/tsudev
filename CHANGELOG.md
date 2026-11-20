@@ -45,6 +45,8 @@ tagged; the tag message lists the merged pull requests, and each line below summ
 
 ## Chưa phát hành
 
+- 20/11/2026 - PRO2: kênh trạng thái `POST /api/rp/entitlements/status` (private_key_jwt, ≤ 100 `sub`, trả `ok`/`deleted`/`unknown_subject` cho mọi `sub` đã từng cấp quyền - không phụ thuộc grant 30 ngày; client `tsusync` hỏi thay; dấu tài khoản đã xoá giữ ≥ 1 năm) chống máy chủ đồng bộ xoá nhầm bản sao đám mây; DPoP (RFC 9449) cho `GET /api/me/entitlements` ⇒ `cnf.jkt` trong JWS; `/pro` chỉ còn gói 1 năm 490.000 ₫, điều khoản nguyên văn PRODUCT_POLICY 7.5; bộ quy ước v4.0.0 (ADR-0004, migration `20261120140000`).
+
 - 20/08/2026 - Tái cấu trúc toàn bộ giao diện theo bộ quy ước v1.0.0: ba chế độ
   Sáng/Ấm/Tối, `tokens/design-tokens.json` thành nguồn chân lý duy nhất,
   `packages/ui/src/tokens.css` thành bản sinh ra, đổi tên toàn bộ token trên ~50

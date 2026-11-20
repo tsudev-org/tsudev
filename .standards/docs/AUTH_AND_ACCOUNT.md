@@ -1,4 +1,4 @@
-# XÁC THỰC VÀ KIẾN TRÚC TÀI KHOẢN - mọi project/tool/phần mềm tsudev (v3.0.0)
+# XÁC THỰC VÀ KIẾN TRÚC TÀI KHOẢN - mọi project/tool/phần mềm tsudev (v3.1.0)
 
 > Đăng nhập, đăng ký, liên kết nhà cung cấp, trạng thái tài khoản, và cơ chế
 > **Xác minh tài khoản**. Đây là chuẩn bắt buộc, không phải gợi ý.
@@ -540,6 +540,27 @@ kiện để chia sẻ liên kết giữa các sản phẩm mà không hỏng.
 - Tài nguyên đã tải về `MUST` xóa được bằng một nút **Đăng xuất và xóa dữ liệu
   cục bộ**.
 
+### 14.3. Mã cài đặt (từ v3.9.0)
+
+Dùng để đếm số thiết bị của một tài khoản cho quyền lợi Pro
+([`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) mục 7.3), không để định danh máy.
+
+- `MUST` là chuỗi **ngẫu nhiên 128 bit** từ bộ sinh số ngẫu nhiên mật mã của nền
+  tảng, mã hoá base64url không đệm, sinh ở **lần chạy đầu** và lưu cục bộ cùng
+  chỗ với cài đặt của app. Gỡ cài đặt hoặc **Đăng xuất và xóa dữ liệu cục bộ**
+  thì mất mã - lần sau sinh mã mới.
+- `MUST NOT` suy ra từ IMEI, MAC, số sê-ri, Android ID, IDFV, mã quảng cáo, vân
+  tay trình duyệt/phần cứng, hay bất kỳ giá trị nào sống lâu hơn bản cài.
+- Chỉ gửi khi người dùng **đã đăng nhập**, trong header `X-Tsu-Installation` của
+  các lượt gọi lấy quyền lợi (`/api/me/entitlements`, `/api/rp/entitlements/*`)
+  và máy chủ đồng bộ. Chưa đăng nhập ⇒ không gửi đi đâu (mục 14.1).
+- Máy chủ chỉ lưu **HMAC-SHA-256** của mã với khoá bí mật phía máy chủ, trong
+  bảng `AppInstallation {userId, clientId, installationIdHash, platform,
+  lastSeenAt}`; JWS quyền lợi chỉ trả số đếm `devices_30d`, KHÔNG trả danh sách.
+  Bản ghi không hoạt động quá 90 ngày `MUST` bị xóa.
+- Header sai định dạng (không phải 22 ký tự base64url) ⇒ bỏ qua, không đếm,
+  không làm hỏng lượt gọi.
+
 ---
 
 ## 15. Chuẩn API
@@ -618,6 +639,8 @@ danh sách đầy đủ.
 13. Thời gian phản hồi của `quên mật khẩu` không phân biệt email tồn tại hay
     không (chống dò tài khoản).
 14. Toàn bộ luồng đăng nhập đi hết được chỉ bằng bàn phím.
+15. Mã cài đặt (mục 14.3): sinh một lần, đủ 128 bit, không gửi khi chưa đăng
+    nhập; máy chủ chỉ lưu HMAC; người dùng A không đọc được số thiết bị của B.
 
 ---
 
@@ -636,7 +659,8 @@ danh sách đầy đủ.
 - [ ] Có xuất dữ liệu và ân hạn xóa 30 ngày.
 - [ ] Hạng C chạy đủ chức năng lõi ở chế độ khách, không gọi mạng ngầm.
 - [ ] Token ngoại tuyến nằm trong kho bí mật của hệ điều hành.
-- [ ] Đủ 14 ca kiểm thử ở mục 16.
+- [ ] Mã cài đặt ngẫu nhiên 128 bit, không dùng định danh phần cứng (mục 14.3).
+- [ ] Đủ 15 ca kiểm thử ở mục 16.
 - [ ] Đường dẫn đúng mục 13.1.
 - [ ] `./scripts/check-standards.sh` đạt.
 

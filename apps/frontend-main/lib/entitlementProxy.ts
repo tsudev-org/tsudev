@@ -8,20 +8,22 @@ import { IDENTITY } from './services';
  *
  *   GET /api/me/entitlements          → /ent/me       (access token OIDC, scope tsudev.entitlements)
  *   GET /api/rp/entitlements/{sub}    → /ent/rp/{sub} (private_key_jwt của máy chủ RP)
+ *   POST /api/rp/entitlements/status  → /ent/status   (PRO2: kênh trạng thái, ADR-0004)
  *
  * Service tự xác thực từng request - proxy chỉ chuyển ĐÚNG các header cần, không kèm
  * cookie phiên tsudev và không kèm INTERNAL_API_TOKEN (người gọi không phải BFF).
  * IP thật lấy từ CF-Connecting-IP (lib/clientIp.ts) cho giới hạn tần suất của service.
  */
-const PASS_REQ = ['authorization', 'x-tsu-installation', 'x-tsu-platform', 'user-agent'];
+const PASS_REQ = ['authorization', 'dpop', 'x-tsu-installation', 'x-tsu-platform', 'user-agent'];
 
 export async function proxyEntitlement(
   req: NextApiRequest,
   res: NextApiResponse,
-  upstream: string
+  upstream: string,
+  method: 'GET' | 'POST' = 'GET'
 ): Promise<void> {
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET');
+  if (req.method !== method) {
+    res.setHeader('Allow', method);
     res.status(405).json({ error: 'method_not_allowed' });
     return;
   }
@@ -34,7 +36,14 @@ export async function proxyEntitlement(
   if (ip) headers['x-forwarded-for'] = ip;
   res.setHeader('Cache-Control', 'no-store');
   try {
-    const up = await fetch(`${IDENTITY}${upstream}`, { headers, redirect: 'manual' });
+    // POST: thân JSON đã được Next đọc (giới hạn mặc định 1 MB); gửi lại đúng đối tượng đó.
+    if (method === 'POST') headers['content-type'] = 'application/json';
+    const up = await fetch(`${IDENTITY}${upstream}`, {
+      method,
+      headers,
+      redirect: 'manual',
+      ...(method === 'POST' ? { body: JSON.stringify(req.body ?? {}) } : {}),
+    });
     const ct = up.headers.get('content-type');
     if (ct) res.setHeader('Content-Type', ct);
     const ra = up.headers.get('retry-after');

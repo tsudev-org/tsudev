@@ -33,10 +33,15 @@ export const MAX_PENDING = 5
 export type PlanKind =
   'pro_month' | 'pro_year' | 'donate_20k' | 'donate_50k' | 'donate_100k' | 'donate_200k'
 
-/** Bảng giá PRODUCT_POLICY 7.2. `months` = số tháng Pro cộng thêm; 0 = ủng hộ. */
-export const PLANS: Record<PlanKind, { amountVnd: number; months: number }> = {
-  pro_month: { amountVnd: 49_000, months: 1 },
+/**
+ * Bảng giá PRODUCT_POLICY 7.2 (v4.0.0): MỘT gói Pro kỳ 1 năm 490.000 ₫, không gói tháng.
+ * `months` = số tháng Pro cộng thêm (12 = 1 năm theo lịch, UTC); 0 = ủng hộ.
+ * `legacy` = KHÔNG tạo mới được; chỉ còn để xác nhận ý định đã tạo trước PRO2 (người đã
+ * chuyển 49.000 ₫ vẫn nhận đúng 1 tháng đã trả). Hết hạn 72 giờ sau PRO2 thì vô dụng.
+ */
+export const PLANS: Record<PlanKind, { amountVnd: number; months: number; legacy?: true }> = {
   pro_year: { amountVnd: 490_000, months: 12 },
+  pro_month: { amountVnd: 49_000, months: 1, legacy: true },
   donate_20k: { amountVnd: 20_000, months: 0 },
   donate_50k: { amountVnd: 50_000, months: 0 },
   donate_100k: { amountVnd: 100_000, months: 0 },
@@ -45,6 +50,9 @@ export const PLANS: Record<PlanKind, { amountVnd: number; months: number }> = {
 
 export const isPlanKind = (v: unknown): v is PlanKind =>
   typeof v === 'string' && Object.prototype.hasOwnProperty.call(PLANS, v)
+
+/** Gói còn bán (tạo ý định mới được). */
+export const isSellable = (v: unknown): v is PlanKind => isPlanKind(v) && !PLANS[v].legacy
 
 /** Crockford base32: không có I, L, O, U ⇒ đọc/gõ lại từ sao kê không nhầm. */
 const ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'
@@ -85,7 +93,10 @@ export function addMonths(d: Date, months: number): Date {
   return r
 }
 
-/** Pro mới = (mốc đang còn hạn, hoặc bây giờ) + số tháng của gói. Cộng dồn, không mất ngày đã trả. */
+/**
+ * Pro mới = max(pro_until, bây giờ) + số tháng của gói (7.2: `max(pro_until, now) + 1 năm`).
+ * Cộng dồn - gia hạn sớm không mất ngày đã trả. Idempotent theo mã ý định ở `recordEvent`.
+ */
 export const extendPro = (current: Date | null, now: Date, months: number): Date =>
   addMonths(current && current > now ? current : now, months)
 
@@ -182,7 +193,7 @@ payRouter.post(
     const user = await lookupUser(req)
     if (!user) return res.status(401).json({ error: 'unauthenticated' })
     const kind = req.body?.kind
-    if (!isPlanKind(kind)) return res.status(400).json({ error: 'invalid_kind' })
+    if (!isSellable(kind)) return res.status(400).json({ error: 'invalid_kind' })
     const app = str(req.body?.app, 64).trim().toLowerCase()
     const clientId = app && CLIENT_ID_RE.test(app) ? app : null
 

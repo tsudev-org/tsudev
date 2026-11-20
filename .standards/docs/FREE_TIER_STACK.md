@@ -1,4 +1,4 @@
-# HẠ TẦNG 0 ĐỒNG - nhà cung cấp và hạn mức được duyệt (v2.0.0)
+# HẠ TẦNG 0 ĐỒNG - nhà cung cấp và hạn mức được duyệt (v2.1.0)
 
 > Hệ sinh thái tsudev xây dựng và phát triển theo hướng **chi phí 0 đồng**. Mọi
 > project/tool/phần mềm `MUST` chọn giải pháp miễn phí phù hợp nhất. Đề xuất trả
@@ -92,6 +92,30 @@ chính thức trước khi ra quyết định kiến trúc.
   được cả lỗi N+1.
 - **Đặt cảnh báo hạn mức.** `MUST` bật thông báo khi dùng tới 80% hạn mức của bất
   kỳ dịch vụ nào, để không bị dừng dịch vụ bất ngờ.
+
+### 3.1. Đồng bộ và sao lưu đám mây (từ v3.9.0)
+
+Áp cho mọi máy chủ đồng bộ của sản phẩm và dịch vụ dùng chung TsuDEV Sync
+([`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) mục 7, nguyên tắc N5 + N7):
+
+- **Người dùng miễn phí không tốn dung lượng máy chủ.** Dữ liệu chỉ lên máy chủ
+  khi tài khoản có Pro; chi phí lưu trữ chỉ tăng theo số người dùng Pro.
+- **Hạn mức mặc định** mỗi tài khoản Pro mỗi sản phẩm: **100 MiB** dữ liệu +
+  **1 GiB** tệp. Khác mức này ⇒ ghi ADR của repo. Vượt hạn mức ⇒ `413` hoặc
+  `402` có mã lý do, không âm thầm cắt dữ liệu.
+- **Đồng bộ phần thay đổi** theo con trỏ `rev`, gộp lô, ghi lặp lại không tạo
+  bản sao (idempotent); không gửi lại toàn bộ dữ liệu mỗi lần.
+- **Không poll dày:** đồng bộ khi mở app, khi sửa, khi quay lại app; chạy nền
+  không quá mỗi 10 phút.
+- **Chịu lỗi:** thử lại lùi theo luỹ thừa có jitter, tôn trọng `Retry-After`.
+  Máy chủ trả `429`/`5xx` ⇒ app vẫn chạy cục bộ bình thường.
+- **Giới hạn ở máy chủ:** tần suất theo tài khoản + IP, kích thước thân yêu cầu,
+  dung lượng - đặt trước khi chạm hạn mức miễn phí của nhà cung cấp.
+- **Xoá có xác minh:** dữ liệu của tài khoản hết Pro chỉ bị xoá sau khi hỏi
+  kênh trạng thái của tsudev.com ([`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) mục
+  7.4); không hỏi được ⇒ hoãn (tốn dung lượng thêm vài ngày, không xoá nhầm).
+- Tính năng nào ước lượng vượt hạn mức miễn phí ⇒ dừng lại, hỏi chủ dự án theo
+  mục 6, không tự bật gói trả phí.
 
 ## 4. Trước khi thêm một dịch vụ mới
 

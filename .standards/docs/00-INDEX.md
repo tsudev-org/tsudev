@@ -39,7 +39,7 @@
 3. [`VERSIONING.md`](VERSIONING.md) - đặt tên bản phát hành
 4. [`PACKAGING.md`](PACKAGING.md) - cài bằng lệnh: winget, Scoop, apt/rpm, Homebrew
 5. [`DISTRIBUTION_TRUST.md`](DISTRIBUTION_TRUST.md) - cửa hàng, ký mã, chống báo nhầm antivirus, hồ sơ nền tảng
-6. [`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) - ngôn ngữ/giao diện theo hệ thống, không quảng cáo, Pro + Ủng hộ, huy hiệu, iOS, ảnh/video website
+6. [`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) - ngôn ngữ/giao diện theo hệ thống, không quảng cáo, Pro + Ủng hộ, huy hiệu, iOS, ảnh/video website, lưu cục bộ - đồng bộ là Pro
 7. [`STORE_SUBMISSION.md`](STORE_SUBMISSION.md) - phiên agent tự điền biểu mẫu nộp duyệt cửa hàng/antivirus
 
 **Bạn sắp commit hoặc mở PR:**
@@ -80,7 +80,7 @@
 | [`FREE_TIER_STACK.md`](FREE_TIER_STACK.md) | Hạ tầng 0 đồng | Bất khả xâm phạm |
 | [`PACKAGING.md`](PACKAGING.md) | Phân phối, cài bằng lệnh, ký gói | Bất khả xâm phạm |
 | [`DISTRIBUTION_TRUST.md`](DISTRIBUTION_TRUST.md) | Cài không bị chặn: cửa hàng, ký mã, notarize, chống báo nhầm, hồ sơ nền tảng | Bất khả xâm phạm |
-| [`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) | Chính sách sản phẩm: mặc định theo hệ thống, không quảng cáo, Pro/Ủng hộ, huy hiệu, iOS, website có hình/video | Bất khả xâm phạm |
+| [`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) | Chính sách sản phẩm: mặc định theo hệ thống, không quảng cáo, Pro/Ủng hộ, huy hiệu, iOS, website có hình/video, lưu cục bộ - đồng bộ là Pro | Bất khả xâm phạm |
 | [`STORE_SUBMISSION.md`](STORE_SUBMISSION.md) | Nộp duyệt cửa hàng/nền tảng: phiên agent điền biểu mẫu trên trình duyệt | Bất khả xâm phạm |
 | [`RICH_TEXT_EDITOR.md`](RICH_TEXT_EDITOR.md) | Trình soạn thảo nội dung | Bất khả xâm phạm |
 | [`SEARCH_AND_FILTER.md`](SEARCH_AND_FILTER.md) | Tìm kiếm và lọc tiếng Việt | Bất khả xâm phạm |
