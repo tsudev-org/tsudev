@@ -1,7 +1,15 @@
 import { createHash } from 'crypto';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { KENH, crc16, kiemKenh, kiemVietQr } from '../lib/ungHo';
+import {
+  KENH,
+  KENH_THANH_TOAN,
+  crc16,
+  kiemKenh,
+  kiemVietQr,
+  noiDungTsu,
+  vietQrDong,
+} from '../lib/ungHo';
 import duLieu from '../data/ung-ho.json';
 
 /**
@@ -59,5 +67,49 @@ describe('trang ủng hộ trung tâm', () => {
   it('ảnh QR có Cache-Control immutable (tên tệp đổi khi đổi QR)', () => {
     const headers = readFileSync(join(PUBLIC, '_headers'), 'utf8');
     expect(headers).toMatch(/\/ung-ho\/\*\n\s+Cache-Control: public,max-age=31536000,immutable/);
+  });
+});
+
+describe('VietQR động cho thanh toán Pro / ủng hộ (B3)', () => {
+  const GOC = { bin: '970441', soTaiKhoan: '056485506', payload: PAYLOAD };
+
+  it('dựng đúng từng byte: tag 01=12, 54 số tiền, 62/08 nội dung, CRC tính lại', () => {
+    // Dựng tay độc lập với vietQrDong: chèn 54 sau 53, thêm 62 trước 63.
+    const body =
+      '00020101021238530010A0000007270123000697044101090564855060208QRIBFTTA5303704' +
+      '5406490000' +
+      '5802VN' +
+      '62160812TSU ABCDEFGH' +
+      '6304';
+    expect(vietQrDong(GOC, 490_000, 'TSU ABCDEFGH')).toBe(body + crc16(body));
+  });
+
+  it('kết quả vẫn qua kiemVietQr (đúng ngân hàng + tài khoản, CRC hợp lệ)', () => {
+    const p = vietQrDong(GOC, 20_000, noiDungTsu('7K3M9QX2'));
+    expect(() => kiemVietQr({ ...GOC, payload: p })).not.toThrow();
+    expect(p).toContain('540520000');
+    expect(p).toContain('0812TSU 7K3M9QX2');
+  });
+
+  it('số tiền sai (0, âm, lẻ, quá trần) ⇒ ném', () => {
+    for (const x of [0, -1, 1.5, 1_000_000_000, Number.NaN])
+      expect(() => vietQrDong(GOC, x, 'TSU ABCDEFGH')).toThrow(/Số tiền/);
+  });
+
+  it('nội dung sai (chữ thường, dấu, quá 25 ký tự, rỗng) ⇒ ném', () => {
+    for (const x of ['tsu abcdefgh', 'TSU ĐẠI', 'TSU ' + 'A'.repeat(22), ''])
+      expect(() => vietQrDong(GOC, 490_000, x)).toThrow(/Nội dung/);
+  });
+
+  it('payload gốc bị tráo tài khoản ⇒ ném, không vẽ mã chuyển tiền đi nơi khác', () => {
+    const body = PAYLOAD.slice(0, -4).replace('056485506', '056485507');
+    expect(() =>
+      vietQrDong({ ...GOC, payload: body + crc16(body) }, 490_000, 'TSU ABCDEFGH')
+    ).toThrow();
+  });
+
+  it('kênh thanh toán là kênh đầu của /ung-ho và dựng được mã động', () => {
+    expect(KENH_THANH_TOAN).toBe(KENH[0]);
+    expect(() => vietQrDong(KENH_THANH_TOAN.vietqr, 490_000, noiDungTsu('ABCDEFGH'))).not.toThrow();
   });
 });
