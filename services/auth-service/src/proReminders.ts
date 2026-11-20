@@ -2,7 +2,9 @@ import crypto from 'crypto'
 import express from 'express'
 import type { Request, Response } from 'express'
 import { prisma } from '@tsudev/db'
+import { createRateLimit } from '@tsudev/ratelimit'
 import { esc, sendMail } from './mailer'
+import { callerIp } from './throttle'
 
 /**
  * PRO2 2.4 - thư nhắc gia hạn TsuDEV Pro (tsudev-standards PRODUCT_POLICY 7.2 + 7.6).
@@ -238,12 +240,23 @@ export async function runReminders(
 function tokenOk(got: unknown): boolean {
   const want = process.env.INTERNAL_API_TOKEN || ''
   if (!want || typeof got !== 'string') return false
-  const a = crypto.createHash('sha256').update(want).digest()
-  const b = crypto.createHash('sha256').update(got).digest()
-  return crypto.timingSafeEqual(a, b)
+  const a = Buffer.from(want)
+  const b = Buffer.from(got)
+  // Lộ độ dài token không đáng kể; so sánh nội dung thì hằng thời gian.
+  return a.length === b.length && crypto.timingSafeEqual(a, b)
 }
 
 export const proReminderRouter = express.Router()
+
+proReminderRouter.use(
+  createRateLimit({
+    name: 'thu-nhac-pro',
+    windowMs: 60_000,
+    max: Number(process.env.RATE_LIMIT_PRO_REMINDER_MAX) || 20,
+    keyOf: (req: Request) =>
+      `ip:${callerIp(req.headers as Record<string, unknown>, req.ip || '0.0.0.0')}`,
+  })
+)
 
 proReminderRouter.post('/run', async (req: Request, res: Response) => {
   if (!process.env.INTERNAL_API_TOKEN) {

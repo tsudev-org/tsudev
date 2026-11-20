@@ -13,6 +13,7 @@ process.env.INTERNAL_IDENTITY_SECRET = 'khoa-test-du-dai-cho-hmac-256-bit!!'
 process.env.SITE_URL = 'https://tsudev.test'
 process.env.RESEND_API_KEY = 'test-resend'
 process.env.INTERNAL_API_TOKEN = 'test-internal-token'
+process.env.RATE_LIMIT_PRO_REMINDER_MAX = '1000'
 
 export {}
 
@@ -34,7 +35,7 @@ const realFetch = global.fetch
 
 beforeAll(() => {
   global.fetch = (async (url: string, init: { body: string }) => {
-    if (String(url).startsWith('https://api.resend.com')) {
+    if (new URL(String(url)).host === 'api.resend.com') {
       if (failNext > 0) {
         failNext--
         return new Response('boom', { status: 500 })
