@@ -106,6 +106,7 @@ model User {
 
   // PRO-B (ADR-0002): quyền lợi Pro/Ủng hộ + đếm thiết bị. Xoá tài khoản ⇒ cascade.
   entitlement      Entitlement?
+  proReminders     ProReminderSent[]
   entitlementLog   EntitlementEvent[]
   paymentIntents   PaymentIntent[]
   appInstallations AppInstallation[]
@@ -838,22 +839,39 @@ enum BadgeDisplay {
 }
 
 model Entitlement {
-  userId       String             @id
-  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String             @id
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   /// NULL = chưa từng Pro; <= now() = hết hạn.
-  proUntil     DateTime?
-  proSource    EntitlementSource?
+  proUntil          DateTime?
+  proSource         EntitlementSource?
   /// Vĩnh viễn sau lần ủng hộ ĐÃ XÁC NHẬN đầu tiên.
-  donorSince   DateTime?
-  badgeDisplay BadgeDisplay       @default(AUTO)
-  updatedAt    DateTime           @updatedAt
+  donorSince        DateTime?
+  badgeDisplay      BadgeDisplay       @default(AUTO)
+  /// PRO2 2.4: người dùng bấm "huỷ nhận thư nhắc" (NULL = vẫn nhận). Chỉ tắt THƯ nhắc gia hạn,
+  /// không tắt thư giao dịch/bảo mật.
+  remindersOptOutAt DateTime?
+  updatedAt         DateTime           @updatedAt
+}
+
+/// PRO2 2.4 - thư nhắc gia hạn đã gửi. Mỗi (người, mốc, pro_until) tối đa MỘT thư: gia hạn
+/// ⇒ pro_until mới ⇒ chu kỳ nhắc mới. Ghi dòng TRƯỚC khi gửi (giành chỗ), gửi hỏng thì xoá
+/// dòng để lượt cron sau thử lại - hai lượt cron chồng nhau không gửi trùng.
+model ProReminderSent {
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// before7 | expired | purge30 | purge7 (proReminders.ts)
+  kind     String
+  proUntil DateTime
+  sentAt   DateTime @default(now())
+
+  @@id([userId, kind, proUntil])
 }
 
 /// Sổ cái chỉ-ghi-thêm. Không có đường xoá ngoài cascade xoá tài khoản.
 model EntitlementEvent {
-  id         String    @id @default(cuid())
+  id         String             @id @default(cuid())
   userId     String
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   /// play.purchase | play.rtdn | play.voided | web.vietqr | web.donate | admin.adjust | admin.revoke
   kind       String
   /// purchaseToken (băm SHA-256) / mã đối soát VietQR. Idempotent theo (kind, externalId).
@@ -862,10 +880,10 @@ model EntitlementEvent {
   proUntil   DateTime?
   proSource  EntitlementSource?
   /// Sự kiện ủng hộ đã xác nhận.
-  donation   Boolean   @default(false)
+  donation   Boolean            @default(false)
   /// Quản trị viên xác nhận (web.vietqr / admin.*).
   actorId    String?
-  createdAt  DateTime  @default(now())
+  createdAt  DateTime           @default(now())
 
   @@unique([kind, externalId])
   @@index([userId, createdAt])
