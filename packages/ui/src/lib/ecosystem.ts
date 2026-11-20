@@ -227,8 +227,7 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
     {
       id: 'sounddb',
       // Sản phẩm mới 17/11/2026 (phiếu 20261117-SD1, repo tsudev-org/sound-db, Apache-2.0). Đăng nhập bằng tài khoản
-      // tsudev qua OIDC (client `sounddb`). Chưa có logo riêng (website dùng logo tsudev chung ⇒ ô màu + glyph cho
-      // khỏi trùng thẻ). Bản đầu v26.11.1704 (17/11/2026) vào cả ba kho gói ⇒ ngoại lệ C4 tạm đã gỡ.
+      // tsudev qua OIDC (client `sounddb`). Logo riêng từ 20/11/2026 (phiếu LG1, lấy từ website app). Bản đầu v26.11.1704 (17/11/2026) vào cả ba kho gói ⇒ ngoại lệ C4 tạm đã gỡ.
       name: 'Sound Db',
       tagline: 'Máy đo âm thanh chính xác: dB, phổ FFT, octave, cao độ - có cả bản chạy trên web.',
       category: 'utility',
@@ -236,13 +235,14 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       website: 'https://sounddb.tsudev.com',
       releases: 'https://github.com/tsudev-org/sound-db/releases/latest',
       openSource: true,
+      logo: '/eco/sounddb.webp',
       tint: ['#0f766e', '#134e4a'],
       icon: 'M3 12h2M7 8v8M11 5v14M15 9v6M19 11v2M21 12h0',
     },
     {
       id: 'qulythuchi',
       // Sản phẩm mới 18/11/2026 (phiếu 20261118-QT3, repo tsudev-org/qulythuchi, AGPL-3.0). Đăng nhập bằng tài khoản
-      // tsudev qua OIDC (client `qulythuchi`, phiếu QT1). Chưa có logo riêng (website dùng logo chung ⇒ ô màu + glyph).
+      // tsudev qua OIDC (client `qulythuchi`, phiếu QT1). Logo riêng từ 20/11/2026 (phiếu LG1, lấy từ website app).
       // Bản web /app/ dùng được ngay; bản cài ra ở P10 của repo đó ⇒ ngoại lệ C4 tạm (test/installChannels).
       name: 'Quly Thu Chi',
       tagline:
@@ -251,6 +251,7 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       platforms: ['android', 'windows', 'linux'],
       website: 'https://qulythuchi.tsudev.com',
       openSource: true,
+      logo: '/eco/qulythuchi.webp',
       tint: ['#0369a1', '#0c4a6e'],
       icon: 'M3 7h18v12H3zM3 7l3-3h12l3 3M16 13h2',
     },
