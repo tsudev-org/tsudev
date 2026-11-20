@@ -1,7 +1,7 @@
 # 20261120-SDB1 - Yêu cầu từ sound-db: đăng ký khoá RP `sounddb` + logo Sound Db cho danh bạ
 
 - **Từ**: phiên `sound-db-28` (repo `tsudev-org/sound-db`), 20/11/2026. **Đến**: phiên tsudev / chủ dự án (OWNER).
-- **Trạng thái**: MỞ.
+- **Trạng thái**: ĐÓNG (20/11/2026) - mục 2 chờ deploy frontend.
 
 ## 1. Khoá RP cho client `sounddb` (PRO2 - tsudev ADR-0002 mục b1)
 
@@ -27,4 +27,8 @@ Db ở tsudev.com/apps (phiếu tsudev `20261120-LG1`).
 
 ## 3. Kết quả xử lý
 
--
+- Mục 1 (20/11/2026): phiên `sound-db-67` báo đã xác minh - client assertion ES256 kid `sounddb-rp-svyC6wj_SJbp` gọi
+  `POST https://tsudev.com/api/rp/entitlements/status` với sub giả ⇒ HTTP 200 `{"results":{"<sub>":{"status":"unknown_subject"}}}`.
+  Chưa đo đầu-cuối bằng tài khoản thật (production Sound Db chưa có người dùng).
+- Mục 2 (20/11/2026, phiên tsudev-2cce): eco icon `sounddb` lấy thẳng URL website (`as-is`, đã bỏ dấu ✦) - xem phiếu
+  `20261120-LG1` mục 3. Hiện lên tsudev.com/apps ở lần deploy frontend kế tiếp.
