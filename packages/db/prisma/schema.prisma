@@ -920,6 +920,34 @@ model OAuthClient {
   /// PRO-B (b1): JWK CÔNG KHAI EC P-256 của máy chủ RP, dùng kiểm `private_key_jwt`
   /// ở kênh máy chủ ↔ máy chủ `/api/rp/entitlements/*`. NULL = client không có kênh RP.
   rpPublicJwk            Json?
+  /// PRO2 (ADR-0004): các `client_id` mà client NÀY được hỏi thay ở kênh trạng thái
+  /// `POST /api/rp/entitlements/status`. Chỉ client `tsusync` có giá trị; rỗng = chỉ
+  /// được hỏi cho chính mình. Đặt bằng SQL/seed, không có endpoint ghi.
+  statusDelegateFor      String[]  @default([])
   createdAt              DateTime  @default(now())
   disabledAt             DateTime?
+}
+
+/// PRO2 (PRODUCT_POLICY 7.4 "Kênh trạng thái", ADR-0004): `sub` đã TỪNG cấp quyền cho
+/// `clientId` - không hết hạn theo grant OIDC 30 ngày. Do TRIGGER ghi khi có dòng
+/// `OidcPayload` kiểu Grant (migration 20261120140000), ứng dụng không ghi.
+/// KHÔNG có khoá ngoại tới User: dòng phải sống qua lúc xoá tài khoản để kênh trạng thái
+/// trả được `deleted` (chỉ cho client đã từng được cấp quyền). Dọn cùng `DeletedSubject`.
+model RpSubject {
+  clientId       String
+  sub            String
+  firstGrantedAt DateTime @default(now())
+
+  @@id([clientId, sub])
+  @@index([sub])
+}
+
+/// PRO2: dấu `sub` của tài khoản đã xoá, giữ >= 1 năm (PRODUCT_POLICY 7.4). Do TRIGGER
+/// AFTER DELETE trên "User" ghi - mọi đường xoá tài khoản (tự xoá, OWNER xoá, SQL tay)
+/// đều để lại dấu, không phụ thuộc mã ứng dụng nhớ gọi.
+model DeletedSubject {
+  sub       String   @id
+  deletedAt DateTime @default(now())
+
+  @@index([deletedAt])
 }

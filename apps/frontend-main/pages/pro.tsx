@@ -15,24 +15,11 @@ import type { PayStatus, PlanKind } from '../lib/pay';
  * (PRODUCT_POLICY 7.4) cho bản web/desktop/APK ngoài cửa hàng. Thanh toán bằng chuyển khoản
  * VietQR có mã `TSU <8 ký tự>`, OWNER đối soát ở /admin/thanh-toan (PRO-B bước B3).
  *
- * Điều khoản đứng TRƯỚC nút mua (7.5). Kênh web là TRẢ TRƯỚC từng kỳ, KHÔNG tự gia hạn, nên
- * KHÔNG dùng nguyên văn câu "tự gia hạn cho tới khi bạn huỷ" của 7.5 (câu đó là của thuê bao
- * cửa hàng) - dùng câu cùng khuôn cho kênh web; đề xuất đưa câu này vào bộ quy ước v3.9.2.
+ * Điều khoản đứng TRƯỚC nút mua, NGUYÊN VĂN PRODUCT_POLICY 7.5 (v4.0.0: một kỳ 1 năm, không
+ * tự gia hạn ở mọi kênh) - `webTerms()` trong lib/pay.ts, test/proTerms.test.ts canh.
  */
-const PLANS: { kind: PlanKind; period: string; title: string; note: string }[] = [
-  {
-    kind: 'pro_month',
-    period: 'tháng',
-    title: '1 tháng',
-    note: 'Dùng thử nhu cầu, trả theo tháng.',
-  },
-  {
-    kind: 'pro_year',
-    period: 'năm',
-    title: '1 năm',
-    note: 'Bằng 10 tháng - tiết kiệm 2 tháng so với trả từng tháng.',
-  },
-];
+/** PRODUCT_POLICY 7.2 (v4.0.0): MỘT gói Pro kỳ 1 năm - gói tháng đã bỏ (PRO2). */
+const PLAN: PlanKind = 'pro_year';
 
 const FEATURES = [
   'Đồng bộ dữ liệu giữa các thiết bị cùng tài khoản',
@@ -46,7 +33,6 @@ export default function ProPage() {
   const app = appParam(router.query.app);
   const { status } = useSession();
   const [me, setMe] = useState<PayStatus | null>(null);
-  const [plan, setPlan] = useState<PlanKind>('pro_year');
   const { intent, busy, error, buy, reset } = usePurchase(app);
 
   const load = useCallback(async (signal?: AbortSignal) => {
@@ -56,7 +42,6 @@ export default function ProPage() {
   }, []);
   useLoader(load, status === 'authenticated');
 
-  const selected = PLANS.find((p) => p.kind === plan)!;
   const here = app ? `/pro?app=${encodeURIComponent(app)}` : '/pro';
 
   return (
@@ -64,7 +49,7 @@ export default function ProPage() {
       <Seo
         title="TsuDEV Pro"
         path="/pro"
-        description="TsuDEV Pro: đồng bộ và sao lưu đám mây mã hoá đầu cuối cho mọi ứng dụng TsuDEV. 49.000 ₫/tháng hoặc 490.000 ₫/năm, trả bằng chuyển khoản VietQR, không tự gia hạn."
+        description="TsuDEV Pro: đồng bộ và sao lưu đám mây mã hoá đầu cuối cho mọi ứng dụng TsuDEV. 490.000 ₫ cho 1 năm, trả bằng chuyển khoản VietQR, không tự gia hạn."
       />
       <PageHeader
         eyebrow="Hệ sinh thái TsuDEV"
@@ -86,8 +71,8 @@ export default function ProPage() {
             <TsuBadge badge="pro" />
             <span>
               Tài khoản của bạn đang có Pro tới{' '}
-              <strong className="text-fg">{formatDateVN(me.proUntil)}</strong>. Mua thêm sẽ cộng nối
-              tiếp vào mốc này.
+              <strong className="text-fg">{formatDateVN(me.proUntil)}</strong>. Gia hạn sẽ cộng thêm
+              1 năm vào mốc này.
             </span>
           </div>
         )}
@@ -103,47 +88,29 @@ export default function ProPage() {
           ))}
         </ul>
 
-        <fieldset className="mt-8 grid gap-4 md:grid-cols-2">
-          <legend className="mb-3 text-base font-semibold text-fg">Chọn kỳ</legend>
-          {PLANS.map((p) => (
-            <label
-              key={p.kind}
-              className={`cursor-pointer rounded-lg border bg-surface p-5 transition-colors ${
-                plan === p.kind ? 'border-primary' : 'border-line hover:border-line-strong'
-              }`}
-            >
-              <input
-                type="radio"
-                name="plan"
-                value={p.kind}
-                checked={plan === p.kind}
-                onChange={() => {
-                  setPlan(p.kind);
-                  reset();
-                }}
-                className="sr-only"
-              />
-              <span className="flex items-baseline justify-between gap-3">
-                <span className="text-base font-semibold text-fg">{p.title}</span>
-                <span className="font-mono text-xl text-fg">
-                  {vnd(PLAN_PRICE[p.kind])}
-                  <span className="text-sm text-fg-muted">/{p.period}</span>
-                </span>
-              </span>
-              <span className="mt-1.5 block text-sm text-fg-secondary">{p.note}</span>
-            </label>
-          ))}
-        </fieldset>
+        <div className="mt-8 max-w-md rounded-lg border border-primary bg-surface p-5">
+          <span className="flex items-baseline justify-between gap-3">
+            <span className="text-base font-semibold text-fg">TsuDEV Pro - 1 năm</span>
+            <span className="font-mono text-xl text-fg">{vnd(PLAN_PRICE[PLAN])}</span>
+          </span>
+          <span className="mt-1.5 block text-sm text-fg-secondary">
+            Trả trước một lần cho 12 tháng. Gia hạn sớm không mất ngày nào.
+          </span>
+        </div>
 
         {/* Điều khoản TRƯỚC nút mua (PRODUCT_POLICY 7.5). */}
         <p className="mt-6 rounded-md border border-line bg-subtle p-4 text-sm text-fg" role="note">
-          {webTerms(PLAN_PRICE[selected.kind], selected.period)}
+          {webTerms(PLAN_PRICE[PLAN])}
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {status === 'authenticated' ? (
-            <Button onClick={() => buy(plan)} disabled={busy !== null}>
-              {busy ? 'Đang tạo mã…' : `Mua ${selected.title} - ${vnd(PLAN_PRICE[plan])}`}
+            <Button onClick={() => buy(PLAN)} disabled={busy !== null}>
+              {busy
+                ? 'Đang tạo mã…'
+                : me?.proActive
+                  ? `Gia hạn 1 năm - ${vnd(PLAN_PRICE[PLAN])}`
+                  : `Mua 1 năm - ${vnd(PLAN_PRICE[PLAN])}`}
             </Button>
           ) : (
             <Button as="a" href={loginHref(here)}>
