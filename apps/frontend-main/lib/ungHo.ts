@@ -105,3 +105,48 @@ export function kiemKenh(kenh: unknown[]): KenhUngHo[] {
 }
 
 export const KENH: KenhUngHo[] = kiemKenh(duLieu.kenh);
+
+// ---------------------------------------------------------------------------
+// VietQR ĐỘNG cho thanh toán Pro / ủng hộ có huy hiệu (PRO-B bước B3).
+//
+// Dựng từ payload TĨNH đã kiểm ở trên (cùng BIN + số tài khoản), chỉ đổi:
+//  - tag 01 = "12" (mã dùng một lần, có số tiền) thay cho "11";
+//  - thêm tag 54 = số tiền VND (số nguyên);
+//  - thêm tag 62 / con 08 = nội dung chuyển khoản `TSU <mã 8 ký tự>`;
+//  - tính lại CRC tag 63.
+// Kết quả được kiểm lại bằng `kiemVietQr` (CRC, NAPAS, VND/VN, đúng tài khoản) trước khi
+// trả về - sai là NÉM, trang hiện lỗi thay vì vẽ một mã chuyển tiền đi nơi khác.
+// ---------------------------------------------------------------------------
+
+/** Nội dung chuyển khoản hợp lệ: chữ in hoa, số, khoảng trắng; ≤ 25 ký tự (giới hạn ngân hàng). */
+const NOI_DUNG_RE = /^[A-Z0-9 ]{1,25}$/;
+
+const truong = (tag: string, v: string) => tag + String(v.length).padStart(2, '0') + v;
+
+export function vietQrDong(goc: VietQr, soTienVnd: number, noiDung: string): string {
+  if (!Number.isSafeInteger(soTienVnd) || soTienVnd <= 0 || soTienVnd > 999_999_999)
+    throw new Error('Số tiền VietQR không hợp lệ');
+  if (!NOI_DUNG_RE.test(noiDung)) throw new Error('Nội dung chuyển khoản không hợp lệ');
+  kiemVietQr(goc);
+  const tags = tlv(goc.payload);
+  let s = '';
+  for (const [tag, v] of tags) {
+    if (tag === '54' || tag === '62' || tag === '63') continue;
+    s += truong(tag, tag === '01' ? '12' : v);
+    if (tag === '53') s += truong('54', String(soTienVnd));
+  }
+  s += truong('62', truong('08', noiDung));
+  s += '6304';
+  const payload = s + crc16(s);
+  kiemVietQr({ ...goc, payload });
+  const dung = tlv(payload);
+  if (dung.get('54') !== String(soTienVnd) || tlv(dung.get('62') ?? '').get('08') !== noiDung)
+    throw new Error('VietQR động dựng sai');
+  return payload;
+}
+
+/** Kênh nhận cho thanh toán Pro/ủng hộ có huy hiệu: kênh đầu tiên của trang /ung-ho. */
+export const KENH_THANH_TOAN: KenhUngHo = KENH[0]!;
+
+/** `TSU XXXXXXXX` - đúng chuỗi auth-service nhận ở /admin/thanh-toan (normalizeCode). */
+export const noiDungTsu = (ma: string) => `TSU ${ma}`;

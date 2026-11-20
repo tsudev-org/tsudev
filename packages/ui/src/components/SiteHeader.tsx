@@ -4,6 +4,9 @@ import { Logo } from './Logo';
 import { Avatar } from './Avatar';
 import { hasAtLeastRole } from '@tsudev/types';
 import { saveAuthHint } from '../lib/authHint';
+import { TsuBadge } from './TsuBadge';
+import type { TsuBadgeValue } from './TsuBadge';
+import { fetchOwnBadge, readBadgeCache, writeBadgeCache } from '../lib/badgeCache';
 // tsudev là MỘT site nên href tương đối. Trước đây có hai origin (trang chính và
 // diễn đàn) nên mọi link điều hướng buộc phải là URL tuyệt đối.
 type NavItem = {
@@ -54,7 +57,24 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
     else if (status === 'unauthenticated') saveAuthHint(null);
   }, [status, userName, canAuthor]);
 
+  // Huy hiệu Pro/Ủng hộ cạnh tên (PRODUCT_POLICY 4.1): bộ đệm 10 phút, hết hạn mới hỏi lại.
+  const [badge, setBadge] = useState<TsuBadgeValue | null>(null);
+  useEffect(() => {
+    if (status !== 'authenticated' || !userName) return;
+    const cached = readBadgeCache(userName);
+    const ac = new AbortController();
+    Promise.resolve().then(async () => {
+      if (cached) return setBadge(cached);
+      const b = await fetchOwnBadge(ac.signal);
+      if (ac.signal.aborted) return;
+      writeBadgeCache(userName, b);
+      setBadge(b);
+    });
+    return () => ac.abort();
+  }, [status, userName]);
+
   const logout = () => {
+    writeBadgeCache('', null);
     saveAuthHint(null);
     signOut();
   };
@@ -147,6 +167,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
               name={userName}
               email={session?.user?.email || ''}
               image={session?.user?.image || undefined}
+              badge={session ? badge : null}
               onLogout={logout}
             />
           )}
@@ -227,6 +248,12 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
               >
                 Bảo mật tài khoản
               </a>
+              <a
+                href="/settings/badge"
+                className="block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle"
+              >
+                Huy hiệu &amp; Pro
+              </a>
             </div>
           )}
         </nav>
@@ -240,6 +267,7 @@ type UserMenuProps = {
   name: string;
   email: string;
   image?: string;
+  badge?: TsuBadgeValue | null;
   onLogout: () => void;
 };
 
@@ -257,7 +285,7 @@ type UserMenuProps = {
  * (`.tsu-user-name`) - không biết tên thật thì không chọn được biến thể avatar, và
  * vẽ sai một biến thể rồi đổi là đúng kiểu nháy mà authHint đi xoá.
  */
-const UserMenu = ({ pending, name, email, image, onLogout }: UserMenuProps) => {
+const UserMenu = ({ pending, name, email, image, badge, onLogout }: UserMenuProps) => {
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   const btn = useRef<HTMLButtonElement>(null);
@@ -309,6 +337,7 @@ const UserMenu = ({ pending, name, email, image, onLogout }: UserMenuProps) => {
         <span className="hidden lg:inline max-w-36 truncate">
           {pending ? <span className="tsu-user-name" /> : name}
         </span>
+        {!pending && <TsuBadge badge={badge} className="hidden sm:inline-flex" />}
         <span className="sr-only lg:hidden">Tài khoản {pending ? '' : name}</span>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path
@@ -328,7 +357,10 @@ const UserMenu = ({ pending, name, email, image, onLogout }: UserMenuProps) => {
           <div className="flex items-center gap-2.5 px-3 py-2 mb-1 border-b border-line">
             <Avatar name={name} src={image} size={32} />
             <div className="min-w-0">
-              <p className="text-sm font-medium text-fg truncate">{name}</p>
+              <p className="flex items-center gap-1.5 text-sm font-medium text-fg">
+                <span className="truncate">{name}</span>
+                <TsuBadge badge={badge} />
+              </p>
               {email && email !== name && <p className="text-xs text-fg-muted truncate">{email}</p>}
             </div>
           </div>
@@ -343,6 +375,17 @@ const UserMenu = ({ pending, name, email, image, onLogout }: UserMenuProps) => {
               />
             </svg>
             Hồ sơ tài khoản
+          </a>
+          <a href="/settings/badge" className={item}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Huy hiệu &amp; Pro
           </a>
           <button type="button" onClick={onLogout} className={item}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">

@@ -74,6 +74,8 @@ export {
   pageAfterResize,
 };
 
+export { BADGE_CACHE_KEY, readBadgeCache, writeBadgeCache, fetchOwnBadge } from './lib/badgeCache';
+
 export default Layout;
 
 // Kiểu của prop cũng là một phần hợp đồng công khai của design system. Không

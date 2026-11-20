@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { Layout, Icon } from '@tsudev/ui';
+import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
+import { Button, Layout, Icon, TsuBadge } from '@tsudev/ui';
 import Seo from '../components/Seo';
 import PageHeader from '../components/PageHeader';
 import { KENH } from '../lib/ungHo';
+import { PaymentInstructions, loginHref, usePurchase } from '../components/PayPanel';
+import { DONATE_KINDS, PLAN_PRICE, appParam, vnd } from '../lib/pay';
 
 /**
  * Trang Ủng hộ TRUNG TÂM của hệ sinh thái tsudev (phiếu 20261112-01 + quyết định
@@ -17,6 +21,11 @@ import { KENH } from '../lib/ungHo';
  */
 export default function UngHoPage() {
   const [copied, setCopied] = useState<string | null>(null);
+  const router = useRouter();
+  const app = appParam(router.query.app);
+  const { status } = useSession();
+  const { intent, busy, error, buy, reset } = usePurchase(app);
+  const here = app ? `/ung-ho?app=${encodeURIComponent(app)}` : '/ung-ho';
 
   const copy = async (key: string, value: string) => {
     try {
@@ -59,8 +68,8 @@ export default function UngHoPage() {
               Trang này là nơi duy nhất công bố kênh ủng hộ của TsuDEV
             </strong>{' '}
             và chỉ có MỘT tài khoản nhận dưới đây. Ủng hộ là tự nguyện, 100% tới nhà phát triển,
-            không mở khoá tính năng, không gỡ quảng cáo, không đổi lấy quyền lợi nào. Ai gửi bạn số
-            tài khoản hay mã QR khác nhân danh TsuDEV đều không phải TsuDEV.
+            không mở khoá tính năng, không gỡ quảng cáo. Ai gửi bạn số tài khoản hay mã QR khác nhân
+            danh TsuDEV đều không phải TsuDEV.
           </p>
         </div>
 
@@ -123,6 +132,53 @@ export default function UngHoPage() {
             </section>
           );
         })}
+
+        {/* PRO-B bước B3: ủng hộ có mã đối soát ⇒ huy hiệu Ủng hộ vĩnh viễn (PRODUCT_POLICY 4.1).
+            Cùng tài khoản nhận ở trên; chỉ khác là QR mang số tiền + nội dung TSU <mã>. */}
+        <section
+          className="mt-10 rounded-lg border border-line bg-surface p-6 md:p-8"
+          aria-labelledby="ung-ho-huy-hieu"
+        >
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 id="ung-ho-huy-hieu" className="text-xl font-semibold text-fg">
+              Ủng hộ kèm huy hiệu
+            </h2>
+            <TsuBadge badge="donor" />
+          </div>
+          <p className="mt-1.5 text-sm text-fg-secondary">
+            Tuỳ chọn: đăng nhập và ủng hộ qua mã dưới đây để nhận huy hiệu Ủng hộ cạnh tên tài khoản
+            - vĩnh viễn, hiện ở mọi ứng dụng TsuDEV, ẩn được bất cứ lúc nào. Không mở khoá tính năng
+            nào. Muốn đồng bộ đám mây thì xem{' '}
+            <a href="/pro" className="text-link hover:underline">
+              TsuDEV Pro
+            </a>
+            .
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            {status === 'authenticated' ? (
+              DONATE_KINDS.map((k) => (
+                <Button
+                  key={k}
+                  variant={intent?.kind === k ? 'primary' : 'secondary'}
+                  onClick={() => buy(k)}
+                  disabled={busy !== null}
+                >
+                  {busy === k ? 'Đang tạo mã…' : vnd(PLAN_PRICE[k])}
+                </Button>
+              ))
+            ) : (
+              <Button as="a" href={loginHref(here)}>
+                Đăng nhập để ủng hộ kèm huy hiệu
+              </Button>
+            )}
+          </div>
+          {error && (
+            <p className="mt-3 text-sm text-danger-ink" role="alert">
+              {error}
+            </p>
+          )}
+          {intent && <PaymentInstructions intent={intent} onClose={reset} />}
+        </section>
 
         <section className="mt-10 grid gap-6 md:grid-cols-2" aria-label="Câu hỏi thường gặp">
           <div>
