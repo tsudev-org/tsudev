@@ -1,0 +1,46 @@
+{
+  "$schema": "./product.schema.json",
+  "id": "files",
+  "name": "TsuFiles",
+  "repo": "tsudev-org/tsufiles",
+  "seed": {
+    "hex": "#8339FA",
+    "source": "assets/brand/source/tsufiles-1.webp",
+    "note": "tím logo cú",
+    "measured": "21/11/2026"
+  },
+  "hue": 293,
+  "chroma": 0.2,
+  "layout": "cong-cu",
+  "shape": "mem",
+  "motif": "quy-dao",
+  "fontDisplay": "Lexend",
+  "locked": true,
+  "lockedNote": "Bảng tím logo cú của ECOSYSTEM_IDENTITY.md mục 4.2.1 (chủ dự án chốt 19/11/2026)",
+  "colors": {
+    "light": {
+      "text-link": "#6D28D9",
+      "primary": "#7C3AED",
+      "primary-hover": "#6D28D9",
+      "primary-active": "#5B21B6",
+      "on-primary": "#FFFFFF",
+      "focus-ring": "#7C3AED",
+      "accent": "#5E28B5",
+      "glow": "rgba(124, 58, 237, 0.1)",
+      "icon-info": "#6D28D9",
+      "icon-nav": "#5B21B6"
+    },
+    "dark": {
+      "text-link": "#C4A1FF",
+      "primary": "#A970FF",
+      "primary-hover": "#BB8CFF",
+      "primary-active": "#9A5CF5",
+      "on-primary": "#0A0A0A",
+      "focus-ring": "#A970FF",
+      "accent": "#D8B4FC",
+      "glow": "rgba(169, 112, 255, 0.16)",
+      "icon-info": "#C4A1FF",
+      "icon-nav": "#D8B4FC"
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "./product.schema.json",
+  "id": "contact",
+  "name": "Tsu Contact",
+  "repo": "tsudev-org/tsucontact",
+  "seed": {
+    "hex": "#73DBCD",
+    "source": "assets/brand/source/logo-contact.png",
+    "note": "logo xám đá + bạc hà; bạc hà trùng TsuDisk (logo TsuDisk xanh ngọc chiếm 67%) nên nhận hồng san hô ấm của danh bạ con người",
+    "measured": "21/11/2026"
+  },
+  "hue": 350,
+  "chroma": 0.15,
+  "layout": "cong-cu",
+  "shape": "tron",
+  "motif": "the-xep",
+  "fontDisplay": "Nunito",
+  "colors": {
+    "light": {
+      "text-link": "#99316B",
+      "primary": "#AD447C",
+      "primary-hover": "#99316B",
+      "primary-active": "#851E5A",
+      "on-primary": "#FFFFFF",
+      "focus-ring": "#AD447C",
+      "accent": "#8A235E",
+      "glow": "rgba(173, 68, 124, 0.1)",
+      "icon-info": "#AD447C",
+      "icon-nav": "#99316B"
+    },
+    "dark": {
+      "text-link": "#F999C8",
+      "primary": "#F182BA",
+      "primary-hover": "#FD9CCB",
+      "primary-active": "#D96CA4",
+      "on-primary": "#0A0A0A",
+      "focus-ring": "#F182BA",
+      "accent": "#FFB7D8",
+      "glow": "rgba(241, 130, 186, 0.14)",
+      "icon-info": "#F182BA",
+      "icon-nav": "#F999C8"
+    }
+  }
+}

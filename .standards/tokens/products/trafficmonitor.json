@@ -1,0 +1,44 @@
+{
+  "$schema": "./product.schema.json",
+  "id": "trafficmonitor",
+  "name": "TsuDEV TrafficMonitor",
+  "repo": "tsudev-org/tsudev-trafficmonitor",
+  "seed": {
+    "hex": "#FE7107",
+    "source": "assets/brand/source/logo-tsudev-trafficmonitor.png",
+    "note": "logo dùng chung con cú TsuDEV - chọn vàng chanh của đèn LED báo lưu lượng",
+    "measured": "21/11/2026"
+  },
+  "hue": 105,
+  "chroma": 0.15,
+  "layout": "trinh-dien",
+  "shape": "mem",
+  "motif": "duong-bieu-do",
+  "fontDisplay": "JetBrains Mono",
+  "colors": {
+    "light": {
+      "text-link": "#605A04",
+      "primary": "#736C01",
+      "primary-hover": "#605A04",
+      "primary-active": "#4F4A02",
+      "on-primary": "#FFFFFF",
+      "focus-ring": "#736C01",
+      "accent": "#554F02",
+      "glow": "rgba(115, 108, 1, 0.1)",
+      "icon-info": "#736C01",
+      "icon-nav": "#605A04"
+    },
+    "dark": {
+      "text-link": "#C0B84F",
+      "primary": "#B3A90F",
+      "primary-hover": "#C4BC52",
+      "primary-active": "#9C9309",
+      "on-primary": "#0A0A0A",
+      "focus-ring": "#B3A90F",
+      "accent": "#D4CF7C",
+      "glow": "rgba(179, 169, 15, 0.14)",
+      "icon-info": "#B3A90F",
+      "icon-nav": "#C0B84F"
+    }
+  }
+}

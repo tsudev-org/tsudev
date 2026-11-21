@@ -1,4 +1,4 @@
-# TÀI SẢN THƯƠNG HIỆU (v3.6.0)
+# TÀI SẢN THƯƠNG HIỆU (v4.0.0)
 
 > Logo, dấu hiệu thu gọn, wordmark, favicon và icon ứng dụng của hệ sinh thái
 > tsudev: bản gốc nằm ở đâu, sinh ra bằng gì, dùng dấu hiệu nào ở cỡ nào.
@@ -66,67 +66,41 @@ tsudev-<loại>[-<biến-thể>][-<cỡ>].<đuôi>
   không số phiên bản trong tên file.
 
 Hai repo đang chạy dùng lược đồ tên riêng có trước quy ước này: `tsudev` dùng
-`logo-full` / `logo-mark` / `logo-wordmark`, `tsudev-cwico` dùng
+`logo-full` / `logo-mark` / `logo-wordmark`, `tsucwico` (trước là `tsudev-cwico`) dùng
 `tsudev-logo.png` cho chính **dấu hiệu thu gọn**. `MUST NOT` đổi tên chúng chỉ để
 hợp quy ước - tên file trong `public/` là URL công khai, đổi là hỏng liên kết và
 hỏng cache. Quy tắc trên áp cho **file mới**.
 
 ## 4. Biến thể theo nền
 
-Hình cú có nền trong suốt và tự đủ tương phản trên cả ba chế độ nền
-(`DESIGN_SYSTEM.md` mục 1) - dùng chung một bản, không cần bản `dark`.
+Logo từ 13/11/2026 là **một bản cho mọi nền**: chữ "tsudev" có viền tối vẽ sẵn trong hình nên đọc được trên cả
+Sáng lẫn Tối (mục 2). Không có bản `-dark`; các tệp `logo-full-dark.png` / `logo-wordmark-dark.png` của v2.8.0 đã gỡ
+cùng bộ logo cũ. Nơi buộc phải có nền đặc (apple-touch, maskable, `og-image`) dùng `#0A0A0A` - hằng thương hiệu.
 
-Chữ thì khác. Chữ trong `logo-full.png` và `logo-wordmark.png` là **navy
-`#11355A`**, chỉ đạt **1.38:1** trên nền Tối - không đọc được. Vì vậy:
-
-- Trên nền tối, `MUST NOT` dùng `logo-full.png` hay `logo-wordmark.png`. Dùng
-  `logo-full-dark.png` / `logo-wordmark-dark.png` - mực navy đã đổi sang trắng,
-  đạt **17.28:1**, còn chữ cam giữ nguyên vì nó vốn đã đạt **6.66:1**.
-- Nơi dựng được chữ bằng text thì vẫn `SHOULD` dùng `logo-mark.png` kèm chữ text
-  theo mục 5 - cách đó tự đúng ở cả ba chế độ nền, không phải chọn file.
-- Giới hạn đã biết: quầng sáng của con cú được vẽ để tan vào nền trắng, nên ở cỡ
-  rất lớn trên nền tối phần đáy thân cú vẫn hơi lộ vệt sáng. Dưới 300px không nhận
-  ra. Sửa hết hẳn là việc của khâu thiết kế, không phải của ngưỡng xoá nền.
+Xoá nền đen của bản gốc `MUST` theo dây chuyền ở `packages/brand/README.md` (repo `tsudev`): đóng hình thái học mặt
+nạ để không thủng các mảng đen nằm trong lòng logo - trên nền Tối lỗ thủng vô hình, trên nền Sáng thành lỗ trắng.
 
 ## 5. Màu của dấu hiệu
 
-Đo trực tiếp từ bản gốc:
+> **Từ v5.0.0:** mục này tả logo hiện hành (13/11/2026). Bảng cam `#FE7B2E` / `#C2410C` của các bản trước thuộc logo
+> cũ (cú navy, chữ "dev" cam) - **đã gỡ**. Việc TS-8 ("dev" xanh ở website, cam ở Tsu Cwico) đóng theo logo mới:
+> chữ "dev" của TsuDEV là **xanh**; dải `--color-dev-*` cam ở repo con là di sản, `MUST` gỡ ở PR kế tiếp của repo đó.
+
+Đo trực tiếp từ `packages/brand/source/logo-tsudev.png` (21/11/2026, trung bình điểm ảnh vùng chữ):
 
 | Vai trò trong ảnh | Mã màu |
 | --- | --- |
-| Chữ `tsu`, thân cú | `#11355A` |
-| Chữ `dev` | `#FE7B2E` |
-| Tagline | `#0F2947` |
-| Mắt cú, điểm nhấn | Cam hổ phách quanh `#F3813F` |
+| Chữ `tsu` | trắng ngả xanh ~`#EFF2F5` |
+| Chữ `dev` | dải xanh lơ ~`#30C8F0` (đỉnh) → xanh dương ~`#1E90FF` (chân), trung bình `#21B7F6` |
+| Con cú, mạch, quầng | xanh lơ / xanh dương cùng dải với chữ `dev` |
 
-**Wordmark `SHOULD` dựng bằng chữ thật, không phải ảnh.** Chữ co giãn theo cỡ chữ
-hệ thống, sắc ở mọi DPI, chọn và tìm kiếm được, và đổi màu theo chế độ nền mà
-không cần file thứ hai.
-
-Chữ dựng bằng text `MUST` lấy màu từ token, không hard-code:
-
-| Phần | Token |
-| --- | --- |
-| `tsu` | `text-primary` |
-| `dev` | `text-link` |
-
-Cả hai token đã qua cổng canh tương phản ở cả ba chế độ nền, nên cách này luôn
-đạt chuẩn mà không phải đo lại.
-
-**Chỉ khi buộc phải dùng đúng sắc cam thương hiệu** (ví dụ khớp với ảnh in đặt
-cạnh), dùng bảng dưới - cam lấy thẳng từ ảnh **không** dùng được trên nền sáng:
-
-| Nền | `dev` | Tương phản | Dùng được cho |
-| --- | --- | --- | --- |
-| Light / Warm | `#C2410C` | 4.68 / 4.60 | mọi cỡ chữ |
-| Light / Warm | `#D2540E` | 3.78 / 3.72 | chỉ chữ lớn (từ 18px, hoặc 14px đậm) |
-| Light / Warm | `#FE7B2E` (màu trong ảnh) | **2.35** | `MUST NOT` dùng cho chữ |
-| Dark | `#FE7B2E` | 6.66 | mọi cỡ chữ |
-| Dark | `#FFA76B` | 9.05 | mọi cỡ chữ |
-
-**Màu dấu hiệu KHÔNG phải token giao diện.** Chúng `MUST NOT` ghi đè token ngữ
-nghĩa trong `tokens/design-tokens.json`. Repo cần dải màu thương hiệu thì khai
-riêng, tên khác hẳn tên token ngữ nghĩa, và chỉ dùng cho phần nhận diện.
+- Logo là ảnh hoàn chỉnh có chữ: `MUST NOT` dựng lại wordmark bằng chữ HTML bên cạnh hay đè lên logo (mục 2).
+- Nơi bắt buộc phải viết chữ "TsuDEV" bằng text có màu thương hiệu (ví dụ dòng chữ trong email thuần văn bản HTML):
+  `Tsu` dùng `text-primary`, `DEV` dùng `text-link` **của lớp nền TsuDEV** (`DESIGN_SYSTEM.md` mục 1.1) - không dùng
+  `text-link` của sản phẩm, vì đó là tên thương hiệu mẹ chứ không phải tên sản phẩm.
+- **Màu dấu hiệu KHÔNG phải token giao diện.** Màu nhấn của từng sản phẩm lấy từ lớp bản sắc
+  (`DESIGN_SYSTEM.md` mục 1.2), có cổng kiểm WCAG và chống trùng; repo `MUST NOT` tự khai dải màu thương hiệu riêng
+  để tô giao diện.
 
 ## 6. Kích thước tối thiểu và vùng an toàn
 
@@ -156,7 +130,7 @@ Hai bản cài đặt tham chiếu, dùng cho hai loại sản phẩm:
 | Dây chuyền | Repo | Sinh ra |
 | --- | --- | --- |
 | `packages/brand/build-assets.js` | `tsudev` | Tài sản web: logo, favicon, avatar, ảnh chia sẻ |
-| `tools/gen_icons.py` | `tsudev-cwico` | Icon desktop: bộ Tauri, tile Microsoft Store, bộ web |
+| `tools/gen_icons.py` | `tsucwico` | Icon desktop: bộ Tauri, tile Microsoft Store, bộ web |
 
 ## 8. Điều cấm
 
@@ -164,7 +138,7 @@ Hai bản cài đặt tham chiếu, dùng cho hai loại sản phẩm:
 
 - Kéo méo, xoay, lật, cắt cụt, hay đổi tỉ lệ giữa các phần của dấu hiệu.
 - Đổi màu dấu hiệu, thêm đổ bóng, viền, hay hiệu ứng chuyển màu.
-- Dùng logo đầy đủ ở cỡ icon, hoặc trên nền tối (mục 4).
+- Đặt logo lên nền đặc khác `#0A0A0A` ở chỗ cần nền đặc (mục 4), hoặc dựng thêm chữ HTML cạnh logo (mục 2).
 - Sửa file trong `apps/*/public/` thay vì sửa bản gốc rồi chạy lại dây chuyền.
 - Đặt dấu hiệu lên ảnh nền rối hoặc nền tương phản thấp.
 - Dùng dấu hiệu tsudev cho sản phẩm không thuộc hệ sinh thái tsudev.
@@ -222,7 +196,7 @@ việc để dành làm sau.
 | Icon PWA `192x192`, `512x512`, kèm bản `maskable` | `MUST` khi có `manifest` | - | mục 6 |
 | `og-image.png` `1200x630` | `MUST` | - | mục 1 |
 | Dấu hiệu thu gọn trong giao diện | `MUST` | `MUST` | mục 2 |
-| Bản cho nền tối | `MUST` khi có chế độ Tối | `MUST` khi có chế độ Tối | mục 4 |
+| Đọc được trên cả nền Sáng và Tối (một bản, hoặc bản `-dark` nếu logo riêng cần) | `MUST` | `MUST` | mục 4 |
 | Icon ứng dụng theo nền tảng (`.ico`, `.icns`, PNG bộ Linux) | - | `MUST` | mục 7 |
 | Icon khay hệ thống `16/32` | - | `MUST` khi có khay | mục 6 |
 | Ảnh mở đầu bản cài | - | `MUST` khi có bộ cài | mục 2 |
@@ -253,15 +227,15 @@ thiểu, thêm vào `.github/workflows/standards.yml`:
 
 Sản phẩm desktop thay danh sách trên bằng danh sách icon của nền tảng mình.
 
-### 12.3. Nhận diện là MỘT, không nhân bản
+### 12.3. Thương hiệu mẹ là MỘT, bản sắc sản phẩm là RIÊNG (từ v5.0.0)
 
-- `MUST NOT` mỗi sản phẩm tự vẽ một logo riêng, một bảng màu riêng, hay một biến
-  thể "cho hợp với sản phẩm này".
-- Sản phẩm cần dấu hiệu riêng để phân biệt trong khay hệ thống thì `MAY` thêm một
-  **huy hiệu phụ nhỏ ở góc** dấu hiệu chung, `MUST NOT` thay dấu hiệu chung.
-- Chữ "tsudev" dựng bằng text `MUST` lấy màu từ bảng ở mục 5. Hai sản phẩm ra hai
-  màu khác nhau là lỗi, không phải phong cách - xem việc `TS-8` trong
-  `logs/STATE.md`.
+- Logo TsuDEV là một, `MUST NOT` vẽ biến thể "cho hợp với sản phẩm này". Nơi nó xuất hiện (chân trang, khối "nhà
+  làm", thẻ trên tsudev.com/apps) giữ đúng logo và màu chữ ở mục 5, ở MỌI sản phẩm.
+- Sản phẩm `MAY` có logo riêng khi chủ dự án duyệt (mục 15) và `MUST` có bản sắc riêng (màu nhấn, bố cục, bo góc,
+  hoạ tiết, font tiêu đề) theo `DESIGN_SYSTEM.md` mục 1.2 - khai ở repo này, có cổng kiểm chống trùng. Bảng màu
+  riêng tự khai tại repo con, ngoài lớp bản sắc, vẫn là lỗi.
+- Sản phẩm dùng chung logo TsuDEV mà cần phân biệt trong khay hệ thống thì `MAY` thêm một **huy hiệu phụ nhỏ ở góc**
+  tô bằng `primary` của sản phẩm, `MUST NOT` thay logo.
 
 ---
 
@@ -292,7 +266,7 @@ không phải bằng chứng. Chuỗi băm mới là bằng chứng.
 2. Chạy lại dây chuyền, không cắt tay.
 3. Chọn đúng dấu hiệu theo cỡ hiển thị (mục 2 và 6).
 4. Nguồn sinh icon có cạnh ngắn lớn hơn hoặc bằng cỡ icon lớn nhất.
-5. Chữ dựng bằng text lấy màu từ token (mục 5).
+5. Không dựng lại chữ của logo bằng text; màu nhấn lấy từ lớp bản sắc (mục 5).
 6. Không hard-code màu dấu hiệu vào chỗ lẽ ra phải dùng token.
 7. Ảnh có `alt` đúng vai trò theo mục 9.
 8. File ảnh lớn không cần lúc chạy `MUST` vào `.gitignore`.
@@ -308,7 +282,7 @@ Một sản phẩm `MAY` có logo riêng thay logo tsudev khi **chủ dự án d
    SINH từ đó - `MUST NOT` cắt tay từng cỡ. Đổi logo = thay một tệp + chạy một lệnh.
 2. Có cấu hình sinh `assets/brand/brand.json` và **một script sinh mọi bản** có chế độ `--check`, chạy trong CI để bắt
    tệp đã commit lệch ảnh gốc. Mẫu đã chạy thật:
-   - `website/scripts/brand-assets.mjs` (Node + sharp; tsudev-cwico, tsudev-swico, tsudev-contact) - chế độ `tile` cho
+   - `website/scripts/brand-assets.mjs` (Node + sharp; tsucwico, tsuswico, tsucontact) - chế độ `tile` cho
      logo vẽ sẵn trên ô nền đặc (giữ nền, bo góc) và `no-white` cho logo nền trắng (flood fill từ mép, khử nhân với trắng);
    - `tools/brand/build_brand.py` + `assets/brand/brand.json` (tsudev-trafficmonitor) - logo nền đen.
 3. Đủ bộ tài sản bắt buộc ở mục 12 (favicon.ico 7 lớp, apple-touch nền đặc, PWA + maskable riêng, og-image) và icon

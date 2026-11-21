@@ -1,4 +1,4 @@
-# ĐỒNG BỘ BỘ QUY ƯỚC - repo con luôn ở trạng thái mới nhất (v3.1.1)
+# ĐỒNG BỘ BỘ QUY ƯỚC - repo con luôn ở trạng thái mới nhất (v3.1.2)
 
 > Quy ước chỉ có giá trị khi mọi repo thực sự đang chạy cùng một bản. Tài liệu
 > này mô tả cơ chế bắt buộc để repo con biết mình đang ở bản nào, và biết ngay
@@ -11,7 +11,7 @@
                         |
                         |  scripts/sync-standards.sh  (không cần token)
                         v
-    tsudev-web/.standards/   swico/.standards/   <repo khác>/.standards/
+    tsudev/.standards/   tsuswico/.standards/   <repo khác>/.standards/
         (bản sao chỉ-đọc, ĐƯỢC COMMIT vào repo con)
 ```
 

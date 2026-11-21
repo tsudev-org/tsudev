@@ -1,0 +1,44 @@
+{
+  "$schema": "./product.schema.json",
+  "id": "lotus",
+  "name": "Lotus Share",
+  "repo": "tsudev-org/lotus-share",
+  "seed": {
+    "hex": "#8E29C1",
+    "source": "support/brand/lotus-share/logo-source.png",
+    "note": "tím hoa sen ngả hồng của cánh sen - tách khỏi tím TsuFiles (trước 21/11/2026 hai sản phẩm dùng chung #A970FF)",
+    "measured": "21/11/2026"
+  },
+  "hue": 320,
+  "chroma": 0.2,
+  "layout": "trinh-dien",
+  "shape": "tron",
+  "motif": "canh-sen",
+  "fontDisplay": "Quicksand",
+  "colors": {
+    "light": {
+      "text-link": "#8F27A4",
+      "primary": "#A23DB8",
+      "primary-hover": "#8F27A4",
+      "primary-active": "#7C0A91",
+      "on-primary": "#FFFFFF",
+      "focus-ring": "#A23DB8",
+      "accent": "#821698",
+      "glow": "rgba(162, 61, 184, 0.1)",
+      "icon-info": "#A23DB8",
+      "icon-nav": "#8F27A4"
+    },
+    "dark": {
+      "text-link": "#EC98FF",
+      "primary": "#E47DFB",
+      "primary-hover": "#EC9EFE",
+      "primary-active": "#CC67E3",
+      "on-primary": "#0A0A0A",
+      "focus-ring": "#E47DFB",
+      "accent": "#F1B7FF",
+      "glow": "rgba(228, 125, 251, 0.14)",
+      "icon-info": "#E47DFB",
+      "icon-nav": "#EC98FF"
+    }
+  }
+}

@@ -186,6 +186,37 @@ describe('font tự host - cổng canh nguồn', () => {
   });
 
   /**
+   * 3b. Font TIÊU ĐỀ của bản sắc sản phẩm (tsudev-standards v5.0.0) cũng phải tự host.
+   *
+   * `--font-display` không nằm trong tokens.css mà trong `.standards/tokens/products.css`
+   * (khối `[data-product="tsudev"]`). Bộ quy ước đổi `fontDisplay` của tsudev mà repo
+   * không tải font mới thì tiêu đề lặng lẽ rơi về font dự phòng - hoặc tệ hơn, về
+   * bản Inter cài sẵn trên máy người xem, mỗi máy một bản.
+   */
+  test('họ font đầu của --font-display (data-product="tsudev") có @font-face', () => {
+    const products = readFileSync(
+      join(__dirname, '../../../.standards/tokens/products.css'),
+      'utf8'
+    );
+    const fontsCss = readFileSync(join(APP, 'styles/fonts.css'), 'utf8');
+    const _document = readFileSync(join(APP, 'pages/_document.tsx'), 'utf8');
+    expect(_document).toMatch(/data-product="tsudev"/);
+
+    const khoi = products.match(/:root\[data-product="tsudev"\]\s*\{([^}]+)\}/);
+    expect(khoi).not.toBeNull();
+    const m = (khoi?.[1] ?? '').match(/--font-display:\s*([^;]+);/);
+    expect(m).not.toBeNull();
+    const dau =
+      (m?.[1] ?? '')
+        .split(',')[0]
+        ?.trim()
+        .replace(/^['"]|['"]$/g, '') ?? '';
+    expect(dau).not.toBe('');
+    const khaiBao = [...fontsCss.matchAll(/font-family:\s*'([^']+)'/g)].map((x) => x[1]);
+    expect(khaiBao).toContain(dau);
+  });
+
+  /**
    * 4. Mọi tệp woff2 mà CSS trỏ tới phải TỒN TẠI và có kích thước thật.
    *
    * Một `src: url('/fonts/thiếu.woff2')` trả 404 và trình duyệt bỏ qua không
@@ -223,19 +254,36 @@ describe('font tự host - cổng canh nguồn', () => {
   });
 
   /**
-   * 6. Phải có subset `vietnamese` cho CẢ HAI họ font.
+   * 6. Phải có subset `vietnamese` cho MỌI họ font (kể cả font tiêu đề Inter).
    *
    * Đây là khẳng định cốt lõi của cả đợt: một font không mang subset vietnamese
    * thì mọi chữ có dấu rơi xuống font dự phòng, và kết quả là chữ có dấu và chữ
    * không dấu hiện bằng HAI font khác nhau trong cùng một dòng - hỏng nhìn thấy
    * được nhưng rất dễ bị bỏ qua khi người rà giao diện đọc tiếng Anh.
    */
-  test('cả hai họ font đều có subset vietnamese ở mọi nét', () => {
-    const tep = readdirSync(FONT_DIR).filter((f) => f.endsWith('.woff2'));
-    for (const slug of ['be-vietnam-pro', 'chivo-mono']) {
-      for (const net of [400, 500, 600, 700]) {
-        expect(tep).toContain(`${slug}-${net}-vietnamese.woff2`);
+  test('mọi họ font đều có subset vietnamese ở mọi nét được dùng', () => {
+    const fontsCss = readFileSync(join(APP, 'styles/fonts.css'), 'utf8');
+    // Font biến thiên được gộp thành MỘT @font-face với dải độ đậm (`font-weight: 400 700`),
+    // nên kiểm theo khối CSS (dải phủ nét) chứ không theo tên tệp từng nét.
+    const khoi = [...fontsCss.matchAll(/\/\*\s*vietnamese\s*\*\/\s*@font-face\s*\{([^}]+)\}/g)].map(
+      (m) => {
+        const than = m[1] ?? '';
+        const ho = than.match(/font-family:\s*'([^']+)'/)?.[1] ?? '';
+        const [lo, hi] = (than.match(/font-weight:\s*([0-9 ]+);/)?.[1] ?? '0')
+          .trim()
+          .split(/\s+/)
+          .map(Number);
+        return { ho, lo: lo ?? 0, hi: hi ?? lo ?? 0 };
       }
+    );
+    const phu = (ho: string, net: number) =>
+      khoi.some((k) => k.ho === ho && k.lo <= net && net <= k.hi);
+    for (const ho of ['Be Vietnam Pro', 'Chivo Mono']) {
+      for (const net of [400, 500, 600, 700]) expect(phu(ho, net)).toBe(true);
     }
+    // Font tiêu đề (bản sắc tsudev, v5.0.0): chỉ hai nét 600/700.
+    for (const net of [600, 700]) expect(phu('Inter', net)).toBe(true);
+    // Dải độ đậm không được kéo nét 300 (bị cấm - test 5) vào theo đường vòng.
+    for (const k of khoi) expect(k.lo).toBeGreaterThanOrEqual(400);
   });
 });

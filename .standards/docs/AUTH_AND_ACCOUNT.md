@@ -1,4 +1,4 @@
-# XÁC THỰC VÀ KIẾN TRÚC TÀI KHOẢN - mọi project/tool/phần mềm tsudev (v3.2.0)
+# XÁC THỰC VÀ KIẾN TRÚC TÀI KHOẢN - mọi project/tool/phần mềm tsudev (v3.2.2)
 
 > Đăng nhập, đăng ký, liên kết nhà cung cấp, trạng thái tài khoản, và cơ chế
 > **Xác minh tài khoản**. Đây là chuẩn bắt buộc, không phải gợi ý.
@@ -40,7 +40,7 @@ khi** viết dòng mã xác thực đầu tiên, rồi ghi hạng đó vào `REA
 | --- | --- | --- |
 | **A - Web có tài khoản** | Website, ứng dụng web, bảng quản trị. Ví dụ: `tsudev` | `MUST` đủ mục 3 tới 13 |
 | **B - Desktop/app có kết nối** | App cài đặt nhưng có tính năng cần máy chủ (đồng bộ, giấy phép, báo cáo) | `MUST` đủ mục 3 tới 13, thêm mục 14.1 |
-| **C - Ngoại tuyến** | Chạy trọn vẹn không cần internet. Ví dụ: `tsudev-swico` rà quét máy tính, `tsudev-contact` chuyển CSV sang vCard | Đăng nhập là **tùy chọn**, theo mục 14 |
+| **C - Ngoại tuyến** | Chạy trọn vẹn không cần internet. Ví dụ: `tsuswico` rà quét máy tính, `tsucontact` chuyển CSV sang vCard | Đăng nhập là **tùy chọn**, theo mục 14 |
 
 **Quy tắc cứng:** hạng C `MUST NOT` chặn bất kỳ chức năng lõi nào sau một màn
 hình đăng nhập. Người dùng mở phần mềm ra là dùng được ngay. Đăng nhập ở hạng C
@@ -67,7 +67,7 @@ sinh thái là **một**, ở `tsudev.com` (mục 2).
                                 |   (OIDC Authorization Code + PKCE)
         +------------+----------+----------+-------------+
         v            v                     v             v
-     tsudev     tsudev-contact        tsudev-cwico    tsudev-swico
+     tsudev     tsucontact             tsucwico      tsuswico
     (hạng A)      (hạng A)             (hạng B)        (hạng C)
 ```
 
@@ -75,7 +75,7 @@ sinh thái là **một**, ở `tsudev.com` (mục 2).
   Mọi project khác là **bên tin cậy** (Relying Party, RP).
 - Google, GitHub (và Apple, mục 3.2) là **nhà cung cấp liên kết**: chúng nối vào IdP, **không** nối
   thẳng vào từng project. Nhờ vậy một người dùng đăng nhập bằng Google ở
-  `tsudev.com` và ở `tsudev-cwico` là **cùng một tài khoản**, cùng một trạng thái
+  `tsudev.com` và ở `tsucwico` là **cùng một tài khoản**, cùng một trạng thái
   xác minh, cùng một hồ sơ.
 - `MUST NOT` khai báo OAuth app của Google/Apple/GitHub riêng cho từng project. Mỗi
   `client_id` thừa là một bề mặt tấn công thừa và một danh tính bị tách đôi.
@@ -539,7 +539,7 @@ kiện để chia sẻ liên kết giữa các sản phẩm mà không hỏng.
   minh, không phải kẻ địch.
 - Toàn bộ luồng `MUST` dùng được **chỉ bằng bàn phím**, thứ tự `Tab` đúng theo thứ
   tự nhìn thấy, vòng focus theo `DESIGN_SYSTEM.md` mục 5.
-- `MUST` giữ hoạt động ở cả ba chế độ nền, dùng bản logo cho nền tối theo
+- `MUST` giữ hoạt động ở cả hai chế độ nền Sáng/Tối, logo theo
   [`BRAND_ASSETS.md`](BRAND_ASSETS.md) mục 4.
 
 ### 13.3. Thông điệp
@@ -566,7 +566,7 @@ kiện để chia sẻ liên kết giữa các sản phẩm mà không hỏng.
 ### 14.1. Nguyên tắc
 
 - Chức năng lõi `MUST` chạy đủ ở **chế độ khách**, không tài khoản, không mạng.
-  Với `tsudev-swico`, rà quét và xuất báo cáo là chức năng lõi.
+  Với `tsuswico`, rà quét và xuất báo cáo là chức năng lõi.
 - Nút đăng nhập `MUST` nói rõ nó mở thêm gì. Ví dụ đúng: `Đăng nhập tài khoản
   tsudev để đồng bộ báo cáo và lưu hồ sơ máy`. Ví dụ sai: một nút `Đăng nhập`
   trống nghĩa.

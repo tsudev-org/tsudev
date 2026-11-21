@@ -1,0 +1,44 @@
+{
+  "$schema": "./product.schema.json",
+  "id": "sounddb",
+  "name": "Sound Db",
+  "repo": "tsudev-org/sound-db",
+  "seed": {
+    "hex": "#06A17F",
+    "source": "assets/brand/source/logo-sound-db.png",
+    "note": "xanh lục của logo đẩy về vàng chanh của đồng hồ VU, tách khỏi Quly Thu Chi",
+    "measured": "21/11/2026"
+  },
+  "hue": 130,
+  "chroma": 0.17,
+  "layout": "do-luong",
+  "shape": "chuan",
+  "motif": "song-am",
+  "fontDisplay": "Space Grotesk",
+  "colors": {
+    "light": {
+      "text-link": "#3F6301",
+      "primary": "#4C7601",
+      "primary-hover": "#3F6301",
+      "primary-active": "#335100",
+      "on-primary": "#FFFFFF",
+      "focus-ring": "#4C7601",
+      "accent": "#365501",
+      "glow": "rgba(76, 118, 1, 0.1)",
+      "icon-info": "#4C7601",
+      "icon-nav": "#3F6301"
+    },
+    "dark": {
+      "text-link": "#92C35B",
+      "primary": "#7DB530",
+      "primary-hover": "#95C65E",
+      "primary-active": "#699F08",
+      "on-primary": "#0A0A0A",
+      "focus-ring": "#7DB530",
+      "accent": "#AFD985",
+      "glow": "rgba(125, 181, 48, 0.14)",
+      "icon-info": "#7DB530",
+      "icon-nav": "#92C35B"
+    }
+  }
+}

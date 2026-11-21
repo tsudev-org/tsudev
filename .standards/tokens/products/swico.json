@@ -1,0 +1,44 @@
+{
+  "$schema": "./product.schema.json",
+  "id": "swico",
+  "name": "Tsu Swico",
+  "repo": "tsudev-org/tsuswico",
+  "seed": {
+    "hex": "#2A323B",
+    "source": "assets/brand/source/logo-swico.png",
+    "note": "logo đơn sắc (trắng trên xám than) - chọn vàng hổ phách của con dấu bản quyền",
+    "measured": "21/11/2026"
+  },
+  "hue": 68,
+  "chroma": 0.15,
+  "layout": "cong-cu",
+  "shape": "sac",
+  "motif": "mach-in",
+  "fontDisplay": "Space Grotesk",
+  "colors": {
+    "light": {
+      "text-link": "#804E03",
+      "primary": "#975D01",
+      "primary-hover": "#804E03",
+      "primary-active": "#694003",
+      "on-primary": "#FFFFFF",
+      "focus-ring": "#975D01",
+      "accent": "#6F4302",
+      "glow": "rgba(151, 93, 1, 0.1)",
+      "icon-info": "#975D01",
+      "icon-nav": "#804E03"
+    },
+    "dark": {
+      "text-link": "#EDA756",
+      "primary": "#E49324",
+      "primary-hover": "#F0AA59",
+      "primary-active": "#CB7E04",
+      "on-primary": "#0A0A0A",
+      "focus-ring": "#E49324",
+      "accent": "#FCC181",
+      "glow": "rgba(228, 147, 36, 0.14)",
+      "icon-info": "#E49324",
+      "icon-nav": "#EDA756"
+    }
+  }
+}

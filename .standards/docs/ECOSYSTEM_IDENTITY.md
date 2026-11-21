@@ -1,4 +1,4 @@
-# NHẬN DIỆN HỆ SINH THÁI TSUDEV (v3.2.0)
+# NHẬN DIỆN HỆ SINH THÁI TSUDEV (v4.0.0)
 
 > `https://tsudev.com` là nhà chung của mọi dịch vụ, sản phẩm và công cụ trong hệ
 > sinh thái. Tài liệu này quy định mọi project **tự khai mình thuộc về đâu** như
@@ -121,7 +121,7 @@ Hộp thoại **Giới thiệu** `MUST` có dấu hiệu, tên sản phẩm, chu
 | --- | --- | --- |
 | Tên thương hiệu cho người đọc | `TsuDEV` | `tsudev`, `TsuDev`, `TSUDEV`, `Tsudev`, `Tsu Dev` |
 | Tên sản phẩm cho người đọc | `Tsu Swico`, `Tsu Contact`, `TsuFiles` (theo tên đã chốt của sản phẩm) | `TSUDEV SWICO`, `tsudev swico` |
-| Định danh máy đọc | `tsudev`, `tsudev-org`, `tsudev-<san-pham>`, `com.tsudev.<ten>`, `tsudev.cwico` | đổi sang chữ hoa |
+| Định danh máy đọc | `tsudev`, `tsudev-org`, `tsudev-<san-pham>` hoặc tên thương hiệu đã duyệt (`tsuswico`, `tsucwico`, `tsucontact`, `tsufiles`), `com.tsudev.<ten>`, `tsudev.cwico` | đổi sang chữ hoa |
 | Tên miền | `tsudev.com` | `www.tsudev.com`, `TsuDEV.com`, `Tsudev.com` |
 
 - `TsuDEV` viết đúng như vậy kể cả ở đầu câu. Dòng bản quyền: `© {năm} TsuDEV`.
@@ -129,7 +129,10 @@ Hộp thoại **Giới thiệu** `MUST` có dấu hiệu, tên sản phẩm, chu
   package name Android, bundle id, khoá cấu hình/localStorage, tên tài khoản. Đổi những thứ này làm gãy updater, kênh
   cài và liên kết cũ (xem quy tắc tên repo cũ bất khả xâm phạm).
 - Logo dạng ảnh có chữ: chữ trong ảnh do chủ dự án quyết; `alt` của logo là `TsuDEV`.
-- Tên sản phẩm dạng máy đọc: `tsudev-<san-pham>`, chữ thường, nối bằng gạch ngang ngắn `-`.
+- Tên sản phẩm dạng máy đọc: `tsudev-<san-pham>`, chữ thường, nối bằng gạch ngang ngắn `-`; sản phẩm có thương hiệu
+  riêng được chủ dự án duyệt dùng tên thương hiệu chữ thường (repo `tsudev-org/tsuswico`, gói `tsuswico`; xem
+  [`PACKAGING.md`](PACKAGING.md) mục 2.1). Tên repo cũ đã đổi (`tsudev-swico`, `tsudev-cwico`, `tsudev-contact`,
+  `tsudev-files`) `MUST NOT` dùng lại cho repo mới (xem [`../AGENTS.md`](../AGENTS.md) mục 4).
 - Tên hiển thị cho người đọc `MAY` bỏ tiền tố khi ngữ cảnh đã rõ, nhưng tiêu đề trang `MUST` giữ đủ theo mục 2.2.
 - Tên miền chính `MUST` là `tsudev.com` không có `www.`. `www.tsudev.com` `MUST` chuyển hướng `301` về bản không `www`.
 - `MUST` dùng `https://`. `http://` `MUST` chuyển hướng `301`, kèm `HSTS` theo
@@ -144,22 +147,6 @@ Hộp thoại **Giới thiệu** `MUST` có dấu hiệu, tên sản phẩm, chu
   `NOTICE` và website sản phẩm theo giấy phép).
 - Nút dẫn tới website sản phẩm: **Website dự án** (biểu tượng quả địa cầu). Nút dẫn ra `github.com` (tải bản phát
   hành, mã nguồn) `MUST` dùng **biểu tượng GitHub** để người dùng biết trước sẽ sang trang khác.
-
---- | --- |
-| `tsudev` | `TsuDev`, `TSUDEV`, `Tsudev`, `tsu dev` |
-| `tsudev-swico` | `TSUDEV SWICO`, `Swico`, `tsudev swico` |
-| `tsudev.com` | `www.tsudev.com`, `Tsudev.com` |
-
-- Tên thương hiệu **luôn viết thường**, kể cả ở đầu câu. Đây là chủ ý, không
-  phải lỗi chính tả.
-- Tên sản phẩm dạng máy đọc: `tsudev-<san-pham>`, chữ thường, nối bằng gạch ngang
-  ngắn `-`. Dùng cho tên repo, tên gói, tên file cài, khóa cấu hình.
-- Tên hiển thị cho người đọc `MAY` bỏ tiền tố khi ngữ cảnh đã rõ (`SWICO` trong
-  chính giao diện của nó), nhưng tiêu đề trang `MUST` giữ đủ theo mục 2.2.
-- Tên miền chính `MUST` là `tsudev.com` không có `www.`. `www.tsudev.com`
-  `MUST` chuyển hướng `301` về bản không `www`.
-- `MUST` dùng `https://`. `http://` `MUST` chuyển hướng `301`, kèm `HSTS` theo
-  [`SECURITY_BASELINE.md`](SECURITY_BASELINE.md) mục 7.2.
 
 ---
 
@@ -202,6 +189,13 @@ sẻ localStorage, nhưng cùng khóa và cùng hành vi giữ trải nghiệm n
   `'unsafe-inline'`.
 
 ### 4.2. Bảng màu và ngôn ngữ thiết kế của website (từ v3.4.0)
+
+> **Từ v5.0.0 (21/11/2026):** bảng xanh dưới đây là bản sắc của **tsudev.com** (`data-product="tsudev"`) và phần
+> nền/chữ/viền của nó đã thành **lớp nền chung** trong `tokens/design-tokens.json`. Website và app của từng sản phẩm
+> dùng **lớp bản sắc** của mình (`DESIGN_SYSTEM.md` mục 1.2, `tokens/products.css`) - không còn khái niệm "ngoại lệ":
+> TsuFiles giữ đúng bảng 4.2.1; Lotus Share chuyển sang tím ngả hồng của cánh sen (`tokens/products/lotus.json`) vì
+> trước đó trùng mã `#A970FF` với TsuFiles. "Biểu tượng dùng sắc xanh logo" ở đoạn dưới nay đọc là: biểu tượng dùng
+> `icon-info` / `icon-nav` của sản phẩm đang hiển thị. Không cần `palette.css` / `extensions.*.json` ghi đè tại repo.
 
 > **Từ v3.8.0 (quyết định chủ dự án 16/11 và 19/11/2026; nhận đề xuất tsudev-standards#55):** bảng **đen tuyền +
 > xanh logo** thay bảng tím. Biểu tượng (kể cả biểu tượng nền tảng Windows/Linux/Android/macOS và nhóm icon "thông
@@ -298,7 +292,7 @@ Thiếu favicon là thiếu nhận diện, và tab trình duyệt trống là th
 - Toàn bộ `MUST` sinh từ **bản gốc chính thức** và **dây chuyền** ghi ở
   [`BRAND_ASSETS.md`](BRAND_ASSETS.md) mục 1. `MUST NOT` cắt tay, `MUST NOT` lấy
   ảnh từ một repo khác rồi phóng to.
-- Nền tối `MUST` dùng bản dark theo `BRAND_ASSETS.md` mục 4.
+- Logo `MUST` đọc được trên cả nền Sáng và Tối theo `BRAND_ASSETS.md` mục 4.
 - Biến thể ở `assets/brand/variants/` `MUST NOT` dùng trong sản phẩm. Đó là kho
   lưu, không phải kho dùng.
 

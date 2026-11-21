@@ -145,8 +145,10 @@ kiểm tra và khóa file trong LOCKS.md trước khi sửa.
 **b) Sửa giao diện (chống hard-code):**
 
 ```
-<mô tả thay đổi giao diện>. Bắt buộc dùng token trong .standards/tokens/tokens.css
-(hoặc đọc .standards/tokens/design-tokens.json), theo docs/DESIGN_SYSTEM.md.
+<mô tả thay đổi giao diện>. Bắt buộc dùng token trong .standards/tokens/tokens.css +
+.standards/tokens/products.css với <html data-product="<id>"> (hoặc đọc design-tokens.json +
+products/<id>.json), theo docs/DESIGN_SYSTEM.md mục 1. Giữ bố cục, bo góc, hoạ tiết, font tiêu đề
+đã khai cho sản phẩm ở mục 1.2.
 Cấm hard-code màu, cỡ chữ, radius. Ngày hiển thị dạng số DD/MM/YYYY.
 Kiểm tra tương phản ở cả hai chế độ Sáng, Tối.
 ```

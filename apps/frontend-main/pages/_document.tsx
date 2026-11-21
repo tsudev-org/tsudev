@@ -68,7 +68,7 @@ const THEME_SCRIPT = `
 
 export default function Document() {
   return (
-    <Html lang="vi" data-theme="dark">
+    <Html lang="vi" data-theme="dark" data-product="tsudev">
       <Head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
