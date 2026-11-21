@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261121-STD50
 - **Từ**: phiên tsudev-standards, 21/11/2026 - **Đến**: phiên kế tiếp của `tsudev`
-- **Trạng thái**: MỞ một phần (PR 1 xong 21/11/2026 - phiên tsudev-40; còn PR 2 bố cục + MAY thẻ /apps)
+- **Trạng thái**: ĐÓNG (PR 1 #356 - phiên tsudev-40; PR 2 + MAY #358 - phiên tsudev-ae, 21/11/2026)
 - **Nguồn**: https://github.com/tsudev-org/tsudev-standards/releases/tag/v5.0.0 - `docs/DESIGN_SYSTEM.md` mục 1.2,
   CHANGELOG 5.0.0 "Hướng dẫn nâng cấp"
 - **Bối cảnh**: chủ dự án muốn mỗi sản phẩm có đặc trưng nổi bật riêng (màu, giao diện, bố cục). Trước v5.0.0, 9/11
@@ -63,3 +63,27 @@ kiểm chống trùng phải xanh. KHÔNG ghi đè tại repo này.
   6. Ảnh trước (tsudev.com) / sau (bản dựng cục bộ), Tối + Sáng, `/` và `/apps`: `--primary` và nền trùng khớp
      (`#38bdf8`/`#0a0a0a`, `#0868c4`/`#fafafa`); khác biệt duy nhất là font tiêu đề Be Vietnam Pro ⇒ Inter.
      Cổng: format, lint, typecheck, tokens, topology, fonts xanh; `packages/ui` 280 test (tương phản), frontend 344.
+
+- 21/11/2026 - tsudev-ae, nhánh `feat/std50-bo-cuc-cong` (PR 2 + MAY), #358 gộp (`50bb898`), deploy
+  **`deploy-2026.11.21.5`** Worker `8616d7ed`:
+  1. Bố cục `cong`: hero ngắn (`data-layout="cong"`; bỏ hàng dấu kiểm, câu mô tả rút ngắn, padding
+     pt-28/pb-20 ⇒ pt-16/pb-10) + lưới thẻ danh mục 6 cột (2 cột di động, 3 cột sm) ngay màn đầu -
+     `components/HomeCategories.tsx`: bốn nhóm app (`/apps?nhom=<nhóm>`, chip nhóm chọn sẵn), trò chơi,
+     cài bằng một lệnh; số đếm + logo suy từ `ECOSYSTEM_APPS`/`ECO_GAMES`. Khu sản phẩm, ziczac (chủ dự án
+     yêu cầu 19/11), bài viết, CTA, header, chân trang, bộ chọn giao diện GIỮ nguyên.
+  2. `quang-sang`: `.tsu-quang-sang` (globals.css) - quầng `--glow` + lõi `--accent` 12% + vòng cung mảnh
+     `--accent` 12%, tĩnh. `og-image.png` sinh lại: `node packages/brand/build-assets.js --chi-og`, màu đọc
+     thẳng từ `tsudev.json` (glow chặn trần 15%).
+  3. MAY: dải 3px màu `primary` từng sản phẩm ở mép trên thẻ app (/apps + khối sản phẩm trang chủ), Sáng/Tối
+     theo `data-theme`. `npm run products:gen` ⇒ `packages/ui/src/lib/productAccents.generated.ts`;
+     `tokens:check` chạy `--check` (sync `.standards` đổi màu mà quên sinh lại ⇒ CI đỏ).
+  4. Test `apps/frontend-main/test/banSacCong.test.ts` (6 ca quét nguồn); `docs/design-system.md` mục
+     "Bản sắc sản phẩm".
+  5. Ảnh trước/sau/production, Tối + Sáng, 1280 + 390 px, `/` và `/apps` (24 ảnh):
+     **`~/projects/logs/anh-chup/tsudev/20261121-STD50/`** (`truoc_*` = tsudev.com trước deploy, `sau_*` = dev
+     cục bộ, `production_*` = sau deploy). Công cụ chụp: `~/projects/logs/tools/browser/chup-tsudev.cjs`.
+  6. Cổng: format, lint, typecheck, topology, tokens(+products), kiểm tài sản nhận diện; frontend 350 test,
+     `packages/ui` 280; CI 19/19. Nghiệm thu production: `/` `/apps` `/blog` `/docs` `/projects` 200;
+     providers = credentials/passkey/github/google; HTML có `data-layout="cong"` + `data-motif="quang-sang"`;
+     /apps 10 thẻ `data-product-accent`; og-image production trùng sha256 bản commit; `/apps?nhom=files`
+     bật chip "Tệp & dữ liệu".

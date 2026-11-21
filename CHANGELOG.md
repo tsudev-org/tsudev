@@ -15,6 +15,7 @@ phiên bản app của hệ tsudev); các thẻ `vYYYY.MM.DD.N` cũ giữ nguyê
 <https://github.com/tsudev-org/tsudev/tags>. Mỗi thẻ một dòng dưới đây. _English: every production deployment is
 tagged; the tag message lists the merged pull requests, and each line below summarises one tagged deployment._
 
+- deploy-2026.11.21.5 - 21/11/2026 - Trang chủ bố cục mới: phần đầu ngắn gọn, lưới danh mục (nhóm ứng dụng, trò chơi, cài bằng lệnh) ngay màn đầu, quầng sáng đặc trưng TsuDEV; thẻ ứng dụng có dải màu riêng của từng sản phẩm; ảnh xem trước khi chia sẻ link vẽ lại (#358).
 - deploy-2026.11.21.4 - 21/11/2026 - Bản sắc TsuDEV theo bộ quy ước v5.0.0: tiêu đề dùng font Inter (tự host), màu giữ nguyên; font tải về gọn hơn (#356).
 - deploy-2026.11.21.3 - 21/11/2026 - Đăng nhập chung (OIDC) chịu được lúc máy chủ phụ bị chặn tạm: discovery và JWKS được đệm, lỗi tạm trả 503 kèm Retry-After thay vì trang HTML (#353).
 - deploy-2026.11.21.2 - 21/11/2026 - `GET /api/v1/auth/providers` cho RP dựng nút đăng nhập; trang Bảo mật có mục Tài khoản liên kết (liên kết/gỡ Google, GitHub); bộ quy ước v4.3.0 (#351).
