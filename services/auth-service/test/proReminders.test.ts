@@ -203,8 +203,14 @@ describe('link huỷ nhận', () => {
 
 describe('/ent/reminders/run', () => {
   it('thiếu/sai token ⇒ 401; chưa đặt INTERNAL_API_TOKEN ⇒ 503', async () => {
+    const err = jest.spyOn(console, 'error').mockImplementation(() => {})
     await request(app).post('/ent/reminders/run').expect(401)
     await request(app).post('/ent/reminders/run').set('x-internal-token', 'sai').expect(401)
+    // Từ chối phải để lại dấu vết ở log Render (lượt 21/11/2026 im lặng), không lộ token.
+    const logs = err.mock.calls.map((c) => String(c[0]))
+    expect(logs).toContain('[auth] thư nhắc Pro: TỪ CHỐI 401 - x-internal-token thiếu')
+    expect(logs).toContain('[auth] thư nhắc Pro: TỪ CHỐI 401 - x-internal-token lệch')
+    err.mockRestore()
     const keep = process.env.INTERNAL_API_TOKEN
     delete process.env.INTERNAL_API_TOKEN
     await request(app).post('/ent/reminders/run').set('x-internal-token', 'sai').expect(503)

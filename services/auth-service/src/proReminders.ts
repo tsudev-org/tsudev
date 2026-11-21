@@ -259,10 +259,18 @@ proReminderRouter.use(
 )
 
 proReminderRouter.post('/run', async (req: Request, res: Response) => {
+  // Hai nhánh từ chối PHẢI ghi log: lượt 01:23 UTC 21/11/2026 không để lại dòng nào ở
+  // Render (thành công/500 đều có log) và báo động Telegram chưa cấu hình - không ai
+  // phân biệt được "token lệch" với "request không tới". Không ghi giá trị token.
   if (!process.env.INTERNAL_API_TOKEN) {
+    console.error('[auth] thư nhắc Pro: TỪ CHỐI 503 - backend chưa đặt INTERNAL_API_TOKEN')
     return res.status(503).json({ error: 'reminders_unavailable' })
   }
   if (!tokenOk(req.headers['x-internal-token'])) {
+    const got = req.headers['x-internal-token']
+    console.error(
+      `[auth] thư nhắc Pro: TỪ CHỐI 401 - x-internal-token ${typeof got === 'string' ? 'lệch' : 'thiếu'}`
+    )
     return res.status(401).json({ error: 'unauthorized' })
   }
   try {
