@@ -1,5 +1,10 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **Điều phối tsudev-40 (21/11/2026)**: BP **sound-db 16974** passing 100% (sound-db#32); app-la-ban KHÔNG làm được
+> (giấy phép độc quyền); K2 backfill AKB 5 repo (tsufiles, tsucontact, tsuswico, tsucwico, tsudisk); `.standards` v4.4.0.
+> Thư nhắc Pro 01:23 UTC 21/11: cron ĐÃ chạy và gọi backend, kết quả gửi/hỏng cần log Render (👤). Phiếu
+> [`20261121-11`](handover/20261121-11_bp-sound-db-k2-akb-standards-v4-4-0.md). Không khoá, không tác vụ nền.
+
 > 🔔 **Điều phối tsudev-10 (21/11/2026)**: STD43 mục 1, 2, 4 xong - `.standards` v4.3.0, `GET /api/v1/auth/providers`,
 > liên kết Google/GitHub ở /settings/security (#351, `deploy-2026.11.21.2`). Phiếu
 > [`20261121-10`](handover/20261121-10_std43-providers-lien-ket-tai-khoan.md). Thư nhắc Pro 01:23 UTC 21/11 VẪN chưa
