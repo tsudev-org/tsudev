@@ -1,4 +1,4 @@
-# NHẬN DIỆN HỆ SINH THÁI TSUDEV (v3.1.2)
+# NHẬN DIỆN HỆ SINH THÁI TSUDEV (v3.2.0)
 
 > `https://tsudev.com` là nhà chung của mọi dịch vụ, sản phẩm và công cụ trong hệ
 > sinh thái. Tài liệu này quy định mọi project **tự khai mình thuộc về đâu** như
@@ -175,6 +175,10 @@ Hộp thoại **Giới thiệu** `MUST` có dấu hiệu, tên sản phẩm, chu
   ghi rõ phần nào khác.
 - Sản phẩm có nhiều hơn một trang `SHOULD` có menu **Sản phẩm khác** dẫn về trang
   danh mục ở `tsudev.com`.
+- (từ v3.2.0) Site có đăng nhập `SHOULD` có cột **"Tài khoản"** ở chân trang, nội dung theo phiên: đã đăng nhập ⇒
+  "Bảo mật tài khoản" + "Hồ sơ tài khoản"; chưa đăng nhập ⇒ "Đăng nhập" + "Đăng ký". Lý do: trên di động menu tài
+  khoản ở header (mục 4.3) bị thu gọn, người dùng không tìm thấy đường tới bảo mật tài khoản. Ở khổ di động cột này nằm
+  trong lưới 2 cột như các cột khác. Mẫu tham chiếu: `tsudev` `packages/ui/src/components/SiteFooter.tsx` (PR #252).
 - Liên kết ra ngoài `MUST` có `rel="noopener noreferrer"` khi mở tab mới.
 - `MUST NOT` nhúng khung `iframe` của `tsudev.com` vào sản phẩm khác. Trang chủ
   `MUST` đặt `X-Frame-Options: DENY` theo `SECURITY_BASELINE.md` mục 7.2.
@@ -256,6 +260,22 @@ Ngôn ngữ thiết kế (tham khảo supabase.com, không chép logo/chữ/ản
 - Thẻ: nền bề mặt + viền hairline, bo 8px; hover đậm viền + nền một bậc; không nhấc, không quầng màu.
 - Hero canh giữa, tiêu đề `font-semibold`, một cụm chữ xanh lơ → xanh dương tĩnh; nhãn nhỏ kiểu mono chữ hoa màu liên kết.
 - Icon trong nút/ô nền đặc ăn màu chữ của nút (`currentColor`); biểu tượng app trên ô nền xanh nhạt, chênh ≥ 4.5:1.
+
+### 4.3. Khu vực tài khoản ở header (từ v3.2.0)
+
+Site có đăng nhập:
+
+- `MUST` gộp ảnh đại diện + tên tài khoản thành **một nút** mở khối liên kết gồm đúng hai mục theo thứ tự: "Hồ sơ tài
+  khoản", "Đăng xuất". `MUST NOT` đặt nút "Đăng xuất" trần trên header - bấm nhầm một lần là mất phiên (lỗi thật ở
+  tsudev.com tới 13/11/2026).
+- Khối dùng mẫu **disclosure**: `<button aria-expanded aria-controls="<id khối>">` + danh sách liên kết thường.
+  `MUST NOT` dùng `role="menu"` - mẫu menu ứng dụng đòi điều hướng bằng phím mũi tên và đổi cách trình đọc màn hình đọc
+  liên kết, sai với một khối chỉ có hai liên kết.
+- Đóng khi: nhấn Esc (trả focus về nút), bấm ra ngoài, hoặc focus rời khối.
+- Khi phiên chưa xác định (đang tải), vẽ vòng tròn trơn cùng kích thước ảnh đại diện; `MUST NOT` đoán trước ảnh hay ảnh
+  chữ cái (mục 6.4) - đoán sai gây nháy và xô lệch bố cục.
+- Kiểm tự động: E2E nhận diện trạng thái đăng nhập bằng `header button[aria-controls]` trỏ tới khối tài khoản. Mẫu tham
+  chiếu: `tsudev` `packages/ui/src/components/SiteHeader.tsx` (PR #251, id `tsu-user-menu`).
 
 ---
 
@@ -511,6 +531,8 @@ Sản phẩm có hồ sơ công khai (`/nguoi-dung/{ten-dinh-danh}`):
 - [ ] Chân trang có dấu hiệu, liên kết `tsudev.com`, Điều khoản, Chính sách riêng tư; hàng cuối `© tsudev` +
       bộ chọn Sáng / Tối / Hệ thống theo mục 4.1.
 - [ ] Website dùng bảng màu và ngôn ngữ thiết kế mục 4.2; không còn lựa chọn "Ấm".
+- [ ] Site có đăng nhập: header gộp ảnh đại diện + tên thành một nút disclosure, không có "Đăng xuất" trần (mục 4.3);
+      chân trang có cột "Tài khoản" theo phiên (mục 4).
 - [ ] Ảnh đại diện: kiểm magic number, mã hóa lại, xóa EXIF, từ chối SVG và ảnh động.
 - [ ] Có đủ Tải ảnh lên / Đổi ảnh / Xóa ảnh, có hộp thoại cắt khung tròn.
 - [ ] Không có ảnh thì ra ảnh chữ cái, không phải hình bóng người.
