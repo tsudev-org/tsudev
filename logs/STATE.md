@@ -1,6 +1,6 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
-> 🔔 **Điều phối tsudev-f7 (21/11/2026)**: #360 gộp. K2 đợt 4 xong (DEC sound-db 5, tsudev 4; 02/03 cho sound-db,
+> 🔔 **Điều phối tsudev-f7 (21/11/2026)**: #360 gộp; #362 vá 2 cổng CI chập chờn (fonts:check, test oauth_linked). K2 đợt 4 xong (DEC sound-db 5, tsudev 4; 02/03 cho sound-db,
 > tsudev, tsudev-standards, mieubathuong, tsudev-nuicam3d); công cụ backfill chống DEC trùng. tsuscan chưa có Release.
 > Thư nhắc Pro VẪN chờ log Render (👤). Phiếu [`20261121-14`](handover/20261121-14_dieu-phoi-k2-dot-4.md). Không khoá,
 > không tác vụ nền.
