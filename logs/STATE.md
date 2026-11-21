@@ -1,5 +1,9 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **STD50 ĐÓNG (21/11/2026, tsudev-ae)**: PR 2 bố cục `cong` + hoạ tiết `quang-sang` + thẻ /apps màu sản phẩm -
+> #358, `deploy-2026.11.21.5` Worker `8616d7ed`, nghiệm thu production. K2 đợt 2 xong (5 repo). Phiếu
+> [`20261121-12`](handover/20261121-12_std50-pr2-bo-cuc-cong-k2-dot-2.md). Không khoá, không tác vụ nền.
+
 > 🔔 **STD50 (21/11/2026, tsudev-40)**: bản sắc v5.0.0 PR 1 xong + deploy `deploy-2026.11.21.4` (#356). Phiên kế tiếp:
 > PR 2 bố cục `cong` + hoạ tiết `quang-sang` - phiếu [`20261121-STD50`](handover/20261121-STD50_ban-sac-san-pham-v5.0.0.md).
 
