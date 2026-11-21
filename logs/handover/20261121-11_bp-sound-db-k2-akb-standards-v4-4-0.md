@@ -30,6 +30,17 @@
    `02_FEATURES.md` (trích mục tính năng của README) + `03_RUNBOOK.md` (con trỏ tới mục README, không chép lệnh).
    `akb lint --all` 0 lỗi (57 cảnh báo L11 có sẵn). Đã sync từng dự án.
 
+## 1b. STD50 PR 1 (cùng phiên, theo tin nhắn của phiên tsudev-standards-a6)
+
+- tsudev #356 gộp (`853db86`), deploy **`deploy-2026.11.21.4`** Worker `46c1e1d9`. `.standards` v5.0.0, `products.css` +
+  `data-product="tsudev"`, gỡ phần ghi đè màu trùng chuẩn, nút `rounded-control`, h1-h3 Inter (tự host 600/700), gộp tệp
+  font biến thiên (30 ⇒ 18 tệp). Đo production: providers = credentials/passkey/github/google; `/` `/apps` `/blog`
+  `/docs` `/projects` 200; `--primary` `#38bdf8`/`#0868c4`, nền `#0a0a0a`/`#fafafa` - giống trước deploy.
+- Còn: **PR 2** (bố cục `cong` + hoạ tiết `quang-sang`, sinh lại `og-image.png`) và MAY thẻ `/apps` lấy `primary` từng
+  sản phẩm - phiếu [`20261121-STD50`](20261121-STD50_ban-sac-san-pham-v5.0.0.md).
+- Bẫy gặp lại: `pkill -f "next start ..."` khớp chính shell của lệnh và giết nó (memory `vong-cho-pgrep-tu-khop`) - tắt
+  máy chủ thử bằng PID.
+
 ## 2. Việc 👤 / chưa kiểm được
 
 - Thư nhắc Pro: xem log Render dòng `[auth] thư nhắc Pro:` quanh 01:23 UTC 21/11 (hoặc `npm run cron:tail` lúc 13:23
@@ -42,6 +53,7 @@
 ```
 Bạn là agent điều phối TsuDEV (mở trong ~/projects/tsudev). Theo CLAUDE.md, đọc logs/STATE.md, phiếu
 logs/handover/20261121-11_*.md rồi dòng cuối mục 6 của ~/projects/logs/handover/20261120-01_*.md. akb start.
+0) STD50 PR 2 (bố cục cong + quang-sang) theo phiếu logs/handover/20261121-STD50_*.md - một phiên riêng.
 1) Nếu chủ dự án đã gửi log Render / cấp quyền Observability: xác nhận thư nhắc Pro (sent/failed); hỏng thì sửa, mở PR.
 2) K2 đợt 2 (≤ 5 repo không có phiên): lotus-share, tsuscan, tsudev-trafficmonitor, linux-packages, tsudev-ui-flutter
    - cùng khuôn đợt 1 (`~/projects/logs/tools/akb-backfill/`: DEC từ docs/adr + 02/03 con trỏ README).

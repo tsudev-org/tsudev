@@ -1,5 +1,8 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **STD50 (21/11/2026, tsudev-40)**: bản sắc v5.0.0 PR 1 xong + deploy `deploy-2026.11.21.4` (#356). Phiên kế tiếp:
+> PR 2 bố cục `cong` + hoạ tiết `quang-sang` - phiếu [`20261121-STD50`](handover/20261121-STD50_ban-sac-san-pham-v5.0.0.md).
+
 > 🔔 **Điều phối tsudev-40 (21/11/2026)**: BP **sound-db 16974** passing 100% (sound-db#32); app-la-ban KHÔNG làm được
 > (giấy phép độc quyền); K2 backfill AKB 5 repo (tsufiles, tsucontact, tsuswico, tsucwico, tsudisk); `.standards` v4.4.0.
 > Thư nhắc Pro 01:23 UTC 21/11: cron ĐÃ chạy và gọi backend, kết quả gửi/hỏng cần log Render (👤). Phiếu
