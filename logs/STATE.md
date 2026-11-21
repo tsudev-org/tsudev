@@ -1,5 +1,10 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **Điều phối tsudev-e3 (21/11/2026)**: K2 đợt 5 xong (DEC game-kit 1; 02/03 con trỏ cho 5 game tsugamelabs/, game-kit,
+> quansu-xanuicam, b4djl1h-cmdb, tsudev-org-dotgithub - game + quansu viết tay). tsuscan chưa có Release. Thư nhắc Pro:
+> lượt 01:23 UTC 22/11 chưa chạy lúc phiên mở - phiên sau mở SAU 01:45 UTC 22/11 rồi đọc log Render (ISS-20261121-2215-5fa5).
+> Phiếu [`20261121-15`](handover/20261121-15_dieu-phoi-k2-dot-5.md). Không khoá, không tác vụ nền.
+
 > 🔔 **Điều phối tsudev-f7 (21/11/2026)**: #360 gộp; #362 vá 2 cổng CI chập chờn (fonts:check, test oauth_linked). K2 đợt 4 xong (DEC sound-db 5, tsudev 4; 02/03 cho sound-db,
 > tsudev, tsudev-standards, mieubathuong, tsudev-nuicam3d); công cụ backfill chống DEC trùng. tsuscan chưa có Release.
 > Thư nhắc Pro: log Render (API) cho thấy lượt 01:23 UTC 21/11 KHÔNG chạy tới backend (401/503 im lặng hoặc không tới);
