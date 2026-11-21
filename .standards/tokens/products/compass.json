@@ -1,0 +1,44 @@
+{
+  "$schema": "./product.schema.json",
+  "id": "compass",
+  "name": "La bàn",
+  "repo": "tsudev-tsudev/app-la-ban",
+  "seed": {
+    "hex": "#FE7107",
+    "source": "design/logo/bieu-tuong-1024.png",
+    "note": "cam của kim la bàn (nửa kim phía nam); vòng xanh hoàng gia của logo trùng xanh TsuDEV ở chế độ Sáng (cách 10°)",
+    "measured": "21/11/2026"
+  },
+  "hue": 47,
+  "chroma": 0.17,
+  "layout": "do-luong",
+  "shape": "tron",
+  "motif": "vong-dong-tam",
+  "fontDisplay": "Montserrat",
+  "colors": {
+    "light": {
+      "text-link": "#974001",
+      "primary": "#B14C03",
+      "primary-hover": "#974001",
+      "primary-active": "#7E3400",
+      "on-primary": "#FFFFFF",
+      "focus-ring": "#B14C03",
+      "accent": "#813601",
+      "glow": "rgba(177, 76, 3, 0.1)",
+      "icon-info": "#B14C03",
+      "icon-nav": "#974001"
+    },
+    "dark": {
+      "text-link": "#FF9F6F",
+      "primary": "#FF843F",
+      "primary-hover": "#FEA477",
+      "primary-active": "#E66D24",
+      "on-primary": "#0A0A0A",
+      "focus-ring": "#FF843F",
+      "accent": "#FEBD9D",
+      "glow": "rgba(255, 132, 63, 0.14)",
+      "icon-info": "#FF843F",
+      "icon-nav": "#FF9F6F"
+    }
+  }
+}

@@ -3,12 +3,13 @@
 TỆP SINH RA bởi `npm run fonts:sync` (`scripts/sync-fonts.js`). Đừng thêm,
 xoá hay đổi tên tệp bằng tay - sửa bảng `HO_FONT` trong script rồi chạy lại.
 
-| Họ font        | Giấy phép   | Vì sao chọn                                                               |
-| -------------- | ----------- | ------------------------------------------------------------------------- |
-| Be Vietnam Pro | SIL OFL 1.1 | thiết kế GỐC cho tiếng Việt; tổ hợp hai dấu đúng vị trí                   |
-| Chivo Mono     | SIL OFL 1.1 | font mono có subset `vietnamese` thật, số 0 trơn (không chấm, không gạch) |
+| Họ font          | Giấy phép   | Vì sao chọn                                                                |
+| ---------------- | ----------- | -------------------------------------------------------------------------- |
+| Be Vietnam Pro   | SIL OFL 1.1 | thiết kế GỐC cho tiếng Việt; tổ hợp hai dấu đúng vị trí                    |
+| Inter (600, 700) | SIL OFL 1.1 | font TIÊU ĐỀ của bản sắc tsudev (`.standards/tokens/products/tsudev.json`) |
+| Chivo Mono       | SIL OFL 1.1 | font mono có subset `vietnamese` thật, số 0 trơn (không chấm, không gạch)  |
 
-Cả hai giấy phép CHO PHÉP tự host và nhúng. Thêm họ font mới thì kiểm giấy
+Cả ba giấy phép CHO PHÉP tự host và nhúng. Thêm họ font mới thì kiểm giấy
 phép TRƯỚC khi tải.
 
 Chỉ giữ subset `latin`, `latin-ext`, `vietnamese`. `cyrillic`/`greek` bị bỏ có

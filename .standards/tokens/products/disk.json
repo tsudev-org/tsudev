@@ -1,0 +1,44 @@
+{
+  "$schema": "./product.schema.json",
+  "id": "disk",
+  "name": "TsuDisk",
+  "repo": "tsudev-org/tsudisk",
+  "seed": {
+    "hex": "#2AC3B2",
+    "source": "assets/brand/source/logo-tsudisk.png",
+    "note": "xanh ngọc của chữ Disk và thanh dung lượng",
+    "measured": "21/11/2026"
+  },
+  "hue": 183,
+  "chroma": 0.12,
+  "layout": "cong-cu",
+  "shape": "chuan",
+  "motif": "khoi-phan-vung",
+  "fontDisplay": "Montserrat",
+  "colors": {
+    "light": {
+      "text-link": "#04655B",
+      "primary": "#08786C",
+      "primary-hover": "#04655B",
+      "primary-active": "#01524A",
+      "on-primary": "#FFFFFF",
+      "focus-ring": "#08786C",
+      "accent": "#06584F",
+      "glow": "rgba(8, 120, 108, 0.1)",
+      "icon-info": "#08786C",
+      "icon-nav": "#04655B"
+    },
+    "dark": {
+      "text-link": "#5AC6B7",
+      "primary": "#24B9A8",
+      "primary-hover": "#5ECABA",
+      "primary-active": "#0EA292",
+      "on-primary": "#0A0A0A",
+      "focus-ring": "#24B9A8",
+      "accent": "#86DACC",
+      "glow": "rgba(36, 185, 168, 0.14)",
+      "icon-info": "#24B9A8",
+      "icon-nav": "#5AC6B7"
+    }
+  }
+}

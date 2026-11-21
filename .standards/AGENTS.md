@@ -119,6 +119,11 @@ Chi tiết: [`docs/AGENT_PROTOCOL.md`](docs/AGENT_PROTOCOL.md).
   winget, `git remote`, URL đồng bộ bộ quy ước) gãy không báo lỗi. Repo mới tạo trong
   `tsudev-org`. Chuyển repo vào org tắt secret scanning, push protection và CodeQL
   default setup - `MUST` bật lại ngay và đối chiếu trước/sau.
+  Cùng luật cho tên đã đổi **trong** `tsudev-org` (từ `v4.5.0`): `tsudev-swico` (nay
+  `tsuswico`), `tsudev-cwico` (nay `tsucwico`), `tsudev-contact` (nay `tsucontact`),
+  `tsudev-files` (nay `tsufiles`) `MUST NOT` được tạo, fork hay đổi tên lại thành, ở cả
+  `tsudev-org` lẫn `tsudev-tsudev` - updater, Scoop/winget và link Release cũ chỉ còn chạy
+  nhờ chuyển hướng của các tên này.
 
 ## 5. Chi phí 0 đồng
 
@@ -172,7 +177,7 @@ này.** Đây là quy tắc mức `MUST`, không phải khuyến nghị.
 2. **Dòng trích dẫn chính ký tự này để định nghĩa quy tắc** thì `MUST` ghi kèm mã
    điểm `U+2014` trên cùng dòng - cổng kiểm nhận diện miễn trừ theo đúng dấu này.
 3. **Dòng kế thừa NGUYÊN VĂN từ upstream ở repo fork** (từ `v3.3.0`). Repo fork
-   (ví dụ `tsudev-lotus` từ LocalSend, `tsudev-files` từ Filee) sửa em-dash trong
+   (ví dụ `tsudev-lotus` từ LocalSend, `tsufiles` từ Filee) sửa em-dash trong
    mã của upstream thì mỗi lần gộp upstream lại xung đột hàng chục file, và cổng
    kiểm đỏ thường trực thì mất tác dụng chặn với cả mã mới của fork. Cách dùng:
    - Đặt file `.standards-upstream` ở gốc repo con (repo con sở hữu, không nằm
@@ -206,6 +211,10 @@ git grep -lP '\x{2014}' -- . | grep -v '^migrations/'
 
 - Mọi thay đổi giao diện phải dùng token trong `tokens/` - **cấm hard-code màu,
   cỡ chữ, radius**. Chi tiết: [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).
+- Mỗi sản phẩm có **bản sắc riêng** (màu nhấn từ logo, bố cục, bo góc, hoạ tiết,
+  font tiêu đề) khai ở `tokens/products/<id>.json`, dùng qua
+  `<html data-product="<id>">`; nền, chữ, trạng thái và khả năng tiếp cận là chung
+  (từ `v5.0.0`, [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) mục 1.2).
 - Mọi vùng hiển thị danh sách bản ghi phải có bộ chọn số bản ghi đúng vị trí và
   đúng các mốc `10/20/50/100/200`, mặc định `10`. Chi tiết:
   [`docs/DATA_TABLE.md`](docs/DATA_TABLE.md).

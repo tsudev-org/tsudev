@@ -1,4 +1,4 @@
-# PHÂN PHỐI VÀ CÀI ĐẶT BẰNG LỆNH (v1.2.0)
+# PHÂN PHỐI VÀ CÀI ĐẶT BẰNG LỆNH (v1.2.1)
 
 > Mọi app/tool tsudev có bản cài cho máy tính `SHOULD` cài được bằng **một lệnh terminal** qua trình quản lý gói
 > chính thống của từng hệ điều hành, với gói do chính tsudev đóng gói, ký và kiểm. Tài liệu này quy định kênh,
@@ -32,7 +32,7 @@ sẽ thành bản cũ có lỗ hổng mà người dùng vẫn tải.
 | Android `applicationId` | `com.tsudev.<ten>` | `com.tsudev.lotus` |
 
 - Mã đã công bố **MUST NOT** đổi, kể cả khi sai khuôn (`tsudev.SWICO`, `tsudev.cwico` giữ nguyên): đổi mã làm
-  máy đã cài mất đường cập nhật. Đây là cùng lý do với quy tắc tên repo cũ ở `GIT_WORKFLOW.md`.
+  máy đã cài mất đường cập nhật. Đây là cùng lý do với quy tắc tên repo cũ ở `AGENTS.md` mục 4.
 - Tên gói Linux có tiền tố `tsudev-` để không đụng gói của dự án gốc (vd. `trafficmonitor`, `localsend`).
 - Phiên bản gói = phiên bản bản phát hành theo [`VERSIONING.md`](VERSIONING.md) mục 2 (`YY.M.DDNN`).
 
@@ -51,7 +51,7 @@ sẽ thành bản cũ có lỗ hổng mà người dùng vẫn tải.
 ### 2.2. Đổi tên gói đã công bố (từ v1.1.0)
 
 Nguyên tắc: **máy đã cài bằng tên cũ `MUST` tiếp tục nhận bản mới mà người dùng không phải làm gì**, giống quy tắc tên
-repo cũ ở `GIT_WORKFLOW.md`. Đổi tên gói không bao giờ là "xoá tên cũ, tạo tên mới".
+repo cũ ở `AGENTS.md` mục 4. Đổi tên gói không bao giờ là "xoá tên cũ, tạo tên mới".
 
 | Kênh | Cách làm bắt buộc | Không đủ / cấm |
 | --- | --- | --- |

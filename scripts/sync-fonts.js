@@ -87,6 +87,15 @@ const HO_FONT = [
     nets: [400, 500, 600, 700],
   },
   {
+    // Font TIÊU ĐỀ (h1-h3, số liệu lớn) - `fontDisplay` của
+    // .standards/tokens/products/tsudev.json (v5.0.0). Chỉ hai nét: DESIGN_SYSTEM.md
+    // mục 1.2 cho font tiêu đề tối đa 2 độ đậm, và tiêu đề chỉ dùng 600/700.
+    google: 'Inter',
+    css: 'Inter',
+    slug: 'inter',
+    nets: [600, 700],
+  },
+  {
     google: 'Chivo Mono',
     css: 'Chivo Mono',
     slug: 'chivo-mono',
@@ -164,7 +173,7 @@ async function main() {
   if (khoi.length === 0)
     throw new Error('không bóc được khối @font-face nào - hình dạng CSS đã đổi?');
 
-  const canLay = [];
+  const tho = [];
   for (const ho of HO_FONT) {
     for (const net of ho.nets) {
       for (const subset of SUBSET_GIU) {
@@ -172,9 +181,24 @@ async function main() {
           (x) => x.family === ho.css && x.net === net && x.subset === subset && x.style === 'normal'
         );
         if (!k) throw new Error(`thiếu ${ho.css} nét ${net} subset ${subset} trong CSS của Google`);
-        canLay.push({ ...k, ho, tep: tenTep(ho, net, subset) });
+        tho.push({ ...k, ho });
       }
     }
+  }
+  // Font BIẾN THIÊN (vd. Inter): Google trả CÙNG một tệp cho mọi nét của một subset.
+  // Tải riêng từng nét là lưu N bản giống hệt nhau từng byte và trình duyệt tải lại
+  // N lần (khác URL). Gộp theo URL nguồn: một tệp, một @font-face với dải độ đậm.
+  const canLay = [];
+  for (const k of tho) {
+    const cu = canLay.find((x) => x.ho === k.ho && x.subset === k.subset && x.url === k.url);
+    if (cu) cu.nets.push(k.net);
+    else canLay.push({ ...k, nets: [k.net] });
+  }
+  for (const k of canLay) {
+    const lo = Math.min(...k.nets);
+    const hi = Math.max(...k.nets);
+    k.weight = lo === hi ? String(lo) : `${lo} ${hi}`;
+    k.tep = tenTep(k.ho, lo === hi ? lo : `${lo}-${hi}`, k.subset);
   }
 
   // --- CSS sinh ra -----------------------------------------------------------
@@ -199,14 +223,14 @@ async function main() {
 
   for (const ho of HO_FONT) {
     dong.push(`/* ===== ${ho.css} ===== */`);
-    for (const net of ho.nets) {
-      for (const subset of SUBSET_GIU) {
-        const k = canLay.find((x) => x.ho === ho && x.net === net && x.subset === subset);
+    for (const k of canLay.filter((x) => x.ho === ho)) {
+      {
+        const subset = k.subset;
         dong.push('/* ' + subset + ' */');
         dong.push('@font-face {');
         dong.push(`  font-family: '${ho.css}';`);
         dong.push('  font-style: normal;');
-        dong.push(`  font-weight: ${net};`);
+        dong.push(`  font-weight: ${k.weight};`);
         dong.push('  font-display: swap;');
         dong.push(`  src: url('/fonts/${k.tep}') format('woff2');`);
         dong.push(`  unicode-range: ${k.range};`);
@@ -296,9 +320,10 @@ async function main() {
         '| Họ font | Giấy phép | Vì sao chọn |',
         '| --- | --- | --- |',
         '| Be Vietnam Pro | SIL OFL 1.1 | thiết kế GỐC cho tiếng Việt; tổ hợp hai dấu đúng vị trí |',
+        '| Inter (600, 700) | SIL OFL 1.1 | font TIÊU ĐỀ của bản sắc tsudev (`.standards/tokens/products/tsudev.json`) |',
         '| Chivo Mono | SIL OFL 1.1 | font mono có subset `vietnamese` thật, số 0 trơn (không chấm, không gạch) |',
         '',
-        'Cả hai giấy phép CHO PHÉP tự host và nhúng. Thêm họ font mới thì kiểm giấy',
+        'Cả ba giấy phép CHO PHÉP tự host và nhúng. Thêm họ font mới thì kiểm giấy',
         'phép TRƯỚC khi tải.',
         '',
         'Chỉ giữ subset `latin`, `latin-ext`, `vietnamese`. `cyrillic`/`greek` bị bỏ có',

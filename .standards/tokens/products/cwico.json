@@ -1,0 +1,44 @@
+{
+  "$schema": "./product.schema.json",
+  "id": "cwico",
+  "name": "Tsu Cwico",
+  "repo": "tsudev-org/tsucwico",
+  "seed": {
+    "hex": "#23B7B9",
+    "source": "assets/brand/source/logo-cwico.png",
+    "note": "mũi tên xanh ngọc trên khiên navy, đẩy về phía navy để tách khỏi Tsu Contact",
+    "measured": "21/11/2026"
+  },
+  "hue": 212,
+  "chroma": 0.13,
+  "layout": "trinh-dien",
+  "shape": "sac",
+  "motif": "luoi-quet",
+  "fontDisplay": "Be Vietnam Pro",
+  "colors": {
+    "light": {
+      "text-link": "#056270",
+      "primary": "#087485",
+      "primary-hover": "#056270",
+      "primary-active": "#02505C",
+      "on-primary": "#FFFFFF",
+      "focus-ring": "#087485",
+      "accent": "#015662",
+      "glow": "rgba(8, 116, 133, 0.1)",
+      "icon-info": "#087485",
+      "icon-nav": "#056270"
+    },
+    "dark": {
+      "text-link": "#4AC3DA",
+      "primary": "#0EB5CE",
+      "primary-hover": "#4EC7DD",
+      "primary-active": "#0B9DB3",
+      "on-primary": "#0A0A0A",
+      "focus-ring": "#0EB5CE",
+      "accent": "#7ED9EB",
+      "glow": "rgba(14, 181, 206, 0.14)",
+      "icon-info": "#0EB5CE",
+      "icon-nav": "#4AC3DA"
+    }
+  }
+}

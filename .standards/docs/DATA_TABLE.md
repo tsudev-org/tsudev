@@ -1,4 +1,4 @@
-# CHUẨN VÙNG BẢN GHI VÀ BỘ CHỌN SỐ BẢN GHI (v3.0.0)
+# CHUẨN VÙNG BẢN GHI VÀ BỘ CHỌN SỐ BẢN GHI (v3.0.1)
 
 > Mọi trang, mọi modal, mọi bảng có danh sách bản ghi trong hệ sinh thái tsudev
 > đều dùng **cùng một bộ chọn số bản ghi, cùng các mốc, cùng vị trí**. Người dùng
@@ -312,7 +312,7 @@ GET /api/v1/{resource}?page_size=10&cursor=<mã>
 Quy ước này áp cho cả desktop. Điểm khác biệt duy nhất được phép:
 
 - Bảng desktop `MAY` dùng cuộn ảo (virtual scroll) thay phân trang khi dữ liệu ở
-  ngay trên máy (ví dụ kết quả rà quét của `tsudev-swico`). Khi đó bộ chọn `MUST`
+  ngay trên máy (ví dụ kết quả rà quét của `tsuswico`). Khi đó bộ chọn `MUST`
   vẫn tồn tại, vẫn ở góc dưới bên trái, và điều khiển **số dòng nạp mỗi lô**.
 - Chiều cao chân vùng bản ghi `MAY` giảm còn `40px` theo mật độ compact của
   `DESIGN_SYSTEM.md` mục 3.

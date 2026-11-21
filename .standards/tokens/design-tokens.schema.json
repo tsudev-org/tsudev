@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/tsudev-org/tsudev-standards/main/tokens/design-tokens.schema.json",
   "title": "tsudev design tokens",
-  "description": "Lược đồ cho tokens/design-tokens.json - nguồn chân lý duy nhất của giao diện hệ sinh thái tsudev. IDE dùng file này để tự gợi ý và bắt lỗi khi sửa token.",
+  "description": "Lược đồ cho tokens/design-tokens.json - lớp nền chung của giao diện hệ sinh thái TsuDEV. Lớp bản sắc từng sản phẩm: tokens/products/*.json (product.schema.json). IDE dùng file này để tự gợi ý và bắt lỗi khi sửa token.",
   "type": "object",
   "required": ["meta", "color", "typography", "radius", "spacing", "shadow", "z-index", "motion"],
   "additionalProperties": false,
@@ -26,11 +26,10 @@
     },
     "color": {
       "type": "object",
-      "required": ["light", "warm", "dark"],
+      "required": ["light", "dark"],
       "additionalProperties": false,
       "properties": {
         "light": { "$ref": "#/$defs/palette" },
-        "warm": { "$ref": "#/$defs/palette" },
         "dark": { "$ref": "#/$defs/palette" }
       }
     },
@@ -68,13 +67,14 @@
     "cssSize": { "type": "string", "pattern": "^-?\\d+(\\.\\d+)?(px|rem|em)$" },
     "palette": {
       "type": "object",
-      "description": "Một chế độ nền. MỌI chế độ phải khai đủ cùng một bộ vai trò - thiếu một vai trò ở một chế độ là lỗi.",
+      "description": "Một chế độ nền (light hoặc dark). Hai chế độ phải khai đủ cùng một bộ vai trò - thiếu một vai trò ở một chế độ là lỗi.",
       "additionalProperties": false,
       "required": [
         "bg-base", "bg-surface", "bg-subtle", "bg-hover",
         "border", "border-strong", "border-control",
         "text-primary", "text-secondary", "text-muted", "text-link",
         "primary", "primary-hover", "primary-active", "on-primary", "focus-ring",
+        "accent", "glow", "icon-info", "icon-nav",
         "success", "warning", "danger", "info", "on-status", "overlay"
       ],
       "properties": {
@@ -94,6 +94,10 @@
         "primary-active": { "$ref": "#/$defs/hexColor" },
         "on-primary": { "$ref": "#/$defs/hexColor" },
         "focus-ring": { "$ref": "#/$defs/hexColor" },
+        "accent": { "$ref": "#/$defs/hexColor" },
+        "glow": { "$ref": "#/$defs/colorValue" },
+        "icon-info": { "$ref": "#/$defs/hexColor" },
+        "icon-nav": { "$ref": "#/$defs/hexColor" },
         "success": { "$ref": "#/$defs/hexColor" },
         "warning": { "$ref": "#/$defs/hexColor" },
         "danger": { "$ref": "#/$defs/hexColor" },

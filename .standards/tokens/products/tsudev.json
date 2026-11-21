@@ -1,0 +1,46 @@
+{
+  "$schema": "./product.schema.json",
+  "id": "tsudev",
+  "name": "TsuDEV",
+  "repo": "tsudev-org/tsudev",
+  "seed": {
+    "hex": "#21B7F6",
+    "source": "packages/brand/source/logo-tsudev.png",
+    "note": "chữ \"dev\" và con cú xanh",
+    "measured": "21/11/2026"
+  },
+  "hue": 233,
+  "chroma": 0.14,
+  "layout": "cong",
+  "shape": "chuan",
+  "motif": "quang-sang",
+  "fontDisplay": "Inter",
+  "locked": true,
+  "lockedNote": "Bảng xanh logo của ECOSYSTEM_IDENTITY.md mục 4.2 (chủ dự án chốt 19/11/2026)",
+  "colors": {
+    "light": {
+      "text-link": "#0757A3",
+      "primary": "#0868C4",
+      "primary-hover": "#0757A3",
+      "primary-active": "#064785",
+      "on-primary": "#FFFFFF",
+      "focus-ring": "#0868C4",
+      "accent": "#0E7490",
+      "glow": "rgba(8, 104, 196, 0.1)",
+      "icon-info": "#0369A1",
+      "icon-nav": "#0757A3"
+    },
+    "dark": {
+      "text-link": "#7DD3FC",
+      "primary": "#38BDF8",
+      "primary-hover": "#7DD3FC",
+      "primary-active": "#0EA5E9",
+      "on-primary": "#0A0A0A",
+      "focus-ring": "#38BDF8",
+      "accent": "#3B9EFF",
+      "glow": "rgba(56, 189, 248, 0.14)",
+      "icon-info": "#60A5FA",
+      "icon-nav": "#7DD3FC"
+    }
+  }
+}

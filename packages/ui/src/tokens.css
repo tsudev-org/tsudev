@@ -27,7 +27,6 @@
   color-scheme: dark;
 
   /* Bảng chuẩn hệ sinh thái - .standards/tokens/design-tokens.json > color.dark */
-  /* Tông thương hiệu ghi đè 17 khoá - tokens/extensions.tsudev-web.json > brand.dark */
   --bg-base: #0a0a0a;
   --bg-surface: #0f1114;
   --bg-subtle: #15181d;
@@ -44,6 +43,10 @@
   --primary-active: #0ea5e9;
   --on-primary: #0a0a0a;
   --focus-ring: #38bdf8;
+  --accent: #3b9eff;
+  --glow: rgba(56, 189, 248, 0.14);
+  --icon-info: #60a5fa;
+  --icon-nav: #7dd3fc;
   --success: #4ade80;
   --warning: #fbbf24;
   --danger: #f87171;
@@ -52,15 +55,11 @@
   --overlay: rgba(0, 0, 0, 0.6);
 
   /* Mở rộng riêng của tsudev-web - tokens/extensions.tsudev-web.json > dark */
-  --accent: #3b9eff;
-  --glow: rgba(56, 189, 248, 0.14);
   --glow-alt: rgba(30, 144, 255, 0.08);
   --grid-line: rgba(255, 255, 255, 0.04);
-  --icon-nav: #7dd3fc;
   --icon-create: #4ade80;
   --icon-edit: #fbbf24;
   --icon-danger: #f87171;
-  --icon-info: #60a5fa;
   --icon-trust: #2dd4bf;
   --success-ink: #4ade80;
   --warning-ink: #fbbf24;
@@ -91,7 +90,6 @@
   color-scheme: light;
 
   /* Bảng chuẩn hệ sinh thái - .standards/tokens/design-tokens.json > color.light */
-  /* Tông thương hiệu ghi đè 16 khoá - tokens/extensions.tsudev-web.json > brand.light */
   --bg-base: #fafafa;
   --bg-surface: #ffffff;
   --bg-subtle: #f4f4f5;
@@ -108,6 +106,10 @@
   --primary-active: #064785;
   --on-primary: #ffffff;
   --focus-ring: #0868c4;
+  --accent: #0e7490;
+  --glow: rgba(8, 104, 196, 0.1);
+  --icon-info: #0369a1;
+  --icon-nav: #0757a3;
   --success: #15803d;
   --warning: #b45309;
   --danger: #dc2626;
@@ -116,15 +118,11 @@
   --overlay: rgba(10, 10, 10, 0.45);
 
   /* Mở rộng riêng của tsudev-web - tokens/extensions.tsudev-web.json > light */
-  --accent: #0e7490;
-  --glow: rgba(8, 104, 196, 0.1);
   --glow-alt: rgba(14, 116, 144, 0.06);
   --grid-line: rgba(10, 10, 10, 0.05);
-  --icon-nav: #0757a3;
   --icon-create: #15803d;
   --icon-edit: #7a4d00;
   --icon-danger: #b91c1c;
-  --icon-info: #0369a1;
   --icon-trust: #0f766e;
   --success-ink: #146c37;
   --warning-ink: #7a4d00;
@@ -221,6 +219,7 @@
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
+  --radius-control: 6px;
 
   /* Khoảng cách - bội số 4px. Padding button: 8px 16px. Padding modal: 24px. Gap giữa field trong form: 16px. Gap giữa section: 32px. */
   --sp-1: 4px;
@@ -234,9 +233,9 @@
   --sp-12: 48px;
 
   /* Đổ bóng - sm=button/input | md=dropdown/toast/card nổi | lg=modal. Dark mode giữ nguyên giá trị. */
-  --shadow-sm: 0 1px 2px rgba(15, 27, 45, 0.06);
-  --shadow-md: 0 2px 8px rgba(15, 27, 45, 0.1);
-  --shadow-lg: 0 8px 24px rgba(15, 27, 45, 0.14);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.14);
 
   /* Tầng xếp lớp */
   --z-dropdown: 1000;

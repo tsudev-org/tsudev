@@ -62,7 +62,7 @@ export const Button = ({
   // Giữ `??` dự phòng dù kiểu đã ràng: các trang gọi component này hiện vẫn là
   // .js chưa được kiểm kiểu, nên giá trị ngoài union vẫn tới được đây lúc chạy.
   const cls = [
-    'inline-flex items-center justify-center gap-2 rounded-md font-medium cursor-pointer',
+    'inline-flex items-center justify-center gap-2 rounded-control font-medium cursor-pointer',
     'transition-colors duration-fast ease-standard',
     'focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
     // Disabled thắng mọi biến thể: `:disabled` chặn cả hover lẫn đổ bóng.

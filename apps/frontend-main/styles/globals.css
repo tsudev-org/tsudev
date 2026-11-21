@@ -11,6 +11,11 @@
 @layer theme, base, components, utilities;
 
 @import '../../../packages/ui/src/tokens.css' layer(base);
+/* Lớp BẢN SẮC SẢN PHẨM (tsudev-standards v5.0.0, DESIGN_SYSTEM.md mục 1.2): nạp SAU
+   tokens.css, có hiệu lực nhờ <html data-product="tsudev"> ở pages/_document.tsx.
+   Màu nhấn, bo góc (--radius-control) và font tiêu đề (--font-display) của tsudev
+   đến từ .standards/tokens/products/tsudev.json - KHÔNG khai lại ở repo này. */
+@import '../../../.standards/tokens/products.css' layer(base);
 /* Font TỰ HOST. Đừng thay bằng @import từ fonts.googleapis.com - đã thử và nó
    IM LẶNG KHÔNG NẠP GÌ trong nhiều tháng.
 
@@ -184,6 +189,7 @@
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
+  --radius-control: var(--radius-control);
 
   --spacing-sp1: var(--sp-1);
   --spacing-sp2: var(--sp-2);
@@ -289,6 +295,13 @@
   }
   a {
     color: var(--text-link);
+  }
+  /* Font tiêu đề của sản phẩm (products.css). Dự phòng về font chữ chính khi
+     thiếu data-product - vd. trang lỗi dựng ngoài _document. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display, var(--font-family));
   }
   ::selection {
     background: color-mix(in srgb, var(--primary) 30%, transparent);

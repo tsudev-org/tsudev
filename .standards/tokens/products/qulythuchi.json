@@ -1,0 +1,44 @@
+{
+  "$schema": "./product.schema.json",
+  "id": "qulythuchi",
+  "name": "Quly Thu Chi",
+  "repo": "tsudev-org/qulythuchi",
+  "seed": {
+    "hex": "#1AA678",
+    "source": "assets/brand/source/logo-qulythuchi.png",
+    "note": "xanh lục bảo của ví và mũi tên tăng",
+    "measured": "21/11/2026"
+  },
+  "hue": 160,
+  "chroma": 0.14,
+  "layout": "bang-dieu-khien",
+  "shape": "mem",
+  "motif": "cot-tang-truong",
+  "fontDisplay": "Be Vietnam Pro",
+  "colors": {
+    "light": {
+      "text-link": "#056641",
+      "primary": "#05794F",
+      "primary-hover": "#056641",
+      "primary-active": "#005334",
+      "on-primary": "#FFFFFF",
+      "focus-ring": "#05794F",
+      "accent": "#025939",
+      "glow": "rgba(5, 121, 79, 0.1)",
+      "icon-info": "#05794F",
+      "icon-nav": "#056641"
+    },
+    "dark": {
+      "text-link": "#63C795",
+      "primary": "#39BA81",
+      "primary-hover": "#67CA98",
+      "primary-active": "#12A46C",
+      "on-primary": "#0A0A0A",
+      "focus-ring": "#39BA81",
+      "accent": "#8DDBB1",
+      "glow": "rgba(57, 186, 129, 0.14)",
+      "icon-info": "#39BA81",
+      "icon-nav": "#63C795"
+    }
+  }
+}

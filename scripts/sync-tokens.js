@@ -4,6 +4,8 @@
  *   - bảng dùng chung: `.standards/tokens/design-tokens.json` (chỉ-đọc, đến từ
  *     repo quy ước trung tâm) - NGUỒN CHÂN LÝ DUY NHẤT;
  *   - phần riêng của web:  `tokens/extensions.tsudev-web.json`.
+ * Lớp bản sắc sản phẩm (`.standards/tokens/products.css`) KHÔNG đi qua đây: app
+ * nạp thẳng nó sau tokens.css (styles/globals.css) - xem `colorFor` bên dưới.
  *
  * Vì sao có script này thay vì chép tay: `.standards/docs/PROJECT_STRUCTURE.md` đòi mọi giá
  * trị màu/cỡ chữ/spacing phải truy ngược được về MỘT file JSON. Chép tay thì hai
@@ -41,30 +43,37 @@ const ext = JSON.parse(fs.readFileSync(EXT_PATH, 'utf8'));
 const usage = ext.$usage;
 
 /**
- * Lớp tông THƯƠNG HIỆU (nay: đen tuyền + xanh logo, chủ dự án chọn 16/11/2026).
+ * Lớp BẢN SẮC SẢN PHẨM (tsudev-standards v5.0.0, DESIGN_SYSTEM.md mục 1.2).
  *
- * Đường DUY NHẤT để đổi giá trị của bảng chuẩn - bảng `.standards/` vẫn bất khả
- * xâm phạm, lớp này chỉ thay giá trị lúc SINH. Hai luật, cả hai ném lỗi:
- *  - chỉ ghi đè khoá ĐÃ có trong bảng chuẩn (gõ sai tên = một biến không ai đọc,
- *    im lặng - đúng kiểu lỗi --lh-long đã sống nhiều tháng);
- *  - không khai trùng khoá với khối mở rộng của chế độ (hai nguồn cho một biến).
- * Biến bị ghi đè được liệt kê trong chú thích của tokens.css để người đọc artifact
- * biết giá trị nào KHÔNG phải của bảng chuẩn.
+ * Từ v5.0.0 bảng chuẩn `color.*` mang đúng nền đen tuyền + xanh logo mà repo này
+ * từng tự ghi đè (khối `brand` cũ của extensions - đã gỡ, trùng 100% giá trị), và
+ * bản sắc riêng của tsudev (màu nhấn, bo góc, font tiêu đề) nằm ở
+ * `.standards/tokens/products/tsudev.json`, được nạp lúc chạy qua
+ * `.standards/tokens/products.css` + `<html data-product="tsudev">`.
+ * Repo này KHÔNG khai lại các giá trị đó. Hai luật, cả hai ném lỗi:
+ *  - khối mở rộng của một chế độ không được trùng khoá với bảng chuẩn hay với
+ *    `tsudev.json` (hai nguồn cho một biến - bên nạp sau thắng, im lặng);
+ *  - `tsudev.json` đang `locked` = bảng xanh 4.2: màu của nó phải khớp bảng chuẩn.
+ *    Lệch nghĩa là bộ quy ước đổi màu tsudev.com - phải chạy lại contrast.test.ts
+ *    với giá trị mới trước khi nhận, nên ở đây dừng lại ồn ào.
  */
-const brand = ext.brand || {};
+const PRODUCT_PATH = path.join(STD_DIR, 'products', 'tsudev.json');
+const product = JSON.parse(fs.readFileSync(PRODUCT_PATH, 'utf8'));
+const norm = (v) => String(v).replace(/\s+/g, '').toUpperCase();
 const colorFor = (mode) => {
-  const over = Object.fromEntries(
-    Object.entries(brand[mode] || {}).filter(([k]) => !k.startsWith('$'))
-  );
-  for (const k of Object.keys(over)) {
-    if (!(k in tokens.color[mode])) {
-      throw new Error(`brand.${mode}.${k}: khoá không có trong bảng chuẩn - gõ sai tên?`);
-    }
-    if (k in ext[mode]) {
-      throw new Error(`brand.${mode}.${k}: trùng khoá với khối mở rộng ${mode}`);
+  for (const k of Object.keys(ext[mode]).filter((x) => !x.startsWith('$'))) {
+    if (k in tokens.color[mode] || k in (product.colors?.[mode] || {})) {
+      throw new Error(`extensions.${mode}.${k}: trùng khoá với bảng chuẩn / products/tsudev.json`);
     }
   }
-  return { values: { ...tokens.color[mode], ...over }, overridden: Object.keys(over) };
+  for (const [k, v] of Object.entries(product.colors?.[mode] || {})) {
+    if (product.locked && norm(tokens.color[mode][k]) !== norm(v)) {
+      throw new Error(
+        `products/tsudev.json ${mode}.${k} = ${v} khác bảng chuẩn ${tokens.color[mode][k]} - bộ quy ước đổi màu tsudev.com?`
+      );
+    }
+  }
+  return { values: tokens.color[mode] };
 };
 
 /** Thứ tự khai báo giữ 1:1 với JSON - DESIGN_SYSTEM.md §7 đòi vậy. */
@@ -118,11 +127,8 @@ let out = header;
 
 for (const [mode, selector, colorScheme, note] of MODES) {
   out += `\n/* ${note} */\n${selector} {\n  color-scheme: ${colorScheme};\n\n`;
-  const { values, overridden } = colorFor(mode);
+  const { values } = colorFor(mode);
   out += `  /* Bảng chuẩn hệ sinh thái - .standards/tokens/design-tokens.json > color.${mode} */\n`;
-  if (overridden.length) {
-    out += `  /* Tông thương hiệu ghi đè ${overridden.length} khoá - tokens/extensions.tsudev-web.json > brand.${mode} */\n`;
-  }
   out += emitVars(values);
   out += `\n\n  /* Mở rộng riêng của tsudev-web - tokens/extensions.tsudev-web.json > ${mode} */\n`;
   out += emitVars(ext[mode]);
