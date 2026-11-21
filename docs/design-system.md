@@ -135,6 +135,24 @@ Repo này từng vá bằng cách ghi đè `text-muted` và thêm vai trò mới
 sẵn cả hai giá trị và khối ghi đè đã bị gỡ - giao diện không đổi một pixel nào.
 `border-strong` giữ giá trị chuẩn và chỉ dùng cho ranh giới trang trí.
 
+## Bản sắc sản phẩm: bố cục `cong`, hoạ tiết `quang-sang` (21/11/2026)
+
+tsudev-standards v5.0.0 (`.standards/docs/DESIGN_SYSTEM.md` mục 1.2) cho mỗi sản phẩm một bố cục, hoạ tiết
+và màu nhấn riêng, khai ở `.standards/tokens/products/tsudev.json` - KHÔNG khai lại ở repo này.
+
+- **Bố cục `cong`** (thân trang chủ): hero NGẮN (`data-layout="cong"`) + lưới thẻ danh mục 6 cột
+  (`components/HomeCategories.tsx`) ngay màn đầu. Danh mục và số đếm SUY từ `ECOSYSTEM_APPS`/`ECO_GAMES`;
+  thẻ nhóm mở `/apps?nhom=<nhóm>` và chip nhóm ở /apps chọn sẵn theo tham số đó. Header, khu tài khoản, chân
+  trang, bộ chọn giao diện không đổi (`ECOSYSTEM_IDENTITY.md` mục 4).
+- **Hoạ tiết `quang-sang`**: `.tsu-quang-sang` ở `styles/globals.css` - quầng sáng tĩnh ở đỉnh hero bằng
+  `--glow` + `--accent` (pha ≤ 15%). Cùng hoạ tiết ở `og-image.png`:
+  `node packages/brand/build-assets.js --chi-og` (đọc màu thẳng từ `tsudev.json`, chỉ sinh lại ảnh OG).
+- **Dải màu từng sản phẩm ở thẻ /apps**: `npm run products:gen` sinh
+  `packages/ui/src/lib/productAccents.generated.ts` từ `.standards/tokens/products/*.json`; `tokens:check`
+  chạy bản `--check` nên sync bộ quy ước mà quên sinh lại là CI đỏ. `.tsu-sp-accent` vẽ bằng `::before`
+  (không `box-shadow` - ring chọn thẻ của Tailwind cũng là box-shadow).
+- Canh: `apps/frontend-main/test/banSacCong.test.ts`.
+
 ## Icon nền tảng và logo cú (05/11/2026)
 
 **Bốn dấu hiệu nền tảng** (`windows`, `android`, `apple`, `linux` trong

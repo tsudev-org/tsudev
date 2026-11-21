@@ -316,11 +316,83 @@ function buildIco(entries) {
   return Buffer.concat([header, dir, ...entries.map((e) => e.data)]);
 }
 
+/**
+ * Ảnh xem trước khi chia sẻ link (1200x630). Nền tối là HẰNG thương hiệu (không theo chế độ của
+ * người đọc - nền tảng chia sẻ cache một ảnh cho mọi người), nên lấy bảng TỐI của tsudev.
+ *
+ * Hoạ tiết chữ ký `quang-sang` (tsudev-standards v5.0.0, DESIGN_SYSTEM.md mục 1.2.4): cùng hoạ tiết
+ * với nền hero trang chủ (`.tsu-quang-sang` ở globals.css) - quầng sáng ở ĐỈNH ảnh + vòng cung mảnh,
+ * vẽ bằng `glow`/`accent` đọc THẲNG từ `.standards/tokens/products/tsudev.json` (không chép mã màu),
+ * độ phủ ≤ 15%.
+ *
+ *   node packages/brand/build-assets.js --chi-og   # chỉ sinh lại og-image.png
+ */
+async function buildOg(logo) {
+  console.log('\n[5/5] Ảnh Open Graph 1200x630 - hoạ tiết quang-sang');
+  const product = JSON.parse(
+    fs.readFileSync(path.join(ROOT, '.standards', 'tokens', 'products', 'tsudev.json'), 'utf8')
+  );
+  if (product.motif !== 'quang-sang')
+    throw new Error(`tsudev.json motif = ${product.motif}, og-image chỉ biết vẽ quang-sang`);
+  const dark = product.colors.dark;
+  // glow là rgba(r, g, b, a) - tách để SVG dùng stop-opacity; chặn trần 15% theo chuẩn.
+  const m = /rgba\(\s*(\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\s*\)/.exec(dark.glow);
+  if (!m) throw new Error(`glow không phải rgba(): ${dark.glow}`);
+  const glowRgb = `rgb(${m[1]},${m[2]},${m[3]})`;
+  const glowA = Math.min(Number(m[4]), 0.15);
+  const ACCENT_A = 0.12;
+  const OG_W = 1200;
+  const OG_H = 630;
+  const LOGO_H = 400;
+  const ogBackdrop = Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${OG_W}" height="${OG_H}">
+      <defs>
+        <radialGradient id="quang" cx="0.5" cy="-0.1" r="0.75" gradientTransform="translate(0.5 0) scale(1 1.1) translate(-0.5 0)">
+          <stop offset="0%" stop-color="${glowRgb}" stop-opacity="${glowA}"/>
+          <stop offset="100%" stop-color="${glowRgb}" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="loi" cx="0.5" cy="-0.06" r="0.32">
+          <stop offset="0%" stop-color="${dark.accent}" stop-opacity="${ACCENT_A}"/>
+          <stop offset="100%" stop-color="${dark.accent}" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="mep" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%" stop-color="${dark.accent}" stop-opacity="0"/>
+          <stop offset="30%" stop-color="${dark.accent}" stop-opacity="${ACCENT_A}"/>
+          <stop offset="70%" stop-color="${dark.accent}" stop-opacity="${ACCENT_A}"/>
+          <stop offset="100%" stop-color="${dark.accent}" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <rect width="${OG_W}" height="${OG_H}" fill="#0a0a0a"/>
+      <rect width="${OG_W}" height="${OG_H}" fill="url(#quang)"/>
+      <rect width="${OG_W}" height="${OG_H}" fill="url(#loi)"/>
+      <ellipse cx="${OG_W / 2}" cy="-150" rx="560" ry="${150 + 260}" fill="none" stroke="url(#mep)" stroke-width="1.5"/>
+      <text x="${OG_W / 2}" y="${OG_H - 92}" text-anchor="middle"
+            font-family="DejaVu Sans, Verdana, sans-serif" font-size="30" fill="#d4d4d8">
+        Hệ sinh thái phần mềm · Cài bằng một lệnh
+      </text>
+      <text x="${OG_W / 2}" y="${OG_H - 46}" text-anchor="middle"
+            font-family="DejaVu Sans, Verdana, sans-serif" font-size="24" fill="${dark.primary}">
+        tsudev.com
+      </text>
+    </svg>`
+  );
+  emit(
+    'og-image.png',
+    await sharp(ogBackdrop)
+      .composite([
+        { input: await square(logo, LOGO_H), left: Math.round((OG_W - LOGO_H) / 2), top: 36 },
+      ])
+      .png(pngOpts)
+      .toBuffer()
+  );
+}
+
 async function main() {
   for (const pub of APPS) ensureDir(pub);
 
   console.log('\n[1/5] Logo - xoá nền đen, giữ nguyên hình');
   const logo = await removeDarkBackground(path.join(SRC, 'logo-tsudev.png'));
+  if (process.argv.includes('--chi-og')) return buildOg(logo);
   const meta = await sharp(logo).metadata();
   console.log(`  logo sau khi cắt viền trong suốt: ${meta.width}x${meta.height}`);
 
@@ -446,39 +518,7 @@ async function main() {
   };
   emit('site.webmanifest', Buffer.from(JSON.stringify(manifest, null, 2) + '\n'));
 
-  // Ảnh xem trước khi chia sẻ link. Nền tối là HẰNG thương hiệu (không theo chế độ
-  // của người đọc - nền tảng chia sẻ cache một ảnh cho mọi người).
-  console.log('\n[5/5] Ảnh Open Graph 1200x630');
-  const OG_W = 1200;
-  const OG_H = 630;
-  const LOGO_H = 420;
-  const ogBackdrop = Buffer.from(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${OG_W}" height="${OG_H}">
-      <defs>
-        <radialGradient id="glow" cx="0.5" cy="0.42" r="0.6">
-          <stop offset="0%" stop-color="#1b2a4a"/><stop offset="100%" stop-color="#0a0a0a"/>
-        </radialGradient>
-      </defs>
-      <rect width="${OG_W}" height="${OG_H}" fill="url(#glow)"/>
-      <text x="${OG_W / 2}" y="${OG_H - 92}" text-anchor="middle"
-            font-family="DejaVu Sans, Verdana, sans-serif" font-size="30" fill="#d4d4d8">
-        Hệ sinh thái phần mềm · Cài bằng một lệnh
-      </text>
-      <text x="${OG_W / 2}" y="${OG_H - 46}" text-anchor="middle"
-            font-family="DejaVu Sans, Verdana, sans-serif" font-size="24" fill="#38bdf8">
-        tsudev.com
-      </text>
-    </svg>`
-  );
-  emit(
-    'og-image.png',
-    await sharp(ogBackdrop)
-      .composite([
-        { input: await square(logo, LOGO_H), left: Math.round((OG_W - LOGO_H) / 2), top: 30 },
-      ])
-      .png(pngOpts)
-      .toBuffer()
-  );
+  await buildOg(logo);
 
   console.log('\nXong. Đầu ra:');
   for (const pub of APPS) console.log('  ' + path.relative(ROOT, pub));

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon, Badge, ECO_CATEGORY_LABEL } from '@tsudev/ui';
+import { Icon, Badge, ECO_CATEGORY_LABEL, PRODUCT_PRIMARY } from '@tsudev/ui';
 import type { EcoApp } from '@tsudev/ui';
 import EcoIcon from './EcoIcon';
 import InstallCommands from './InstallCommands';
@@ -33,7 +33,19 @@ type Props = {
 
 const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' } as const;
 
+/**
+ * Dải màu chính của TỪNG sản phẩm ở mép trên thẻ (tsudev-standards v5.0.0, phiếu STD50 mục MAY):
+ * người dùng nhận ra sản phẩm trước khi bấm. Màu lấy lúc build từ `.standards/tokens/products/*.json`
+ * (`productAccents.generated.ts`); hai giá trị Sáng/Tối đi qua biến CSS, `.tsu-sp-accent` ở
+ * globals.css chọn theo `data-theme`. App chưa có tệp bản sắc thì không có dải - không đoán màu.
+ */
+function accentStyle(id: string): React.CSSProperties | undefined {
+  const c = PRODUCT_PRIMARY[id];
+  return c ? ({ '--sp-light': c.light, '--sp-dark': c.dark } as React.CSSProperties) : undefined;
+}
+
 export default function EcoAppCard({ app, selectable, selected, onToggle, hideInstall }: Props) {
+  const accent = accentStyle(app.id);
   const releasesOnGithub = Boolean(app.releases && /^https:\/\/github\.com\//.test(app.releases));
   return (
     // Bấm chuột vào vùng trống chỉ là lối tắt; bàn phím dùng ô chọn tròn (jsx-a11y).
@@ -41,7 +53,9 @@ export default function EcoAppCard({ app, selectable, selected, onToggle, hideIn
     <article
       onClick={selectable ? (e) => toggleOnCardClick(e, () => onToggle?.(app.id)) : undefined}
       data-selected={selectable ? Boolean(selected) : undefined}
-      className={`tsu-glow-card flex min-w-0 flex-col rounded-lg border bg-surface p-5 transition-colors ${
+      data-product-accent={accent ? app.id : undefined}
+      style={accent}
+      className={`tsu-glow-card ${accent ? 'tsu-sp-accent ' : ''}flex min-w-0 flex-col rounded-lg border bg-surface p-5 transition-colors ${
         selectable ? 'cursor-pointer' : ''
       } ${selected ? 'border-primary ring-1 ring-primary' : 'border-line'}`}
     >
