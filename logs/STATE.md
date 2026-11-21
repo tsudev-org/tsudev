@@ -2,7 +2,8 @@
 
 > 🔔 **Điều phối tsudev-f7 (21/11/2026)**: #360 gộp; #362 vá 2 cổng CI chập chờn (fonts:check, test oauth_linked). K2 đợt 4 xong (DEC sound-db 5, tsudev 4; 02/03 cho sound-db,
 > tsudev, tsudev-standards, mieubathuong, tsudev-nuicam3d); công cụ backfill chống DEC trùng. tsuscan chưa có Release.
-> Thư nhắc Pro: phiên sau ĐƯỢC UỶ QUYỀN tự xem log Render (phiếu mục 4; cần 👤 tạo khoá API một lần). Phiếu [`20261121-14`](handover/20261121-14_dieu-phoi-k2-dot-4.md). Không khoá,
+> Thư nhắc Pro: log Render (API) cho thấy lượt 01:23 UTC 21/11 KHÔNG chạy tới backend (401/503 im lặng hoặc không tới);
+> #364 thêm log từ chối, deploy `dcf709f` - đọc lượt 01:23 UTC 22/11 (phiếu mục 5 bước 0; ISS-20261121-2215-5fa5). Phiếu [`20261121-14`](handover/20261121-14_dieu-phoi-k2-dot-4.md). Không khoá,
 > không tác vụ nền.
 
 > 🔔 **Điều phối tsudev-ad (21/11/2026)**: K2 đợt 3 xong (DEC qulythuchi 19, tsusync 3, app-la-ban 2; 02/03 con trỏ cho
