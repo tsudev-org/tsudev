@@ -1,5 +1,10 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **Điều phối tsudev-f7 (21/11/2026)**: #360 gộp. K2 đợt 4 xong (DEC sound-db 5, tsudev 4; 02/03 cho sound-db,
+> tsudev, tsudev-standards, mieubathuong, tsudev-nuicam3d); công cụ backfill chống DEC trùng. tsuscan chưa có Release.
+> Thư nhắc Pro VẪN chờ log Render (👤). Phiếu [`20261121-14`](handover/20261121-14_dieu-phoi-k2-dot-4.md). Không khoá,
+> không tác vụ nền.
+
 > 🔔 **Điều phối tsudev-ad (21/11/2026)**: K2 đợt 3 xong (DEC qulythuchi 19, tsusync 3, app-la-ban 2; 02/03 con trỏ cho
 > qulythuchi, tsusync, app-la-ban, scoop-bucket, homebrew-tap). lotus-share SignPath đo lại 0/6 (1194 lượt tải, Scorecard
 > 6.9) - đã gửi phiên lotus-share-0c. tsuscan chưa có Release. Thư nhắc Pro VẪN chờ log Render (👤). Phiếu
