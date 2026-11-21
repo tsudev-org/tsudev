@@ -1,5 +1,10 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **Điều phối tsudev-ad (21/11/2026)**: K2 đợt 3 xong (DEC qulythuchi 19, tsusync 3, app-la-ban 2; 02/03 con trỏ cho
+> qulythuchi, tsusync, app-la-ban, scoop-bucket, homebrew-tap). lotus-share SignPath đo lại 0/6 (1194 lượt tải, Scorecard
+> 6.9) - đã gửi phiên lotus-share-0c. tsuscan chưa có Release. Thư nhắc Pro VẪN chờ log Render (👤). Phiếu
+> [`20261121-13`](handover/20261121-13_dieu-phoi-k2-dot-3-lotus-share-signpath.md). Không khoá, không tác vụ nền.
+
 > 🔔 **STD50 ĐÓNG (21/11/2026, tsudev-ae)**: PR 2 bố cục `cong` + hoạ tiết `quang-sang` + thẻ /apps màu sản phẩm -
 > #358, `deploy-2026.11.21.5` Worker `8616d7ed`, nghiệm thu production. K2 đợt 2 xong (5 repo). Phiếu
 > [`20261121-12`](handover/20261121-12_std50-pr2-bo-cuc-cong-k2-dot-2.md). Không khoá, không tác vụ nền.
