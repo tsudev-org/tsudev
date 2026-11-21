@@ -66,7 +66,12 @@ test('link + list: liên kết vào ĐÚNG người đang đăng nhập, list kh
   expect(JSON.stringify(list.body)).not.toContain(`goo-${stamp}`)
   expect(list.body.hasPassword).toBe(false)
   expect(list.body.passkeys).toBe(0)
-  const ev = await prisma.securityEvent.findFirst({ where: { userId: meId, type: 'oauth_linked' } })
+  // logSecurity ghi fire-and-forget - đọc ngay là đua (đỏ CI #362, 21/11/2026). Chờ ngắn.
+  let ev = null
+  for (let i = 0; i < 20 && !ev; i++) {
+    ev = await prisma.securityEvent.findFirst({ where: { userId: meId, type: 'oauth_linked' } })
+    if (!ev) await new Promise((r) => setTimeout(r, 50))
+  }
   expect(ev).not.toBeNull()
 })
 
