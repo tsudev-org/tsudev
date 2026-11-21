@@ -147,13 +147,19 @@ function khoiTuCss(css) {
       return x ? x[1].trim() : null;
     };
     const family = (lay('font-family') || '').replace(/^['"]|['"]$/g, '');
-    const net = parseInt(lay('font-weight') || '400', 10);
+    // Google trả khối font BIẾN THIÊN khi thì từng nét (`font-weight: 600`), khi thì
+    // một dải (`font-weight: 400 700`) - tuỳ máy chủ biên trả lời. parseInt dải chỉ
+    // ra 400 và cổng kiểm báo "thiếu nét 600" trên CI dù tệp vẫn đúng (21/11/2026).
+    const [netLo, netHi = netLo] = (lay('font-weight') || '400')
+      .split(/\s+/)
+      .map((x) => parseInt(x, 10));
+    const net = netLo;
     const style = lay('font-style') || 'normal';
     const range = lay('unicode-range');
     const src = lay('src') || '';
     const u = src.match(/url\((https:\/\/[^)]+\.woff2)\)/);
     if (!family || !u || !range) continue;
-    ra.push({ subset, family, net, style, range, url: u[1] });
+    ra.push({ subset, family, net, netLo, netHi, style, range, url: u[1] });
   }
   return ra;
 }
@@ -178,10 +184,15 @@ async function main() {
     for (const net of ho.nets) {
       for (const subset of SUBSET_GIU) {
         const k = khoi.find(
-          (x) => x.family === ho.css && x.net === net && x.subset === subset && x.style === 'normal'
+          (x) =>
+            x.family === ho.css &&
+            x.netLo <= net &&
+            net <= x.netHi &&
+            x.subset === subset &&
+            x.style === 'normal'
         );
         if (!k) throw new Error(`thiếu ${ho.css} nét ${net} subset ${subset} trong CSS của Google`);
-        tho.push({ ...k, ho });
+        tho.push({ ...k, net, ho });
       }
     }
   }
