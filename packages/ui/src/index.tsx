@@ -92,6 +92,7 @@ export type {
   InstallTarget,
   InstallPlan,
 } from './lib/ecosystem';
+export { PRODUCT_PRIMARY } from './lib/productAccents.generated';
 export { AUTH_HINT_KEY, saveAuthHint } from './lib/authHint';
 export type { AuthHint } from './lib/authHint';
 export type { ButtonSize, ButtonVariant } from './components/Button';

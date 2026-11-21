@@ -88,7 +88,14 @@ export default function AppsPage() {
   const [typed, setTyped] = useState<string | null>(null);
   const q = typed ?? urlQ;
   const [platform, setPlatform] = useState<EcoPlatform | null>(null);
-  const [category, setCategory] = useState<EcoCategory | null>(null);
+  // `?nhom=<nhóm>` (thẻ danh mục ở trang chủ, bố cục `cong`) chọn sẵn chip nhóm. Như `q`: giá trị
+  // URL chỉ là MẶC ĐỊNH, bấm chip thì lựa chọn của người dùng thắng (undefined = chưa bấm).
+  const urlCat =
+    typeof router.query.nhom === 'string' && (CATEGORIES as string[]).includes(router.query.nhom)
+      ? (router.query.nhom as EcoCategory)
+      : null;
+  const [pickedCat, setCategory] = useState<EcoCategory | null | undefined>(undefined);
+  const category = pickedCat === undefined ? urlCat : pickedCat;
   const [picked, setPicked] = useState<string[]>([]);
 
   const list = useMemo(() => {

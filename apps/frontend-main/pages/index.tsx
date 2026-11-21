@@ -5,6 +5,7 @@ import Seo from '../components/Seo';
 import DownloadSection from '../components/DownloadSection';
 import EcoAppCard from '../components/EcoAppCard';
 import HomeShowcase from '../components/HomeShowcase';
+import HomeCategories from '../components/HomeCategories';
 import { useScrollReveal } from '../lib/useScrollReveal';
 import {
   Layout,
@@ -60,14 +61,14 @@ export default function Home({
         description="Hệ sinh thái phần mềm TsuDEV: tìm, tải và cài ứng dụng cho Windows, Android, macOS, Linux - website riêng từng sản phẩm, winget, SHA-256 và chữ ký Ed25519."
       />
 
-      {/* ---------- HERO ----------
-          Bố cục supabase.com (chủ dự án chọn 10/11/2026): khối chữ CANH GIỮA trên
-          cùng nền với cả trang (không dải nền, không viền dưới), một quầng xanh tĩnh
-          phía sau, cặp nút chính/phụ, rồi ô tìm app. Ô tìm là <form method="get">
-          THẬT trỏ vào /apps - chạy được cả khi JavaScript chưa tải. */}
-      <section className="relative">
-        <div className="tsu-aurora" aria-hidden="true" />
-        <div className="relative max-w-4xl mx-auto px-4 pt-20 pb-16 md:pt-28 md:pb-20 text-center animate-fade-up">
+      {/* ---------- HERO NGẮN (bố cục `cong`) ----------
+          tsudev-standards v5.0.0 (DESIGN_SYSTEM.md mục 1.2.2; `.standards/tokens/products/tsudev.json`):
+          TsuDEV là CỔNG tập hợp nhiều sản phẩm ⇒ thân trang = hero NGẮN + lưới thẻ danh mục nhiều
+          cột ngay màn đầu. Hero chỉ giữ tiêu đề, một câu, ô tìm (là <form method="get"> THẬT trỏ vào
+          /apps - chạy cả khi JavaScript chưa tải) và cặp nút. Nền là hoạ tiết `quang-sang` (tĩnh). */}
+      <section className="relative" data-layout="cong">
+        <div className="tsu-quang-sang" aria-hidden="true" data-motif="quang-sang" />
+        <div className="relative max-w-4xl mx-auto px-4 pt-12 pb-8 md:pt-16 md:pb-10 text-center animate-fade-up">
           <a
             href="/apps"
             className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-fg-secondary transition-colors hover:border-line-control hover:text-fg"
@@ -76,7 +77,7 @@ export default function Home({
             {ECOSYSTEM_APPS.length} ứng dụng · Windows · Android · macOS · Linux
             <span aria-hidden="true">→</span>
           </a>
-          <h1 className="mt-6 text-4xl md:text-6xl font-semibold tracking-tight text-fg text-balance leading-[1.08] md:leading-(--text-6xl--line-height)">
+          <h1 className="mt-5 text-4xl md:text-6xl font-semibold tracking-tight text-fg text-balance leading-[1.08] md:leading-(--text-6xl--line-height)">
             Phần mềm TsuDEV
             {/* Câu phụ nhỏ hơn tiêu đề, luôn MỘT dòng (chủ dự án yêu cầu 19/11/2026): cỡ chữ co
                 theo bề ngang màn hình để vừa cả máy 320 px mà không phải xuống dòng. */}
@@ -84,25 +85,16 @@ export default function Home({
               Làm được, dùng được, chơi được
             </span>
           </h1>
-          <p className="mt-6 mx-auto max-w-2xl text-lg text-fg-secondary text-pretty">
-            Hệ sinh thái ứng dụng do TsuDEV tự phát triển - mở website riêng của từng sản phẩm, cài
-            bằng một lệnh qua winget, Scoop, Homebrew hoặc kho APT/DNF có chữ ký.
+          <p className="mt-5 mx-auto max-w-2xl text-base md:text-lg text-fg-secondary text-pretty">
+            Mở website riêng của từng sản phẩm, hoặc cài bằng một lệnh qua winget, Scoop, Homebrew,
+            APT/DNF có chữ ký.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button as="a" href="/apps" size="lg">
-              Duyệt ứng dụng
-            </Button>
-            <Button as="a" href="/apps#cai-bang-lenh" variant="secondary" size="lg">
-              <Icon name="code" size={16} />
-              Cài bằng một lệnh
-            </Button>
-          </div>
 
           <form
             action="/apps"
             method="get"
             role="search"
-            className="mt-10 mx-auto flex max-w-xl items-center gap-2 rounded-lg border border-line-strong tsu-glass p-1.5 pl-3 text-left transition-colors hover:border-line-control focus-within:border-primary"
+            className="mt-7 mx-auto flex max-w-xl items-center gap-2 rounded-lg border border-line-strong tsu-glass p-1.5 pl-3 text-left transition-colors hover:border-line-control focus-within:border-primary"
           >
             <Icon name="search" size={18} />
             <input
@@ -114,29 +106,33 @@ export default function Home({
             />
             <button
               type="submit"
-              className="inline-flex h-8 shrink-0 items-center rounded-md border border-line-strong bg-subtle px-3 text-sm font-medium text-fg transition-colors hover:bg-hovered"
+              className="inline-flex h-8 shrink-0 items-center rounded-control border border-line-strong bg-subtle px-3 text-sm font-medium text-fg transition-colors hover:bg-hovered"
             >
               Tìm
             </button>
           </form>
-          <ul className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-fg-muted">
-            {['Mã nguồn mở', 'winget · Scoop · Homebrew', 'APT · DNF có ký GPG', 'Tiếng Việt'].map(
-              (t) => (
-                <li key={t} className="inline-flex items-center gap-1.5">
-                  <Icon name="check-circle" size={16} />
-                  {t}
-                </li>
-              )
-            )}
-          </ul>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Button as="a" href="/apps" size="lg">
+              Duyệt ứng dụng
+            </Button>
+            <Button as="a" href="/apps#cai-bang-lenh" variant="secondary" size="lg">
+              <Icon name="code" size={16} />
+              Cài bằng một lệnh
+            </Button>
+          </div>
         </div>
       </section>
 
       <div className="max-w-6xl mx-auto px-4">
+        {/* ---------- LƯỚI THẺ DANH MỤC (bố cục `cong`) ----------
+            Ngay dưới hero, nhiều cột: bốn nhóm app + trò chơi + cài bằng lệnh. Danh mục suy
+            từ ECOSYSTEM_APPS/ECO_GAMES (không gõ tay số đếm) - xem components/HomeCategories.tsx. */}
+        <HomeCategories />
+
         {/* ---------- HỆ SINH THÁI ----------
             Mỗi thẻ mở WEBSITE RIÊNG của sản phẩm (*.tsudev.com) ở tab mới - đó là
             nơi giới thiệu đầy đủ và tải bản cài đặt của từng app. */}
-        <section className="pt-8 pb-6 reveal" id="he-sinh-thai">
+        <section className="pt-14 pb-6 reveal" id="he-sinh-thai">
           <SectionHeading
             title="Sản phẩm của TsuDEV"
             action={
