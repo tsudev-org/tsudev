@@ -40,7 +40,7 @@ export const PKG_CATALOG = {
     },
     {
       name: 'tsucontact',
-      version: '26.11.1601',
+      version: '26.11.2201',
       arch: ['any'],
       homepage: 'https://contact.tsudev.com',
     },
@@ -70,13 +70,13 @@ export const PKG_CATALOG = {
     },
     {
       name: 'tsudisk',
-      version: '26.11.1801',
+      version: '26.11.2401',
       arch: ['64bit'],
       homepage: 'https://disk.tsudev.com',
     },
     {
       name: 'tsuswico',
-      version: '26.11.2001',
+      version: '26.11.2201',
       arch: ['any'],
       homepage: 'https://swico.tsudev.com',
     },
@@ -96,7 +96,7 @@ export const PKG_CATALOG = {
     },
     {
       name: 'tsudev-sound-db',
-      version: '26.11.1705',
+      version: '26.11.2302',
       arch: ['any'],
       homepage: 'https://sound.tsudev.com',
     },
