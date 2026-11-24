@@ -14,6 +14,7 @@ import { useLoader } from '../../lib/useLoader';
 import { useStepUp } from '../../components/StepUpDialog';
 import { SecurityPosture, type Posture } from '../../components/SecurityPosture';
 import { LinkedAccounts } from '../../components/LinkedAccounts';
+import { QrPush } from '../../components/QrPush';
 
 /**
  * Bảo mật tài khoản: bật 2FA và quản lý passkey.
@@ -330,6 +331,9 @@ export default function SecurityPage() {
             onEnableTotp={startTotp}
             onRegenerateBackupCodes={regenerateBackupCodes}
           />
+          <Section title="Đăng nhập trên điện thoại bằng mã QR" id="qr">
+            <QrPush />
+          </Section>
           <Section title="Passkey" id="passkey">
             {keys.length === 0 ? (
               <p className="text-sm text-fg-muted">Chưa có passkey nào.</p>

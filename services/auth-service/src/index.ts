@@ -63,6 +63,7 @@ import {
 } from './tokens'
 import * as cfMail from './cloudflareEmail'
 import { loginOptions, loginVerify, registerOptions, registerVerify } from './passkey'
+import * as xd from './crossDevice'
 import {
   decryptSecret,
   encryptSecret,
@@ -183,6 +184,13 @@ const SENSITIVE = [
   '/api/identity/verify/code/send',
   '/api/identity/verify/resend',
   '/api/identity/email/change',
+  // Đăng nhập QR (CROSS_DEVICE_LOGIN mục 5): tạo phiên, quét, nhận, gõ mã khớp.
+  '/api/identity/xd/create-pull',
+  '/api/identity/xd/create-push',
+  '/api/identity/xd/claim',
+  '/api/identity/xd/scan',
+  '/api/identity/xd/verify',
+  '/api/identity/xd/redeem',
 ]
 app.use(
   SENSITIVE,
@@ -1315,6 +1323,158 @@ app.post(
       sessionVersion: user.sessionVersion,
       emailVerified: !!user.emailVerifiedAt,
     })
+  })
+)
+
+// ---------------------------------------------------------------------------
+// Đăng nhập chéo thiết bị bằng QR + mã khớp (CROSS_DEVICE_LOGIN, crossDevice.ts).
+// Thiết bị MỚI: công khai (chưa có danh tính). Thiết bị XÁC NHẬN: gắn `auth` theo nhánh.
+// `redeem` CHỈ NextAuth phía máy chủ gọi (proxy trình duyệt không có nó) - như verify-credentials.
+// ---------------------------------------------------------------------------
+const xdDevice = (req: Request) => ({
+  label: deviceLabel(str(req.headers['user-agent'] as string, 400)),
+  country: callerCountry(req.headers as Record<string, unknown>) || '',
+})
+const xdMaskEmail = (email: string) => {
+  const [u, d] = email.split('@')
+  return `${(u || '').slice(0, 2)}***@${d || ''}`
+}
+const xdRoute =
+  (fn: (req: Request, res: Response) => Promise<unknown>): RequestHandler =>
+  (req, res, next) =>
+    fn(req, res).catch((e) => {
+      if (e instanceof xd.XdError) {
+        const [code, left] = e.code.split(':')
+        return res
+          .status(e.status)
+          .json(left ? { error: code, attemptsLeft: Number(left) } : { error: code })
+      }
+      return next(e)
+    })
+
+app.post(
+  '/api/identity/xd/create-pull',
+  xdRoute(async (req, res) => res.json(await xd.createPull(xdDevice(req))))
+)
+app.post(
+  '/api/identity/xd/claim',
+  xdRoute(async (req, res) =>
+    res.json(await xd.claim(str(req.body?.id, 40), str(req.body?.k, 80), xdDevice(req)))
+  )
+)
+app.post(
+  '/api/identity/xd/status',
+  xdRoute(async (req, res) => {
+    const s = await xd.status(str(req.body?.id, 40), str(req.body?.poll, 80))
+    if (!s.approverId) return res.json({ state: s.state })
+    // T3: thiết bị mới THẤY tài khoản sắp vào (email che) trước khi gõ mã.
+    const u = await prisma.user.findUnique({ where: { id: s.approverId } })
+    return res.json({
+      state: s.state,
+      account: u
+        ? { email: xdMaskEmail(u.email), displayName: u.displayName || u.username }
+        : undefined,
+    })
+  })
+)
+app.post(
+  '/api/identity/xd/verify',
+  xdRoute(async (req, res) =>
+    res.json(
+      await xd.verify(str(req.body?.id, 40), str(req.body?.poll, 80), str(req.body?.code, 20))
+    )
+  )
+)
+app.post(
+  '/api/identity/xd/redeem',
+  xdRoute(async (req, res) => {
+    const userId = await xd.redeem(str(req.body?.ticket, 120))
+    const user = await prisma.user.findUnique({ where: { id: userId } })
+    if (!user) return res.status(401).json({ error: 'invalid_ticket' })
+    if (accountIsLocked(user)) {
+      return res
+        .status(423)
+        .json({ error: 'account_locked', until: user.lockedUntil?.toISOString() })
+    }
+    // Như passkey: thiết bị xác nhận đã đăng nhập + người dùng gõ đúng mã hiện trên đó = hai yếu tố.
+    if ((await handleLifecycleOnLogin(user, req)) === 'purged') {
+      return res.status(401).json({ error: 'invalid_ticket' })
+    }
+    await recordLogin(user, req, 'qr')
+    return res.json({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      displayName: user.displayName,
+      role: user.role,
+      sessionVersion: user.sessionVersion,
+      emailVerified: !!user.emailVerifiedAt,
+    })
+  })
+)
+
+// Vai xác nhận (trừ thăm dò `peek`): 20 lượt/phút/tài khoản (CROSS_DEVICE_LOGIN mục 5), gắn CÙNG chuỗi với `auth` - ngoài tầng chung
+// `/api/identity` và tầng nhạy cảm ở trên.
+const xdApproverRateLimit = createRateLimit({
+  name: 'xd-xac-nhan',
+  windowMs: 60_000,
+  max: 20,
+  keyOf: identityKeyOrIp,
+})
+app.use(
+  [
+    '/api/identity/xd/create-push',
+    '/api/identity/xd/scan',
+    '/api/identity/xd/approve',
+    '/api/identity/xd/deny',
+  ],
+  xdApproverRateLimit,
+  auth
+)
+// `peek` là thăm dò 2 giây/lần của màn Đ1 (~30/phút) - chỉ tầng chung 120/phút, không vào tầng 20/phút ở trên.
+app.use('/api/identity/xd/peek', auth)
+/** Thiết bị xác nhận phải là tài khoản đang dùng được (không khoá) - khoá rồi thì không mở cửa cho máy khác. */
+const xdApprover = async (req: Request) => {
+  const user = await lookupUser(req)
+  if (!user) throw new xd.XdError(401, 'unauthenticated')
+  const full = await prisma.user.findUnique({ where: { id: user.id } })
+  if (!full || accountIsLocked(full)) throw new xd.XdError(423, 'account_locked')
+  return { id: full.id, country: callerCountry(req.headers as Record<string, unknown>) || '' }
+}
+app.post(
+  '/api/identity/xd/create-push',
+  xdRoute(async (req, res) => {
+    const a = await xdApprover(req)
+    return res.json(await xd.createPush(a.id, a.country))
+  })
+)
+app.post(
+  '/api/identity/xd/scan',
+  xdRoute(async (req, res) => {
+    const a = await xdApprover(req)
+    return res.json(await xd.scan(str(req.body?.id, 40), str(req.body?.k, 80), a.id, a.country))
+  })
+)
+app.post(
+  '/api/identity/xd/peek',
+  xdRoute(async (req, res) => {
+    const a = await xdApprover(req)
+    return res.json(await xd.peek(str(req.body?.id, 40), a.id))
+  })
+)
+app.post(
+  '/api/identity/xd/approve',
+  xdRoute(async (req, res) => {
+    const a = await xdApprover(req)
+    return res.json(await xd.approve(str(req.body?.id, 40), a.id, a.country))
+  })
+)
+app.post(
+  '/api/identity/xd/deny',
+  xdRoute(async (req, res) => {
+    const a = await xdApprover(req)
+    await xd.deny(str(req.body?.id, 40), a.id)
+    return res.json({ ok: true })
   })
 )
 
