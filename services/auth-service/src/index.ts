@@ -1413,11 +1413,26 @@ app.post(
   })
 )
 
-app.use('/api/identity/xd/create-push', auth)
-app.use('/api/identity/xd/scan', auth)
+// Vai xác nhận (trừ thăm dò `peek`): 20 lượt/phút/tài khoản (CROSS_DEVICE_LOGIN mục 5), gắn CÙNG chuỗi với `auth` - ngoài tầng chung
+// `/api/identity` và tầng nhạy cảm ở trên.
+const xdApproverRateLimit = createRateLimit({
+  name: 'xd-xac-nhan',
+  windowMs: 60_000,
+  max: 20,
+  keyOf: identityKeyOrIp,
+})
+app.use(
+  [
+    '/api/identity/xd/create-push',
+    '/api/identity/xd/scan',
+    '/api/identity/xd/approve',
+    '/api/identity/xd/deny',
+  ],
+  xdApproverRateLimit,
+  auth
+)
+// `peek` là thăm dò 2 giây/lần của màn Đ1 (~30/phút) - chỉ tầng chung 120/phút, không vào tầng 20/phút ở trên.
 app.use('/api/identity/xd/peek', auth)
-app.use('/api/identity/xd/approve', auth)
-app.use('/api/identity/xd/deny', auth)
 /** Thiết bị xác nhận phải là tài khoản đang dùng được (không khoá) - khoá rồi thì không mở cửa cho máy khác. */
 const xdApprover = async (req: Request) => {
   const user = await lookupUser(req)

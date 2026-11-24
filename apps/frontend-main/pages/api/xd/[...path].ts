@@ -10,8 +10,10 @@ import { catchAllSegments, identityHeaders } from '../../../lib/identity';
 import { IDENTITY, internalHeaders } from '../../../lib/services';
 import { readSessionToken } from '../../../lib/sessionCookie';
 
-const REQUESTER = new Set(['create-pull', 'claim', 'status', 'verify']);
-const APPROVER = new Set(['create-push', 'scan', 'peek', 'approve', 'deny']);
+const REQUESTER = ['create-pull', 'claim', 'status', 'verify'] as const;
+const APPROVER = ['create-push', 'scan', 'peek', 'approve', 'deny'] as const;
+type Action = (typeof REQUESTER)[number] | (typeof APPROVER)[number];
+const isApprover = (a: Action) => (APPROVER as readonly string[]).includes(a);
 
 function callerHeaders(req: NextApiRequest): Record<string, string> {
   const ip = clientIp(req.headers, req.socket?.remoteAddress);
@@ -31,10 +33,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Chỉ hỗ trợ POST' });
   }
   const parts = catchAllSegments(req.query.path);
-  const action = parts.join('/');
-  if (parts.length !== 1 || !(REQUESTER.has(action) || APPROVER.has(action))) {
-    return res.status(404).json({ error: 'Không tìm thấy' });
-  }
+  // Tên hành động đi vào URL gọi xuống lấy từ HẰNG trong mã, không từ chuỗi người gửi (chống SSRF/CodeQL
+  // js/request-forgery): tìm phần tử khớp trong danh sách trắng rồi dùng chính phần tử đó.
+  const action: Action | undefined =
+    parts.length === 1 ? [...REQUESTER, ...APPROVER].find((a) => a === parts[0]) : undefined;
+  if (!action) return res.status(404).json({ error: 'Không tìm thấy' });
 
   const input = (req.body || {}) as Record<string, unknown>;
   const body: Record<string, unknown> = {
@@ -48,7 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     ...callerHeaders(req),
   };
 
-  if (APPROVER.has(action)) {
+  if (isApprover(action)) {
     const token = await readSessionToken(req);
     if (!token) return res.status(401).json({ error: 'unauthenticated' });
     headers = { ...headers, ...(await identityHeaders(token)) };
