@@ -30,3 +30,4 @@
 
 - (chưa)
 - 24/11/2026 - tsudev-b5dd: mục 1 XONG - chủ dự án đồng ý, `~/.claude/CLAUDE.md` thêm mục `tsudev-trafficmonitor` → `tsutramon`; `CLAUDE.md` repo tsudev (gotcha tên repo cũ) sửa khớp. Mục 2 (danh bạ `ecosystem.ts`: tên Tsu Tramon, `tramon.tsudev.com`, repo `tsutramon`) chuyển phiên tsudev kế tiếp; mục 3 thuộc repo tsudev-standards.
+- 25/11/2026 - tsudev-3e: mục 2 XONG - `ecosystem.ts` tên "Tsu Tramon", `https://tramon.tsudev.com` (đo 200), Release `tsudev-org/tsutramon`; `oldWebsites` giữ homepage cũ vì gói Scoop `tsudev-trafficmonitor` vẫn khai `trafficmonitor.tsudev.com` (ghép catalog theo homepage); `noi-dung-he-sinh-thai.js` đổi tên + link. Catalog gói làm mới (`npm run pkg:catalog`). Mục 3 còn ở repo tsudev-standards.
