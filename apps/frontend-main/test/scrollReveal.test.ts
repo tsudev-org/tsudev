@@ -102,3 +102,16 @@ describe('scroll-reveal - mặc định phải HIỆN', () => {
     }
   });
 });
+
+/**
+ * Khối ĐANG trong khung nhìn phải được gắn `is-in` TRƯỚC khi bật `data-reveal="on"`. Ngược lại,
+ * `getBoundingClientRect()` ép tính style lúc khối đã bị ẩn ⇒ phần màn đầu nhảy về opacity 0 rồi
+ * hiện dần sau hydrate - nháy ở MỌI lần tải trang, test hành vi nào cũng xanh (đo 25/11/2026).
+ */
+test('useScrollReveal gắn is-in cho khối trong khung nhìn TRƯỚC khi bật trạng thái ẩn', () => {
+  const src = readFileSync(join(APP, 'lib/useScrollReveal.ts'), 'utf8').replace(/\/\/.*$/gm, '');
+  const gan = src.indexOf("el.classList.add('is-in')");
+  const bat = src.indexOf("goc.dataset.reveal = 'on'");
+  expect(gan).toBeGreaterThan(0);
+  expect(bat).toBeGreaterThan(gan);
+});

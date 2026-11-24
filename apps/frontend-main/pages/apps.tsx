@@ -15,6 +15,7 @@ import type { EcoPlatform, EcoCategory, IconName } from '@tsudev/ui';
 import Seo from '../components/Seo';
 import PageHeader from '../components/PageHeader';
 import EcoAppCard from '../components/EcoAppCard';
+import CategoryTiles from '../components/CategoryTiles';
 import EcoGameCard from '../components/EcoGameCard';
 import InstallTray from '../components/InstallTray';
 
@@ -88,7 +89,7 @@ export default function AppsPage() {
   const [typed, setTyped] = useState<string | null>(null);
   const q = typed ?? urlQ;
   const [platform, setPlatform] = useState<EcoPlatform | null>(null);
-  // `?nhom=<nhóm>` (thẻ danh mục ở trang chủ, bố cục `cong`) chọn sẵn chip nhóm. Như `q`: giá trị
+  // `?nhom=<nhóm>` (liên kết cũ từ trang chủ / bên ngoài) chọn sẵn thẻ nhóm. Như `q`: giá trị
   // URL chỉ là MẶC ĐỊNH, bấm chip thì lựa chọn của người dùng thắng (undefined = chưa bấm).
   const urlCat =
     typeof router.query.nhom === 'string' && (CATEGORIES as string[]).includes(router.query.nhom)
@@ -141,6 +142,10 @@ export default function AppsPage() {
       />
 
       <div className="max-w-6xl mx-auto px-4 py-10 pb-32">
+        {/* Sáu thẻ danh mục (dời từ trang chủ 25/11/2026). Bốn thẻ nhóm là bộ lọc nhóm DUY NHẤT -
+            hàng chip nhóm trong thanh lọc đã gỡ vì trùng chức năng. */}
+        <CategoryTiles active={category} onPick={setCategory} />
+
         {/* Bộ lọc. Là <form> để Enter không tải lại trang mà vẫn có ngữ nghĩa tìm kiếm. */}
         {/* Thanh lọc DÍNH ngay dưới header (h-16): lớp bọc nền trang phủ kín dải giữa header
             và ô lọc, nên khi cuộn nội dung không còn lộ qua khe hở (lỗi chủ dự án báo
@@ -167,7 +172,7 @@ export default function AppsPage() {
             <div
               className="-mx-3 mt-3 flex items-center gap-2 overflow-x-auto px-3 pb-0.5 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
               role="group"
-              aria-label="Lọc theo nền tảng và nhóm"
+              aria-label="Lọc theo nền tảng"
             >
               <button
                 type="button"
@@ -189,24 +194,27 @@ export default function AppsPage() {
                   {ECO_PLATFORM_LABEL[p]}
                 </button>
               ))}
-              <span className="mx-1 hidden h-5 w-px bg-line sm:inline-block" aria-hidden="true" />
-              {CATEGORIES.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  className={chip(category === c)}
-                  onClick={() => setCategory(category === c ? null : c)}
-                  aria-pressed={category === c}
-                >
-                  {ECO_CATEGORY_LABEL[c]}
-                </button>
-              ))}
             </div>
           </form>
         </div>
 
         <p className="mt-3 text-sm text-fg-muted" aria-live="polite">
           {list.length} / {ECOSYSTEM_APPS.length} ứng dụng
+          {category && (
+            <>
+              {' '}
+              · nhóm <strong className="font-medium text-fg">
+                {ECO_CATEGORY_LABEL[category]}
+              </strong>{' '}
+              <button
+                type="button"
+                onClick={() => setCategory(null)}
+                className="ml-1 text-link underline-offset-2 hover:underline"
+              >
+                bỏ lọc nhóm
+              </button>
+            </>
+          )}
         </p>
 
         {list.length === 0 ? (

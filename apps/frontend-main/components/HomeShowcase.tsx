@@ -301,6 +301,7 @@ export default function HomeShowcase({ posts }: { posts: Post[] }) {
         return (
           <article
             key={it.tone}
+            data-side={right ? 'left' : undefined}
             className={`tsu-sc tsu-sc-${it.tone} reveal ${right ? 'reveal-from-right md:ml-auto' : 'reveal-from-left'} group relative w-full overflow-hidden rounded-2xl border border-line md:w-[88%]`}
           >
             <div className={`grid md:grid-cols-2 ${right ? 'md:[&>*:first-child]:order-2' : ''}`}>
