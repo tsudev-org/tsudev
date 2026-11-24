@@ -14,5 +14,3 @@ export const Stat = ({ value, label, className = '' }: StatProps) => (
     <div className="text-xs uppercase tracking-wider text-fg-muted mt-1">{label}</div>
   </div>
 );
-
-export default Stat;

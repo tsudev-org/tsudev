@@ -279,5 +279,3 @@ export function renderMarkdown(md = ''): string {
   const { tokens } = prepare(md);
   return (parser.parser(tokens) as string).trim();
 }
-
-export default renderMarkdown;

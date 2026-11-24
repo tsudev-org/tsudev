@@ -210,5 +210,3 @@ export const RecordFooter = ({
     </div>
   );
 };
-
-export default RecordFooter;

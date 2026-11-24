@@ -81,6 +81,12 @@ jobs:
       # đã gỡ, để ngày đổi hẳn khỏi 5.9 chỉ còn là đổi phiên bản. Xem script.
       - name: Kiểm kiểu bằng TypeScript 7
         run: npm run typecheck:ts7
+      # Cổng Clean Codebase (.standards PROJECT_STRUCTURE.md mục 3.1): tệp chết,
+      # export không ai dùng, phụ thuộc thừa/chưa khai. Đặt SAU db:generate vì
+      # knip đọc kiểu Prisma. Cấu hình + lý do từng ngoại lệ: `knip.json`,
+      # docs/testing.md mục "Clean Codebase".
+      - name: Mã chết và phụ thuộc thừa (knip)
+        run: npm run knip
 
   wasm:
     name: WASM con dấu - artifact phải khớp mã nguồn
@@ -386,3 +392,7 @@ jobs:
           npm --workspace apps/frontend-main exec -- opennextjs-cloudflare build
         env:
           NEXTAUTH_SECRET: build-time-placeholder
+      # Ngân sách tốc độ (.standards LANGUAGE_SELECTION.md mục 5.1): JS tải ban
+      # đầu mỗi trang ≤ 170 KB gzip, đọc từ build-manifest của bản vừa dựng.
+      - name: Ngân sách JS tải ban đầu
+        run: npm run budget:js

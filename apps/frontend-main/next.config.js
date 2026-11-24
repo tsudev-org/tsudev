@@ -38,6 +38,11 @@ const nextConfig = {
         destination: '/search',
         permanent: false,
       },
+      // Đường dẫn tiếng Việt mà hồ sơ Bộ Công Thương / Tín nhiệm mạng và tài liệu hệ sinh
+      // thái dẫn tới (phiếu DK2). Trang gốc giữ tên cũ vì link ngoài đã trỏ vào đó.
+      { source: '/dieu-khoan', destination: '/terms', permanent: true },
+      { source: '/quyen-rieng-tu', destination: '/privacy', permanent: true },
+      { source: '/noi-quy', destination: '/rules', permanent: true },
     ];
   },
 

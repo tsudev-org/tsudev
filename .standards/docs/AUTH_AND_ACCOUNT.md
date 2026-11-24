@@ -1,4 +1,4 @@
-# XÁC THỰC VÀ KIẾN TRÚC TÀI KHOẢN - mọi project/tool/phần mềm tsudev (v3.2.2)
+# XÁC THỰC VÀ KIẾN TRÚC TÀI KHOẢN - mọi project/tool/phần mềm tsudev (v3.3.0)
 
 > Đăng nhập, đăng ký, liên kết nhà cung cấp, trạng thái tài khoản, và cơ chế
 > **Xác minh tài khoản**. Đây là chuẩn bắt buộc, không phải gợi ý.
@@ -118,6 +118,19 @@ Mọi màn hình đăng nhập của hạng A và B `MUST` có đủ và **đún
 - `MUST NOT` thêm nhà cung cấp khác (Facebook, X, Zalo, ...) ngoài Google, Apple
   (mục 3.2), GitHub mà không có đề xuất được duyệt theo [`SYNC.md`](SYNC.md) và cập
   nhật chính tài liệu này.
+
+### 3.0. Lối vào bổ sung (từ v3.3.0)
+
+Ngoài ba lối vào bắt buộc, màn đăng nhập hạng A và B có thêm, dưới dải "Thêm tuỳ chọn đăng nhập":
+
+| Lối vào | Mức | Điều kiện hiện nút |
+| --- | --- | --- |
+| **Tiếp tục với khoá truy cập** (passkey, WebAuthn) | `MUST` khi IdP bật passkey | IdP công bố `passkey` trong danh sách phương thức. Passkey là cách đăng nhập của **tài khoản tsudev**, không phải nhà cung cấp mới; chống lừa đảo tốt nhất, 0 đồng |
+| **Tiếp tục bằng SSO** (tổ chức) | `MAY` | IdP có **ít nhất một** tổ chức đã cấu hình OIDC + xác minh tên miền bằng DNS TXT. Bấm ⇒ hỏi email công việc ⇒ IdP chuyển sang IdP của tổ chức. Chỉ OIDC (không SAML). Chưa có tổ chức ⇒ `MUST NOT` hiện nút |
+| **Quét để đăng nhập** (QR) | `MUST` khi IdP bật API chéo thiết bị | Chuẩn riêng [`CROSS_DEVICE_LOGIN.md`](CROSS_DEVICE_LOGIN.md) |
+
+Danh sách lối vào `MUST` lấy từ IdP (như nút Apple, mục 3.2); RP `MUST NOT` gõ cứng. Mục này chính là đề xuất được
+duyệt (chủ dự án, 24/11/2026) cho câu "`MUST NOT` thêm nhà cung cấp khác" ở trên; Facebook, X, Zalo vẫn bị cấm.
 
 ### 3.1. Phạm vi quyền xin của nhà cung cấp liên kết
 
@@ -499,32 +512,40 @@ kiện để chia sẻ liên kết giữa các sản phẩm mà không hỏng.
 - Sản phẩm tiếng Anh `MAY` dùng bản dịch tương ứng nhưng `MUST` giữ nguyên cấu
   trúc cây và `MUST` chuyển hướng `301` từ bản tiếng Việt.
 
-### 13.2. Bố cục màn hình đăng nhập và đăng ký
+### 13.2. Bố cục màn hình đăng nhập và đăng ký (v3.3.0, mẫu Quly Thu Chi + Lark)
 
 ```
 +---------------------------------------------------+
-|                  [ dấu hiệu tsudev ]              |  logo tsudev 48px (BRAND_ASSETS mục 2)
-|                Đăng nhập vào tsudev               |  24px / 600
-|          Chưa có tài khoản? Đăng ký ngay          |  14px, liên kết
+|                                  (🌐 Tiếng Việt ▾)|  chọn ngôn ngữ, mặc định theo hệ thống
+|  [ logo sản phẩm ]                                |  logo 48px (BRAND_ASSETS mục 2)
+|  Chào mừng tới <Tên sản phẩm>                     |  24-28px / 700
+|  Một câu giá trị (vd. "Dữ liệu được mã hoá ngay   |  14px, text-muted
+|  trên thiết bị của bạn.")                         |
 |                                                   |
-|  [ (G)  Tiếp tục với Google              ]        |  cao 40px, full width
+|  [ (G)  Tiếp tục với Google              ]        |  cao 44px (app) / 40px (web)
 |  [ (A)  Tiếp tục với Apple               ]        |  chỉ khi mục 3.2 áp dụng
-|  [ (GH) Tiếp tục với GitHub              ]        |  cao 40px, full width
+|  [ (GH) Tiếp tục với GitHub              ]        |
+|  [ (@)  Tài khoản tsudev (email)         ]        |  web IdP: ô email + "Tiếp" (định danh trước)
+|           "Lần trước bạn dùng cách này"           |  nhãn trên đúng nút đã dùng
 |                                                   |
-|  ------------------ hoặc ------------------       |  12px, text-muted
+|  ( ) Tôi đã đọc và chấp nhận Điều khoản dịch vụ   |  ô đồng ý, KHÔNG tích sẵn (mục 13.4)
+|      và Chính sách quyền riêng tư.                |
 |                                                   |
-|  Email                                            |  13px nhãn
-|  [                                       ]        |  input 36px
-|  Mật khẩu                        Quên mật khẩu?   |
-|  [                                  (mắt) ]       |
-|  [ ] Ghi nhớ đăng nhập                            |
+|  ---------- Thêm tuỳ chọn đăng nhập ----------    |  12px, text-muted
+|  [ (🔑) Tiếp tục với khoá truy cập       ]        |  mục 3.0
+|  [ (🏢) Tiếp tục bằng SSO                ]        |  mục 3.0, có điều kiện
 |                                                   |
-|  [           Đăng nhập            ]               |  Primary, full width
-|                                                   |
-|  Bằng việc tiếp tục, bạn đồng ý với Điều khoản    |  12px, text-muted
-|  và Chính sách riêng tư của tsudev.               |
+|              Quét để đăng nhập                    |  liên kết (app) / khung QR cột phải (web ≥ 960px)
+|  ------------------ hoặc ------------------       |  chỉ hạng C / app có chế độ khách
+|  [      Dùng ngay, không cần tài khoản     ]      |  mục 14; nói rõ dữ liệu chỉ lưu trên máy
 +---------------------------------------------------+
 ```
+
+- App di động/desktop: mọi nút đăng nhập mở **trình duyệt hệ thống** tới IdP (mục 4) kèm `idp_hint`/`login_hint`;
+  ô mật khẩu chỉ có ở trang IdP. Bố cục trên là màn bản địa của app; trang IdP dùng cùng bố cục, thêm ô email/mật khẩu.
+- Màn đăng nhập/đăng ký/**Ủng hộ** (Pro) của mọi sản phẩm dùng chung một khung này: cùng thứ tự, cùng khoảng cách,
+  màu nhấn lấy từ lớp bản sắc sản phẩm ([`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) mục 1.2). Flutter: widget
+  `TsuSignInScreen` của `tsudev_ui`; web: thành phần `SignIn` của `@tsudev/ui`.
 
 - Khung `MUST` rộng tối đa **400px**, căn giữa, nền `bg-surface`, `radius-lg`,
   `shadow-md`, đệm trong 32px (24px ở màn hình dưới 480px).
@@ -541,6 +562,16 @@ kiện để chia sẻ liên kết giữa các sản phẩm mà không hỏng.
   tự nhìn thấy, vòng focus theo `DESIGN_SYSTEM.md` mục 5.
 - `MUST` giữ hoạt động ở cả hai chế độ nền Sáng/Tối, logo theo
   [`BRAND_ASSETS.md`](BRAND_ASSETS.md) mục 4.
+
+### 13.4. Ô đồng ý Điều khoản (từ v3.3.0)
+
+- Màn đăng nhập/đăng ký `MUST` có ô *"Tôi đã đọc và chấp nhận Điều khoản dịch vụ và Chính sách quyền riêng tư."*,
+  hai cụm là liên kết tới `/dieu-khoan` và `/quyen-rieng-tu` (mục 13.1). `MUST NOT` tích sẵn - Nghị định 13/2023/NĐ-CP
+  đòi sự đồng ý rõ ràng, chủ động.
+- Bấm một lối vào khi chưa tích ⇒ mở bảng dưới (bottom sheet) tóm tắt hai văn bản + nút **"Đồng ý và tiếp tục"** +
+  "Huỷ". `MUST NOT` chỉ rung/đổi màu mà không nói lý do.
+- IdP lưu `terms_version` + `privacy_version` + thời điểm đồng ý; văn bản đổi bản ⇒ hỏi lại ở lần đăng nhập kế tiếp.
+- Chế độ khách (hạng C, mục 14) không bắt tích ô; dòng 12px dưới nút ghi "Dùng ngay nghĩa là bạn đồng ý Điều khoản".
 
 ### 13.3. Thông điệp
 
@@ -716,6 +747,8 @@ danh sách đầy đủ.
 - [ ] Mã cài đặt ngẫu nhiên 128 bit, không dùng định danh phần cứng (mục 14.3).
 - [ ] Đủ các ca kiểm thử ở mục 16 (ca 16 khi bật Apple).
 - [ ] Đường dẫn đúng mục 13.1.
+- [ ] Bố cục mục 13.2 (v3.3.0), ô đồng ý mục 13.4 không tích sẵn, lối vào bổ sung mục 3.0 lấy từ IdP.
+- [ ] Hạng A, B: "Quét để đăng nhập" đạt checklist [`CROSS_DEVICE_LOGIN.md`](CROSS_DEVICE_LOGIN.md) mục 9.
 - [ ] `./scripts/check-standards.sh` đạt.
 
 ---

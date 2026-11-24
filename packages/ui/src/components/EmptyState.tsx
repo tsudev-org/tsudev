@@ -103,5 +103,3 @@ export const EmptyState = ({
     </Card>
   );
 };
-
-export default EmptyState;

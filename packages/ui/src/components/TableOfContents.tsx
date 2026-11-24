@@ -84,5 +84,3 @@ export const TableOfContents = ({
     </nav>
   );
 };
-
-export default TableOfContents;

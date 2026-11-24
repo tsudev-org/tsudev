@@ -1,4 +1,4 @@
-# CẤU TRÚC THƯ MỤC CHUẨN - mọi repo trong hệ sinh thái tuân theo (v3.0.0)
+# CẤU TRÚC THƯ MỤC CHUẨN - mọi repo trong hệ sinh thái tuân theo (v3.1.0)
 
 Mục tiêu: bất kỳ lập trình viên hoặc agent AI nào mở repo đều biết ngay file,
 biến, hàm nằm ở đâu - không phải suy đoán.
@@ -152,6 +152,24 @@ phần B.
 | Component bảng dùng chung | `packages/ui/src/components/DataTable/` theo [`DATA_TABLE.md`](DATA_TABLE.md) mục 11 |
 
 ---
+
+## 3.1. Clean Codebase - không mã thừa, không tệp rác (từ v3.1.0)
+
+- `MUST NOT` commit: mã chết (hàm/lớp/tệp không ai gọi), khối mã bị chú thích bỏ, `console.log`/`print` gỡ lỗi,
+  tệp tạm (`*.bak`, `*.orig`, `tmp/`, `test-results/`, `coverage/`, ảnh chụp thử), thư mục rỗng, phụ thuộc không dùng.
+  Ý tưởng chưa làm ⇒ issue hoặc phiếu, không để mã nửa vời.
+- Cổng `MUST` trong CI (chặn merge), chọn theo ngôn ngữ, 0 đồng:
+
+  | Ngôn ngữ | Mã chết / phụ thuộc thừa |
+  | --- | --- |
+  | TypeScript/JS | `knip` |
+  | Rust | `cargo clippy -D warnings` + `cargo machete` |
+  | Dart/Flutter | `dart analyze --fatal-infos` (bật `unused_*`), `dart pub deps` rà tay mỗi bản |
+  | Python | `ruff` (F401, F841) + `vulture` |
+  | C#/.NET | `dotnet build -warnaserror` (IDE0051, IDE0052) |
+
+- Tệp rác bị bắt bằng `.gitignore` theo [`GITIGNORE_POLICY.md`](GITIGNORE_POLICY.md) + `git status --porcelain` sạch sau
+  build trong CI. Tên tệp/thư mục theo mục 3, một trách nhiệm mỗi tệp.
 
 ## 4. Bộ quy ước và token trung tâm
 

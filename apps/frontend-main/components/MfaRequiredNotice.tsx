@@ -27,5 +27,3 @@ export function MfaRequiredNotice({ className = '' }: { className?: string }) {
     </Card>
   );
 }
-
-export default MfaRequiredNotice;

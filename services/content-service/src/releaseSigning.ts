@@ -245,6 +245,7 @@ function jwks(): { keys: Array<Record<string, unknown>> } {
   return { keys }
 }
 
-const verifyKeyIds = (): string[] => [...verifyRing.keys()]
+/** Chỉ cho test (gọi qua `require` nên knip không thấy). @testonly */
+export const verifyKeyIds = (): string[] => [...verifyRing.keys()]
 
-export { sign, verify, jwks, kid, usingDevKey, verifyKeyIds }
+export { sign, verify, jwks, kid, usingDevKey }

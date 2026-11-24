@@ -129,5 +129,3 @@ export const SecurityEventList = ({
     </ul>
   );
 };
-
-export default SecurityEventList;

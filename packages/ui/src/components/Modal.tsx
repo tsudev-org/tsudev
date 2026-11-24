@@ -105,5 +105,3 @@ export const Modal = ({ open, onClose, title, children, closeButton = true }: Mo
     </div>
   );
 };
-
-export default Modal;

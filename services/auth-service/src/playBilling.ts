@@ -74,7 +74,7 @@ type Fetch = typeof fetch
 let fetchImpl: Fetch = (input, init) => fetch(input, init)
 let tokenCache: { token: string; exp: number } | null = null
 
-/** Chỉ cho test. */
+/** Chỉ cho test (gọi qua `require` nên knip không thấy). @testonly */
 export const _setPlayFetch = (f: Fetch | null): void => {
   fetchImpl = f ?? ((input, init) => fetch(input, init))
   tokenCache = null

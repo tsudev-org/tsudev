@@ -44,5 +44,3 @@ export function QrSvg({
     </svg>
   );
 }
-
-export default QrSvg;

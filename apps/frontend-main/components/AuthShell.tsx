@@ -86,5 +86,3 @@ export const Notice = ({ kind, children }: { kind: 'error' | 'ok'; children: Rea
     {children}
   </div>
 );
-
-export default AuthShell;

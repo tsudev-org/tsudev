@@ -340,8 +340,6 @@ export const oidcHandler: RequestHandler = (req, res) => {
   provider.callback()(req, res)
 }
 
-export const oidcEnabled = (): boolean => provider !== null
-
 /**
  * Đọc interaction bằng cookie `_interaction` mà trình duyệt gửi tới trang Next, được
  * BFF chuyển nguyên văn trong `x-oidc-cookie`. Cookie đó do provider ký - BFF không

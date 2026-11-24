@@ -1,0 +1,8 @@
+# Đầu mối tiếp nhận và xử lý vấn đề an toàn thông tin của tsudev.com (RFC 9116).
+# Ưu tiên kênh riêng tư của GitHub; thư điện tử khi không dùng được GitHub.
+Contact: https://github.com/tsudev-org/tsudev/security/advisories/new
+Contact: mailto:contact@tsudev.com
+Expires: 2027-11-24T00:00:00.000Z
+Preferred-Languages: vi, en
+Canonical: https://tsudev.com/.well-known/security.txt
+Policy: https://github.com/tsudev-org/tsudev/blob/main/.github/SECURITY.md

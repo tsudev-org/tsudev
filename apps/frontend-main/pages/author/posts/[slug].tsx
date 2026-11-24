@@ -1,16 +1,31 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import { Badge, Button, Input, Layout } from '@tsudev/ui';
 
 import Seo from '../../../components/Seo';
 import { Notice } from '../../../components/AuthShell';
-import { MarkdownEditor } from '../../../components/MarkdownEditor';
 import { MfaRequiredNotice } from '../../../components/MfaRequiredNotice';
 import { formatDateTimeVN } from '../../../lib/format';
 import { isMfaRequired } from '../../../lib/mfa';
 import { useLoader } from '../../../lib/useLoader';
 import { STATUS_LABEL, type PostStatus as Status } from '../../../lib/postStatus';
+
+// Trình soạn Tiptap nặng (~140 KB gzip) - nạp lười để trang giữ ngân sách JS tải
+// ban đầu ≤ 170 KB (`npm run budget:js`, .standards LANGUAGE_SELECTION 5.1).
+// Chỉ chạy ở trình duyệt: Tiptap cần DOM và trang này luôn sau đăng nhập.
+const MarkdownEditor = dynamic(
+  () => import('../../../components/MarkdownEditor').then((m) => m.MarkdownEditor),
+  {
+    ssr: false,
+    loading: () => (
+      <p className="rounded-lg border border-line p-4 text-sm text-fg-muted" role="status">
+        Đang nạp trình soạn…
+      </p>
+    ),
+  }
+);
 
 /**
  * Trang soạn bài hai cột (P2.3, khuôn CMS quantri): trái trình soạn Tiptap (D3,

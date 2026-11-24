@@ -84,5 +84,3 @@ export function useScrollReveal(): void {
     };
   }, []);
 }
-
-export default useScrollReveal;

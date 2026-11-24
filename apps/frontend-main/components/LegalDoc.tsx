@@ -92,5 +92,3 @@ export const LegalDoc = ({
     </div>
   </Layout>
 );
-
-export default LegalDoc;

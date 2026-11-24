@@ -53,9 +53,3 @@ export const formatDateTimeVN = (d: DateLike): string => {
   const dt = parse(d);
   return dt ? `${TIME.format(dt)} ${DATE.format(dt)}` : NO_DATE;
 };
-
-/**
- * Gợi ý cho ô nhập ngày. §4 đòi ví dụ bằng SỐ THẬT - `VD: 01/02/2027` - chứ
- * không phải chuỗi chữ `dd/mm/yyyy`, thứ mà người dùng hay gõ y nguyên vào ô.
- */
-export const DATE_PLACEHOLDER = 'VD: 01/02/2027';

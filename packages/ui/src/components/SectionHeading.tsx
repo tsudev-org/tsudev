@@ -30,5 +30,3 @@ export const SectionHeading = ({
     {action && <div className="shrink-0">{action}</div>}
   </div>
 );
-
-export default SectionHeading;

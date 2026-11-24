@@ -1,5 +1,13 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **Giao diện (24/11/2026)**: phiếu [`20261124-UX1`](handover/20261124-UX1_giao-dien-chuyen-nghiep-studio.md) - chuẩn hoá
+> giao diện tsudev.com, ưu tiên Studio "Viết bài"; MỖI PHIÊN MỘT PHASE, bắt đầu **UX1-a** (PR 4.5 WorkspaceLayout + /studio).
+
+> 🔔 **tsudev-b5dd (24/11/2026)**: tiếp tsudev-c9d4 bị cắt. Nhánh `chore/std-sync-v5-3-0`, PR #377 (chủ dự án duyệt hoàn tiền + cho push/deploy): `.standards` v5.3.0 + cổng `knip` + cổng `budget:js` (`730389b`); DK2 trang
+> `/chinh-sach-thanh-toan` + chủ sở hữu ở chân trang (`709071b`, 👤 duyệt điều kiện hoàn tiền); UI1 test (`75651a4`).
+> SEC1, AV1 ĐÓNG; EM1 mục 1, 3-6 chờ token Email Routing (👤). ⚠️ khoá VirusTotal lộ vào nhật ký phiên ⇒ 👤 thay.
+> Kế tiếp: PR + deploy, rồi cổng LCP/CLS (Lighthouse CI), nộp hồ sơ BCT/NCSC (phiếu gốc DK2). Không khoá, không tác vụ nền.
+
 > 🔔 **Điều phối tsudev-e3 (21/11/2026)**: K2 đợt 5 xong (DEC game-kit 1; 02/03 con trỏ cho 5 game tsugamelabs/, game-kit,
 > quansu-xanuicam, b4djl1h-cmdb, tsudev-org-dotgithub - game + quansu viết tay). tsuscan chưa có Release. Thư nhắc Pro:
 > lượt 01:23 UTC 22/11 chưa chạy lúc phiên mở - phiên sau mở SAU 01:45 UTC 22/11 rồi đọc log Render (ISS-20261121-2215-5fa5).

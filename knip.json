@@ -1,0 +1,51 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreWorkspaces": ["services/newsroom-service", "services/trust-service"],
+  "ignoreDependencies": [
+    "@prisma/client",
+    "dotenv",
+    "nodemon",
+    "next-auth",
+    "sharp",
+    "@aws-sdk/client-s3"
+  ],
+  "ignoreExportsUsedInFile": true,
+  "rules": {
+    "duplicates": "off"
+  },
+  "workspaces": {
+    ".": {
+      "entry": [
+        "scripts/**/*.{js,mjs,cjs,ts}",
+        "packages/brand/*.js",
+        "packages/observability/*.js",
+        "e2e/**/*.{js,ts}",
+        "infrastructure/**/*.{js,mjs,ts}"
+      ],
+      "project": [
+        "scripts/**/*.{js,mjs,cjs,ts}",
+        "packages/brand/*.js",
+        "packages/observability/*.js"
+      ]
+    },
+    "apps/frontend-main": {
+      "entry": ["open-next.config.ts", "test/**/*.{ts,tsx,js}"]
+    },
+    "services/*": {
+      "entry": ["scripts/**/*.js", "src/scripts/**/*.ts", "test/**/*.{ts,mjs,js}"],
+      "project": ["src/**/*.ts", "scripts/**/*.js"]
+    },
+    "packages/db": {
+      "entry": ["prisma/*.js", "src/**/*.{ts,js}"]
+    },
+    "packages/ui": {
+      "ignoreDependencies": ["@storybook/react"]
+    },
+    "services/auth-service": {
+      "entry": ["scripts/**/*.js", "test/**/*.{ts,mjs,js}", "src/password.ts"],
+      "project": ["src/**/*.ts", "scripts/**/*.js"]
+    }
+  },
+  "ignoreBinaries": ["jest"],
+  "tags": ["-testonly"]
+}

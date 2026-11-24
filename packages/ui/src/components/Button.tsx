@@ -78,5 +78,3 @@ export const Button = ({
     </Tag>
   );
 };
-
-export default Button;

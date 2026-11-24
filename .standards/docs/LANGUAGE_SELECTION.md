@@ -1,4 +1,4 @@
-# CHỌN NGÔN NGỮ VÀ NỀN TẢNG THEO LOẠI PROJECT (v2.0.0)
+# CHỌN NGÔN NGỮ VÀ NỀN TẢNG THEO LOẠI PROJECT (v2.1.0)
 
 > **Bắt buộc** với mọi project/tool/phần mềm trong hệ sinh thái tsudev, áp dụng
 > cho cả lập trình viên và agent AI. Muốn đi ra ngoài bảng này thì theo quy trình
@@ -175,6 +175,23 @@ tiên cao nhất:
   render, và không bao giờ nạp nội dung từ xa vào cửa sổ có đặc quyền.
 
 ---
+
+## 5.1. Rust cho mã mới và đường nóng, ngân sách tốc độ (từ v2.1.0)
+
+Chủ dự án chốt 24/11/2026: ưu tiên ngôn ngữ mạnh, mã nhẹ, tải nhanh - **không** viết lại hàng loạt.
+
+- Mã **mới** thuộc các nhóm sau `MUST` cân nhắc Rust trước (ghi lý do trong PR nếu không chọn Rust): mật mã/E2EE,
+  phân tích tệp và dữ liệu nhị phân, lõi đồng bộ, xử lý ảnh/âm thanh, CLI, Worker Cloudflare cần CPU (Rust ⇒ WASM).
+  Lõi Rust dùng chung cho Flutter qua `flutter_rust_bridge`, cho web qua WASM, cho desktop qua Tauri.
+- Stack đang chạy giữ nguyên; viết lại một phần sang Rust `MUST` có ADR với số đo trước/sau (thời gian, bộ nhớ,
+  kích thước gói) trên máy thật.
+- Ngân sách `MUST`, đo trong CI hoặc trước phát hành, vượt ⇒ chặn:
+
+  | Loại | Chỉ số | Ngưỡng |
+  | --- | --- | --- |
+  | Web | LCP (4G chậm, máy tầm trung) / JS tải ban đầu (gzip) / CLS | ≤ 2,5 giây / ≤ 170 KB / ≤ 0,1 |
+  | App di động | Khởi động nguội tới khung đầu / APK mỗi ABI | ≤ 1,5 giây / ≤ 25 MB |
+  | Desktop | Khởi động tới cửa sổ dùng được / bộ cài | ≤ 1 giây / ≤ 30 MB (Tauri), ghi ngoại lệ nếu Qt/.NET |
 
 ## 6. Quy trình trước khi khởi tạo project
 

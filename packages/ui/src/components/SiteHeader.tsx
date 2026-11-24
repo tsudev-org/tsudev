@@ -404,5 +404,3 @@ const UserMenu = ({ pending, name, email, image, badge, onLogout }: UserMenuProp
     </div>
   );
 };
-
-export default SiteHeader;

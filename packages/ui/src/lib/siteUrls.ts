@@ -13,5 +13,3 @@ const stripSlash = (u: unknown): string => String(u || '').replace(/\/+$/, '');
 export const MAIN_URL = stripSlash(
   process.env.NEXT_PUBLIC_MAIN_URL || 'http://tsudev.localhost:8080'
 );
-
-export default MAIN_URL;

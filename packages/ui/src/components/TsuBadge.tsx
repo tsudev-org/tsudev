@@ -61,5 +61,3 @@ export const TsuBadge = ({ badge, lang = 'vi', className = '' }: TsuBadgeProps) 
     </span>
   );
 };
-
-export default TsuBadge;

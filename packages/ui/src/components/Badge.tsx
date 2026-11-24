@@ -56,5 +56,3 @@ export const Badge = ({
     {children}
   </span>
 );
-
-export default Badge;
