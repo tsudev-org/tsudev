@@ -394,8 +394,12 @@ export const getServerSideProps: GetServerSideProps<LoginProps> = async () => {
     string,
     { id: string; name: string; type: string }
   >;
+  // Thứ tự BẮT BUỘC của AUTH_AND_ACCOUNT mục 3: Google, (Apple), GitHub - không theo thứ tự khai provider.
+  const ORDER = ['google', 'apple', 'github'];
+  const rank = (id: string) => (ORDER.includes(id) ? ORDER.indexOf(id) : ORDER.length);
   const oauth = Object.values(providers)
     .filter((p) => p.type === 'oauth')
-    .map((p) => ({ id: p.id, name: p.name }));
+    .map((p) => ({ id: p.id, name: p.name }))
+    .sort((a, b) => rank(a.id) - rank(b.id));
   return { props: { oauth } };
 };
