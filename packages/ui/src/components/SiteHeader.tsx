@@ -89,7 +89,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
     // đường hairline ở mép dưới - không dải màu, không vạch chuyển sắc, để trang
     // liền một mạch từ đỉnh tới chân. Nút đổi giao diện nằm ở CHÂN TRANG (SiteFooter).
     <header
-      className="sticky top-0 z-40 border-b border-line backdrop-blur-md"
+      className="tsu-site-header sticky top-0 z-40 border-b border-line backdrop-blur-md"
       style={{ backgroundColor: 'color-mix(in srgb, var(--bg-base) 82%, transparent)' }}
     >
       <a href="#main-content" className="skip-link">

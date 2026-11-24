@@ -1,0 +1,8 @@
+{
+  // Triển khai: npx wrangler deploy (đăng nhập OAuth). Một Worker cho mỗi tên miền.
+  "name": "tsudev-mta-sts",
+  "main": "worker.js",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": false,
+  "routes": [{ "pattern": "mta-sts.tsudev.com", "custom_domain": true }]
+}

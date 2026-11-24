@@ -29,6 +29,8 @@ type Props = {
   onToggle?: (id: string) => void;
   /** Ẩn khối lệnh cài (trang chủ gọn - lệnh cài chỉ hiện ở /apps, chủ dự án yêu cầu 19/11/2026). */
   hideInstall?: boolean;
+  /** Thẻ ở màn đầu: logo tải ngay, không lazy (xem EcoIcon). */
+  eager?: boolean;
 };
 
 const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' } as const;
@@ -44,7 +46,14 @@ function accentStyle(id: string): React.CSSProperties | undefined {
   return c ? ({ '--sp-light': c.light, '--sp-dark': c.dark } as React.CSSProperties) : undefined;
 }
 
-export default function EcoAppCard({ app, selectable, selected, onToggle, hideInstall }: Props) {
+export default function EcoAppCard({
+  app,
+  selectable,
+  selected,
+  onToggle,
+  hideInstall,
+  eager,
+}: Props) {
   const accent = accentStyle(app.id);
   const releasesOnGithub = Boolean(app.releases && /^https:\/\/github\.com\//.test(app.releases));
   return (
@@ -66,6 +75,7 @@ export default function EcoAppCard({ app, selectable, selected, onToggle, hideIn
           logoLight={app.logoLight}
           tint={app.tint}
           icon={app.icon}
+          eager={eager}
         />
         <div className="min-w-0 flex-1">
           <h3 className="font-medium text-fg text-base leading-snug">{app.name}</h3>

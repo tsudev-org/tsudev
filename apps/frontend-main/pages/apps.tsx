@@ -227,10 +227,11 @@ export default function AppsPage() {
           </div>
         ) : (
           <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {list.map((a) => (
+            {list.map((a, i) => (
               <EcoAppCard
                 key={a.id}
                 app={a}
+                eager={i < 3}
                 selectable
                 selected={picked.includes(a.id)}
                 onToggle={toggle}

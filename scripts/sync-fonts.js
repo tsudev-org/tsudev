@@ -88,7 +88,7 @@ const HO_FONT = [
   },
   // Inter (font tiêu đề của bản sắc v5.0.0) ĐÃ GỠ 25/11/2026: chủ dự án yêu cầu font tiêu đề
   // chuẩn tiếng Việt và mang dấu ấn riêng; Be Vietnam Pro đậm (600/700) làm luôn font tiêu đề
-  // (ghi đè `--font-display` ở styles/globals.css). Bớt ba tệp (~143 KB) - mỗi tệp font tới
+  // (`fontDisplay` của tsudev trong bộ quy ước v6.0.0). Bớt ba tệp (~143 KB) - mỗi tệp font tới
   // muộn là một lần chữ đổi bề rộng lúc tải trang (phiếu 20261125-UX2).
   {
     google: 'Chivo Mono',

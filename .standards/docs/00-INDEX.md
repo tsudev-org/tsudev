@@ -42,6 +42,7 @@
 5. [`DISTRIBUTION_TRUST.md`](DISTRIBUTION_TRUST.md) - cửa hàng, ký mã, chống báo nhầm antivirus, hồ sơ nền tảng
 6. [`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) - ngôn ngữ/giao diện theo hệ thống, không quảng cáo, Pro + Ủng hộ, huy hiệu, iOS, ảnh/video website, lưu cục bộ - đồng bộ là Pro
 7. [`STORE_SUBMISSION.md`](STORE_SUBMISSION.md) - phiên agent tự điền biểu mẫu nộp duyệt cửa hàng/antivirus
+8. [`EMAIL.md`](EMAIL.md) - địa chỉ `@tsudev.com` công bố trên README, cửa hàng, SECURITY/PRIVACY phải có trong danh mục
 
 **Bạn sắp commit hoặc mở PR:**
 1. [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md) - nhánh, commit, PR
@@ -53,6 +54,9 @@
 2. [`KNOWLEDGE_BASE.md`](KNOWLEDGE_BASE.md) - kho tri thức AKB: `akb start` đầu phiên, `akb search` trước khi tự mò, `akb sync` cuối phiên
 3. [`SECURITY_BASELINE.md`](SECURITY_BASELINE.md) mục 12 - ranh giới của agent
 4. [`LANGUAGE_SELECTION.md`](LANGUAGE_SELECTION.md) mục 8 - ràng buộc khi chọn stack
+
+**Bạn đang đụng tới thư điện tử (`*@tsudev.com`, gửi thư từ mã, DNS thư):**
+1. [`EMAIL.md`](EMAIL.md) - danh mục địa chỉ, gửi qua Resend, DNS chỉ phiên điều phối sửa, quy trình thêm địa chỉ, bảng lỗi
 
 **Bạn đang làm chức năng nội dung:**
 1. [`RICH_TEXT_EDITOR.md`](RICH_TEXT_EDITOR.md) - trình soạn thảo ngang Word

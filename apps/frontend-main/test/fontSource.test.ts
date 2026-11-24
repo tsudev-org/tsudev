@@ -202,8 +202,8 @@ describe('font tự host - cổng canh nguồn', () => {
     const _document = readFileSync(join(APP, 'pages/_document.tsx'), 'utf8');
     expect(_document).toMatch(/data-product="tsudev"/);
 
-    // globals.css được phép GHI ĐÈ font tiêu đề (chủ dự án chốt 25/11/2026) - khi có thì nó
-    // mới là giá trị trình duyệt dùng, nên kiểm nó trước products.css.
+    // globals.css ĐƯỢC PHÉP ghi đè font tiêu đề trong lúc chờ bộ quy ước nhận đề xuất (đã dùng
+    // 25/11/2026 trước v6.0.0) - khi có thì nó mới là giá trị trình duyệt dùng, nên kiểm trước.
     const globals = readFileSync(join(APP, 'styles/globals.css'), 'utf8');
     const ghiDe = globals.match(/:root\[data-product='tsudev'\]\s*\{([^}]+)\}/);
     const khoi = ghiDe ?? products.match(/:root\[data-product="tsudev"\]\s*\{([^}]+)\}/);

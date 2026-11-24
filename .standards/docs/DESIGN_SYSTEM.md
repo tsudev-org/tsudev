@@ -16,6 +16,10 @@
 > tiết, font tiêu đề. Mục tiêu: người dùng nhìn là nhận ra đang ở sản phẩm nào, mà chất lượng (độ đọc, tiếp cận,
 > hành vi) vẫn đồng đều. Chế độ **Ấm** đã gỡ hẳn khỏi token; chỉ còn **Sáng / Tối / Hệ thống**, mặc định **Hệ thống**
 > (`PRODUCT_POLICY.md` mục 1). Giá trị đã lưu `warm` `MUST` được đọc thành `light`.
+>
+> **Từ v6.0.0 (25/11/2026, chủ dự án yêu cầu - nền trắng nhìn lâu mỏi mắt): nền Sáng "giấy" xám-xanh.** Nền trang
+> `#EEF1F5`, thẻ/bề mặt `#F8FAFC` (sáng hơn nền một bậc để thẻ nổi mà không cần bóng), viền và chữ phụ ngả slate cho
+> cùng tông với xanh logo. Không còn nền trắng tinh `#FFFFFF` nào trong bảng Sáng. Bảng Tối không đổi.
 
 ### 1.1. Lớp nền chung (`tokens/design-tokens.json`)
 
@@ -25,10 +29,10 @@ bản sắc ghi đè đúng các vai trò nhấn, KHÔNG đụng vai trò nền/
 
 | Vai trò | Sáng | Tối |
 |---|---|---|
-| Nền `bg-base` / `bg-surface` / `bg-subtle` / `bg-hover` | `#FAFAFA` / `#FFFFFF` / `#F4F4F5` / `#EBEBED` | `#0A0A0A` / `#0F1114` / `#15181D` / `#1C2027` |
-| Viền `border` / `border-strong` | `#E4E4E7` / `#D4D4D8` | `#22272F` / `#2C323C` |
-| Viền vùng tương tác `border-control` | `#71717A` | `#6E6E6E` |
-| Chữ `text-primary` / `text-secondary` / `text-muted` | `#0A0A0A` / `#3F3F46` / `#52525B` | `#EDEDED` / `#B4B4B4` / `#8F8F8F` |
+| Nền `bg-base` / `bg-surface` / `bg-subtle` / `bg-hover` | `#EEF1F5` / `#F8FAFC` / `#E9EDF2` / `#E6EAF0` | `#0A0A0A` / `#0F1114` / `#15181D` / `#1C2027` |
+| Viền `border` / `border-strong` | `#D5DBE3` / `#C3CBD6` | `#22272F` / `#2C323C` |
+| Viền vùng tương tác `border-control` | `#64748B` | `#6E6E6E` |
+| Chữ `text-primary` / `text-secondary` / `text-muted` | `#0A0A0A` / `#334155` / `#475569` | `#EDEDED` / `#B4B4B4` / `#8F8F8F` |
 | Trạng thái success / warning / danger / info | `#15803D` `#B45309` `#DC2626` `#0369A1` | `#4ADE80` `#FBBF24` `#F87171` `#38BDF8` |
 | Chữ trên nền trạng thái `on-status` | `#FFFFFF` | `#0A0A0A` |
 | **Vai trò nhấn** (lớp 1.2 ghi đè): `text-link`, `primary`, `primary-hover`, `primary-active`, `on-primary`, `focus-ring`, `accent`, `glow`, `icon-info`, `icon-nav` | xanh TsuDEV `#0868C4`... | xanh TsuDEV `#38BDF8`... |
@@ -90,17 +94,17 @@ chủ dự án đã chốt tay (TsuDEV - `ECOSYSTEM_IDENTITY.md` mục 4.2; TsuF
 
 | `data-product` | Sản phẩm | Hue | Nút chính Tối / Sáng | Bố cục | Bo góc | Hoạ tiết | Font tiêu đề |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `contact` | Tsu Contact | 350 | `#F182BA` / `#AD447C` | cong-cu | tron | the-xep | Nunito |
-| `compass` | La bàn | 47 | `#FF843F` / `#B14C03` | do-luong | tron | vong-dong-tam | Montserrat |
-| `swico` | Tsu Swico | 68 | `#E49324` / `#975D01` | cong-cu | sac | mach-in | Space Grotesk |
-| `trafficmonitor` | TsuDEV TrafficMonitor | 105 | `#B3A90F` / `#736C01` | trinh-dien | mem | duong-bieu-do | JetBrains Mono |
-| `sounddb` | Sound Db | 130 | `#7DB530` / `#4C7601` | do-luong | chuan | song-am | Space Grotesk |
+| `contact` | Tsu Contact | 350 | `#F182BA` / `#AB437B` | cong-cu | tron | the-xep | Nunito |
+| `compass` | La bàn | 47 | `#FF843F` / `#AE4C05` | do-luong | tron | vong-dong-tam | Montserrat |
+| `swico` | Tsu Swico | 68 | `#E49324` / `#955C04` | cong-cu | sac | mach-in | Space Grotesk |
+| `trafficmonitor` | Tsu Tramon | 105 | `#B3A90F` / `#716A04` | trinh-dien | mem | duong-bieu-do | JetBrains Mono |
+| `sounddb` | Sound Db | 130 | `#7DB530` / `#4B7403` | do-luong | chuan | song-am | Space Grotesk |
 | `qulythuchi` | Quly Thu Chi | 160 | `#39BA81` / `#05794F` | bang-dieu-khien | mem | cot-tang-truong | Be Vietnam Pro |
-| `disk` | TsuDisk | 183 | `#24B9A8` / `#08786C` | cong-cu | chuan | khoi-phan-vung | Montserrat |
+| `disk` | TsuDisk | 183 | `#24B9A8` / `#04776B` | cong-cu | chuan | khoi-phan-vung | Montserrat |
 | `cwico` | Tsu Cwico | 212 | `#0EB5CE` / `#087485` | trinh-dien | sac | luoi-quet | Be Vietnam Pro |
-| `tsudev` | TsuDEV (tsudev.com) | 233 | `#38BDF8` / `#0868C4` | cong | chuan | quang-sang | Inter |
+| `tsudev` | TsuDEV (tsudev.com) | 233 | `#38BDF8` / `#0868C4` | cong | chuan | quang-sang | Be Vietnam Pro |
 | `files` | TsuFiles | 293 | `#A970FF` / `#7C3AED` | cong-cu | mem | quy-dao | Lexend |
-| `lotus` | Lotus Share | 320 | `#E47DFB` / `#A23DB8` | trinh-dien | tron | canh-sen | Quicksand |
+| `lotus` | Lotus Share | 320 | `#E47DFB` / `#A03BB6` | trinh-dien | tron | canh-sen | Quicksand |
 
 Chọn sắc độ khi logo không tự quyết được (ghi trong `seed.note` của từng tệp): Tsu Contact (bạc hà trùng TsuDisk),
 TrafficMonitor (dùng chung logo cú TsuDEV), Tsu Swico (logo đơn sắc), La bàn (vòng xanh hoàng gia cách xanh TsuDEV 10°
@@ -124,7 +128,7 @@ vẫn theo `ECOSYSTEM_IDENTITY.md` mục 4 - bố cục chữ ký chỉ quyết 
 
 | Giá trị | Bố cục | Hợp với |
 | --- | --- | --- |
-| `cong` | Hero ngắn + lưới thẻ danh mục nhiều cột | Cổng tập hợp nhiều sản phẩm (tsudev.com) |
+| `cong` | Hero ngắn rồi tới thẳng sản phẩm; lưới thẻ danh mục nhiều cột ở đầu trang danh bạ (vd. `/apps`) hoặc ngay dưới hero | Cổng tập hợp nhiều sản phẩm (tsudev.com) |
 | `trinh-dien` | Hero hai cột (chữ trái, ảnh chụp app lớn tràn phải) + khối tính năng dạng bento | App cần cho xem giao diện trước khi tải |
 | `cong-cu` | Vùng thao tác chính (kéo thả, chọn tệp, nút chạy) ngay màn đầu, căn giữa; giới thiệu nằm dưới | Công cụ làm một việc |
 | `bang-dieu-khien` | Thanh bên trái cố định + vùng làm việc + thẻ số liệu trên cùng | App dữ liệu dùng hằng ngày |
@@ -182,6 +186,13 @@ Viền luôn **phẳng 1px solid** màu `border` (viền được focus/hover d�
 - Thang cỡ chữ: 12 / 13 / 14 / 15 / 16 / 18(H4) / 20(H3) / 24(H2) / 30(H1).
 - Weight: 400 body, 500 label/menu, 600 heading & button, 700 chỉ dùng nhấn mạnh số liệu. Không dùng weight 300 (mảnh, khó đọc tiếng Việt có dấu).
 - Không dùng ALL CAPS cho tiếng Việt có dấu ở đoạn dài; chỉ cho nhãn ngắn ≤ 2 từ với letter-spacing `0.04em`.
+- **Nạp font trên web (v6.0.0, bài học tsudev.com 25/11/2026)**: font tự host `MUST` có subset `vietnamese`; 2-4 tệp
+  woff2 của màn đầu (nét thường + đậm, subset `latin` + `vietnamese`) `SHOULD` được `<link rel="preload" as="font"
+  crossorigin>`; `@font-face` dự phòng `SHOULD` có `size-adjust`/`ascent-override`/`descent-override` ĐO THẬT theo
+  từng nhóm độ đậm (Be Vietnam Pro so với Arial: 105,4% nét 400-500, 102,4% nét 600-700; ascent 94,9%/97,7%, descent
+  25,6%/26,4%). Thiếu các bước này thì mọi dòng chữ đổi bề rộng khi font thật tới - trang "nhúng" mỗi lần tải. Nạp
+  càng ít họ font càng ít lần đổi font. Font tiêu đề sản phẩm có chữ hoa hai dấu (Ầ Ặ Ữ Ể) `SHOULD` được thử trước:
+  Be Vietnam Pro dựng tổ hợp dấu đúng vị trí; Plus Jakarta Sans chạm dấu.
 
 **Định dạng ngày giờ (bắt buộc toàn hệ thống):**
 - Ngày: `DD/MM/YYYY` hiển thị dạng **số**, ví dụ `01/02/2027`. **Tuyệt đối không** in ra giao diện chuỗi chữ kiểu `dd/mm/yyyy`.
@@ -208,6 +219,16 @@ Viền luôn **phẳng 1px solid** màu `border` (viền được focus/hover d�
 - **Modal**: overlay token `overlay`, hộp `bg-surface` radius-lg shadow-lg; header 20px/600, nút hành động căn phải chân modal (Primary ngoài cùng bên phải), đóng bằng ESC + nút ×.
 - **Progress bar**: cao 6px, nền `bg-subtle`, phần chạy `primary`, radius-sm.
 - **Badge status**: chữ 12px/500, padding `2px 8px`, radius-sm, nền màu trạng thái nhạt 12% + chữ màu trạng thái đậm.
+
+**Màn đầu & thẻ (v6.0.0):**
+- Khối màn đầu (hero, header, thẻ thấy được lúc tải) `MUST NOT` bắt đầu ở `opacity: 0` hay ngoài vị trí (fade-in,
+  slide-in): khung hình đầu phải có nội dung. Hiệu ứng hiện dần chỉ cho khối dưới màn đầu, và mã bật trạng thái ẩn
+  `MUST` đo + đánh dấu khối đang trong khung nhìn TRƯỚC khi bật ẩn.
+- Thẻ `SHOULD NOT` mang dải viền màu trên đầu; màu sản phẩm/thể loại hiện ở viền khi rê hoặc ở ô biểu tượng.
+- Nền thẻ theo thể loại `SHOULD` là nền phẳng pha ≤ 5% sắc nhấn + hoạ tiết hình học tĩnh thuần CSS (lưới chấm, giấy kẻ,
+  sọc, bàn cờ...) mờ dần về phía chữ, thay cho quầng chuyển sắc loang.
+- Biểu tượng trong thẻ tương tác `MAY` có chuyển động đúng nghĩa khi rê/focus (chỉ `transform`/`opacity`), `MUST` tắt
+  dưới `prefers-reduced-motion`.
 
 **Data Display:**
 - **Table**: container radius-lg viền `border`; header nền `bg-subtle` chữ 600, phân cách hàng bằng viền dưới 1px `border`, hover hàng `bg-hover`, số căn phải, ngày hiển thị `DD/MM/YYYY`.

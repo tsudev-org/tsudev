@@ -155,6 +155,7 @@ function TileBody({ t }: { t: Tile }) {
                 tint={m.tint}
                 icon={m.icon}
                 size={22}
+                eager
               />
             </span>
           ))}

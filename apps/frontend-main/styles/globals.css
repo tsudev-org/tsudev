@@ -41,15 +41,6 @@
 
 @import 'tailwindcss';
 
-/* FONT TIÊU ĐỀ của tsudev = Be Vietnam Pro đậm (chủ dự án chốt 25/11/2026, phiếu 20261125-UX2).
-   Bản sắc v5.0.0 ở products.css vẫn khai 'Inter' - đề xuất đẩy ngược nằm trong phiếu. Khối này
-   KHÔNG có layer nên thắng khối `[data-product="tsudev"]` (nạp trong layer base) dù cùng độ
-   đặc hiệu. Be Vietnam Pro dựng tổ hợp hai dấu (ầ ặ ữ ể) đúng vị trí; Inter thì dấu là phần
-   thêm sau. test/fontSource.test.ts (3b) đọc giá trị ở đây trước products.css. */
-:root[data-product='tsudev'] {
-  --font-display: 'Be Vietnam Pro', var(--font-family);
-}
-
 @source '../pages/**/*.{js,ts,jsx,tsx}';
 @source '../../../packages/ui/src/**/*.{js,ts,jsx,tsx}';
 
@@ -1219,4 +1210,68 @@ html:not([data-auth-author]) .tsu-auth-author {
     animation: none !important;
     transform: none !important;
   }
+}
+
+/* ============================================================
+   HOẠ TIẾT HEADER + FOOTER (25/11/2026, chủ dự án: giao diện bớt đơn điệu; phiếu UX2-b)
+   ============================================================
+   TĨNH, thuần CSS, ≤ 14% sắc sản phẩm, mờ dần về phía nội dung - KHÔNG tạo dải nền khác màu
+   (nguyên tắc "một nền liền mạch", DESIGN_SYSTEM.md). Header: hai quầng nhạt ở hai góc + lưới
+   điểm mảnh bên phải (chòm sao kết nối - "hệ sinh thái"). Footer: lưới điểm + đường chéo mảnh
+   dâng từ đáy, như mặt bản vẽ kỹ thuật. Màu chỉ từ token ⇒ đúng ở cả Sáng và Tối. */
+.tsu-site-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      38% 160% at 100% 0%,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      30% 160% at 0% 100%,
+      color-mix(in srgb, var(--primary) 9%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+        circle,
+        color-mix(in srgb, var(--primary) 14%, transparent) 1px,
+        transparent 1.4px
+      )
+      0 0 / 16px 16px;
+  mask-image: linear-gradient(to right, transparent 35%, #000 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 35%, #000 100%);
+}
+.tsu-site-foot {
+  position: relative;
+  isolation: isolate;
+}
+.tsu-site-foot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      50% 60% at 85% 100%,
+      color-mix(in srgb, var(--accent) 10%, transparent),
+      transparent 70%
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in srgb, var(--primary) 7%, transparent) 0 1px,
+      transparent 1px 22px
+    ),
+    radial-gradient(
+        circle,
+        color-mix(in srgb, var(--primary) 14%, transparent) 1px,
+        transparent 1.4px
+      )
+      0 0 / 22px 22px;
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 85%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 85%);
 }
