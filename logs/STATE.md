@@ -1,5 +1,9 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> ⏰ **TỪ 28/11/2026 - LÀM ĐẦU PHIÊN**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) -
+> nhắc chủ dự án kiểm email duyệt tài khoản BCT + thư NCA ở `contact@tsudev.com`, rồi đánh giá nhãn (DMCA, Chống Lừa Đảo,
+> Project Galileo, nhãn khác). Mở trước 28/11 thì bỏ qua, làm UX1-a.
+
 > 🔔 **tsudev-b5dd kết (24/11/2026)**: #377 gộp, **`deploy-2026.11.24.1`** Worker `516aaf52` (chính sách thanh toán, chủ sở
 > hữu ở chân trang, security.txt, knip + budget:js). DK2: Tín nhiệm mạng tsudev.com ĐÃ GỬI (chờ NCA); BCT tài khoản Cá nhân
 > CHỜ DUYỆT ⇒ sau duyệt mới nộp thông báo website (phiếu gốc DK2 mục 4). TM1 mục 2 (danh bạ Tsu Tramon) + phiếu UX1 phase
