@@ -31,3 +31,10 @@ Repo có phiên riêng ⇒ phiên đó làm; ghi kết quả một dòng dưới
   `/author/posts/[slug]` 297.6 KB ⇒ nạp lười Tiptap, nay nặng nhất `/settings/security` 164.1 KB (biên mỏng). LCP/CLS
   chưa có cổng (cần Lighthouse CI - phase sau). CÒN: DK2 (trang pháp lý BCT), UI1 (rà biểu tượng ≥ 3:1 + test),
   `terms_version` (migration 👤).
+- 24/11/2026 - tsudev (phiên b5dd, tiếp): DK2 phần website - `/chinh-sach-thanh-toan` (giá, VietQR/Google Play, hoàn
+  tiền 7 ngày, khiếu nại 2+7 ngày làm việc), chuyển hướng `/dieu-khoan` `/quyen-rieng-tu` `/noi-quy`, chân trang ghi chủ
+  sở hữu/MST/địa chỉ/liên hệ + test canh (`709071b`). ⚠️ 👤 duyệt điều kiện hoàn tiền (7 ngày, hoàn theo ngày còn lại)
+  TRƯỚC khi nộp hồ sơ BCT - đó là cam kết kinh doanh agent tự chọn mức bảo vệ người mua. UI1: 5 cặp biểu tượng/nền thật
+  thêm vào `contrast.test.ts`, cả 3 chế độ đạt - website không có lỗi (`75651a4`). Ba commit trên nhánh
+  `chore/std-sync-v5-3-0`, CHƯA push. CÒN: push + PR (👤 duyệt), cổng LCP/CLS (Lighthouse CI - phase riêng), nộp
+  online.gov.vn / tinnhiemmang.vn (👤 đăng nhập), `terms_version` (migration 👤).
