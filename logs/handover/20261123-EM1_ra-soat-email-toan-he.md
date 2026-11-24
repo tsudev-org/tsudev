@@ -106,3 +106,18 @@ Lệnh đếm lại: `grep -rhoE "[A-Za-z0-9._%+-]+@tsudev\.com" ~/projects --in
 - Token GitHub `winget-tsudev` đã được chủ dự án thay 23/11/2026; tệp `~/.config/tsudev/winget.env` (tsudisk dùng) vẫn
   giữ token CŨ đã thu hồi ⇒ 👤 ghi token mới vào tệp (agent không đọc/ghi giá trị).
 - Token Cloudflare hiện tại không có quyền Email Routing - nếu cấp thêm, chỉ cấp quyền **Read**.
+
+## 6. Kết quả đo Email Routing 24/11/2026 (phiên điều phối, token OAuth wrangler có `email_routing:write`)
+
+- Email Routing bật, `ready`. Luật literal: `security@`, `abuse@`, `privacy@`, `contact@` ⇒ forward tới MỘT hộp Gmail đã
+  xác minh (15/08/2026). Catch-all (và luật `all`) ⇒ Worker `qulythuchi` ⇒ mọi địa chỉ khác không thuộc
+  `in.qulythuchi.tsudev.com` bị `setReject('Unknown recipient')` (bounce).
+- **Vì sao `contact@` "không nhận được":** `contact@` là `rua` của DMARC. Nhật ký Email Routing 24/11: 23 lần forward thất bại
+  của CÙNG một báo cáo DMARC Google (`Report-ID 6169106812898267704`, từ `noreply-dmarc-support@google.com`), Gmail trả
+  `421 4.7.28 ... unusual rate of unsolicited mail ... temporarily rate limited`. Luồng forward `contact@ ⇒ Gmail` bị Gmail
+  giới hạn tốc độ ⇒ thư thật tới `contact@` có thể bị hoãn/rớt xen kẽ (thư "Test mail" 16:34 vẫn tới). `security@`: mọi
+  thư từ 02/11 đều `delivered` (Talsec, AhnLab, Huorong...).
+- **Địa chỉ công khai KHÔNG có luật (bị bounce):** `soc@` (12 lần nhắc), `tsufiles-donut@` (15), `ban@`, `ptsam@`, `khac@`,
+  `tacgia@`, `pkg@`, `conduct@`, `notifications@`, `no-reply@`/`noreply@` (thư trả lời bị bounce).
+- Đề xuất (chờ 👤 duyệt): (a) chuyển DMARC `rua` khỏi `contact@` - bật Cloudflare DMARC Management (0 đồng) hoặc `dmarc@`
+  riêng không forward về Gmail; (b) tạo luật literal cho các địa chỉ công khai còn dùng; (c) gỡ địa chỉ không dùng khỏi tài liệu.
