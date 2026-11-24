@@ -51,6 +51,7 @@ const COLS: Col[] = [
       eco('Quyền riêng tư', '/privacy'),
       eco('Điều khoản', '/terms'),
       eco('Nội quy', '/rules'),
+      eco('Thanh toán, hoàn tiền', '/chinh-sach-thanh-toan'),
     ],
   },
 ];
@@ -163,6 +164,13 @@ export const SiteFooter = () => {
           <span className="text-sm text-fg-muted">© TsuDEV</span>
           <ThemeToggle />
         </div>
+        {/* Thông tin chủ sở hữu ở MỌI trang - hồ sơ thông báo website TMĐT với Bộ Công
+            Thương đòi có ở chân trang (phiếu DK2). Nguồn: OPERATOR trong
+            apps/frontend-main/lib/legal.ts; test/footerOperator.test.ts canh hai nơi khớp. */}
+        <p className="mt-4 text-xs leading-relaxed text-fg-muted">
+          Chủ sở hữu: Nguyễn Trang Tình Sử · MST 8536310833 · An Giang, Việt Nam ·
+          contact@tsudev.com · 0329577500
+        </p>
       </div>
     </footer>
   );

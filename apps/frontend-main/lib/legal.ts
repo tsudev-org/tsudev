@@ -35,6 +35,12 @@ export const DOC_DATES = {
   updated: '05/11/2026',
 };
 
+/** Ngày của /chinh-sach-thanh-toan (văn bản ban hành riêng, phiếu DK2). */
+export const PAYMENT_DOC_DATES = {
+  effective: '24/11/2026',
+  updated: '24/11/2026',
+};
+
 // Cơ sở pháp lý được viện dẫn trong cả ba văn bản. Rà lại mỗi khi luật thay đổi:
 // Luật An ninh mạng 2025 vừa thay thế Luật An ninh mạng 2018 từ 01/7/2026, và
 // Nghị định 356/2025/NĐ-CP đã thay Nghị định 13/2023/NĐ-CP từ 01/01/2026.

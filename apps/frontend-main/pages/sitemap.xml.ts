@@ -17,6 +17,7 @@ const STATIC_ROUTES = [
   { path: '/pro', priority: '0.6', changefreq: 'monthly' },
   { path: '/terms', priority: '0.3', changefreq: 'yearly' },
   { path: '/privacy', priority: '0.3', changefreq: 'yearly' },
+  { path: '/chinh-sach-thanh-toan', priority: '0.3', changefreq: 'yearly' },
   { path: '/rules', priority: '0.3', changefreq: 'yearly' },
 ];
 
