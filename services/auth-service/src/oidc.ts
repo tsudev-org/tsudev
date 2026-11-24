@@ -283,8 +283,9 @@ export async function initOidc(): Promise<void> {
     // ngoài danh sách bị bỏ qua - không bao giờ đi thẳng vào URL chuyển hướng.
     extraParams: ['idp_hint'],
     // `tsudev.entitlements` (PRO-B): access token đọc được `/api/me/entitlements`.
+    // `tsudev.xd` (QR2b): app đã đăng nhập làm thiết bị xác nhận đăng nhập QR (`/ent/xd/*`).
     // Client chỉ xin được khi bảng OAuthClient.scopes có nó.
-    scopes: ['openid', 'offline_access', 'profile', 'email', 'tsudev.entitlements'],
+    scopes: ['openid', 'offline_access', 'profile', 'email', 'tsudev.entitlements', 'tsudev.xd'],
     claims: {
       openid: ['sub'],
       profile: ['preferred_username', 'name', 'picture'],

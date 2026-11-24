@@ -6,6 +6,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { clientIp } from '../../../lib/clientIp';
 import { XD_POLL_COOKIE, XD_TICKET_COOKIE, readCookie, xdCookie } from '../../../lib/crossDevice';
+import { proxyEntitlement } from '../../../lib/entitlementProxy';
 import { catchAllSegments, identityHeaders } from '../../../lib/identity';
 import { IDENTITY, internalHeaders } from '../../../lib/services';
 import { readSessionToken } from '../../../lib/sessionCookie';
@@ -14,6 +15,8 @@ const REQUESTER = ['create-pull', 'claim', 'status', 'verify'] as const;
 const APPROVER = ['create-push', 'scan', 'peek', 'approve', 'deny'] as const;
 type Action = (typeof REQUESTER)[number] | (typeof APPROVER)[number];
 const isApprover = (a: Action) => (APPROVER as readonly string[]).includes(a);
+/** Hành động app gọi bằng access token OIDC (CROSS_DEVICE_LOGIN mục 1, QR2b). */
+const APP_APPROVER = ['scan', 'approve', 'deny'] as const;
 
 function callerHeaders(req: NextApiRequest): Record<string, string> {
   const ip = clientIp(req.headers, req.socket?.remoteAddress);
@@ -38,6 +41,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const action: Action | undefined =
     parts.length === 1 ? [...REQUESTER, ...APPROVER].find((a) => a === parts[0]) : undefined;
   if (!action) return res.status(404).json({ error: 'Không tìm thấy' });
+
+  // QR2b: app đã đăng nhập (vai xác nhận Đ2) gửi access token OIDC scope `tsudev.xd` thay cho cookie phiên. Trình
+  // duyệt khác origin không tự gắn được header `Authorization` (CORS) ⇒ nhánh này không mở đường CSRF. Chuyển tới
+  // `/ent/xd/*` của auth-service, KHÔNG kèm cookie hay INTERNAL_API_TOKEN - service tự kiểm token.
+  const authz = req.headers.authorization;
+  if (typeof authz === 'string' && /^Bearer\s/.test(authz)) {
+    const appAction = APP_APPROVER.find((a) => a === action);
+    if (!appAction) return res.status(404).json({ error: 'Không tìm thấy' });
+    return proxyEntitlement(req, res, `/ent/xd/${appAction}`, 'POST');
+  }
 
   const input = (req.body || {}) as Record<string, unknown>;
   const body: Record<string, unknown> = {
