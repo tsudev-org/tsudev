@@ -17,6 +17,7 @@ import { identityHeaders } from '../../../lib/identity';
 import { SESSION_COOKIE_NAME, readSessionToken } from '../../../lib/sessionCookie';
 import { usernameFromToken } from '../../../lib/identity';
 import { LINK_INTENT_COOKIE, verifyLinkIntent } from '../../../lib/linkIntent';
+import { XD_TICKET_COOKIE, readCookie } from '../../../lib/crossDevice';
 import type { JWT } from 'next-auth/jwt';
 
 /**
@@ -155,6 +156,45 @@ const passkeyProvider = CredentialsProvider({
   },
 });
 
+/**
+ * Provider đăng nhập QR (CROSS_DEVICE_LOGIN). Vé KHÔNG đến từ thân request (JavaScript không bao giờ thấy nó): proxy
+ * `/api/xd/verify` đặt vé vào cookie HttpOnly `Path=/api/auth` sống 60 giây; ở đây đọc cookie, đổi ở auth-service
+ * (dùng một lần, kiểm khoá tài khoản, ghi nhật ký `qr` + cảnh báo thiết bị lạ) như passkey.
+ */
+const qrProvider = CredentialsProvider({
+  id: 'qr',
+  name: 'Mã QR',
+  credentials: {},
+  async authorize(_credentials, req) {
+    const ticket = readCookie(String(req?.headers?.cookie || ''), XD_TICKET_COOKIE);
+    if (!ticket) return null;
+    const res = await fetch(`${IDENTITY}/api/identity/xd/redeem`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...internalHeaders(),
+        ...callerHeaders(req as unknown as NextApiRequest),
+      },
+      body: JSON.stringify({ ticket }),
+    });
+    if (!res.ok) return null;
+    const user = (await res.json()) as {
+      id: string;
+      username: string;
+      email: string;
+      role: string;
+      sessionVersion: number;
+    };
+    return {
+      id: user.id,
+      name: user.username,
+      email: user.email,
+      role: user.role,
+      sessionVersion: user.sessionVersion,
+    };
+  },
+});
+
 const providers: Provider[] = [
   CredentialsProvider({
     id: 'credentials',
@@ -185,6 +225,7 @@ const providers: Provider[] = [
     },
   }),
   passkeyProvider,
+  qrProvider,
 ];
 
 // Nhà cung cấp bên thứ ba: chỉ thêm khi ĐÃ cấu hình đủ. next-auth vẫn dựng ra
@@ -416,7 +457,12 @@ async function oauthSignIn(
   fwd: Record<string, string>,
   link: { provider: string; token: JWT } | null = null
 ): Promise<boolean | string> {
-  if (!account || account.provider === 'credentials' || account.provider === 'passkey') {
+  if (
+    !account ||
+    account.provider === 'credentials' ||
+    account.provider === 'passkey' ||
+    account.provider === 'qr'
+  ) {
     return true;
   }
   // Nhánh LIÊN KẾT (STD43): người đang đăng nhập bấm "Liên kết" ở /settings/security.

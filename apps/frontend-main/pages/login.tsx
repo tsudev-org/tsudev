@@ -6,6 +6,7 @@ import { startAuthentication } from '@simplewebauthn/browser';
 import { Button, Input, Icon } from '@tsudev/ui';
 
 import { AuthShell, Notice } from '../components/AuthShell';
+import { QrLogin } from '../components/QrLogin';
 import { Turnstile } from '../components/Turnstile';
 import { safeNext } from '../lib/safeNext';
 
@@ -88,6 +89,12 @@ export default function LoginPage({ oauth }: LoginProps) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const totpRef = useRef<HTMLInputElement>(null);
+  // AUTH_AND_ACCOUNT 13.4: ô đồng ý KHÔNG tích sẵn (Nghị định 13/2023); bấm lối vào khi chưa tích ⇒ bảng
+  // "Đồng ý và tiếp tục" chạy tiếp đúng lối vào đã bấm.
+  const [agreed, setAgreed] = useState(false);
+  const [pending, setPending] = useState<null | (() => void)>(null);
+  const [showQr, setShowQr] = useState(false);
+  const guard = (run: () => void) => (agreed ? run() : setPending(() => run));
 
   // Chuyển tiêu điểm sang ô mã KHI VÀ CHỈ KHI bước hai vừa xuất hiện. Dùng
   // `autoFocus` sẽ giành tiêu điểm ở mọi lần vẽ lại - kể cả khi người dùng đang
@@ -160,8 +167,12 @@ export default function LoginPage({ oauth }: LoginProps) {
     }
   };
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    guard(() => void submitPassword());
+  };
+
+  const submitPassword = async () => {
     setBusy(true);
     setError('');
     const res = await signIn('credentials', {
@@ -212,6 +223,29 @@ export default function LoginPage({ oauth }: LoginProps) {
     >
       {shown && <Notice kind="error">{shown}</Notice>}
 
+      {oauth.length > 0 && (
+        <>
+          <div className="flex flex-col gap-2">
+            {oauth.map((p) => (
+              <Button
+                key={p.id}
+                variant="secondary"
+                className="w-full"
+                onClick={() => guard(() => void signIn(p.id, { callbackUrl: next }))}
+              >
+                {ICONS[p.id]}
+                Tiếp tục với {p.name}
+              </Button>
+            ))}
+          </div>
+          <div className="my-5 flex items-center gap-3 text-xs text-fg-muted">
+            <span className="h-px flex-1 bg-line" />
+            hoặc
+            <span className="h-px flex-1 bg-line" />
+          </div>
+        </>
+      )}
+
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Input
           id="identifier"
@@ -260,45 +294,87 @@ export default function LoginPage({ oauth }: LoginProps) {
         </Button>
       </form>
 
+      <label className="mt-4 flex items-start gap-2 text-sm text-fg-muted">
+        <input
+          type="checkbox"
+          name="consent"
+          className="mt-0.5 h-4 w-4 shrink-0 accent-(--primary)"
+          checked={agreed}
+          onChange={(e) => setAgreed(e.target.checked)}
+        />
+        <span>
+          Tôi đã đọc và chấp nhận{' '}
+          <a className="text-link hover:underline" href="/terms" target="_blank" rel="noopener">
+            Điều khoản dịch vụ
+          </a>{' '}
+          và{' '}
+          <a className="text-link hover:underline" href="/privacy" target="_blank" rel="noopener">
+            Chính sách quyền riêng tư
+          </a>
+          .
+        </span>
+      </label>
+
+      {pending && (
+        <div
+          role="dialog"
+          aria-modal="false"
+          aria-labelledby="dong-y-tieu-de"
+          className="mt-4 rounded-lg border border-line bg-subtle p-4"
+        >
+          <p id="dong-y-tieu-de" className="text-sm font-medium text-fg">
+            Đồng ý Điều khoản để tiếp tục
+          </p>
+          <p className="mt-1 text-sm text-fg-muted">
+            TsuDEV chỉ dùng tài khoản của bạn để đăng nhập các sản phẩm của hệ sinh thái, không bán
+            dữ liệu, không quảng cáo.
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <Button variant="secondary" onClick={() => setPending(null)}>
+              Huỷ
+            </Button>
+            <Button
+              onClick={() => {
+                setAgreed(true);
+                const run = pending;
+                setPending(null);
+                run();
+              }}
+            >
+              Đồng ý và tiếp tục
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="my-5 flex items-center gap-3 text-xs text-fg-muted">
         <span className="h-px flex-1 bg-line" />
-        hoặc
+        Thêm tuỳ chọn đăng nhập
         <span className="h-px flex-1 bg-line" />
       </div>
 
-      <Button variant="secondary" className="w-full" onClick={onPasskey} disabled={busy}>
-        {/* Icon passkey nay nằm TRONG hệ thống (`@tsudev/ui`). Bản inline cũ
-            cắm cứng nét 1.7 và không đi qua bảng màu theo vai trò, nên nó không
-            đổi theo ba chế độ giao diện và không cổng tương phản nào canh nó.
-            Hai logo GitHub/Google phía trên thì CỐ Ý ở lại dạng inline: chúng là
-            nhãn hiệu của bên thứ ba, không phải icon của TsuDEV, và logo Google
-            vốn nhiều màu nên không thể đi qua hệ màu-một-sắc-theo-vai-trò. */}
-        <Icon name="passkey" size={16} />
-        Đăng nhập bằng passkey
-      </Button>
-
-      {oauth.length > 0 && (
-        <>
-          <div className="my-5 flex items-center gap-3 text-xs text-fg-muted">
-            <span className="h-px flex-1 bg-line" />
-            hoặc
-            <span className="h-px flex-1 bg-line" />
-          </div>
-          <div className="flex flex-col gap-2">
-            {oauth.map((p) => (
-              <Button
-                key={p.id}
-                variant="secondary"
-                className="w-full"
-                onClick={() => signIn(p.id, { callbackUrl: next })}
-              >
-                {ICONS[p.id]}
-                Tiếp tục với {p.name}
-              </Button>
-            ))}
-          </div>
-        </>
-      )}
+      <div className="flex flex-col gap-2">
+        <Button
+          variant="secondary"
+          className="w-full"
+          onClick={() => guard(() => void onPasskey())}
+          disabled={busy}
+        >
+          {/* Icon passkey nằm TRONG hệ thống (`@tsudev/ui`); logo GitHub/Google ở trên CỐ Ý inline vì là nhãn hiệu
+              bên thứ ba và logo Google nhiều màu. */}
+          <Icon name="passkey" size={16} />
+          Tiếp tục với khoá truy cập (passkey)
+        </Button>
+        <Button
+          variant="ghost"
+          className="w-full"
+          aria-expanded={showQr}
+          onClick={() => (showQr ? setShowQr(false) : guard(() => setShowQr(true)))}
+        >
+          {showQr ? 'Ẩn mã QR' : 'Đăng nhập bằng mã QR'}
+        </Button>
+        {showQr && <QrLogin callbackUrl={next} />}
+      </div>
     </AuthShell>
   );
 }

@@ -49,6 +49,8 @@ const submitPassword = async (page, baseUrl, user) => {
   await page.goto(`${baseUrl}/login`, { waitUntil: 'networkidle' });
   await page.fill('input[name="identifier"]', user);
   await page.fill('input[name="password"]', DEV_PASSWORD);
+  // AUTH_AND_ACCOUNT 13.4: ô đồng ý Điều khoản không tích sẵn.
+  await page.check('input[name="consent"]');
   await submit(page);
   await settle(page);
 };
