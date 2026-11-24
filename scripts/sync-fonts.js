@@ -86,15 +86,10 @@ const HO_FONT = [
     slug: 'be-vietnam-pro',
     nets: [400, 500, 600, 700],
   },
-  {
-    // Font TIÊU ĐỀ (h1-h3, số liệu lớn) - `fontDisplay` của
-    // .standards/tokens/products/tsudev.json (v5.0.0). Chỉ hai nét: DESIGN_SYSTEM.md
-    // mục 1.2 cho font tiêu đề tối đa 2 độ đậm, và tiêu đề chỉ dùng 600/700.
-    google: 'Inter',
-    css: 'Inter',
-    slug: 'inter',
-    nets: [600, 700],
-  },
+  // Inter (font tiêu đề của bản sắc v5.0.0) ĐÃ GỠ 25/11/2026: chủ dự án yêu cầu font tiêu đề
+  // chuẩn tiếng Việt và mang dấu ấn riêng; Be Vietnam Pro đậm (600/700) làm luôn font tiêu đề
+  // (ghi đè `--font-display` ở styles/globals.css). Bớt ba tệp (~143 KB) - mỗi tệp font tới
+  // muộn là một lần chữ đổi bề rộng lúc tải trang (phiếu 20261125-UX2).
   {
     google: 'Chivo Mono',
     css: 'Chivo Mono',
@@ -254,17 +249,43 @@ async function main() {
   // Chuỗi dự phòng có METRIC KHỚP. Không có khối này thì lúc font thật tới,
   // chiều cao dòng và bề rộng chữ đổi và cả trang giật một nhịp (CLS) - trên
   // mạng chậm cú giật đó rơi vào đúng lúc người ta bắt đầu đọc.
+  // Số đo ĐO THẬT 25/11/2026 (canvas, đoạn văn tiếng Việt 240 ký tự, Be Vietnam Pro so với
+  // Arimo - bản cùng số đo với Arial): bề rộng 400 = 105.4%, 600/700 = 102.4%; ascent 1.00em,
+  // descent 0.27em. Override tính theo cỡ ĐÃ size-adjust (ascent 100/105.4 = 94.9%). Hai khối
+  // theo độ đậm vì nét đậm của font hệ thống hẹp/rộng khác nét thường - một giá trị chung là
+  // lệch 3% ở tiêu đề, đủ đẩy chữ xuống dòng khác. Segoe UI và Roboto lệch Arial dưới 2%.
+  const DU_PHONG = [
+    {
+      nets: '400 500',
+      src: "local('Segoe UI'), local('Roboto'), local('Helvetica Neue'), local('Arial'), local('ArialMT')",
+      size: '105.4%',
+      asc: '94.9%',
+      desc: '25.6%',
+    },
+    {
+      nets: '600 700',
+      src: "local('Segoe UI Bold'), local('SegoeUI-Bold'), local('Roboto Bold'), local('Roboto-Bold'), local('Helvetica Neue Bold'), local('Arial Bold'), local('Arial-BoldMT')",
+      size: '102.4%',
+      asc: '97.7%',
+      desc: '26.4%',
+    },
+  ];
   dong.push('/* Font dự phòng có metric khớp Be Vietnam Pro, để lúc font thật tới thì');
   dong.push(' * không giật bố cục. `size-adjust` và ba override dưới đây là cách duy nhất');
-  dong.push(' * ép font hệ thống chiếm đúng chỗ font thật sẽ chiếm. */');
-  dong.push('@font-face {');
-  dong.push("  font-family: 'Be Vietnam Pro Fallback';");
-  dong.push("  src: local('Segoe UI'), local('Roboto'), local('Helvetica Neue'), local('Arial');");
-  dong.push('  size-adjust: 100%;');
-  dong.push('  ascent-override: 92%;');
-  dong.push('  descent-override: 24%;');
-  dong.push('  line-gap-override: 0%;');
-  dong.push('}');
+  dong.push(
+    ' * ép font hệ thống chiếm đúng chỗ font thật sẽ chiếm. Số đo: scripts/sync-fonts.js. */'
+  );
+  for (const d of DU_PHONG) {
+    dong.push('@font-face {');
+    dong.push("  font-family: 'Be Vietnam Pro Fallback';");
+    dong.push(`  font-weight: ${d.nets};`);
+    dong.push(`  src: ${d.src};`);
+    dong.push(`  size-adjust: ${d.size};`);
+    dong.push(`  ascent-override: ${d.asc};`);
+    dong.push(`  descent-override: ${d.desc};`);
+    dong.push('  line-gap-override: 0%;');
+    dong.push('}');
+  }
   dong.push('');
 
   const cssRa = await dinhDang(dong.join('\n'), CSS_OUT);
@@ -331,7 +352,6 @@ async function main() {
         '| Họ font | Giấy phép | Vì sao chọn |',
         '| --- | --- | --- |',
         '| Be Vietnam Pro | SIL OFL 1.1 | thiết kế GỐC cho tiếng Việt; tổ hợp hai dấu đúng vị trí |',
-        '| Inter (600, 700) | SIL OFL 1.1 | font TIÊU ĐỀ của bản sắc tsudev (`.standards/tokens/products/tsudev.json`) |',
         '| Chivo Mono | SIL OFL 1.1 | font mono có subset `vietnamese` thật, số 0 trơn (không chấm, không gạch) |',
         '',
         'Cả ba giấy phép CHO PHÉP tự host và nhúng. Thêm họ font mới thì kiểm giấy',

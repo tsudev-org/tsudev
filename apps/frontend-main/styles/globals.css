@@ -41,6 +41,15 @@
 
 @import 'tailwindcss';
 
+/* FONT TIÊU ĐỀ của tsudev = Be Vietnam Pro đậm (chủ dự án chốt 25/11/2026, phiếu 20261125-UX2).
+   Bản sắc v5.0.0 ở products.css vẫn khai 'Inter' - đề xuất đẩy ngược nằm trong phiếu. Khối này
+   KHÔNG có layer nên thắng khối `[data-product="tsudev"]` (nạp trong layer base) dù cùng độ
+   đặc hiệu. Be Vietnam Pro dựng tổ hợp hai dấu (ầ ặ ữ ể) đúng vị trí; Inter thì dấu là phần
+   thêm sau. test/fontSource.test.ts (3b) đọc giá trị ở đây trước products.css. */
+:root[data-product='tsudev'] {
+  --font-display: 'Be Vietnam Pro', var(--font-family);
+}
+
 @source '../pages/**/*.{js,ts,jsx,tsx}';
 @source '../../../packages/ui/src/**/*.{js,ts,jsx,tsx}';
 
@@ -223,19 +232,8 @@
 
   --ease-standard: var(--motion-easing);
 
-  --animate-fade-up: fade-up 0.6s var(--motion-easing) both;
   --animate-pulse-glow: pulse-glow 3s ease-in-out infinite;
 
-  @keyframes fade-up {
-    0% {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    100% {
-      opacity: 1;
-      transform: none;
-    }
-  }
   @keyframes pulse-glow {
     0%,
     100% {
@@ -509,13 +507,11 @@
 [data-theme='light'] .tsu-sp-accent {
   --sp: var(--sp-light);
 }
-.tsu-sp-accent::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: 3px;
-  background: var(--sp);
-  pointer-events: none;
+/* Màu sản phẩm KHÔNG còn là dải 3px trên đầu thẻ (chủ dự án gỡ 25/11/2026 - dải màu trên mỗi
+   thẻ làm lưới rối). Nay sắc sản phẩm chỉ hiện khi rê/chọn: viền + quầng bóng mờ. */
+.tsu-sp-accent:hover,
+.tsu-sp-accent:focus-within {
+  border-color: color-mix(in srgb, var(--sp) 60%, var(--border));
 }
 
 /* Hoạ tiết lưới mờ dần về cuối khối - dùng cùng .tsu-grid. */
@@ -568,26 +564,6 @@
   box-shadow: none;
 }
 
-/* Chấm "đang sống" - nhịp sáng xanh dương. */
-.tsu-live-dot {
-  position: relative;
-}
-.tsu-live-dot::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  background: var(--accent);
-  animation: tsu-ping 1.8s var(--motion-easing-exit) infinite;
-}
-@keyframes tsu-ping {
-  75%,
-  100% {
-    transform: scale(2.4);
-    opacity: 0;
-  }
-}
-
 /* Hai lớp cũ giữ tên, nay KHÔNG vẽ dải nền riêng (xem nguyên tắc ở đầu mục). */
 .tsu-hero-bg {
   background: transparent;
@@ -600,12 +576,6 @@
   background: color-mix(in srgb, var(--bg-surface) 85%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tsu-live-dot::after {
-    animation: none;
-  }
 }
 
 /* Markdown dựng từ DB. Thang cỡ chữ và chiều cao dòng lấy thẳng từ token: văn
@@ -847,38 +817,92 @@ html:not([data-auth-author]) .tsu-auth-author {
    KHỐI ZICZAC "Có thể thứ bạn cần tìm đang ở đây" (components/HomeShowcase.tsx, 19/11/2026)
    ============================================================
    Mỗi thẻ một sắc riêng `--sc` lấy từ token vai trò (không hex) ⇒ đúng ở cả Sáng và Tối.
-   Nền thẻ là quầng màu đó pha rất nhạt vào bề mặt; chữ vẫn là --text-* nên độ tương phản
-   do bảng màu chung bảo đảm. */
+   25/11/2026 (chủ dự án): bỏ nền quầng chuyển sắc loang - thay bằng nền PHẲNG pha 4% sắc thẻ +
+   HOẠ TIẾT HÌNH HỌC theo đúng thể loại, vẽ thuần CSS (không ảnh, không tải thêm byte):
+     - apps  : lưới chấm - hàng biểu tượng của một trình khởi chạy ứng dụng;
+     - docs  : giấy kẻ dòng + lề đỏ của trang vở - tài liệu;
+     - blog  : sọc chéo mảnh kiểu giấy báo + dấu ngoặc kép lớn - bài viết;
+     - games : bàn cờ điểm ảnh - trò chơi.
+   Hoạ tiết nằm ở ::before, mờ dần về phía chữ (mask) nên chữ luôn đứng trên nền phẳng; độ đậm
+   ≤ 18% sắc thẻ, chữ vẫn là --text-* nên độ tương phản do bảng màu chung bảo đảm. */
 .tsu-sc {
   --sc: var(--primary);
-  background:
-    radial-gradient(
-      120% 90% at 0% 0%,
-      color-mix(in srgb, var(--sc) 16%, transparent),
-      transparent 60%
-    ),
-    radial-gradient(
-      90% 80% at 100% 100%,
-      color-mix(in srgb, var(--sc) 10%, transparent),
-      transparent 60%
-    ),
-    var(--bg-surface);
+  isolation: isolate;
+  background: color-mix(in srgb, var(--sc) 4%, var(--bg-surface));
   transition:
     border-color var(--motion-base) var(--motion-easing),
     box-shadow var(--motion-base) var(--motion-easing),
     translate var(--motion-base) var(--motion-easing);
 }
+.tsu-sc::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--sc-pattern);
+  background-size: var(--sc-size, auto);
+  mask-image: linear-gradient(to var(--sc-side, right), transparent 15%, #000 75%);
+  -webkit-mask-image: linear-gradient(to var(--sc-side, right), transparent 15%, #000 75%);
+}
+.tsu-sc[data-side='left'] {
+  --sc-side: left;
+}
 .tsu-sc-apps {
   --sc: var(--primary);
+  --sc-pattern: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--sc) 30%, transparent) 1.3px,
+    transparent 1.8px
+  );
+  --sc-size: 18px 18px;
 }
 .tsu-sc-docs {
   --sc: var(--success);
+  --sc-pattern:
+    linear-gradient(
+      to right,
+      transparent 47px,
+      color-mix(in srgb, var(--danger) 22%, transparent) 47px 48px,
+      transparent 48px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 27px,
+      color-mix(in srgb, var(--sc) 18%, transparent) 27px 28px
+    );
 }
 .tsu-sc-blog {
   --sc: var(--accent);
+  --sc-pattern: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--sc) 14%, transparent) 0 1px,
+    transparent 1px 12px
+  );
+}
+.tsu-sc-blog::after {
+  content: '\201C';
+  position: absolute;
+  z-index: -1;
+  top: -0.18em;
+  right: 0.06em;
+  font: 700 15rem/1 var(--font-display, var(--font-family));
+  color: color-mix(in srgb, var(--sc) 10%, transparent);
+  pointer-events: none;
+}
+.tsu-sc[data-side='left'].tsu-sc-blog::after {
+  right: auto;
+  left: 0.06em;
 }
 .tsu-sc-games {
   --sc: var(--warning);
+  --sc-pattern: conic-gradient(
+    color-mix(in srgb, var(--sc) 12%, transparent) 25%,
+    transparent 0 50%,
+    color-mix(in srgb, var(--sc) 12%, transparent) 0 75%,
+    transparent 0
+  );
+  --sc-size: 22px 22px;
 }
 .tsu-sc:hover,
 .tsu-sc:focus-within {
@@ -1094,5 +1118,105 @@ html:not([data-auth-author]) .tsu-auth-author {
   .tsu-badge--pro::after,
   .tsu-badge--donor .tsu-badge__heart {
     animation: none !important;
+  }
+}
+
+/* ============================================================
+   THẺ DANH MỤC /apps (components/CategoryTiles.tsx, 25/11/2026)
+   ============================================================
+   Mỗi thể loại một chuyển động biểu tượng khi rê chuột / focus bàn phím, đúng nghĩa của nó.
+   Chỉ dùng transform + opacity (chạy trên GPU, không đổi bố cục). Tắt dưới reduced-motion. */
+.tsu-tile .tsu-tile-icon .tsu-icon {
+  transition: transform var(--motion-base) var(--motion-easing);
+}
+.tsu-tile-icon::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid var(--primary);
+  opacity: 0;
+  pointer-events: none;
+}
+.tsu-tile:is(:hover, :focus-visible) .tsu-tile-icon {
+  border-color: var(--primary);
+}
+.tsu-tile[data-motion='spin']:is(:hover, :focus-visible) .tsu-tile-icon .tsu-icon {
+  animation: tsu-tile-spin 2.4s linear infinite;
+}
+.tsu-tile[data-motion='lift']:is(:hover, :focus-visible) .tsu-tile-icon .tsu-icon {
+  animation: tsu-tile-lift 0.9s var(--motion-easing) infinite alternate;
+}
+.tsu-tile[data-motion='ping']:is(:hover, :focus-visible) .tsu-tile-icon::after {
+  animation: tsu-tile-ping 1.4s var(--motion-easing-exit) infinite;
+}
+.tsu-tile[data-motion='ping']:is(:hover, :focus-visible) .tsu-tile-icon .tsu-icon {
+  transform: rotate(-20deg);
+}
+.tsu-tile[data-motion='pop']:is(:hover, :focus-visible) .tsu-tile-icon .tsu-icon {
+  animation: tsu-tile-pop 0.6s var(--motion-easing-enter) both;
+}
+.tsu-tile[data-motion='nudge']:is(:hover, :focus-visible) .tsu-tile-icon .tsu-icon {
+  animation: tsu-tile-nudge 0.8s ease-in-out infinite;
+}
+.tsu-tile[data-motion='type']:is(:hover, :focus-visible) .tsu-tile-icon .tsu-icon {
+  animation: tsu-tile-type 1s steps(2, jump-none) infinite;
+}
+@keyframes tsu-tile-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes tsu-tile-lift {
+  from {
+    transform: translateY(0) rotate(0);
+  }
+  to {
+    transform: translateY(-3px) rotate(-8deg);
+  }
+}
+@keyframes tsu-tile-ping {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+@keyframes tsu-tile-pop {
+  0% {
+    transform: scale(1) rotate(0);
+  }
+  55% {
+    transform: scale(1.22) rotate(45deg);
+  }
+  100% {
+    transform: scale(1.1) rotate(90deg);
+  }
+}
+@keyframes tsu-tile-nudge {
+  0%,
+  100% {
+    transform: translateX(0) scale(1);
+  }
+  50% {
+    transform: translateX(3px) scale(1.12);
+  }
+}
+@keyframes tsu-tile-type {
+  0% {
+    transform: translateX(-2px);
+  }
+  100% {
+    transform: translateX(2px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tsu-tile .tsu-tile-icon .tsu-icon,
+  .tsu-tile .tsu-tile-icon::after {
+    animation: none !important;
+    transform: none !important;
   }
 }

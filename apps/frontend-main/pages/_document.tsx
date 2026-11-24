@@ -36,6 +36,13 @@ const DARK_BASE = '#0a0a0a';
  *
  * Đổi script này ⇒ cập nhật `THEME_SCRIPT_HASH` trong proxy.ts (test/csp.test.ts bắt).
  */
+const PRELOAD_FONTS = [
+  'be-vietnam-pro-400-latin',
+  'be-vietnam-pro-400-vietnamese',
+  'be-vietnam-pro-600-latin',
+  'be-vietnam-pro-600-vietnamese',
+];
+
 const THEME_SCRIPT = `
 (function () {
   var BASE = { light: '${LIGHT_BASE}', dark: '${DARK_BASE}' };
@@ -76,6 +83,22 @@ export default function Document() {
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
+        {/* PRELOAD font của màn đầu (25/11/2026, phiếu 20261125-UX2). Không có nó trình duyệt chỉ
+            biết cần font SAU KHI tải xong CSS và dựng cây - chữ vẽ bằng font dự phòng rồi đổi
+            sang Be Vietnam Pro, cả trang "nhúng" một nhịp ở mỗi lần Ctrl+F5 (đo bằng quay khung
+            hình: chữ đổi bề rộng ở ~2,7 s trên mạng 4 Mbps). Chỉ nét 400 + 600, subset latin +
+            vietnamese: ~67 KB. Nạp thêm nét khác là tranh băng thông với CSS. `crossOrigin`
+            BẮT BUỘC - font luôn tải ở chế độ CORS, thiếu nó thì bản preload bị bỏ và tải lại. */}
+        {PRELOAD_FONTS.map((f) => (
+          <link
+            key={f}
+            rel="preload"
+            href={`/fonts/${f}.woff2`}
+            as="font"
+            type="font/woff2"
+            crossOrigin="anonymous"
+          />
+        ))}
         {/* Giá trị mặc định là chế độ TỐI; script bên dưới đổi nó khi cần. */}
         <meta name="theme-color" content={DARK_BASE} />
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />

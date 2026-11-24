@@ -45,7 +45,6 @@ export function useScrollReveal(): void {
     if (giamChuyenDong || typeof IntersectionObserver === 'undefined') return undefined;
 
     const goc = document.documentElement;
-    goc.dataset.reveal = 'on';
 
     const obs = new IntersectionObserver(
       (muc) => {
@@ -69,11 +68,19 @@ export function useScrollReveal(): void {
     // Khối nào ĐANG ở trong khung nhìn lúc tải trang thì hiện NGAY, không chờ
     // observer. Không làm vậy thì phần đầu trang nhấp một nhịp ở mỗi lần tải -
     // và đó là phần duy nhất ai cũng thấy.
+    //
+    // THỨ TỰ LÀ CHỐT (đo 25/11/2026, phiếu 20261125-UX2): đo + gắn `is-in` TRƯỚC, bật
+    // `data-reveal="on"` SAU. Làm ngược lại thì `getBoundingClientRect()` ép trình duyệt tính
+    // style khi khối đã bị ẩn ⇒ khối đang hiển thị nhảy về opacity 0 rồi chạy transition hiện
+    // dần - cả phần màn đầu "nhúng" một nhịp ngay sau hydrate, ở mọi lần tải trang.
+    const ngoai: Element[] = [];
     for (const el of dsach) {
       const r = el.getBoundingClientRect();
       if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('is-in');
-      else obs.observe(el);
+      else ngoai.push(el);
     }
+    goc.dataset.reveal = 'on';
+    for (const el of ngoai) obs.observe(el);
 
     return () => {
       obs.disconnect();
