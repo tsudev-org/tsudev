@@ -142,17 +142,19 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
   [
     {
       id: 'trafficmonitor',
-      // Tên chính thức từ 12/11/2026 (repo, gói Scoop, website, `packaging/package.json`
-      // của tsudev-trafficmonitor). Tên cũ "TrafficMonitor-VN" không còn dùng ở đâu.
+      // Tên sản phẩm Tsu Tramon từ 24/11/2026 (repo tsudev-org/tsutramon, phiếu 20261124-TM1).
+      // GIỮ: id `trafficmonitor` (data-product, logo), gói Scoop `tsudev-trafficmonitor`.
       // winget `tsudev.TrafficMonitor` CHƯA có (PR winget-pkgs #477193 chờ duyệt) - đừng
       // thêm trường `winget` trước khi gói vào kho.
-      name: 'tsudev-trafficmonitor',
+      name: 'Tsu Tramon',
       tagline:
         'Theo dõi tốc độ mạng, CPU, RAM trên thanh tác vụ Windows - bản Việt hoá, gia cố bảo mật của TrafficMonitor.',
       category: 'system',
       platforms: ['windows'],
-      website: 'https://trafficmonitor.tsudev.com',
-      releases: 'https://github.com/tsudev-org/tsudev-trafficmonitor/releases/latest',
+      website: 'https://tramon.tsudev.com',
+      // Gói Scoop vẫn khai homepage cũ (chuyển hướng sang tramon) - giữ để ghép catalog.
+      oldWebsites: ['https://trafficmonitor.tsudev.com'],
+      releases: 'https://github.com/tsudev-org/tsutramon/releases/latest',
       openSource: true,
       logo: '/eco/trafficmonitor.webp',
       tint: ['#4f46e5', '#312e81'],
