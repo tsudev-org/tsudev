@@ -17,16 +17,16 @@
   "fontDisplay": "Montserrat",
   "colors": {
     "light": {
-      "text-link": "#974001",
-      "primary": "#B14C03",
-      "primary-hover": "#974001",
-      "primary-active": "#7E3400",
+      "text-link": "#943F03",
+      "primary": "#AE4C05",
+      "primary-hover": "#943F03",
+      "primary-active": "#7B3301",
       "on-primary": "#FFFFFF",
-      "focus-ring": "#B14C03",
+      "focus-ring": "#AE4C05",
       "accent": "#813601",
-      "glow": "rgba(177, 76, 3, 0.1)",
-      "icon-info": "#B14C03",
-      "icon-nav": "#974001"
+      "glow": "rgba(174, 76, 5, 0.1)",
+      "icon-info": "#AE4C05",
+      "icon-nav": "#943F03"
     },
     "dark": {
       "text-link": "#FF9F6F",

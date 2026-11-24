@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261125-UX2
 - **Từ**: chủ dự án (yêu cầu 25/11/2026) - **Người làm**: phiên `tsudev-3e`
-- **Trạng thái**: MỞ (UX2-a xong, UX2-b/c/d còn lại)
+- **Trạng thái**: MỞ (UX2-a/b/c/d xong - còn nghiệm thu production sau deploy UX2-b)
 
 ## 1. Chẩn đoán "giao diện nhúng khi Ctrl+F5" (đo 25/11/2026)
 
@@ -54,8 +54,18 @@ Kiểm: format, lint, typecheck, knip, topology, tokens, fonts, budget:js, test 
 
 ## 4. Phiếu đã phát cho các dự án
 
-(ghi khi phát)
+Phiếu toàn hệ `~/projects/logs/handover/20261125-UI2_ra-soat-giao-dien-web-toan-he.md` + 32 phiếu con
+`logs/handover/20261125-UI2_ra-soat-giao-dien-web.md` (A cho mọi repo có web, B cho repo hệ TsuDEV).
 
 ## Kết quả xử lý
 
 - 25/11/2026 - tsudev-3e: UX2-a xong (PR ghi ở STATE).
+- 25/11/2026 - tsudev-3e: #382 gộp (chủ dự án duyệt lại sau `update-branch`), **`deploy-2026.11.25.2`** Worker `dc9e7d6f`.
+  Quay khung hình production: 7 khung thay đổi (trước 55), chữ đúng font cuối ngay khung vẽ đầu (1,72 s), CLS 0,0001.
+  Còn logo màn đầu hiện muộn ⇒ do `loading="lazy"` - UX2-b thêm `eager` cho thẻ màn đầu.
+- 25/11/2026 - tsudev-3e: **UX2-c XONG** - tsudev-standards **v6.0.0** (standards#78, phát hành `v6.0.0`): bảng Sáng
+  "giấy" xám-xanh (chủ dự án giao agent chọn - phương án A), accent Sáng `#0D6E89`, 10 bảng sản phẩm sinh lại, mô tả hệ
+  sinh thái mới, `fontDisplay` tsudev = Be Vietnam Pro, Tsu Tramon (TM1 mục 3), quy tắc màn đầu + nạp font.
+- 25/11/2026 - tsudev-3e: **UX2-b** (PR kế) - sync v6.0.0, gỡ ghi đè `--font-display`, `theme-color` Sáng `#eef1f5` + hash CSP,
+  `icon-create` Sáng `#137638` (giữ AA trên nền mới), hoạ tiết tĩnh header/footer, logo màn đầu `eager`. Ghi chú: chú thích
+  câu mô tả trong `SiteFooter.tsx` (tệp bảo vệ) còn nói "bản chuẩn vẫn câu cũ" - sửa ở lần chạm tệp đó kế tiếp.

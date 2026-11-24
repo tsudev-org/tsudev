@@ -15,6 +15,7 @@ phiên bản app của hệ tsudev); các thẻ `vYYYY.MM.DD.N` cũ giữ nguyê
 <https://github.com/tsudev-org/tsudev/tags>. Mỗi thẻ một dòng dưới đây. _English: every production deployment is
 tagged; the tag message lists the merged pull requests, and each line below summarises one tagged deployment._
 
+- deploy-2026.11.25.2 - 25/11/2026 - Hết nháy khi tải trang (font tải sớm, font dự phòng đúng số đo, bỏ hiệu ứng ẩn ở màn đầu); trang chủ gọn hơn, thẻ danh mục chuyển sang Danh sách ứng dụng; hoạ tiết theo thể loại; chân trang mới; danh bạ Tsu Tramon (#382, #383).
 - deploy-2026.11.25.1 - 25/11/2026 - security.txt liên hệ `security@tsudev.com`; thư của TsuDEV có Trả lời tới `contact@tsudev.com` (#381).
 - deploy-2026.11.24.1 - 24/11/2026 - Trang Chính sách thanh toán, hoàn tiền và khiếu nại (`/chinh-sach-thanh-toan`), chân trang ghi thông tin chủ sở hữu, đường dẫn tiếng Việt `/dieu-khoan` `/quyen-rieng-tu` `/noi-quy`, `/.well-known/security.txt`; trình soạn bài nạp lười cho trang nhẹ hơn; cổng mã chết (knip) và ngân sách JS 170 KB trong CI; bộ quy ước v5.3.0 (#377).
 - deploy-2026.11.21.5 - 21/11/2026 - Trang chủ bố cục mới: phần đầu ngắn gọn, lưới danh mục (nhóm ứng dụng, trò chơi, cài bằng lệnh) ngay màn đầu, quầng sáng đặc trưng TsuDEV; thẻ ứng dụng có dải màu riêng của từng sản phẩm; ảnh xem trước khi chia sẻ link vẽ lại (#358).

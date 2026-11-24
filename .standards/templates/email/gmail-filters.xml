@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Bộ lọc Gmail cho hộp thư nhận chuyển tiếp *@tsudev.com. Chuẩn: docs/EMAIL.md mục 6.1.
+     Nhập: Gmail > Cài đặt > Xem tất cả chế độ cài đặt > Bộ lọc và địa chỉ bị chặn > Nhập bộ lọc. -->
+<feed xmlns='http://www.w3.org/2005/Atom' xmlns:apps='http://schemas.google.com/apps/2006'>
+<title>TsuDEV Mail Filters</title>
+<entry><category term='filter'></category><title>Mail Filter</title><content></content>
+  <apps:property name='to' value="@tsudev.com"/>
+  <apps:property name='shouldNeverSpam' value="true"/>
+</entry>
+<entry><category term='filter'></category><title>Mail Filter</title><content></content>
+  <apps:property name='to' value="{security@tsudev.com soc@tsudev.com}"/>
+  <apps:property name='label' value="TsuDEV/An ninh"/>
+  <apps:property name='shouldNeverSpam' value="true"/>
+  <apps:property name='shouldAlwaysMarkAsImportant' value="true"/>
+</entry>
+<entry><category term='filter'></category><title>Mail Filter</title><content></content>
+  <apps:property name='to' value="{privacy@tsudev.com}"/>
+  <apps:property name='label' value="TsuDEV/Quyền riêng tư"/>
+  <apps:property name='shouldNeverSpam' value="true"/>
+  <apps:property name='shouldAlwaysMarkAsImportant' value="true"/>
+</entry>
+<entry><category term='filter'></category><title>Mail Filter</title><content></content>
+  <apps:property name='to' value="{contact@tsudev.com conduct@tsudev.com pkg@tsudev.com tsufiles-donut@tsudev.com ban@tsudev.com ptsam@tsudev.com}"/>
+  <apps:property name='label' value="TsuDEV/Liên hệ"/>
+  <apps:property name='shouldNeverSpam' value="true"/>
+</entry>
+<entry><category term='filter'></category><title>Mail Filter</title><content></content>
+  <apps:property name='to' value="{postmaster@tsudev.com hostmaster@tsudev.com webmaster@tsudev.com abuse@tsudev.com}"/>
+  <apps:property name='label' value="TsuDEV/Hệ thống"/>
+  <apps:property name='shouldNeverSpam' value="true"/>
+  <apps:property name='shouldAlwaysMarkAsImportant' value="true"/>
+</entry>
+<entry><category term='filter'></category><title>Mail Filter</title><content></content>
+  <apps:property name='to' value="{no-reply@tsudev.com noreply@tsudev.com notifications@tsudev.com}"/>
+  <apps:property name='label' value="TsuDEV/Thư trả lời"/>
+  <apps:property name='shouldNeverSpam' value="true"/>
+</entry>
+<entry><category term='filter'></category><title>Mail Filter</title><content></content>
+  <apps:property name='to' value="{tls-rpt@tsudev.com}"/>
+  <apps:property name='label' value="TsuDEV/Báo cáo TLS"/>
+  <apps:property name='shouldNeverSpam' value="true"/>
+  <apps:property name='shouldArchive' value="true"/>
+</entry>
+</feed>

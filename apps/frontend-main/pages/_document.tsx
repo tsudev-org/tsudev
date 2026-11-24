@@ -4,7 +4,7 @@ import { Html, Head, Main, NextScript } from 'next/document';
 // (bản sinh ra từ .standards/tokens/design-tokens.json). Dùng cho <meta name="theme-color">
 // (thanh địa chỉ trên di động) và cho nền vẽ trước khi CSS tải xong.
 // test/themeTokens.test.ts canh cho hai giá trị này không trôi lệch khỏi nguồn.
-const LIGHT_BASE = '#fafafa';
+const LIGHT_BASE = '#eef1f5';
 const DARK_BASE = '#0a0a0a';
 
 /**

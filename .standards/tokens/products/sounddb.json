@@ -17,16 +17,16 @@
   "fontDisplay": "Space Grotesk",
   "colors": {
     "light": {
-      "text-link": "#3F6301",
-      "primary": "#4C7601",
-      "primary-hover": "#3F6301",
-      "primary-active": "#335100",
+      "text-link": "#3E6102",
+      "primary": "#4B7403",
+      "primary-hover": "#3E6102",
+      "primary-active": "#324F01",
       "on-primary": "#FFFFFF",
-      "focus-ring": "#4C7601",
+      "focus-ring": "#4B7403",
       "accent": "#365501",
-      "glow": "rgba(76, 118, 1, 0.1)",
-      "icon-info": "#4C7601",
-      "icon-nav": "#3F6301"
+      "glow": "rgba(75, 116, 3, 0.1)",
+      "icon-info": "#4B7403",
+      "icon-nav": "#3E6102"
     },
     "dark": {
       "text-link": "#92C35B",

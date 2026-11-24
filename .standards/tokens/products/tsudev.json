@@ -14,7 +14,7 @@
   "layout": "cong",
   "shape": "chuan",
   "motif": "quang-sang",
-  "fontDisplay": "Inter",
+  "fontDisplay": "Be Vietnam Pro",
   "locked": true,
   "lockedNote": "Bảng xanh logo của ECOSYSTEM_IDENTITY.md mục 4.2 (chủ dự án chốt 19/11/2026)",
   "colors": {
@@ -25,7 +25,7 @@
       "primary-active": "#064785",
       "on-primary": "#FFFFFF",
       "focus-ring": "#0868C4",
-      "accent": "#0E7490",
+      "accent": "#0D6E89",
       "glow": "rgba(8, 104, 196, 0.1)",
       "icon-info": "#0369A1",
       "icon-nav": "#0757A3"

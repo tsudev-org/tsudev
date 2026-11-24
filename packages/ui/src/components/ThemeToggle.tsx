@@ -33,7 +33,7 @@ export type ThemeChoice = ThemeMode | 'system';
 // .standards/tokens/design-tokens.json); có test canh. Dùng cho <meta name="theme-color">,
 // thứ chạy trước khi trình duyệt tính lại style nên không đọc được biến CSS.
 const BASE: Record<ThemeMode, string> = {
-  light: '#fafafa',
+  light: '#eef1f5',
   dark: '#0a0a0a',
 };
 

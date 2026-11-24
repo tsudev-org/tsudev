@@ -24,6 +24,9 @@ export const Layout = ({ children, active = '/', bare = false }: LayoutProps) =>
     >
       {children}
     </main>
-    <SiteFooter />
+    {/* Lớp bọc chỉ để vẽ hoạ tiết nền tĩnh của chân trang (.tsu-site-foot ở globals.css). */}
+    <div className="tsu-site-foot">
+      <SiteFooter />
+    </div>
   </div>
 );

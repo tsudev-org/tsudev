@@ -376,7 +376,7 @@ Theo đúng thứ tự này, **không đảo thứ tự**:
 - [ ] Copy `templates/gitignore/base.gitignore` thành `.gitignore`, thêm phần
       dành riêng cho ngôn ngữ.
 - [ ] Copy `.env.example`, khai đủ biến, không có giá trị thật.
-- [ ] Copy `SECURITY.md` và điều chỉnh địa chỉ liên hệ.
+- [ ] Copy `SECURITY.md` và điều chỉnh địa chỉ liên hệ - chỉ dùng địa chỉ trong danh mục `EMAIL.md` mục 3.
 - [ ] Bật Secret Scanning, Push Protection, Dependabot, branch protection cho `main`.
 - [ ] Cài hook `gitleaks` theo mục 4.1.
 - [ ] Chạy `scripts/sync-standards.sh` để kéo bộ quy ước và ghi `.standards-version`.

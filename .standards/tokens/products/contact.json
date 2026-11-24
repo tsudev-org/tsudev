@@ -17,16 +17,16 @@
   "fontDisplay": "Nunito",
   "colors": {
     "light": {
-      "text-link": "#99316B",
-      "primary": "#AD447C",
-      "primary-hover": "#99316B",
-      "primary-active": "#851E5A",
+      "text-link": "#973069",
+      "primary": "#AB437B",
+      "primary-hover": "#973069",
+      "primary-active": "#841C58",
       "on-primary": "#FFFFFF",
-      "focus-ring": "#AD447C",
+      "focus-ring": "#AB437B",
       "accent": "#8A235E",
-      "glow": "rgba(173, 68, 124, 0.1)",
-      "icon-info": "#AD447C",
-      "icon-nav": "#99316B"
+      "glow": "rgba(171, 67, 123, 0.1)",
+      "icon-info": "#AB437B",
+      "icon-nav": "#973069"
     },
     "dark": {
       "text-link": "#F999C8",

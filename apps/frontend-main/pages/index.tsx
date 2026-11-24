@@ -132,8 +132,9 @@ export default function Home({
             }
           />
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {ECOSYSTEM_APPS.map((a) => (
-              <EcoAppCard key={a.id} app={a} hideInstall />
+            {/* 6 thẻ đầu nằm ở màn đầu ⇒ logo tải ngay, không lazy. */}
+            {ECOSYSTEM_APPS.map((a, i) => (
+              <EcoAppCard key={a.id} app={a} hideInstall eager={i < 6} />
             ))}
           </div>
         </section>

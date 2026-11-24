@@ -1,24 +1,18 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
-> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (25/11/2026, sau tsudev-3e)** - làm theo thứ tự:
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (25/11/2026, sau tsudev-3e lượt 2)** - làm theo thứ tự:
 >
-> 1. **PR #382** (UX2-a: hết nháy khi tải trang, trang chủ gọn, thẻ danh mục sang /apps, hoạ tiết theo thể loại, chân
->    trang) chờ 👤 Approve (cổng Bảo vệ bản quyền - chạm `SiteFooter.tsx`) ⇒ gộp ⇒ deploy ⇒ `release:tag` ⇒ quay khung
->    hình lại `https://tsudev.com/` (kịch bản ở phiếu [`20261125-UX2`](handover/20261125-UX2_chong-nhay-tai-trang-giao-dien-trang-chu.md) mục 1)
->    xác nhận hết nháy. **PR #383** (TM1 mục 2 Tsu Tramon) CI xanh ⇒ gộp cùng đợt deploy.
-> 2. **UX2-b/c**: 👤 chủ dự án chốt nền Sáng (A xám-xanh "giấy" - đề xuất, hay B ngà ấm; ảnh xem thử phiên tsudev-3e)
->    ⇒ PR ở `tsudev-standards` (bảng Sáng + câu mô tả mới + `fontDisplay` tsudev = Be Vietnam Pro + `cong` cho phép
->    lưới danh mục ở trang danh bạ) ⇒ sync về đây, gỡ ghi đè `--font-display` ở globals.css.
-> 3. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md).
-> 4. **SEC2-e** (phiếu [`20261125-SEC2`](handover/20261125-SEC2_trang-security-bang-chung-tin-cay.md)) - trang
->    `/security` + SSL Labs/Observatory + HSTS preload sau khi kiểm mọi tên miền con HTTPS.
-> 5. **UX1-a** (phiếu [`20261124-UX1`](handover/20261124-UX1_giao-dien-chuyen-nghiep-studio.md)).
-> 6. 👤 còn mở: thử thư "Quên mật khẩu" (EM2 - người gửi TsuDEV, Trả lời tới contact@); chạy SQL phiếu
->    [`20261125-DK3`](handover/20261125-DK3_client-oidc-tsutramon.md) (client OIDC `tsutramon`) rồi đo 303; thay khoá VirusTotal.
+> 1. PR UX2-b (nền Sáng v6.0.0 + hoạ tiết header/footer + logo màn đầu) - nếu chưa gộp: CI xanh ⇒ gộp ⇒ deploy ⇒
+>    `release:tag` ⇒ CHANGELOG ⇒ quay khung hình `https://tsudev.com/` (phiếu [`20261125-UX2`](handover/20261125-UX2_chong-nhay-tai-trang-giao-dien-trang-chu.md)).
+> 2. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md).
+> 3. **SEC2-e** (phiếu [`20261125-SEC2`](handover/20261125-SEC2_trang-security-bang-chung-tin-cay.md)).
+> 4. **UX1-a** (phiếu [`20261124-UX1`](handover/20261124-UX1_giao-dien-chuyen-nghiep-studio.md)).
+> 5. 👤 còn mở: thử thư "Quên mật khẩu" (EM2); SQL phiếu [`20261125-DK3`](handover/20261125-DK3_client-oidc-tsutramon.md)
+>    (client OIDC `tsutramon`) rồi đo 303; thay khoá VirusTotal.
 >
-> Đã xong 25/11 (tsudev-3e): #381 gộp + **`deploy-2026.11.25.1`** Worker `62d65242` (security.txt có `security@`,
-> providers chỉ provider thật). Phiếu toàn hệ `~/projects/logs/handover/20261125-UI2_*.md` + 32 phiếu con UI2 (chưa commit
-> ở các repo). Không khoá; dev server tsudev chạy nền phiên này (DEV_PROXY=0) - đã dừng khi kết phiên.
+> Đã xong 25/11 (tsudev-3e): #381 `deploy-2026.11.25.1`; #382 UX2-a + #383 TM1 mục 2 `deploy-2026.11.25.2` (hết nháy khi
+> Ctrl+F5, đo 7 khung thay vì 55); tsudev-standards **v6.0.0** (nền Sáng giấy, mô tả mới, font tiêu đề, Tsu Tramon) -
+> các repo khác sync theo Hướng dẫn nâng cấp + phiếu UI2 toàn hệ. Không khoá, không tác vụ nền.
 
 > ⏰ **TỪ 28/11/2026 - LÀM ĐẦU PHIÊN**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) -
 > nhắc chủ dự án kiểm email duyệt tài khoản BCT + thư NCA ở `contact@tsudev.com`, rồi đánh giá nhãn (DMCA, Chống Lừa Đảo,

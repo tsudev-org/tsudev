@@ -1,21 +1,21 @@
 /* ============================================================
-   tsudev-design-tokens v3.0.0 - LỚP BẢN SẮC SẢN PHẨM - SINH TỰ ĐỘNG, KHÔNG SỬA TAY
+   tsudev-design-tokens v4.0.0 - LỚP BẢN SẮC SẢN PHẨM - SINH TỰ ĐỘNG, KHÔNG SỬA TAY
    Nguồn: tokens/products/<id>.json   Sinh lại: node scripts/build-tokens.mjs
    Cách dùng: nạp SAU tokens.css, đặt <html data-product="<id>" data-theme="light|dark">
    ============================================================ */
 
 /* La bàn - tsudev-tsudev/app-la-ban | bố cục do-luong | bo góc tron | hoạ tiết vong-dong-tam */
 :root[data-product="compass"] {
-  --text-link: #974001;
-  --primary: #B14C03;
-  --primary-hover: #974001;
-  --primary-active: #7E3400;
+  --text-link: #943F03;
+  --primary: #AE4C05;
+  --primary-hover: #943F03;
+  --primary-active: #7B3301;
   --on-primary: #FFFFFF;
-  --focus-ring: #B14C03;
+  --focus-ring: #AE4C05;
   --accent: #813601;
-  --glow: rgba(177, 76, 3, 0.1);
-  --icon-info: #B14C03;
-  --icon-nav: #974001;
+  --glow: rgba(174, 76, 5, 0.1);
+  --icon-info: #AE4C05;
+  --icon-nav: #943F03;
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -37,16 +37,16 @@
 
 /* Tsu Contact - tsudev-org/tsucontact | bố cục cong-cu | bo góc tron | hoạ tiết the-xep */
 :root[data-product="contact"] {
-  --text-link: #99316B;
-  --primary: #AD447C;
-  --primary-hover: #99316B;
-  --primary-active: #851E5A;
+  --text-link: #973069;
+  --primary: #AB437B;
+  --primary-hover: #973069;
+  --primary-active: #841C58;
   --on-primary: #FFFFFF;
-  --focus-ring: #AD447C;
+  --focus-ring: #AB437B;
   --accent: #8A235E;
-  --glow: rgba(173, 68, 124, 0.1);
-  --icon-info: #AD447C;
-  --icon-nav: #99316B;
+  --glow: rgba(171, 67, 123, 0.1);
+  --icon-info: #AB437B;
+  --icon-nav: #973069;
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -74,7 +74,7 @@
   --primary-active: #02505C;
   --on-primary: #FFFFFF;
   --focus-ring: #087485;
-  --accent: #015662;
+  --accent: #045460;
   --glow: rgba(8, 116, 133, 0.1);
   --icon-info: #087485;
   --icon-nav: #056270;
@@ -99,16 +99,16 @@
 
 /* TsuDisk - tsudev-org/tsudisk | bố cục cong-cu | bo góc chuan | hoạ tiết khoi-phan-vung */
 :root[data-product="disk"] {
-  --text-link: #04655B;
-  --primary: #08786C;
-  --primary-hover: #04655B;
-  --primary-active: #01524A;
+  --text-link: #016359;
+  --primary: #04776B;
+  --primary-hover: #016359;
+  --primary-active: #045148;
   --on-primary: #FFFFFF;
-  --focus-ring: #08786C;
-  --accent: #06584F;
-  --glow: rgba(8, 120, 108, 0.1);
-  --icon-info: #08786C;
-  --icon-nav: #04655B;
+  --focus-ring: #04776B;
+  --accent: #03574E;
+  --glow: rgba(4, 119, 107, 0.1);
+  --icon-info: #04776B;
+  --icon-nav: #016359;
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
@@ -161,16 +161,16 @@
 
 /* Lotus Share - tsudev-org/lotus-share | bố cục trinh-dien | bo góc tron | hoạ tiết canh-sen */
 :root[data-product="lotus"] {
-  --text-link: #8F27A4;
-  --primary: #A23DB8;
-  --primary-hover: #8F27A4;
-  --primary-active: #7C0A91;
+  --text-link: #8D25A3;
+  --primary: #A03BB6;
+  --primary-hover: #8D25A3;
+  --primary-active: #7A0690;
   --on-primary: #FFFFFF;
-  --focus-ring: #A23DB8;
-  --accent: #821698;
-  --glow: rgba(162, 61, 184, 0.1);
-  --icon-info: #A23DB8;
-  --icon-nav: #8F27A4;
+  --focus-ring: #A03BB6;
+  --accent: #811396;
+  --glow: rgba(160, 59, 182, 0.1);
+  --icon-info: #A03BB6;
+  --icon-nav: #8D25A3;
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -198,7 +198,7 @@
   --primary-active: #005334;
   --on-primary: #FFFFFF;
   --focus-ring: #05794F;
-  --accent: #025939;
+  --accent: #045738;
   --glow: rgba(5, 121, 79, 0.1);
   --icon-info: #05794F;
   --icon-nav: #056641;
@@ -223,16 +223,16 @@
 
 /* Sound Db - tsudev-org/sound-db | bố cục do-luong | bo góc chuan | hoạ tiết song-am */
 :root[data-product="sounddb"] {
-  --text-link: #3F6301;
-  --primary: #4C7601;
-  --primary-hover: #3F6301;
-  --primary-active: #335100;
+  --text-link: #3E6102;
+  --primary: #4B7403;
+  --primary-hover: #3E6102;
+  --primary-active: #324F01;
   --on-primary: #FFFFFF;
-  --focus-ring: #4C7601;
+  --focus-ring: #4B7403;
   --accent: #365501;
-  --glow: rgba(76, 118, 1, 0.1);
-  --icon-info: #4C7601;
-  --icon-nav: #3F6301;
+  --glow: rgba(75, 116, 3, 0.1);
+  --icon-info: #4B7403;
+  --icon-nav: #3E6102;
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
@@ -254,16 +254,16 @@
 
 /* Tsu Swico - tsudev-org/tsuswico | bố cục cong-cu | bo góc sac | hoạ tiết mach-in */
 :root[data-product="swico"] {
-  --text-link: #804E03;
-  --primary: #975D01;
-  --primary-hover: #804E03;
-  --primary-active: #694003;
+  --text-link: #7E4D00;
+  --primary: #955C04;
+  --primary-hover: #7E4D00;
+  --primary-active: #683E02;
   --on-primary: #FFFFFF;
-  --focus-ring: #975D01;
+  --focus-ring: #955C04;
   --accent: #6F4302;
-  --glow: rgba(151, 93, 1, 0.1);
-  --icon-info: #975D01;
-  --icon-nav: #804E03;
+  --glow: rgba(149, 92, 4, 0.1);
+  --icon-info: #955C04;
+  --icon-nav: #7E4D00;
   --radius-sm: 2px;
   --radius-md: 3px;
   --radius-lg: 4px;
@@ -283,18 +283,18 @@
   --icon-nav: #EDA756;
 }
 
-/* TsuDEV TrafficMonitor - tsudev-org/tsudev-trafficmonitor | bố cục trinh-dien | bo góc mem | hoạ tiết duong-bieu-do */
+/* Tsu Tramon - tsudev-org/tsutramon | bố cục trinh-dien | bo góc mem | hoạ tiết duong-bieu-do */
 :root[data-product="trafficmonitor"] {
-  --text-link: #605A04;
-  --primary: #736C01;
-  --primary-hover: #605A04;
-  --primary-active: #4F4A02;
+  --text-link: #5F5901;
+  --primary: #716A04;
+  --primary-hover: #5F5901;
+  --primary-active: #4D4803;
   --on-primary: #FFFFFF;
-  --focus-ring: #736C01;
-  --accent: #554F02;
-  --glow: rgba(115, 108, 1, 0.1);
-  --icon-info: #736C01;
-  --icon-nav: #605A04;
+  --focus-ring: #716A04;
+  --accent: #534E00;
+  --glow: rgba(113, 106, 4, 0.1);
+  --icon-info: #716A04;
+  --icon-nav: #5F5901;
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
@@ -322,7 +322,7 @@
   --primary-active: #064785;
   --on-primary: #FFFFFF;
   --focus-ring: #0868C4;
-  --accent: #0E7490;
+  --accent: #0D6E89;
   --glow: rgba(8, 104, 196, 0.1);
   --icon-info: #0369A1;
   --icon-nav: #0757A3;
@@ -330,7 +330,7 @@
   --radius-md: 6px;
   --radius-lg: 8px;
   --radius-control: 6px;
-  --font-display: 'Inter', var(--font-family);
+  --font-display: 'Be Vietnam Pro', var(--font-family);
 }
 :root[data-product="tsudev"][data-theme="dark"] {
   --text-link: #7DD3FC;
