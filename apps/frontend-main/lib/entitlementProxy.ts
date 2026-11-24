@@ -10,12 +10,21 @@ import { IDENTITY } from './services';
  *   GET /api/rp/entitlements/{sub}    → /ent/rp/{sub} (private_key_jwt của máy chủ RP)
  *   POST /api/rp/entitlements/status  → /ent/status   (PRO2: kênh trạng thái, ADR-0004)
  *   POST /api/rp/entitlements/play    → /ent/play     (B2: biên nhận Google Play, phiếu QT5)
+ *   POST /api/xd/scan|approve|deny    → /ent/xd/*     (QR2b: app xác nhận đăng nhập QR, kèm Bearer)
  *
  * Service tự xác thực từng request - proxy chỉ chuyển ĐÚNG các header cần, không kèm
  * cookie phiên tsudev và không kèm INTERNAL_API_TOKEN (người gọi không phải BFF).
  * IP thật lấy từ CF-Connecting-IP (lib/clientIp.ts) cho giới hạn tần suất của service.
  */
-const PASS_REQ = ['authorization', 'dpop', 'x-tsu-installation', 'x-tsu-platform', 'user-agent'];
+// `cf-ipcountry` do Cloudflare đặt - đăng nhập QR so quốc gia hai thiết bị (CROSS_DEVICE_LOGIN T1).
+const PASS_REQ = [
+  'authorization',
+  'dpop',
+  'x-tsu-installation',
+  'x-tsu-platform',
+  'user-agent',
+  'cf-ipcountry',
+];
 
 export async function proxyEntitlement(
   req: NextApiRequest,

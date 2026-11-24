@@ -74,6 +74,7 @@ import {
 } from './totp'
 import { deviceLabel, shouldAlertNewDevice } from './device'
 import { entitlementRouter } from './entitlementRoutes'
+import { xdAppRouter } from './xdAppRoutes'
 import { proReminderRouter } from './proReminders'
 import { payAdminRouter, payRouter } from './paymentRoutes'
 import {
@@ -119,6 +120,8 @@ app.get('/health', (req, res) => res.json({ status: 'ok', service: 'auth-service
 // PRO2 2.4: thư nhắc gia hạn - `/run` cho cron (tự kiểm INTERNAL_API_TOKEN), `/unsubscribe`
 // công khai (HMAC trong link). Gắn TRƯỚC `/ent` để không bị giới hạn tần suất của quyền lợi.
 app.use('/ent/reminders', proReminderRouter)
+// QR2b: vai xác nhận QR trong app (access token OIDC scope `tsudev.xd`) - giới hạn tần suất riêng, gắn TRƯỚC `/ent`.
+app.use('/ent/xd', xdAppRouter)
 app.use('/ent', entitlementRouter)
 
 // ---------------------------------------------------------------------------
