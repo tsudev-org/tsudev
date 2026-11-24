@@ -192,6 +192,16 @@ const PAIRS: Array<[string, string, number, string]> = [
   ['--focus-ring', '--bg-surface', 3, 'vòng focus trên card'],
   ['--focus-ring', '--bg-subtle', 3, 'vòng focus trên khối lồng'],
   ['--focus-ring', '--bg-hover', 3, 'vòng focus trên hàng đang hover'],
+  // UI1 (.standards DESIGN_SYSTEM v4.1.0 mục 1): biểu tượng đo trên NỀN THẬT phía sau nó ở
+  // MỌI trạng thái. Bộ chọn giao diện ở chân trang (ThemeToggle): nút đang chọn là viên
+  // `bg-hovered` + `text-fg`, nút thường là `text-fg-muted` trên khung `bg-surface`, hover
+  // đổi chữ sang `text-fg`. Icon trong nút chính ăn màu chữ của nút (`.tsu-icon`) nên đi
+  // theo cặp `on-primary` ở ba trạng thái phía trên. Ngưỡng 3:1 (đồ hoạ, WCAG 1.4.11).
+  ['--text-primary', '--bg-hover', 3, 'biểu tượng trên viên đang chọn của bộ chọn giao diện'],
+  ['--text-muted', '--bg-surface', 3, 'biểu tượng thường của bộ chọn giao diện'],
+  ['--text-primary', '--bg-surface', 3, 'biểu tượng bộ chọn giao diện khi hover'],
+  ['--icon-nav', '--bg-hover', 3, 'icon điều hướng trên hàng đang hover/chọn'],
+  ['--icon-info', '--bg-hover', 3, 'icon thông tin trên hàng đang hover/chọn'],
 ];
 
 describe.each([
