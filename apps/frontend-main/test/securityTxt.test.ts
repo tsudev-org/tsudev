@@ -13,7 +13,7 @@ test('có Contact và Canonical đúng tên miền', () => {
 test('Expires còn ít nhất 60 ngày và không quá 1 năm (khuyến nghị RFC 9116)', () => {
   const m = txt.match(/^Expires: (.+)$/m);
   expect(m).not.toBeNull();
-  const days = (Date.parse((m as RegExpMatchArray)[1]) - Date.now()) / 86_400_000;
+  const days = (Date.parse(m?.[1] ?? '') - Date.now()) / 86_400_000;
   expect(days).toBeGreaterThan(60);
   expect(days).toBeLessThanOrEqual(366);
 });
