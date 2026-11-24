@@ -64,5 +64,3 @@ export const LEGAL_BASIS = [
     note: 'Áp dụng cho quyền nhân thân, quyền tác giả và quyền liên quan.',
   },
 ];
-
-export default OPERATOR;

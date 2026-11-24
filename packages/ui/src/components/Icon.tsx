@@ -8,7 +8,7 @@ import {
   platformChipClass,
   platformInkClass,
 } from './icons';
-import type { IconName, IconRole, IconSpec, PlatformBrand } from './icons';
+import type { IconName, IconSpec, PlatformBrand } from './icons';
 
 /**
  * Icon dùng chung. Bảng đường vẽ và quy tắc màu-theo-chức-năng nằm ở
@@ -68,6 +68,5 @@ export const Icon = ({ name, size = 16, label, className = '' }: IconProps) => {
   );
 };
 
-export type { IconName, IconRole, PlatformBrand };
+export type { IconName, PlatformBrand };
 export { ICONS, PLATFORM_CHIP_CLASS, platformChipClass, platformInkClass };
-export default Icon;

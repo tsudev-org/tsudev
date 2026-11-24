@@ -7,7 +7,7 @@
 //
 // ⚠️ Module này gọi ra một dịch vụ NGOÀI, nên nó phải hỏng theo kiểu đọc được:
 //
-//  - Thiếu cấu hình ⇒ `isConfigured()` false và người gọi trả một thông điệp
+//  - Thiếu cấu hình ⇒ `configProblem()` khác null và người gọi trả một thông điệp
 //    nói RÕ thiếu biến nào. KHÔNG âm thầm bỏ qua: bí danh "tạo thành công" mà
 //    không có quy tắc nào bên Cloudflare là một hộp thư đen - thư gửi tới bị
 //    trả về, và không ai biết cho tới khi có người phàn nàn.
@@ -37,10 +37,6 @@ export const addressOf = (localPart: string): string => `${localPart}@${mailDoma
  * đó, nên không mở nó ra.
  */
 export const LOCAL_PART_RE = /^[a-z0-9](?:[a-z0-9._-]{0,38}[a-z0-9])?$/
-
-export function isConfigured(): boolean {
-  return Boolean(process.env.CF_API_TOKEN && process.env.CF_ZONE_ID)
-}
 
 /** Lý do CỤ THỂ khiến tính năng chưa dùng được, để trả thẳng ra giao diện. */
 export function configProblem(): string | null {

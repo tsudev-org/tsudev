@@ -29,8 +29,3 @@ export function useLoader(load: (signal?: AbortSignal) => unknown, enabled: bool
     return () => ac.abort();
   }, [load, enabled]);
 }
-
-/** `true` khi lỗi là do yêu cầu bị huỷ - không phải lỗi để báo người dùng. */
-export function isAbort(e: unknown): boolean {
-  return e instanceof DOMException && e.name === 'AbortError';
-}

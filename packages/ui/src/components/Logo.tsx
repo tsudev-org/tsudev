@@ -36,5 +36,3 @@ export const Logo = ({ size = 48, className = '' }: LogoProps) => (
     />
   </picture>
 );
-
-export default Logo;

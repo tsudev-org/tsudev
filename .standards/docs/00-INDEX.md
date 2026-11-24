@@ -25,8 +25,9 @@
 
 **Bạn đang làm chức năng đăng nhập, đăng ký, tài khoản:**
 1. [`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) - kiến trúc, ba lối vào, xác minh, ma trận quyền
-2. [`SECURITY_BASELINE.md`](SECURITY_BASELINE.md) mục 6 - ngưỡng mật khẩu, phiên, phân quyền
-3. [`ECOSYSTEM_IDENTITY.md`](ECOSYSTEM_IDENTITY.md) mục 6 và 7 - ảnh đại diện, trang hồ sơ
+2. [`CROSS_DEVICE_LOGIN.md`](CROSS_DEVICE_LOGIN.md) - "Quét để đăng nhập" bằng QR + mã khớp
+3. [`SECURITY_BASELINE.md`](SECURITY_BASELINE.md) mục 6 - ngưỡng mật khẩu, phiên, phân quyền
+4. [`ECOSYSTEM_IDENTITY.md`](ECOSYSTEM_IDENTITY.md) mục 6 và 7 - ảnh đại diện, trang hồ sơ
 
 **Bạn đang làm bảng, danh sách, modal có bản ghi:**
 1. [`DATA_TABLE.md`](DATA_TABLE.md) - bộ chọn số bản ghi, vị trí, hành vi
@@ -72,6 +73,7 @@
 | [`SYNC.md`](SYNC.md) | Đồng bộ quy ước xuống repo con | Bất khả xâm phạm |
 | [`PROJECT_STRUCTURE.md`](PROJECT_STRUCTURE.md) | Cây thư mục chuẩn | Bất khả xâm phạm |
 | [`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) | Đăng nhập, đăng ký, xác minh tài khoản | Bất khả xâm phạm |
+| [`CROSS_DEVICE_LOGIN.md`](CROSS_DEVICE_LOGIN.md) | Đăng nhập chéo thiết bị bằng QR + mã khớp | Bất khả xâm phạm |
 | [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) | Giao diện, token, component | Bất khả xâm phạm |
 | [`DATA_TABLE.md`](DATA_TABLE.md) | Vùng bản ghi, bộ chọn số bản ghi | Bất khả xâm phạm |
 | [`BRAND_ASSETS.md`](BRAND_ASSETS.md) | Logo, wordmark, favicon, icon ứng dụng | Bất khả xâm phạm |

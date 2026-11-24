@@ -103,5 +103,3 @@ export const Toast = ({ message, type = 'info', onClose, duration }: ToastProps)
     </div>
   );
 };
-
-export default Toast;

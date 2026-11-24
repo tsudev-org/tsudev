@@ -119,6 +119,28 @@ duy nhất là số test không tăng.
 
 Chạy `full-stack` bằng tay trước khi đụng vào luồng upload.
 
+### Clean Codebase - `npm run knip`
+
+Bước cuối của job **Lint & format** (`.standards` `PROJECT_STRUCTURE.md` mục 3.1): tệp
+không ai gọi, export không ai dùng, phụ thuộc thừa hoặc chưa khai ⇒ đỏ. Cấu hình ở
+`knip.json` (JSON thuần, không nhận chú thích - lý do từng ngoại lệ ghi ở đây):
+
+- **`.gitignore` có `*password*`** (chặn lộ bí mật) nên khớp luôn
+  `services/auth-service/src/password.ts`, mà knip bỏ qua tệp bị gitignore ⇒ tệp đó
+  phải khai tường minh làm `entry`. Thiếu dòng đó, knip báo `@node-rs/argon2` thừa -
+  gỡ theo là đăng nhập production chết.
+- **Móc chỉ cho test** (`_resetJti`, `_setPlayFetch`, `verifyKeyIds`...) được test gọi
+  qua `require('../src/x')` nên knip không thấy: gắn thẻ `@testonly` trong JSDoc
+  (`"tags": ["-testonly"]`). Đừng dùng thẻ đó cho export của mã chạy thật.
+- **`ignoreDependencies`**: `@prisma/client` (đến qua `@tsudev/db`, một phiên bản duy
+  nhất), `next-auth` ở gốc (dedup có chủ đích - một bản cho cả app và Storybook),
+  `dotenv`/`nodemon`/`sharp`/`@aws-sdk/client-s3` (script gốc và `packages/brand`
+  mượn bản đã hoisted của workspace), `@storybook/react` (peer của `react-vite`).
+- Script CLI (`scripts/**`, `packages/brand/*.js`, `services/*/scripts/**`) là `entry`:
+  chạy bằng tay, không ai `import`. Script hết đời thì XOÁ, đừng để nằm đó.
+- Duplicate exports tắt: không còn `export default` trùng export có tên (đã gỡ 24/11/2026);
+  viết component mới thì chỉ export có tên.
+
 ## Cổng PR và quét bảo mật (A4, 05/11/2026)
 
 Ngoài `ci.yml`, mỗi PR còn qua hai workflow nữa. Tên job là tên check trong

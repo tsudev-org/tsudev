@@ -1295,7 +1295,7 @@ theo LG-06.
 | 3      | M3 `kiem_duyet_tuan_thu`  | P8    | M1 (`PostStatusEvent.kind`) | không | như trên                                                                |
 
 Quy trình cố định (CLAUDE.md, `docs/architecture.md`): agent soạn PR có migration + `npm run db:generate` + test ⇒
-DỪNG ⇒ chủ dự án chạy `db:migrate` lên Neon bằng lệnh `read -rsp` ⇒ agent merge. `migrationGate` của backend-bundle
+DỪNG ⇒ chủ dự án chạy `db:migrate` lên Neon bằng `tsu-nhan-bi-mat --stdout` (nhận chuỗi kết nối từ clipboard, phiếu SEC1) ⇒ agent merge. `migrationGate` của backend-bundle
 thoát 1 nếu thứ tự đảo. Không sửa migration đã áp dụng (kể cả comment).
 
 ### 15.4. Quyết định cho các điểm P2 chuyển sang

@@ -167,5 +167,3 @@ export const SiteFooter = () => {
     </footer>
   );
 };
-
-export default SiteFooter;

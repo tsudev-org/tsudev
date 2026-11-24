@@ -423,7 +423,6 @@ nuốt lỗi thành `[]` ⇒ `/blog` và `/feed.xml` chỉ TRỐNG chứ không 
 - `notify.js` - gửi cảnh báo tới Telegram (`TELEGRAM_BOT_TOKEN`,
   `TELEGRAM_CHAT_ID`) và email (`ALERT_EMAIL_WEBHOOK`, `ALERT_EMAIL_TO`). Chưa
   cấu hình thì chỉ log `would send` - an toàn cho dev.
-- New Relic: `newrelic.js` ở gốc + `NEW_RELIC_LICENSE_KEY`.
 
 Nghiệm thu đường cảnh báo: `GET /debug/boom` trên content-service (chỉ có ngoài
 production) → 500 → cảnh báo phải tới trong 30 giây (§6.3 của TSD).

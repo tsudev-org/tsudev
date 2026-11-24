@@ -295,7 +295,7 @@ function claimJti(clientId: string, jti: string, expS: number, nowS: number): bo
   return true
 }
 
-/** Chỉ cho test. */
+/** Chỉ cho test (gọi qua `require` nên knip không thấy). @testonly */
 export const _resetJti = (): void => seenJti.clear()
 
 /**
@@ -445,7 +445,7 @@ export async function purgeDeletedSubjects(now: Date): Promise<void> {
   ])
 }
 
-/** Chỉ cho test. */
+/** Chỉ cho test (gọi qua `require` nên knip không thấy). @testonly */
 export const _resetPurge = (): void => {
   lastPurge = 0
 }

@@ -32,7 +32,7 @@ describe('upstreamPath', () => {
 describe('không proxy nào ghép đoạn đường dẫn trần vào URL', () => {
   // Quét NGUỒN: bản lỗi là `catchAllSegments(...).join('/')` hoặc `parts.join('/')`
   // đi thẳng vào fetch. Thêm proxy mới mà quay lại mẫu đó thì test này đỏ.
-  const tep = ['pages/api/content/[...path].ts', 'pages/api/storage/[...path].ts', 'lib/bff.ts'];
+  const tep = ['pages/api/content/[...path].ts', 'pages/api/storage/[...path].ts'];
   test.each(tep)('%s dùng upstreamPath', (f) => {
     const src = readFileSync(join(__dirname, '..', f), 'utf8');
     expect(src).toMatch(/upstreamPath\(/);

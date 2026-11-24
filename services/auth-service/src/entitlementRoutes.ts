@@ -182,7 +182,7 @@ const statusAllowed = (clientId: string, now: number): boolean =>
     now
   )
 
-/** Chỉ cho test. */
+/** Chỉ cho test (gọi qua `require` nên knip không thấy). @testonly */
 export const _resetStatusLimit = (): void => {
   statusHits.clear()
   playHits.clear()

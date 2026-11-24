@@ -1,4 +1,4 @@
-# QUY ƯỚC GIAO DIỆN TOÀN PROJECT (DESIGN SYSTEM) - v4.0.0
+# QUY ƯỚC GIAO DIỆN TOÀN PROJECT (DESIGN SYSTEM) - v4.1.0
 
 > Áp dụng cho MỌI website, tool, phần mềm desktop (Electron/C#/Python/C++), app trong hệ sinh thái.
 > Nguồn giá trị duy nhất: `tokens/design-tokens.json` (lớp nền chung) và `tokens/products/<id>.json` (lớp bản sắc).
@@ -51,6 +51,14 @@ tương tác** (viền nút phụ, viền ô nhập): chính nó nói cho ngư�
   | `on-primary` | `primary`, `primary-hover`, `primary-active` | ≥ 4.5:1 | WCAG 2.1 AA |
   | `on-status` | nền trạng thái | ≥ 4.5:1 | WCAG 2.1 AA |
 
+- **Biểu tượng trên nền trạng thái (từ v4.1.0).** Ngưỡng 3:1 của `icon-nav`/`icon-info` `MUST` đo trên **nền thật
+  phía sau biểu tượng ở MỌI trạng thái**: thường, đang chọn (viên/pill chỉ báo của thanh điều hướng, tab, chip),
+  hover, nhấn, vô hiệu, cả Sáng và Tối. Lỗi điển hình (đo 24/11/2026 ở Sound Db, Quly Thu Chi): thanh điều hướng
+  dưới vẽ biểu tượng đang chọn màu **trắng** trên viên chỉ báo màu nhạt ⇒ gần như mất hình. Quy tắc:
+  biểu tượng đang chọn dùng `on-primary` trên viên `primary`, HOẶC `primary` trên viên `bg-subtle`/`primary` 12-16%
+  độ phủ - không trộn. Flutter `NavigationBar`: đặt **cả** `indicatorColor` và `iconTheme` theo `WidgetState.selected`,
+  `MUST NOT` để mặc định Material 3 suy từ `seedColor` khi đã ghi đè một nửa. Mỗi repo có giao diện `MUST` có test
+  ảnh vàng (golden) hoặc test đo tương phản cho thanh điều hướng ở 2 chế độ.
 - **Cổng canh:** `node scripts/check-contrast.mjs` (lớp nền) và `node scripts/check-products.mjs` (lớp bản sắc) chạy
   trong CI của repo trung tâm và chặn merge khi có cặp trượt. Quy tắc không có cổng canh chỉ là câu chữ - bảng token
   v1.0.0 từng vi phạm chính mục này ở `text-muted` suốt ba chế độ mà không ai phát hiện.

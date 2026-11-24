@@ -25,3 +25,9 @@ Repo có phiên riêng ⇒ phiên đó làm; ghi kết quả một dòng dưới
   vai, khung QR ở `/login`, mục "Đăng nhập trên điện thoại bằng mã QR" ở `/settings/security#qr`, bố cục 13.2 + ô
   đồng ý 13.4 ở `/login`; E2E `qr-login.spec.js` 3/3 (Đ1, Đ2, ô đồng ý). Passkey có từ trước. CÒN: lưu
   `terms_version` ở IdP (cần migration - 👤), SSO tổ chức (chưa có tổ chức nào ⇒ không hiện nút, đúng chuẩn).
+- 24/11/2026 - tsudev (phiên b5dd, tiếp tsudev-c9d4 bị cắt): STD-SYNC xong ở nhánh `chore/std-sync-v5-3-0` - `.standards`
+  v5.3.0; cổng Clean Codebase `npm run knip` (job Lint & format; xoá 5 tệp chết + 32 `export default` trùng + 4 hàm chết,
+  gỡ `@types/cors`); cổng ngân sách `npm run budget:js` (job Build frontends, ≤ 170 KB gzip/trang) - bắt được
+  `/author/posts/[slug]` 297.6 KB ⇒ nạp lười Tiptap, nay nặng nhất `/settings/security` 164.1 KB (biên mỏng). LCP/CLS
+  chưa có cổng (cần Lighthouse CI - phase sau). CÒN: DK2 (trang pháp lý BCT), UI1 (rà biểu tượng ≥ 3:1 + test),
+  `terms_version` (migration 👤).

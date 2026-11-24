@@ -51,5 +51,3 @@ export const Avatar = ({ name = '?', src, size = 40, className = '' }: AvatarPro
     </span>
   );
 };
-
-export default Avatar;

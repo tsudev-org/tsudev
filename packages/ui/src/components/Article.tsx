@@ -21,5 +21,3 @@ export const Article = ({ title, author, date, content, toc = null }: ArticlePro
     {toc ? <aside className="mt-6 p-4 bg-subtle border border-line rounded-md">{toc}</aside> : null}
   </article>
 );
-
-export default Article;

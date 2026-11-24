@@ -27,5 +27,3 @@ export const Layout = ({ children, active = '/', bare = false }: LayoutProps) =>
     <SiteFooter />
   </div>
 );
-
-export default Layout;

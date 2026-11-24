@@ -103,5 +103,3 @@ export const Upload = ({ onGetPresign, onUploadComplete, onServerUpload }: Uploa
     </div>
   );
 };
-
-export default Upload;

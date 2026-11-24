@@ -1,4 +1,4 @@
-# TÀI SẢN THƯƠNG HIỆU (v4.0.0)
+# TÀI SẢN THƯƠNG HIỆU (v4.2.0)
 
 > Logo, dấu hiệu thu gọn, wordmark, favicon và icon ứng dụng của hệ sinh thái
 > tsudev: bản gốc nằm ở đâu, sinh ra bằng gì, dùng dấu hiệu nào ở cỡ nào.
@@ -234,6 +234,10 @@ Sản phẩm desktop thay danh sách trên bằng danh sách icon của nền t�
 - Sản phẩm `MAY` có logo riêng khi chủ dự án duyệt (mục 15) và `MUST` có bản sắc riêng (màu nhấn, bố cục, bo góc,
   hoạ tiết, font tiêu đề) theo `DESIGN_SYSTEM.md` mục 1.2 - khai ở repo này, có cổng kiểm chống trùng. Bảng màu
   riêng tự khai tại repo con, ngoài lớp bản sắc, vẫn là lỗi.
+- **Liên kết về tsudev.com (từ v4.1.0).** Mọi phần mềm/app/tool có liên kết tới `tsudev.com` (chân trang, Giới thiệu,
+  Tài khoản, Ủng hộ) `MUST` đặt **dấu hiệu TsuDEV** (logo mục 2, ≥ 16px, kèm `alt="TsuDEV"`) ngay trước chữ liên kết,
+  không chỉ chữ trơn. Trang web của sản phẩm `MUST` có đủ favicon mục 12 của **chính sản phẩm**; dấu hiệu TsuDEV nằm
+  trong khối "nhà làm" ở chân trang.
 - Sản phẩm dùng chung logo TsuDEV mà cần phân biệt trong khay hệ thống thì `MAY` thêm một **huy hiệu phụ nhỏ ở góc**
   tô bằng `primary` của sản phẩm, `MUST NOT` thay logo.
 
@@ -287,8 +291,13 @@ Một sản phẩm `MAY` có logo riêng thay logo tsudev khi **chủ dự án d
    - `tools/brand/build_brand.py` + `assets/brand/brand.json` (tsudev-trafficmonitor) - logo nền đen.
 3. Đủ bộ tài sản bắt buộc ở mục 12 (favicon.ico 7 lớp, apple-touch nền đặc, PWA + maskable riêng, og-image) và icon
    ứng dụng desktop (`assets/brand/app/`), web phục vụ `<picture>` AVIF → WebP → PNG.
-4. **Xoá nền** thì chỉ xoá vùng nền NỐI LIỀN mép ảnh (giữ mảng cùng màu nằm trong logo); logo có nét trắng trên ô nền
-   tối thì GIỮ nền làm ô - xoá đi là nét biến mất trên nền Sáng.
+4. **Logo dùng trên GIAO DIỆN (website, danh bạ, header, favicon) `MUST` nền trong suốt và là SVG** (từ v4.2.0, chủ dự
+   án 24/11/2026: ô nền tối làm giao diện thiếu chuyên nghiệp, PNG nhỏ phóng to thì mờ). Logo giao dạng ảnh trên ô nền đặc
+   ⇒ vector hoá bằng dây chuyền `packages/brand/build-vector-marks.js` của repo `tsudev` (khoá màu toàn ảnh + khử nhân,
+   lượng tử hoá vài màu, `vtracer`, SVGO) thành hai bản: `mark.svg` (nền Tối) và `mark-light.svg` (nền Sáng - nét trắng
+   đổi sang màu nền gốc của logo), mỗi màu ≥ 3:1 với nền; `mark-adaptive.svg` (theo `prefers-color-scheme`) làm
+   `favicon.svg`. Logo nền trắng: xoá vùng nền NỐI LIỀN mép ảnh (`no-white`). Icon ỨNG DỤNG của hệ điều hành
+   (`.ico`, Android launcher, `.icns`, apple-touch, maskable) vẫn là ô nền đặc theo quy ước nền tảng - sinh từ SVG.
 5. Giữ liên kết về hệ sinh thái (chân trang dẫn về tsudev.com với logo tsudev - `ECOSYSTEM_IDENTITY.md`). Khối "nhà
    làm" trong giao diện app (logo tsudev + chữ tsudev) giữ logo tsudev, không thay bằng logo sản phẩm.
 6. Báo phiên repo `tsudev` URL logo trên website sản phẩm để danh bạ tsudev.com/apps lấy từ đó

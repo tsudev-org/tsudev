@@ -30,16 +30,10 @@ docs/development.md
 docs/refactor-network-topology.md
 README.md
 
-# ── Gỡ ở GIAI ĐOẠN 3 (dev-proxy) ────────────────────────────────────────────
-scripts/measure-playwright.js
-
 # Cùng lý do với packages/ui: hai app build cho Cloudflare Workers, không có
 # filesystem của repo để đọc config/topology.json. Nhưng sau giai đoạn 4 mỗi app
 # chỉ còn MỘT file giữ literal (trước là sáu), và quy tắc B vẫn kiểm số cổng.
 apps/frontend-main/lib/services.ts
-
-# ── Gỡ ở GIAI ĐOẠN 5 hoặc sau ───────────────────────────────────────────────
-scripts/test-presign.js               # script gỡ rối thủ công
 
 # Tài liệu quy ước URL: nói VỀ địa chỉ chính tắc, nên buộc phải in nó ra. Đây là
 # nơi con số được giải thích, không phải nơi nó bị hardcode lén.

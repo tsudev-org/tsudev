@@ -1,5 +1,10 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **tsudev-b5dd (24/11/2026)**: tiếp tsudev-c9d4 bị cắt - nhánh `chore/std-sync-v5-3-0` (commit, CHƯA push - chờ chủ
+> dự án duyệt push/PR): `.standards` v5.3.0 + cổng `knip` + cổng `budget:js`. SEC1, AV1 ĐÓNG; EM1 mục 1, 3-6 chờ token
+> Email Routing (👤). ⚠️ khoá VirusTotal lộ vào nhật ký phiên ⇒ 👤 thay. Kế tiếp: phiếu QR1 - DK2 → UI1 → Lighthouse
+> (LCP/CLS). Không khoá, không tác vụ nền.
+
 > 🔔 **Điều phối tsudev-e3 (21/11/2026)**: K2 đợt 5 xong (DEC game-kit 1; 02/03 con trỏ cho 5 game tsugamelabs/, game-kit,
 > quansu-xanuicam, b4djl1h-cmdb, tsudev-org-dotgithub - game + quansu viết tay). tsuscan chưa có Release. Thư nhắc Pro:
 > lượt 01:23 UTC 22/11 chưa chạy lúc phiên mở - phiên sau mở SAU 01:45 UTC 22/11 rồi đọc log Render (ISS-20261121-2215-5fa5).

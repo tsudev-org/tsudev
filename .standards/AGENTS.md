@@ -44,6 +44,7 @@ chuyên đề. Bản đồ đầy đủ: [`docs/00-INDEX.md`](docs/00-INDEX.md).
 | Hạ tầng 0 đồng | [`docs/FREE_TIER_STACK.md`](docs/FREE_TIER_STACK.md) |
 | Chọn ngôn ngữ, framework | [`docs/LANGUAGE_SELECTION.md`](docs/LANGUAGE_SELECTION.md) |
 | **Đăng nhập, đăng ký, xác minh tài khoản** | [`docs/AUTH_AND_ACCOUNT.md`](docs/AUTH_AND_ACCOUNT.md) |
+| **Đăng nhập bằng mã QR (chéo thiết bị)** | [`docs/CROSS_DEVICE_LOGIN.md`](docs/CROSS_DEVICE_LOGIN.md) |
 | Giao diện, token, component | [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) |
 | Bảng bản ghi, bộ chọn số bản ghi | [`docs/DATA_TABLE.md`](docs/DATA_TABLE.md) |
 | Logo, favicon, icon ứng dụng | [`docs/BRAND_ASSETS.md`](docs/BRAND_ASSETS.md) |

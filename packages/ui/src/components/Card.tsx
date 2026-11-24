@@ -32,5 +32,3 @@ export const Card = ({ children, className = '', hover = false, as, ...props }: 
     </Tag>
   );
 };
-
-export default Card;

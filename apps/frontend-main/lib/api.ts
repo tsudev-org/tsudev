@@ -159,5 +159,3 @@ export const api = {
   releases: (limit = 20) =>
     getJSON<ProjectWithReleases[]>(`${CONTENT}/api/releases?limit=${limit}`, []),
 };
-
-export default api;

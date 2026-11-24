@@ -10,12 +10,11 @@ Theo dõi lỗi và cảnh báo. **Thư mục thuần, không phải npm workspa
 
 ## Cấu hình
 
-| Biến                                     | Dùng cho                       |
-| ---------------------------------------- | ------------------------------ |
-| `SENTRY_DSN`                             | Sentry                         |
-| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | cảnh báo Telegram              |
-| `ALERT_EMAIL_WEBHOOK`, `ALERT_EMAIL_TO`  | cảnh báo email                 |
-| `NEW_RELIC_LICENSE_KEY`                  | APM (`newrelic.js` ở gốc repo) |
+| Biến                                     | Dùng cho          |
+| ---------------------------------------- | ----------------- |
+| `SENTRY_DSN`                             | Sentry            |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | cảnh báo Telegram |
+| `ALERT_EMAIL_WEBHOOK`, `ALERT_EMAIL_TO`  | cảnh báo email    |
 
 Chưa cấu hình thì `notify.js` chỉ log `would send` - an toàn cho dev, không im
 lặng nuốt lỗi.
