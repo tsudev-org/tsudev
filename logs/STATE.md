@@ -1,5 +1,10 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **tsudev-b5dd kết (24/11/2026)**: #377 gộp, **`deploy-2026.11.24.1`** Worker `516aaf52` (chính sách thanh toán, chủ sở
+> hữu ở chân trang, security.txt, knip + budget:js). DK2: Tín nhiệm mạng tsudev.com ĐÃ GỬI (chờ NCA); BCT tài khoản Cá nhân
+> CHỜ DUYỆT ⇒ sau duyệt mới nộp thông báo website (phiếu gốc DK2 mục 4). TM1 mục 2 (danh bạ Tsu Tramon) + phiếu UX1 phase
+> **UX1-a** là việc kế tiếp. 👤 thay khoá VirusTotal. Không khoá, không tác vụ nền.
+
 > 🔔 **Giao diện (24/11/2026)**: phiếu [`20261124-UX1`](handover/20261124-UX1_giao-dien-chuyen-nghiep-studio.md) - chuẩn hoá
 > giao diện tsudev.com, ưu tiên Studio "Viết bài"; MỖI PHIÊN MỘT PHASE, bắt đầu **UX1-a** (PR 4.5 WorkspaceLayout + /studio).
 
