@@ -60,7 +60,13 @@ export default function EcoAppCard({ app, selectable, selected, onToggle, hideIn
       } ${selected ? 'border-primary ring-1 ring-primary' : 'border-line'}`}
     >
       <div className="flex items-start gap-4">
-        <EcoIcon name={app.name} logo={app.logo} tint={app.tint} icon={app.icon} />
+        <EcoIcon
+          name={app.name}
+          logo={app.logo}
+          logoLight={app.logoLight}
+          tint={app.tint}
+          icon={app.icon}
+        />
         <div className="min-w-0 flex-1">
           <h3 className="font-medium text-fg text-base leading-snug">{app.name}</h3>
           <div className="mt-1 flex flex-wrap items-center gap-1.5">

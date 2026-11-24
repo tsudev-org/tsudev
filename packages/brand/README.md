@@ -13,6 +13,7 @@ packages/brand/
     avatar.png                1490x1490, tham chiếu thiết kế cho avatar mặc định
   build-assets.js             logo, favicon, manifest, ảnh OG, avatar
   build-eco-icons.js          logo THẬT của từng app hệ sinh thái → public/eco/*.webp
+  build-vector-marks.js       logo vẽ trên ô nền tối → SVG xoá nền hai bản (Tối/Sáng) → public/eco/*.svg
 ```
 
 Logo cũ (`logo.jpeg` nền trắng, bộ favicon RealFaviconGenerator, wordmark SVG) đã gỡ
@@ -23,6 +24,7 @@ Logo cũ (`logo.jpeg` nền trắng, bộ favicon RealFaviconGenerator, wordmark
 ```bash
 node packages/brand/build-assets.js       # sharp có sẵn trong node_modules (qua Next)
 node packages/brand/build-eco-icons.js    # tải lại logo app từ website của app
+node packages/brand/build-vector-marks.js # vector hoá logo nền tối (cần `vtracer` trên PATH); --check để đối chiếu
 node scripts/check-brand-assets.js        # cổng kiểm (CI cũng chạy)
 ```
 
@@ -37,6 +39,8 @@ node scripts/check-brand-assets.js        # cổng kiểm (CI cũng chạy)
 - `site.webmanifest`, `og-image.png` (1200x630, nền tối là hằng thương hiệu).
 - `avatars/*.webp` - 6 tông × 2 mức chi tiết.
 - `eco/<id>.webp` - logo app (128px), từ `build-eco-icons.js`.
+- `eco/<id>.svg`, `eco/<id>-light.svg`, `eco/<id>-adaptive.svg` - logo vector xoá nền (swico, disk, sounddb,
+  contact), từ `build-vector-marks.js`.
 
 ## Vài quyết định kỹ thuật
 
@@ -77,3 +81,19 @@ là cần lại ngay, và bộ này sinh từ ảnh gốc chứ không chép tay
 KHÔNG xoá nền: nét trắng (Xin Chào Núi Cấm, Luyện Gõ Phím) mất trên nền Sáng, chim đen (Chú Chim Vỗ Cánh) mất trên nền
 Tối. Đổi logo: thay tệp nguồn rồi `node packages/brand/build-eco-icons.js game-<id>`. Khi website game tự phục vụ logo
 mới (phiếu 20261113-04 ở từng repo game), đổi dòng `SOURCES` sang URL và xoá tệp nguồn ở đây.
+
+## Logo vector xoá nền (24/11/2026)
+
+Tsu Swico, TsuDisk, Sound Db, Tsu Contact được giao dạng PNG nhỏ (441-1024 px) vẽ trên ô nền navy/than chì: trên trang
+Sáng thành khối tối, phóng to thì mờ. `build-vector-marks.js` lấy ảnh GỐC ở repo sản phẩm (đối chiếu SHA-256), xoá nền
+bằng khoá màu toàn ảnh + khử nhân, lượng tử hoá về 1-3 màu (k-means hạt giống cố định), trace từng màu bằng `vtracer`
+(Rust, `cargo install vtracer --version 0.6.4 --locked`), tối ưu bằng SVGO. Ra 7-17 kB mỗi bản, sắc nét ở mọi cỡ.
+
+- `<id>.svg` cho nền Tối, `<id>-light.svg` cho nền Sáng: mỗi màu ≥ 3:1 với nền (WCAG 1.4.11); nét TRẮNG ở bản Sáng
+  đổi sang màu nền gốc của logo để giữ nhận diện. `EcoIcon` vẽ cả hai, `globals.css` hiện bản theo `data-theme`.
+- `<id>-adaptive.svg` gộp hai bản theo `prefers-color-scheme` - dùng làm `favicon.svg` ở website sản phẩm.
+- Đã thử và bỏ: trace thẳng ảnh màu (0,3-1,2 MB do khử răng cưa thành hàng nghìn sắc độ); trace ở 4x (gấp 3-4 lần
+  dung lượng, không nét hơn ở cỡ hiển thị). Ràng buộc `vtracer` Python 0.6.15 + Python 3.14 segfault khi truyền tham số
+  có tên - dùng CLI.
+- Icon ứng dụng của hệ điều hành (Windows .ico, Android launcher, macOS) VẪN là ô nền đặc theo quy ước nền tảng - repo
+  sản phẩm sinh chúng từ SVG trên nền đặc (sắc hơn PNG gốc).

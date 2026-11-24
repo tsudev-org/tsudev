@@ -102,9 +102,21 @@ describe('biểu tượng phân biệt được từng sản phẩm (13/11/2026)
 
   it('logo khai trong dữ liệu có tệp thật trong public/ (nếu không: ảnh vỡ trên production)', () => {
     for (const a of all.filter((x) => x.logo)) {
-      expect(a.logo).toMatch(/^\/eco\/[a-z0-9-]+\.webp$/);
+      expect(a.logo).toMatch(/^\/eco\/[a-z0-9-]+\.(webp|svg)$/);
       expect([a.id, existsSync(join(PUBLIC, a.logo!))]).toEqual([a.id, true]);
     }
+  });
+
+  it('logo SVG (xoá nền, 24/11/2026) luôn có bản nền Sáng đi kèm, có tệp thật', () => {
+    for (const a of ECOSYSTEM_APPS.filter((x) => x.logo?.endsWith('.svg'))) {
+      expect([a.id, a.logoLight]).toEqual([a.id, a.logo!.replace(/\.svg$/, '-light.svg')]);
+      expect([a.id, existsSync(join(PUBLIC, a.logoLight!))]).toEqual([a.id, true]);
+    }
+    expect(
+      ECOSYSTEM_APPS.filter((x) => x.logoLight)
+        .map((x) => x.id)
+        .sort()
+    ).toEqual(['contact', 'disk', 'sounddb', 'swico']);
   });
 
   it('tên trafficmonitor là tên chính thức hiện hành, không phải tên cũ', () => {

@@ -3,7 +3,9 @@ import React from 'react';
 /**
  * Biểu tượng một sản phẩm trên danh bạ - mỗi app/game nhận ra được bằng mắt.
  *
- * - App có LOGO THẬT (`logo`, tự lưu ở /eco/*.webp): vẽ đúng logo đó, giữ tỉ lệ.
+ * - App có LOGO THẬT (`logo`, tự lưu ở /eco/): vẽ đúng logo đó, giữ tỉ lệ. Có `logoLight` (logo vector
+ *   xoá nền, 24/11/2026) thì vẽ CẢ HAI bản, `globals.css` (`.tsu-eco-dark`/`.tsu-eco-light`) chỉ hiện bản
+ *   hợp với `data-theme` - không đợi JavaScript, không nháy.
  * - App chưa có logo riêng: ô bo góc kiểu biểu tượng ứng dụng, dải chuyển sắc
  *   `tint` riêng của app + glyph trắng. Trước 13/11/2026 mọi thẻ dùng CÙNG một ô
  *   tím nhạt với glyph mảnh, nên người dùng khó phân biệt app nào với app nào.
@@ -14,6 +16,7 @@ import React from 'react';
 type Props = {
   name: string;
   logo?: string;
+  logoLight?: string;
   tint: readonly [string, string];
   icon: string;
   size?: number;
@@ -24,7 +27,33 @@ type Props = {
   tile?: boolean;
 };
 
-export default function EcoIcon({ name, logo, tint, icon, size = 48, tile }: Props) {
+export default function EcoIcon({ name, logo, logoLight, tint, icon, size = 48, tile }: Props) {
+  if (logo && logoLight) {
+    return (
+      <span
+        className="inline-flex shrink-0"
+        style={{ width: size, height: size }}
+        data-eco-logo={name}
+      >
+        {[
+          [logo, 'tsu-eco-dark'],
+          [logoLight, 'tsu-eco-light'],
+        ].map(([src, cls]) => (
+          <img
+            key={cls}
+            src={src}
+            alt=""
+            width={size}
+            height={size}
+            loading="lazy"
+            decoding="async"
+            className={`${cls} shrink-0 object-contain`}
+            style={{ width: size, height: size }}
+          />
+        ))}
+      </span>
+    );
+  }
   if (logo) {
     return (
       <img
