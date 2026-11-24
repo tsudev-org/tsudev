@@ -61,6 +61,8 @@ const COLS: Col[] = [
       eco('Điều khoản', '/terms'),
       eco('Nội quy', '/rules'),
       eco('Thanh toán, hoàn tiền', '/chinh-sach-thanh-toan'),
+      // Trang bằng chứng an toàn tự kiểm chứng được (phiếu SEC2-e, 25/11/2026).
+      eco('An toàn', '/security'),
     ],
   },
 ];
@@ -142,10 +144,9 @@ export const SiteFooter = () => {
         <div className="col-span-2 sm:col-span-3 lg:col-span-1">
           <Logo size={72} />
           {/*
-            Câu mô tả hệ sinh thái do chủ dự án chốt 25/11/2026. Bản chuẩn ở
-            `.standards/docs/ECOSYSTEM_IDENTITY.md` mục 1 vẫn là câu cũ - đề xuất đẩy ngược
-            nằm ở phiếu `logs/handover/20261125-UX2_*.md`; sau khi bộ quy ước nhận câu mới thì
-            câu này lại là bản chép nguyên văn, đừng tự nghĩ câu thứ ba.
+            Câu mô tả hệ sinh thái do chủ dự án chốt 25/11/2026 - nay là BẢN MÔ TẢ CHUẨN, chép
+            nguyên văn từ `.standards/docs/ECOSYSTEM_IDENTITY.md` mục 1 (v6.0.0). Đổi câu này thì đổi
+            ở repo quy ước trung tâm trước, đừng sửa tại chỗ.
           */}
           <p className="mt-3 text-sm text-fg-muted max-w-xs leading-relaxed">
             <strong className="font-semibold text-fg-secondary">TsuDEV</strong> là hệ sinh thái ứng

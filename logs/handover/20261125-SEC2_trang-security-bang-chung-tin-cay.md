@@ -1,6 +1,6 @@
 # PHIẾU YÊU CẦU SEC2 - Trang `/security` với bằng chứng tin cậy TỰ KIỂM CHỨNG ĐƯỢC
 
-- **Mã phiếu**: 20261125-SEC2 (bản sao cho repo) - **Từ**: phiên `tsudev-8d`, 25/11/2026, theo yêu cầu chủ dự án - **Trạng thái**: MỞ
+- **Mã phiếu**: 20261125-SEC2 (bản sao cho repo) - **Từ**: phiên `tsudev-8d`, 25/11/2026, theo yêu cầu chủ dự án - **Trạng thái**: ĐÓNG (25/11/2026, chờ hstspreload chuyển `pending` → `preloaded` - Chromium tự đưa vào bản kế)
 - **Phiếu gốc (ĐỌC mục 0-2 TRƯỚC)**: `~/projects/logs/handover/20261125-SEC2_trang-security-bang-chung-tin-cay-toan-he.md`
 - **Website của repo**: tsudev.com
 
@@ -20,3 +20,9 @@ Hub tsudev.com/security (bảng toàn hệ, mỗi sản phẩm một hàng) + E5
 ## Kết quả xử lý
 
 - 25/11/2026 - tsudev-8d: mở phiếu.
+- 25/11/2026 - tsudev-3e: **SEC2-e XONG**. Đo bằng API (không cần Edge): SSL Labs v3 `publish=off` A+ 4/4 điểm cuối,
+  Observatory v2 A+ 130 12/12, Scorecard 7.9, BP 16731 passing, PVR `enabled:true`. Liệt kê 60 bản ghi DNS Cloudflare:
+  35 tên miền con web đều HTTPS chứng chỉ hợp lệ, còn lại TXT/MX/CAA; `sync.tsudev.com` không có bản ghi. hstspreload
+  `preloadable` 0 lỗi 0 cảnh báo ⇒ **ĐÃ NỘP** `tsudev.com`, trạng thái `pending`. Trang hub `/security` (dữ liệu
+  `apps/frontend-main/data/trust.json`, test `trustData.test.ts`), `Policy:` trong security.txt, liên kết chân trang
+  "An toàn", sitemap.
