@@ -23,6 +23,7 @@ type Tile = {
     id: string;
     name: string;
     logo?: string;
+    logoLight?: string;
     tint: readonly [string, string];
     icon: string;
   }[];
@@ -97,7 +98,14 @@ export default function HomeCategories() {
                       key={m.id}
                       className={`inline-flex rounded-md bg-surface ring-2 ring-(--bg-surface) ${i ? '-ml-1.5' : ''}`}
                     >
-                      <EcoIcon name={m.name} logo={m.logo} tint={m.tint} icon={m.icon} size={22} />
+                      <EcoIcon
+                        name={m.name}
+                        logo={m.logo}
+                        logoLight={m.logoLight}
+                        tint={m.tint}
+                        icon={m.icon}
+                        size={22}
+                      />
                     </span>
                   ))}
                   {t.marks.length > 4 && (

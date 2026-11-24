@@ -61,14 +61,10 @@ const SOURCES = {
   lotus: { src: 'https://lotus.tsudev.com/android-chrome-512x512.png' },
   compass: { src: 'https://compass.tsudev.com/icon-512.png' },
   cwico: { src: 'https://cwico.tsudev.com/brand/logo-cwico.png' },
-  swico: { src: 'https://swico.tsudev.com/brand/logo-swico.png' },
-  contact: { src: 'https://contact.tsudev.com/brand/logo-contact.png' },
-  // Logo riêng TsuDisk (phiếu 20261117-D2): ô nền đặc bo góc sẵn trong ảnh.
-  disk: { src: 'https://disk.tsudev.com/brand/logo-tsudisk.png' },
-  // Phiếu 20261120-LG1: Quly Thu Chi phục vụ logo trên ô nền TRẮNG đục (chỉ góc trong suốt) ⇒ 'no-white';
-  // Sound Db là ô nền navy bo góc sẵn, đã bỏ dấu ✦ của công cụ tạo ảnh ⇒ giữ nguyên.
+  // Phiếu 20261120-LG1: Quly Thu Chi phục vụ logo trên ô nền TRẮNG đục (chỉ góc trong suốt) ⇒ 'no-white'.
+  // Tsu Swico, TsuDisk, Sound Db, Tsu Contact (logo trên ô nền tối) chuyển sang SVG xoá nền 24/11/2026:
+  // `build-vector-marks.js`.
   qulythuchi: { src: 'https://qulythuchi.tsudev.com/brand/logo-qulythuchi.png', mode: 'no-white' },
-  sounddb: { src: 'https://sound.tsudev.com/brand/logo-sound-db.png' },
   // Trò chơi: năm game đã phục vụ logo riêng trên website của mình (16/11/2026, phiếu
   // 20261113-04, sinh bởi tsudev-game-kit/tools/sinh-thuong-hieu.mjs - ô nền đặc bo góc sẵn).
   // nuicam3d vẫn dùng tệp gốc tới khi website của nó có /brand/mark-512.png.

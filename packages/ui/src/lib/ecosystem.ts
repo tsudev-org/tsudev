@@ -72,11 +72,15 @@ export type EcoApp = {
   /** Mã nguồn mở hay độc quyền - hiện thành nhãn. */
   openSource: boolean;
   /**
-   * LOGO THẬT của app (đường dẫn trên tsudev.com, WebP vuông 128px) - chỉ app có
-   * logo riêng. Sinh bằng `packages/brand/build-eco-icons.js` từ website của app;
-   * tự lưu vì CSP `img-src` của tsudev.com chỉ cho 'self'.
+   * LOGO THẬT của app (đường dẫn trên tsudev.com) - chỉ app có logo riêng; tự lưu vì CSP `img-src` của
+   * tsudev.com chỉ cho 'self'. Hai loại:
+   * - WebP vuông 128px, sinh bằng `packages/brand/build-eco-icons.js` (logo đã trong suốt, đọc được ở cả hai nền);
+   * - SVG nền trong suốt cho nền Tối, sinh bằng `packages/brand/build-vector-marks.js` từ logo vẽ trên ô nền
+   *   tối (24/11/2026) - LUÔN đi kèm `logoLight`.
    */
   logo?: string;
+  /** Bản SVG cho nền Sáng (nét trắng đổi sang màu nền gốc của logo) - bắt buộc khi `logo` là SVG. */
+  logoLight?: string;
   /**
    * Ô màu riêng [màu đầu, màu cuối] của dải chuyển sắc - nền của `icon` khi app
    * CHƯA có logo riêng (favicon của nó là con cú dùng chung, đặt lên danh bạ thì
@@ -186,7 +190,8 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       releases: 'https://github.com/tsudev-org/tsuswico/releases/latest',
       winget: 'tsudev.SWICO',
       openSource: true,
-      logo: '/eco/swico.webp',
+      logo: '/eco/swico.svg',
+      logoLight: '/eco/swico-light.svg',
       tint: ['#059669', '#064e3b'],
       icon: 'M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6zM8.8 12.2l2.2 2.2 4.4-4.4',
     },
@@ -202,7 +207,8 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       website: 'https://disk.tsudev.com',
       releases: 'https://github.com/tsudev-org/tsudisk/releases/latest',
       openSource: true,
-      logo: '/eco/disk.webp',
+      logo: '/eco/disk.svg',
+      logoLight: '/eco/disk-light.svg',
       tint: ['#b45309', '#78350f'],
       icon: 'M4 13 6 5h12l2 8M4 13h16v6H4zM8 16h5M16.5 16h.01',
     },
@@ -251,7 +257,8 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       oldWebsites: ['https://sounddb.tsudev.com'],
       releases: 'https://github.com/tsudev-org/sound-db/releases/latest',
       openSource: true,
-      logo: '/eco/sounddb.webp',
+      logo: '/eco/sounddb.svg',
+      logoLight: '/eco/sounddb-light.svg',
       tint: ['#0f766e', '#134e4a'],
       icon: 'M3 12h2M7 8v8M11 5v14M15 9v6M19 11v2M21 12h0',
     },
@@ -297,7 +304,8 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       website: 'https://contact.tsudev.com',
       releases: 'https://github.com/tsudev-org/tsucontact/releases/latest',
       openSource: true,
-      logo: '/eco/contact.webp',
+      logo: '/eco/contact.svg',
+      logoLight: '/eco/contact-light.svg',
       tint: ['#0284c7', '#0c4a6e'],
       icon: 'M4 5h16v14H4zM9 11.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5.8 16.5a3.4 3.4 0 0 1 6.4 0M14 9.5h4M14 13h4',
     },
