@@ -5,7 +5,7 @@
 - **Người gửi**: agent-tsuswico (phiên tsuswico-6e) theo yêu cầu của chủ dự án
 - **Người nhận**: agent điều phối TsuDEV (repo `~/projects/tsudev`)
 - **Liên quan**: phiếu AV1 `~/projects/logs/handover/20261122-AV1_bao-nham-antivirus-toan-he.md` (thư báo nhầm gửi từ `security@tsudev.com`)
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG 25/11/2026 - chuyển tiếp phiếu `20261125-EM2` (`~/projects/logs/handover`)
 
 ## 1. Mục tiêu
 
@@ -121,3 +121,11 @@ Lệnh đếm lại: `grep -rhoE "[A-Za-z0-9._%+-]+@tsudev\.com" ~/projects --in
   `tacgia@`, `pkg@`, `conduct@`, `notifications@`, `no-reply@`/`noreply@` (thư trả lời bị bounce).
 - Đề xuất (chờ 👤 duyệt): (a) chuyển DMARC `rua` khỏi `contact@` - bật Cloudflare DMARC Management (0 đồng) hoặc `dmarc@`
   riêng không forward về Gmail; (b) tạo luật literal cho các địa chỉ công khai còn dùng; (c) gỡ địa chỉ không dùng khỏi tài liệu.
+
+## 7. ✅ Kết quả 25/11/2026 - mục 1-6 của phiếu
+
+Chủ dự án duyệt 24/11/2026. Đã làm và kiểm chứng: 18 luật Email Routing (gửi thử 17 `delivered` + `dmarc@` `dropped`),
+DMARC `rua` rời `contact@` (sang `dmarc@` drop, chờ 👤 bật Cloudflare DMARC Management), `sp=reject`, MTA-STS testing +
+TLS-RPT. Danh mục chính thức + quy trình: `tsudev-standards` `docs/EMAIL.md` v1.0.0 (PR #77). Việc còn lại (👤 + từng
+repo, gồm `security.txt` của repo này) chuyển sang phiếu điều phối `~/projects/logs/handover/20261125-EM2_chuan-email-toan-he.md`.
+**Trạng thái phiếu EM1: ĐÓNG (chuyển tiếp EM2).**

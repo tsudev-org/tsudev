@@ -1,5 +1,25 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (25/11/2026, sau tsudev-8d)** - làm theo thứ tự, mỗi bước xong ghi một dòng vào phiếu tương ứng:
+>
+> 1. **PR #381** (EM2 + phiếu SEC2): CI xanh ⇒ gộp (squash) ⇒ deploy frontend
+>    (`XDG_CONFIG_HOME=$HOME/.config/wrangler-tsudev npm --workspace apps/frontend-main run deploy`, ngoài sandbox) ⇒
+>    `npm run release:tag` ⇒ dòng CHANGELOG. Nghiệm thu: `curl -s https://tsudev.com/.well-known/security.txt` có
+>    `Contact: mailto:security@tsudev.com`; providers chỉ provider thật. Render tự deploy backend: 👤 ĐÃ đặt
+>    `MAIL_FROM=TsuDEV <no-reply@tsudev.com>` + `MAIL_REPLY_TO=contact@tsudev.com` (25/11) ⇒ nhờ chủ dự án bấm "Quên mật
+>    khẩu" một lần, xác nhận thư hiện người gửi "TsuDEV" và "Trả lời" tới `contact@tsudev.com`; ghi kết quả vào
+>    `~/projects/logs/handover/20261125-EM2_chuan-email-toan-he.md` hàng tsudev.
+> 2. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (email BCT + NCA, đánh giá nhãn) - đầu phiên.
+> 3. **SEC2-e** (phiếu [`20261125-SEC2`](handover/20261125-SEC2_trang-security-bang-chung-tin-cay.md)): trang hub
+>    `tsudev.com/security` (dữ liệu `docs/security/trust.json`, liên kết chân trang, `Policy:` trong security.txt) + đo
+>    SSL Labs/Observatory + NỘP HSTS preload `tsudev.com` sau khi kiểm mọi bản ghi DNS con chạy HTTPS (`sync.tsudev.com`
+>    không phân giải 25/11 - hỏi phiên tsusync).
+> 4. **TM1 mục 2**: danh bạ `packages/ui/src/lib/ecosystem.ts` - Tsu Tramon, `https://tramon.tsudev.com`, repo `tsudev-org/tsutramon`.
+> 5. **UX1-a** trở đi (phiếu [`20261124-UX1`](handover/20261124-UX1_giao-dien-chuyen-nghiep-studio.md)).
+> 6. 👤 còn mở: thay khoá VirusTotal (lộ 24/11); EM1/EM2 hạ tầng thư đã xong (phiên projects-ea).
+>
+> Không khoá, không tác vụ nền.
+
 > ⏰ **TỪ 28/11/2026 - LÀM ĐẦU PHIÊN**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) -
 > nhắc chủ dự án kiểm email duyệt tài khoản BCT + thư NCA ở `contact@tsudev.com`, rồi đánh giá nhãn (DMCA, Chống Lừa Đảo,
 > Project Galileo, nhãn khác). Mở trước 28/11 thì bỏ qua, làm UX1-a.
