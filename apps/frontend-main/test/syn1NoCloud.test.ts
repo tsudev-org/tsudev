@@ -25,18 +25,23 @@ const PUBLIC = [
   ...walk('apps/frontend-main/pages'),
   ...walk('apps/frontend-main/components'),
   ...walk('apps/frontend-main/lib'),
+  ...walk('packages/ui/src/components'),
   'packages/ui/src/lib/ecosystem.ts',
   'services/auth-service/src/proReminders.ts',
 ];
+// Câu hiển thị hay xuống dòng giữa hai chữ ("đồng\n bộ") - so trên bản đã gộp khoảng trắng.
+// Ca sót thật (26/11/2026, điều phối in PDF hồ sơ BCT): FAQ /pro "Bản trên máy chủ vẫn tải về..." và
+// /chinh-sach-thanh-toan "dịch vụ đồng bộ không hoạt động".
 const CLOUD =
-  /(đồng bộ|sao lưu)( dữ liệu)?( lên)? đám mây|bản sao (trên )?đám mây|cloud (sync|backup)/i;
+  /(đồng bộ|sao lưu)( dữ liệu)?( lên)? đám mây|bản (sao )?trên đám mây|(bản|dữ liệu) trên máy chủ (vẫn )?(tải về|xuất)|bản sao đám mây|dịch vụ đồng bộ|cloud (sync|backup)/i;
 
 describe('SYN1 - không còn hứa đồng bộ/sao lưu đám mây', () => {
   test.each(PUBLIC)('%s', (p) => {
     // Chỉ xét chuỗi hiển thị, bỏ chú thích (chú thích được phép kể lịch sử).
     const code = read(p)
       .replace(/\/\*[\s\S]*?\*\//g, '')
-      .replace(/^\s*\/\/.*$/gm, '');
+      .replace(/^\s*\/\/.*$/gm, '')
+      .replace(/\s+/g, ' ');
     expect(code).not.toMatch(CLOUD);
   });
 

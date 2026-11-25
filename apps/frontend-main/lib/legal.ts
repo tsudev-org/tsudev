@@ -51,7 +51,7 @@ export const PRIVACY_DOC_DATES = {
 /** Ngày của /chinh-sach-thanh-toan (văn bản ban hành riêng, phiếu DK2). */
 export const PAYMENT_DOC_DATES = {
   effective: '24/11/2026',
-  updated: '25/11/2026',
+  updated: '26/11/2026',
 };
 
 // Cơ sở pháp lý được viện dẫn trong cả ba văn bản. Rà lại mỗi khi luật thay đổi:

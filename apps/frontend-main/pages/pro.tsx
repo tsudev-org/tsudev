@@ -172,8 +172,8 @@ export default function ProPage() {
           <div>
             <h2 className="text-base font-semibold text-fg">Hết Pro thì dữ liệu ra sao?</h2>
             <p className="mt-1.5 text-sm text-fg-secondary">
-              Dữ liệu trên thiết bị không bao giờ bị xoá. Bản trên máy chủ vẫn tải về và xuất được
-              thêm 90 ngày (có báo trước ở mốc 30 và 7 ngày), sau đó mới bị xoá.
+              Dữ liệu chỉ nằm trên thiết bị của bạn và không bao giờ bị xoá khi hết Pro; chỉ huy
+              hiệu và giao diện Pro tắt. Mọi tính năng vẫn giữ nguyên.
             </p>
           </div>
           <div>
