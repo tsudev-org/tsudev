@@ -5,7 +5,7 @@
 - **Người gửi**: agent-tsuswico (phiên tsuswico-6e) theo yêu cầu của chủ dự án
 - **Người nhận**: agent điều phối TsuDEV (repo `~/projects/tsudev`)
 - **Liên quan**: phiếu AV1 `~/projects/logs/handover/20261122-AV1_bao-nham-antivirus-toan-he.md` (thư báo nhầm gửi từ `security@tsudev.com`)
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG 25/11/2026 - chuyển tiếp phiếu `20261125-EM2` (`~/projects/logs/handover`)
 
 ## 1. Mục tiêu
 
@@ -106,3 +106,26 @@ Lệnh đếm lại: `grep -rhoE "[A-Za-z0-9._%+-]+@tsudev\.com" ~/projects --in
 - Token GitHub `winget-tsudev` đã được chủ dự án thay 23/11/2026; tệp `~/.config/tsudev/winget.env` (tsudisk dùng) vẫn
   giữ token CŨ đã thu hồi ⇒ 👤 ghi token mới vào tệp (agent không đọc/ghi giá trị).
 - Token Cloudflare hiện tại không có quyền Email Routing - nếu cấp thêm, chỉ cấp quyền **Read**.
+
+## 6. Kết quả đo Email Routing 24/11/2026 (phiên điều phối, token OAuth wrangler có `email_routing:write`)
+
+- Email Routing bật, `ready`. Luật literal: `security@`, `abuse@`, `privacy@`, `contact@` ⇒ forward tới MỘT hộp Gmail đã
+  xác minh (15/08/2026). Catch-all (và luật `all`) ⇒ Worker `qulythuchi` ⇒ mọi địa chỉ khác không thuộc
+  `in.qulythuchi.tsudev.com` bị `setReject('Unknown recipient')` (bounce).
+- **Vì sao `contact@` "không nhận được":** `contact@` là `rua` của DMARC. Nhật ký Email Routing 24/11: 23 lần forward thất bại
+  của CÙNG một báo cáo DMARC Google (`Report-ID 6169106812898267704`, từ `noreply-dmarc-support@google.com`), Gmail trả
+  `421 4.7.28 ... unusual rate of unsolicited mail ... temporarily rate limited`. Luồng forward `contact@ ⇒ Gmail` bị Gmail
+  giới hạn tốc độ ⇒ thư thật tới `contact@` có thể bị hoãn/rớt xen kẽ (thư "Test mail" 16:34 vẫn tới). `security@`: mọi
+  thư từ 02/11 đều `delivered` (Talsec, AhnLab, Huorong...).
+- **Địa chỉ công khai KHÔNG có luật (bị bounce):** `soc@` (12 lần nhắc), `tsufiles-donut@` (15), `ban@`, `ptsam@`, `khac@`,
+  `tacgia@`, `pkg@`, `conduct@`, `notifications@`, `no-reply@`/`noreply@` (thư trả lời bị bounce).
+- Đề xuất (chờ 👤 duyệt): (a) chuyển DMARC `rua` khỏi `contact@` - bật Cloudflare DMARC Management (0 đồng) hoặc `dmarc@`
+  riêng không forward về Gmail; (b) tạo luật literal cho các địa chỉ công khai còn dùng; (c) gỡ địa chỉ không dùng khỏi tài liệu.
+
+## 7. ✅ Kết quả 25/11/2026 - mục 1-6 của phiếu
+
+Chủ dự án duyệt 24/11/2026. Đã làm và kiểm chứng: 18 luật Email Routing (gửi thử 17 `delivered` + `dmarc@` `dropped`),
+DMARC `rua` rời `contact@` (sang `dmarc@` drop, chờ 👤 bật Cloudflare DMARC Management), `sp=reject`, MTA-STS testing +
+TLS-RPT. Danh mục chính thức + quy trình: `tsudev-standards` `docs/EMAIL.md` v1.0.0 (PR #77). Việc còn lại (👤 + từng
+repo, gồm `security.txt` của repo này) chuyển sang phiếu điều phối `~/projects/logs/handover/20261125-EM2_chuan-email-toan-he.md`.
+**Trạng thái phiếu EM1: ĐÓNG (chuyển tiếp EM2).**

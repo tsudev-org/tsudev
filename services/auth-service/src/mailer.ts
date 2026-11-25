@@ -88,7 +88,11 @@ export function htmlToText(html: string): string {
   )
 }
 
-const from = () => process.env.MAIL_FROM || 'tsudev <no-reply@tsudev.com>'
+const from = () => process.env.MAIL_FROM || 'TsuDEV <no-reply@tsudev.com>'
+
+// Thư gửi từ `no-reply@` nên người nhận bấm "Trả lời" phải tới một hộp thư có người
+// đọc (tsudev-standards EMAIL.md v1.0.0, phiếu EM2).
+const replyTo = () => process.env.MAIL_REPLY_TO || 'contact@tsudev.com'
 
 /**
  * Gửi mail. KHÔNG ném lỗi.
@@ -140,6 +144,7 @@ export async function sendMail(
       // `headers` (tuỳ chọn): ví dụ List-Unsubscribe của thư nhắc Pro (RFC 8058).
       body: JSON.stringify({
         from: from(),
+        reply_to: replyTo(),
         to,
         subject,
         html,

@@ -5,7 +5,6 @@ import Seo from '../components/Seo';
 import DownloadSection from '../components/DownloadSection';
 import EcoAppCard from '../components/EcoAppCard';
 import HomeShowcase from '../components/HomeShowcase';
-import HomeCategories from '../components/HomeCategories';
 import { useScrollReveal } from '../lib/useScrollReveal';
 import {
   Layout,
@@ -61,23 +60,17 @@ export default function Home({
         description="Hệ sinh thái phần mềm TsuDEV: tìm, tải và cài ứng dụng cho Windows, Android, macOS, Linux - website riêng từng sản phẩm, winget, SHA-256 và chữ ký Ed25519."
       />
 
-      {/* ---------- HERO NGẮN (bố cục `cong`) ----------
-          tsudev-standards v5.0.0 (DESIGN_SYSTEM.md mục 1.2.2; `.standards/tokens/products/tsudev.json`):
-          TsuDEV là CỔNG tập hợp nhiều sản phẩm ⇒ thân trang = hero NGẮN + lưới thẻ danh mục nhiều
-          cột ngay màn đầu. Hero chỉ giữ tiêu đề, một câu, ô tìm (là <form method="get"> THẬT trỏ vào
-          /apps - chạy cả khi JavaScript chưa tải) và cặp nút. Nền là hoạ tiết `quang-sang` (tĩnh). */}
+      {/* ---------- HERO NGẮN ----------
+          Hero chỉ giữ tiêu đề, một câu, ô tìm (là <form method="get"> THẬT trỏ vào /apps - chạy cả
+          khi JavaScript chưa tải) và cặp nút. Nền là hoạ tiết `quang-sang` (tĩnh) của bản sắc
+          tsudev-standards v5.0.0. KHÔNG có hiệu ứng hiện dần: khối màn đầu phải vẽ ngay ở khung
+          hình đầu - `animate-fade-up` cũ làm hero vô hình ~0,2 s rồi mới hiện ở mỗi lần Ctrl+F5
+          (phiếu 20261125-UX2). Lưới thẻ danh mục của bố cục `cong` đã dời sang /apps (chủ dự án
+          25/11/2026); data-layout giữ để og-image và test nhận diện hero. */}
       <section className="relative" data-layout="cong">
         <div className="tsu-quang-sang" aria-hidden="true" data-motif="quang-sang" />
-        <div className="relative max-w-4xl mx-auto px-4 pt-12 pb-8 md:pt-16 md:pb-10 text-center animate-fade-up">
-          <a
-            href="/apps"
-            className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-fg-secondary transition-colors hover:border-line-control hover:text-fg"
-          >
-            <span className="tsu-live-dot h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
-            {ECOSYSTEM_APPS.length} ứng dụng · Windows · Android · macOS · Linux
-            <span aria-hidden="true">→</span>
-          </a>
-          <h1 className="mt-5 text-4xl md:text-6xl font-semibold tracking-tight text-fg text-balance leading-[1.08] md:leading-(--text-6xl--line-height)">
+        <div className="relative max-w-4xl mx-auto px-4 pt-12 pb-8 md:pt-16 md:pb-10 text-center">
+          <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-fg text-balance leading-[1.08] md:leading-(--text-6xl--line-height)">
             Phần mềm TsuDEV
             {/* Câu phụ nhỏ hơn tiêu đề, luôn MỘT dòng (chủ dự án yêu cầu 19/11/2026): cỡ chữ co
                 theo bề ngang màn hình để vừa cả máy 320 px mà không phải xuống dòng. */}
@@ -124,15 +117,12 @@ export default function Home({
       </section>
 
       <div className="max-w-6xl mx-auto px-4">
-        {/* ---------- LƯỚI THẺ DANH MỤC (bố cục `cong`) ----------
-            Ngay dưới hero, nhiều cột: bốn nhóm app + trò chơi + cài bằng lệnh. Danh mục suy
-            từ ECOSYSTEM_APPS/ECO_GAMES (không gõ tay số đếm) - xem components/HomeCategories.tsx. */}
-        <HomeCategories />
-
         {/* ---------- HỆ SINH THÁI ----------
             Mỗi thẻ mở WEBSITE RIÊNG của sản phẩm (*.tsudev.com) ở tab mới - đó là
             nơi giới thiệu đầy đủ và tải bản cài đặt của từng app. */}
-        <section className="pt-14 pb-6 reveal" id="he-sinh-thai">
+        {/* Lưới 6 thẻ danh mục đã dời sang /apps (chủ dự án 25/11/2026) - trang chủ gọn: hero
+            rồi tới thẳng sản phẩm. */}
+        <section className="pt-4 pb-6 reveal" id="he-sinh-thai">
           <SectionHeading
             title="Sản phẩm của TsuDEV"
             action={
@@ -142,8 +132,9 @@ export default function Home({
             }
           />
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {ECOSYSTEM_APPS.map((a) => (
-              <EcoAppCard key={a.id} app={a} hideInstall />
+            {/* 6 thẻ đầu nằm ở màn đầu ⇒ logo tải ngay, không lazy. */}
+            {ECOSYSTEM_APPS.map((a, i) => (
+              <EcoAppCard key={a.id} app={a} hideInstall eager={i < 6} />
             ))}
           </div>
         </section>

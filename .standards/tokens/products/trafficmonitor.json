@@ -1,8 +1,8 @@
 {
   "$schema": "./product.schema.json",
   "id": "trafficmonitor",
-  "name": "TsuDEV TrafficMonitor",
-  "repo": "tsudev-org/tsudev-trafficmonitor",
+  "name": "Tsu Tramon",
+  "repo": "tsudev-org/tsutramon",
   "seed": {
     "hex": "#FE7107",
     "source": "assets/brand/source/logo-tsudev-trafficmonitor.png",
@@ -17,16 +17,16 @@
   "fontDisplay": "JetBrains Mono",
   "colors": {
     "light": {
-      "text-link": "#605A04",
-      "primary": "#736C01",
-      "primary-hover": "#605A04",
-      "primary-active": "#4F4A02",
+      "text-link": "#5F5901",
+      "primary": "#716A04",
+      "primary-hover": "#5F5901",
+      "primary-active": "#4D4803",
       "on-primary": "#FFFFFF",
-      "focus-ring": "#736C01",
-      "accent": "#554F02",
-      "glow": "rgba(115, 108, 1, 0.1)",
-      "icon-info": "#736C01",
-      "icon-nav": "#605A04"
+      "focus-ring": "#716A04",
+      "accent": "#534E00",
+      "glow": "rgba(113, 106, 4, 0.1)",
+      "icon-info": "#716A04",
+      "icon-nav": "#5F5901"
     },
     "dark": {
       "text-link": "#C0B84F",

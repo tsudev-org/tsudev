@@ -121,7 +121,10 @@ describe('biểu tượng phân biệt được từng sản phẩm (13/11/2026)
 
   it('tên trafficmonitor là tên chính thức hiện hành, không phải tên cũ', () => {
     const tm = ECOSYSTEM_APPS.find((a) => a.id === 'trafficmonitor');
-    expect(tm?.name).toBe('tsudev-trafficmonitor');
+    // Tsu Tramon từ 24/11/2026 (phiếu 20261124-TM1); repo/website cũ chỉ còn sống nhờ chuyển hướng.
+    expect(tm?.name).toBe('Tsu Tramon');
+    expect(tm?.website).toBe('https://tramon.tsudev.com');
+    expect(tm?.releases).toMatch(/^https:\/\/github\.com\/tsudev-org\/tsutramon\//);
     expect(JSON.stringify(ECOSYSTEM_APPS)).not.toMatch(/TrafficMonitor-VN/i);
   });
 });

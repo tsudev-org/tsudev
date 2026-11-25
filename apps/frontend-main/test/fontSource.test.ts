@@ -202,7 +202,11 @@ describe('font tự host - cổng canh nguồn', () => {
     const _document = readFileSync(join(APP, 'pages/_document.tsx'), 'utf8');
     expect(_document).toMatch(/data-product="tsudev"/);
 
-    const khoi = products.match(/:root\[data-product="tsudev"\]\s*\{([^}]+)\}/);
+    // globals.css ĐƯỢC PHÉP ghi đè font tiêu đề trong lúc chờ bộ quy ước nhận đề xuất (đã dùng
+    // 25/11/2026 trước v6.0.0) - khi có thì nó mới là giá trị trình duyệt dùng, nên kiểm trước.
+    const globals = readFileSync(join(APP, 'styles/globals.css'), 'utf8');
+    const ghiDe = globals.match(/:root\[data-product='tsudev'\]\s*\{([^}]+)\}/);
+    const khoi = ghiDe ?? products.match(/:root\[data-product="tsudev"\]\s*\{([^}]+)\}/);
     expect(khoi).not.toBeNull();
     const m = (khoi?.[1] ?? '').match(/--font-display:\s*([^;]+);/);
     expect(m).not.toBeNull();
@@ -254,7 +258,7 @@ describe('font tự host - cổng canh nguồn', () => {
   });
 
   /**
-   * 6. Phải có subset `vietnamese` cho MỌI họ font (kể cả font tiêu đề Inter).
+   * 6. Phải có subset `vietnamese` cho MỌI họ font (font tiêu đề nay cũng là Be Vietnam Pro).
    *
    * Đây là khẳng định cốt lõi của cả đợt: một font không mang subset vietnamese
    * thì mọi chữ có dấu rơi xuống font dự phòng, và kết quả là chữ có dấu và chữ
@@ -281,9 +285,19 @@ describe('font tự host - cổng canh nguồn', () => {
     for (const ho of ['Be Vietnam Pro', 'Chivo Mono']) {
       for (const net of [400, 500, 600, 700]) expect(phu(ho, net)).toBe(true);
     }
-    // Font tiêu đề (bản sắc tsudev, v5.0.0): chỉ hai nét 600/700.
-    for (const net of [600, 700]) expect(phu('Inter', net)).toBe(true);
     // Dải độ đậm không được kéo nét 300 (bị cấm - test 5) vào theo đường vòng.
     for (const k of khoi) expect(k.lo).toBeGreaterThanOrEqual(400);
   });
+});
+
+/**
+ * 7. Font preload ở _document phải là tệp CÓ THẬT. Preload trỏ tên sai thì trình duyệt tải
+ * một 404 (tốn một lượt mạng ở màn đầu) và vẫn nháy chữ như chưa từng preload - không gì đỏ.
+ */
+test('font preload ở _document trỏ tới tệp woff2 có thật', () => {
+  const doc = readFileSync(join(APP, 'pages/_document.tsx'), 'utf8');
+  const khoi = doc.match(/const PRELOAD_FONTS = \[([^\]]+)\]/)?.[1] ?? '';
+  const ten = [...khoi.matchAll(/'([^']+)'/g)].map((m) => m[1] ?? '');
+  expect(ten.length).toBeGreaterThan(0);
+  for (const t of ten) expect(statSync(join(FONT_DIR, `${t}.woff2`)).size).toBeGreaterThan(1000);
 });

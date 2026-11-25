@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSession } from 'next-auth/react';
 import { Logo } from './Logo';
-import { MAIN_URL } from '../lib/siteUrls';
 import { ECOSYSTEM_APPS } from '../lib/ecosystem';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -13,6 +12,16 @@ type FooterLink = [label: string, href: string, external?: boolean];
 const eco = (label: string, path: string): FooterLink => [label, path];
 
 type Col = { title: string; links: FooterLink[] };
+
+// Thông tin chủ sở hữu (hồ sơ Bộ Công Thương, phiếu DK2). Nguồn: OPERATOR trong
+// apps/frontend-main/lib/legal.ts; test/footerOperator.test.ts canh hai nơi khớp.
+const OPERATOR_PARTS = [
+  'Chủ sở hữu: Nguyễn Trang Tình Sử',
+  'MST 8536310833',
+  'An Giang, Việt Nam',
+  'contact@tsudev.com',
+  '0329577500',
+];
 
 const COLS: Col[] = [
   {
@@ -52,6 +61,8 @@ const COLS: Col[] = [
       eco('Điều khoản', '/terms'),
       eco('Nội quy', '/rules'),
       eco('Thanh toán, hoàn tiền', '/chinh-sach-thanh-toan'),
+      // Trang bằng chứng an toàn tự kiểm chứng được (phiếu SEC2-e, 25/11/2026).
+      eco('An toàn', '/security'),
     ],
   },
 ];
@@ -133,19 +144,13 @@ export const SiteFooter = () => {
         <div className="col-span-2 sm:col-span-3 lg:col-span-1">
           <Logo size={72} />
           {/*
-            Câu này là BẢN MÔ TẢ CHUẨN của hệ sinh thái, chép nguyên văn từ
-            `.standards/docs/ECOSYSTEM_IDENTITY.md` mục 1. Tài liệu đó `MUST NOT`
-            cho mỗi repo tự nghĩ một câu giới thiệu riêng. Đổi câu này thì phải đổi
+            Câu mô tả hệ sinh thái do chủ dự án chốt 25/11/2026 - nay là BẢN MÔ TẢ CHUẨN, chép
+            nguyên văn từ `.standards/docs/ECOSYSTEM_IDENTITY.md` mục 1 (v6.0.0). Đổi câu này thì đổi
             ở repo quy ước trung tâm trước, đừng sửa tại chỗ.
           */}
           <p className="mt-3 text-sm text-fg-muted max-w-xs leading-relaxed">
-            <strong className="font-semibold text-fg-secondary">TsuDEV</strong> là hệ sinh thái sản
-            phẩm và công cụ phần mềm tại{' '}
-            <a href={MAIN_URL} className="text-fg-secondary hover:text-fg transition-colors">
-              tsudev.com
-            </a>
-            . Mọi sản phẩm trong hệ sinh thái dùng chung một tài khoản, một bộ quy ước kỹ thuật, và
-            một bộ nhận diện.
+            <strong className="font-semibold text-fg-secondary">TsuDEV</strong> là hệ sinh thái ứng
+            dụng, tiện ích và công cụ số đa nền tảng.
           </p>
         </div>
         {COLS.slice(0, 3).map((c) => (
@@ -167,9 +172,19 @@ export const SiteFooter = () => {
         {/* Thông tin chủ sở hữu ở MỌI trang - hồ sơ thông báo website TMĐT với Bộ Công
             Thương đòi có ở chân trang (phiếu DK2). Nguồn: OPERATOR trong
             apps/frontend-main/lib/legal.ts; test/footerOperator.test.ts canh hai nơi khớp. */}
-        <p className="mt-4 text-xs leading-relaxed text-fg-muted">
-          Chủ sở hữu: Nguyễn Trang Tình Sử · MST 8536310833 · An Giang, Việt Nam ·
-          contact@tsudev.com · 0329577500
+        {/* Ngăn cách bằng thanh đứng `|` có khoảng đệm rộng (chủ dự án yêu cầu 25/11/2026) để mắt
+            tách từng mục. Khổ hẹp tự xuống dòng theo MỤC, không cắt giữa một mục. */}
+        <p className="mt-4 flex flex-wrap items-center gap-y-1 text-xs leading-relaxed text-fg-muted">
+          {OPERATOR_PARTS.map((part, i) => (
+            <React.Fragment key={part}>
+              {i > 0 && (
+                <span className="mx-3 text-line-strong select-none" aria-hidden="true">
+                  |
+                </span>
+              )}
+              <span className="whitespace-nowrap">{part}</span>
+            </React.Fragment>
+          ))}
         </p>
       </div>
     </footer>

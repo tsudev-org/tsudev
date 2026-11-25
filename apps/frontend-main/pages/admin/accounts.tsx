@@ -536,7 +536,7 @@ export default function AdminAccounts() {
               type="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
-              placeholder="vd: tacgia@tsudev.com"
+              placeholder="vd: tacgia@example.com"
               autoComplete="off"
             />
           </label>

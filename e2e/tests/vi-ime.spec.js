@@ -19,7 +19,7 @@ async function moTrinhSoan(browser) {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await ctx.newPage();
   await signIn(page, MAIN, 'bob');
-  await page.goto(`${MAIN}/author/posts/new`, { waitUntil: 'networkidle' });
+  await page.goto(`${MAIN}/studio/posts/new`, { waitUntil: 'networkidle' });
   const editor = page.getByRole('textbox', { name: 'Nội dung' });
   await editor.click();
   return { ctx, page, editor };

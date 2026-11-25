@@ -38,3 +38,9 @@ Repo có phiên riêng ⇒ phiên đó làm; ghi kết quả một dòng dưới
   thêm vào `contrast.test.ts`, cả 3 chế độ đạt - website không có lỗi (`75651a4`). Ba commit trên nhánh
   `chore/std-sync-v5-3-0`, CHƯA push. CÒN: push + PR (👤 duyệt), cổng LCP/CLS (Lighthouse CI - phase riêng), nộp
   online.gov.vn / tinnhiemmang.vn (👤 đăng nhập), `terms_version` (migration 👤).
+- 24/11/2026 - tsudev-b5dd: #377 gộp (`9226ac2`), deploy **`deploy-2026.11.24.1`** Worker `516aaf52`; production đo: `/chinh-sach-thanh-toan`
+  200 đủ nội dung, chân trang có chủ sở hữu, `/dieu-khoan` `/quyen-rieng-tu` `/noi-quy` 308, `security.txt` 200, providers
+  chỉ 5 provider thật. DK2 nộp: Tín nhiệm mạng (tsudev.com, gói Cơ bản) GỬI thành công - NCA liên hệ `contact@tsudev.com`;
+  BCT: tài khoản Cá nhân trên dichvucong.moit.gov.vn ĐĂNG KÝ thành công, CHỜ Bộ kiểm duyệt ⇒ sau đó mới làm "Thông báo
+  nền tảng TMĐT trực tiếp có đặt hàng trực tuyến" (Sở Công Thương An Giang xử lý). Căn cứ: Luật TMĐT 122/2025/QH15, NĐ
+  248/2026/NĐ-CP (hiệu lực 01/7/2026).

@@ -25,9 +25,24 @@ type Props = {
    * hairline để ô tối không chìm vào nền Tối và ô trắng không chìm vào nền Sáng.
    */
   tile?: boolean;
+  /** Logo ở MÀN ĐẦU: tải ngay (không lazy) với ưu tiên cao. `lazy` chờ trình duyệt dựng bố cục
+   *  xong mới tải, nên logo màn đầu hiện muộn ~0,3-0,5 s trên ô trống (đo 25/11/2026, phiếu UX2). */
+  eager?: boolean;
 };
 
-export default function EcoIcon({ name, logo, logoLight, tint, icon, size = 48, tile }: Props) {
+export default function EcoIcon({
+  name,
+  logo,
+  logoLight,
+  tint,
+  icon,
+  size = 48,
+  tile,
+  eager,
+}: Props) {
+  const load = eager
+    ? ({ loading: 'eager', fetchPriority: 'high' } as const)
+    : ({ loading: 'lazy' } as const);
   if (logo && logoLight) {
     return (
       <span
@@ -45,7 +60,7 @@ export default function EcoIcon({ name, logo, logoLight, tint, icon, size = 48, 
             alt=""
             width={size}
             height={size}
-            loading="lazy"
+            {...load}
             decoding="async"
             className={`${cls} shrink-0 object-contain`}
             style={{ width: size, height: size }}
@@ -61,7 +76,7 @@ export default function EcoIcon({ name, logo, logoLight, tint, icon, size = 48, 
         alt=""
         width={size}
         height={size}
-        loading="lazy"
+        {...load}
         decoding="async"
         className={`shrink-0 object-contain ${tile ? 'rounded-[22%] ring-1 ring-line' : ''}`}
         style={{ width: size, height: size }}

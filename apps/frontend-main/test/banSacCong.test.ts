@@ -34,19 +34,28 @@ describe('bản sắc tsudev - bố cục cong + hoạ tiết quang-sang', () =>
     expect(product.motif).toBe('quang-sang');
   });
 
-  it('hero trang chủ nằm trên hoạ tiết quang-sang và ngay sau là lưới thẻ danh mục', () => {
+  // 25/11/2026: chủ dự án dời lưới thẻ danh mục từ trang chủ sang ĐẦU /apps (trang chủ gọn).
+  // Lệch bố cục `cong` của bộ quy ước - đề xuất đẩy ngược ở phiếu 20261125-UX2.
+  it('hero trang chủ nằm trên hoạ tiết quang-sang, không hiệu ứng ẩn, rồi tới thẳng sản phẩm', () => {
     expect(home).toMatch(/data-layout="cong"/);
     expect(home).toMatch(/className="tsu-quang-sang"/);
     const hero = home.indexOf('data-layout="cong"');
-    const grid = home.indexOf('<HomeCategories />');
     const products = home.indexOf('id="he-sinh-thai"');
     expect(hero).toBeGreaterThan(0);
-    expect(grid).toBeGreaterThan(hero);
-    expect(products).toBeGreaterThan(grid);
+    expect(products).toBeGreaterThan(hero);
+    // Khối màn đầu không được bắt đầu ở opacity 0 (nháy mỗi lần tải trang).
+    expect(home.slice(hero, home.indexOf('</section>', hero))).not.toMatch(/animate-fade|reveal/);
   });
 
-  it('lưới danh mục có nhiều cột ở màn rộng', () => {
-    expect(read('components/HomeCategories.tsx')).toMatch(/lg:grid-cols-[4-9]/);
+  it('lưới danh mục nằm ở đầu /apps, nhiều cột ở màn rộng, thẻ nhóm là nút lọc', () => {
+    const apps = read('pages/apps.tsx');
+    expect(apps.indexOf('<CategoryTiles')).toBeGreaterThan(0);
+    expect(apps.indexOf('<CategoryTiles')).toBeLessThan(apps.indexOf('role="search"'));
+    const tiles = read('components/CategoryTiles.tsx');
+    expect(tiles).toMatch(/lg:grid-cols-[4-9]/);
+    expect(tiles).toMatch(/aria-pressed=\{on\}/);
+    // Hàng chip nhóm trong thanh lọc đã gỡ (trùng chức năng với thẻ nhóm).
+    expect(apps).not.toMatch(/CATEGORIES\.map/);
   });
 
   it('quang-sang vẽ bằng glow/accent của sản phẩm, phủ ≤ 15%, TĨNH', () => {
@@ -68,9 +77,10 @@ describe('bản sắc tsudev - bố cục cong + hoạ tiết quang-sang', () =>
     expect(src).toMatch(/Math\.min\(Number\(m\[4\]\), 0\.15\)/);
   });
 
-  it('thẻ /apps tô dải màu sản phẩm theo chế độ, không ghi đè ring chọn thẻ', () => {
-    const accent = rule(css, '.tsu-sp-accent::before');
-    expect(accent).toMatch(/background: var\(--sp\)/);
+  // 25/11/2026: dải màu 3px trên đầu thẻ đã gỡ (chủ dự án) - màu sản phẩm chỉ còn ở viền khi rê.
+  it('thẻ /apps mang màu sản phẩm theo chế độ ở viền khi rê, không dải trên đầu thẻ', () => {
+    expect(css).not.toMatch(/\.tsu-sp-accent::before/);
+    expect(css).toMatch(/\.tsu-sp-accent:hover,\s*\.tsu-sp-accent:focus-within \{[^}]*var\(--sp\)/);
     expect(rule(css, '.tsu-sp-accent')).toMatch(/--sp: var\(--sp-dark\)/);
     expect(rule(css, "[data-theme='light'] .tsu-sp-accent")).toMatch(/--sp: var\(--sp-light\)/);
     expect(css).not.toMatch(/\.tsu-sp-accent\s*\{[^}]*box-shadow/);

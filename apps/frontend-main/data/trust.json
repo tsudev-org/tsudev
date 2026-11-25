@@ -1,0 +1,79 @@
+{
+  "$comment": "Nguồn chân lý của trang /security (phiếu SEC2). CHỈ số đo THẬT kèm liên kết trang kết quả do bên thứ ba lưu trữ + ngày đo; không có liên kết kiểm chứng thì không đưa vào evidence (ghi ở notApplicable kèm lý do). apps/frontend-main/test/trustData.test.ts kiểm khuôn + tuổi dữ liệu.",
+  "evidence": [
+    {
+      "id": "E1",
+      "name": "OpenSSF Best Practices",
+      "status": "passing",
+      "url": "https://www.bestpractices.dev/projects/16731",
+      "measured": "2026-11-25"
+    },
+    {
+      "id": "E2",
+      "name": "OpenSSF Scorecard",
+      "status": "7.9 / 10",
+      "url": "https://scorecard.dev/viewer/?uri=github.com/tsudev-org/tsudev",
+      "measured": "2026-11-25"
+    },
+    {
+      "id": "E3",
+      "name": "Chữ ký bản phát hành (Ed25519 + SHA-256 do máy chủ tính)",
+      "status": "JWKS công khai",
+      "url": "https://tsudev.com/.well-known/tsudev-release-jwks.json",
+      "measured": "2026-11-25"
+    },
+    {
+      "id": "E4",
+      "name": "security.txt (RFC 9116)",
+      "status": "có, hạn 24/11/2027",
+      "url": "https://tsudev.com/.well-known/security.txt",
+      "measured": "2026-11-25"
+    },
+    {
+      "id": "E5",
+      "name": "Qualys SSL Labs",
+      "status": "A+ (4/4 điểm cuối)",
+      "url": "https://www.ssllabs.com/ssltest/analyze.html?d=tsudev.com&hideResults=on",
+      "measured": "2026-11-25"
+    },
+    {
+      "id": "E6",
+      "name": "Mozilla HTTP Observatory",
+      "status": "A+ (130 điểm, 12/12 kiểm tra)",
+      "url": "https://developer.mozilla.org/en-US/observatory/analyze?host=tsudev.com",
+      "measured": "2026-11-25"
+    },
+    {
+      "id": "E7",
+      "name": "HSTS preload (tsudev.com và mọi tên miền con)",
+      "status": "đã nộp - đang chờ đưa vào danh sách (pending)",
+      "url": "https://hstspreload.org/?domain=tsudev.com",
+      "measured": "2026-11-25"
+    },
+    {
+      "id": "E10",
+      "name": "Báo lỗ hổng riêng tư trên GitHub",
+      "status": "đã bật",
+      "url": "https://github.com/tsudev-org/tsudev/security",
+      "measured": "2026-11-25"
+    }
+  ],
+  "notApplicable": [
+    {
+      "id": "E8",
+      "name": "Ký mã Windows (SignPath)",
+      "reason": "tsudev.com là website, không phát hành tệp .exe của riêng nó; từng sản phẩm ghi mục này trên trang /security của mình."
+    },
+    {
+      "id": "E9",
+      "name": "Tín nhiệm mạng (NCA) / Thông báo Bộ Công Thương",
+      "reason": "Hồ sơ đã nộp 24/11/2026, đang chờ duyệt - chưa có trang xác minh do cổng cấp nên chưa hiện như bằng chứng."
+    }
+  ],
+  "products": {
+    "trafficmonitor": "https://tramon.tsudev.com/security/",
+    "sounddb": "https://sound.tsudev.com/security/",
+    "qulythuchi": "https://qulythuchi.tsudev.com/security/"
+  },
+  "productsChecked": "2026-11-25"
+}

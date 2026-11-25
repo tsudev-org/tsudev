@@ -2,7 +2,7 @@
   "$note": "Phần MỞ RỘNG riêng của tsudev-web. Bảng dùng chung nằm ở .standards/tokens/design-tokens.json và KHÔNG được sao chép về đây - `npm run tokens:sync` đọc thẳng file đó rồi ghép khối này lên trên để sinh packages/ui/src/tokens.css. Chính bản sao cục bộ (v1.0.0, đã xoá 26/08/2026) là thứ trôi lệch âm thầm khỏi bản chuẩn v2.0.0 mà không cổng nào bắt được.",
   "meta": {
     "name": "tsudev-web-token-extensions",
-    "updated": "16/11/2026",
+    "updated": "25/11/2026",
     "base": ".standards/tokens/design-tokens.json"
   },
   "$platform_note": "platform-*/on-platform-* = MÀU HÃNG của bốn nền tảng phát hành, CHỈ dùng cho trạng thái rê chuột của ô dấu hiệu nền tảng (PLATFORM_CHIP_CLASS trong packages/ui/src/components/icons.ts). Màu hãng làm NỀN ô, dấu hiệu đổi sang mực on-platform-* - nhờ vậy giữ được đúng mã hex của hãng ở mọi chế độ mà vẫn qua 4.5:1 (contrast.test.ts), điều không thể nếu tô thẳng xanh Android #3DDC84 hay vàng Tux #FCC624 lên nền sáng (~1.6-1.9:1). Apple không có màu hãng: dùng mực đậm nhất của chế độ, đảo ở chế độ Tối. KHÔNG dùng các màu này cho chữ hay vai trò khác.",
@@ -10,7 +10,7 @@
   "light": {
     "glow-alt": "rgba(14,116,144,0.06)",
     "grid-line": "rgba(10,10,10,0.05)",
-    "icon-create": "#15803D",
+    "icon-create": "#137638",
     "icon-edit": "#7A4D00",
     "icon-danger": "#B91C1C",
     "icon-trust": "#0F766E",

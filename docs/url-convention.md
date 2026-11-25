@@ -61,7 +61,7 @@ triệu chứng là _thành công giả_ - đăng nhập trả 200 mà phiên kh
   `MAIN_URL` của `@tsudev/ui` chỉ dành cho URL tuyệt đối thật sự cần: thẻ
   canonical, ảnh OG, `sitemap.xml`, `robots.txt`.
 - **`/api/*` là bề mặt máy gọi máy**, không phải trang. `robots.txt` chặn nó;
-  khu vực riêng tư (`/admin`, `/settings`, `/author`) thì dùng thẻ `noindex` chứ
+  khu vực riêng tư (`/admin`, `/settings`, `/studio`) thì dùng thẻ `noindex` chứ
   KHÔNG dùng `Disallow` - lý do ghi ở đầu `pages/robots.txt.ts`.
 
 ## 4. Cổng chặn hồi quy

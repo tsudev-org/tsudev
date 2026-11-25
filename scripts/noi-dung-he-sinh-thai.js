@@ -23,7 +23,7 @@ const DOCS = [
 
 ## Các ứng dụng
 
-- **tsudev-trafficmonitor** - theo dõi tốc độ mạng, CPU, RAM trên thanh tác vụ (Windows): [trafficmonitor.tsudev.com](https://trafficmonitor.tsudev.com)
+- **Tsu Tramon** - theo dõi tốc độ mạng, CPU, RAM trên thanh tác vụ (Windows): [tramon.tsudev.com](https://tramon.tsudev.com)
 - **Tsu Cwico** - rà quét sâu và gỡ phần mềm thừa, tạo điểm khôi phục trước mỗi lần chạy (Windows): [cwico.tsudev.com](https://cwico.tsudev.com)
 - **Tsu Swico** - kiểm tra bản quyền Windows, Office và cấu hình phần cứng (Windows): [swico.tsudev.com](https://swico.tsudev.com)
 - **TsuFiles** - chuyển đổi tệp ngoại tuyến bằng kéo thả (Windows, macOS, Linux): [files.tsudev.com](https://files.tsudev.com)

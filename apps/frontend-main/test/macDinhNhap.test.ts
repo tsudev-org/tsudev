@@ -16,12 +16,17 @@ const emptyBlock = (file: string): string => {
 };
 
 describe('ED-01 / AD-03 - form tạo mới mặc định là Nháp', () => {
-  test.each(['pages/author.tsx', 'pages/admin/projects.tsx'])(
-    '%s: published khởi tạo = false',
-    (file) => {
-      const block = emptyBlock(file);
-      expect(block).toMatch(/\bpublished:\s*false\b/);
-      expect(block).not.toMatch(/\bpublished:\s*true\b/);
-    }
-  );
+  test.each(['pages/admin/projects.tsx'])('%s: published khởi tạo = false', (file) => {
+    const block = emptyBlock(file);
+    expect(block).toMatch(/\bpublished:\s*false\b/);
+    expect(block).not.toMatch(/\bpublished:\s*true\b/);
+  });
+
+  // ED-02 (UX1-a): form tạo nhanh 13 ô của /author đã gỡ hẳn - MỘT lối tạo bài là
+  // trình soạn /studio/posts/new, luôn tạo với `status: 'DRAFT'`.
+  test('trình soạn Studio tạo bài mới là DRAFT', () => {
+    const src = readFileSync(join(__dirname, '..', 'pages/studio/posts/[slug].tsx'), 'utf8');
+    expect(src).toMatch(/status: 'DRAFT'/);
+    expect(src).not.toMatch(/\bpublished:\s*true\b/);
+  });
 });

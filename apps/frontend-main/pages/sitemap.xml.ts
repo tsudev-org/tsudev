@@ -5,7 +5,7 @@ import type { GetServerSidePropsContext } from 'next';
 // Sinh động chứ không phải file tĩnh trong public/: bài viết, tài liệu và dự án
 // đều nằm trong DB và thay đổi mà không cần build lại.
 //
-// KHÔNG liệt kê: /admin/*, /settings/*, /author. SEO của site do dự án, tài liệu
+// KHÔNG liệt kê: /admin/*, /settings/*, /studio (cũ: /author). SEO của site do dự án, tài liệu
 // và blog gánh. (Con dấu tín nhiệm và mọi trang /trust/* đã gỡ 04/11/2026.)
 
 const STATIC_ROUTES = [
@@ -18,6 +18,7 @@ const STATIC_ROUTES = [
   { path: '/terms', priority: '0.3', changefreq: 'yearly' },
   { path: '/privacy', priority: '0.3', changefreq: 'yearly' },
   { path: '/chinh-sach-thanh-toan', priority: '0.3', changefreq: 'yearly' },
+  { path: '/security', priority: '0.3', changefreq: 'monthly' },
   { path: '/rules', priority: '0.3', changefreq: 'yearly' },
 ];
 

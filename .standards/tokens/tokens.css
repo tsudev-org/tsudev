@@ -1,5 +1,5 @@
 /* ============================================================
-   tsudev-design-tokens v3.0.0 - SINH TỰ ĐỘNG, KHÔNG SỬA TAY
+   tsudev-design-tokens v4.0.0 - SINH TỰ ĐỘNG, KHÔNG SỬA TAY
    Nguồn: tokens/design-tokens.json
    Sinh lại: node scripts/build-tokens.mjs
    Cách dùng: <html data-theme="light|dark" data-product="<id>">
@@ -8,23 +8,23 @@
 
 :root,
 [data-theme="light"] {
-  --bg-base: #FAFAFA;
-  --bg-surface: #FFFFFF;
-  --bg-subtle: #F4F4F5;
-  --bg-hover: #EBEBED;
-  --border: #E4E4E7;
-  --border-strong: #D4D4D8;
-  --border-control: #71717A;
+  --bg-base: #EEF1F5;
+  --bg-surface: #F8FAFC;
+  --bg-subtle: #E9EDF2;
+  --bg-hover: #E6EAF0;
+  --border: #D5DBE3;
+  --border-strong: #C3CBD6;
+  --border-control: #64748B;
   --text-primary: #0A0A0A;
-  --text-secondary: #3F3F46;
-  --text-muted: #52525B;
+  --text-secondary: #334155;
+  --text-muted: #475569;
   --text-link: #0757A3;
   --primary: #0868C4;
   --primary-hover: #0757A3;
   --primary-active: #064785;
   --on-primary: #FFFFFF;
   --focus-ring: #0868C4;
-  --accent: #0E7490;
+  --accent: #0D6E89;
   --glow: rgba(8, 104, 196, 0.1);
   --icon-info: #0369A1;
   --icon-nav: #0757A3;

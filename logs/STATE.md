@@ -1,5 +1,39 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-c4, 25/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **UX1-b** (phiếu [`20261124-UX1`](handover/20261124-UX1_giao-dien-chuyen-nghiep-studio.md) mục 2 + việc còn ghi ở
+>    dòng UX1-a mục 4) - trình soạn: menu `/`, menu nổi, bảng, callout, phím tắt, Kiểm tra, chỉ báo tự lưu.
+> 3. Theo dõi HSTS preload `tsudev.com` (đo 25/11: `pending`).
+> 4. 👤 còn mở: thay khoá VirusTotal.
+>
+> Đã xong 25/11 (tsudev-c4): **UX1-a** - Studio `/studio*` + WorkspaceLayout, `/author*` → 308 (xem PR + thẻ deploy ở
+> phiếu UX1 mục 4). DK3 ĐÓNG (303). Không khoá, không tác vụ nền.
+
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (25/11/2026, sau tsudev-3e)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **UX1-a** (phiếu [`20261124-UX1`](handover/20261124-UX1_giao-dien-chuyen-nghiep-studio.md)) - WorkspaceLayout + `/studio`.
+> 3. DK3: nếu `curl` `/oidc/auth?client_id=tsutramon` đã 303 ⇒ ghi Kết quả phiếu
+>    [`20261125-DK3`](handover/20261125-DK3_client-oidc-tsutramon.md) + nhắn phiên tsudev-trafficmonitor; chưa ⇒ 👤 chạy
+>    `bash ~/dk3-tsutramon.sh` trong terminal WSL riêng (tệp ngoài repo, nhập URL Neon ẩn).
+> 4. Theo dõi HSTS preload `tsudev.com` (`hstspreload.org/api/v2/status?domain=tsudev.com`: pending ⇒ preloaded).
+> 5. 👤 còn mở: thay khoá VirusTotal.
+>
+> Đã xong 25/11 (tsudev-3e): #381 `.1`, #382+#383 `.2` (hết nháy Ctrl+F5), tsudev-standards **v6.0.0** + #384 `.3` (nền
+> Sáng giấy), #385 `.4` (`/security`, HSTS preload đã nộp). EM2: chủ dự án thử "Quên mật khẩu" đạt. Phiếu UI2 toàn hệ đã
+> phát + các phiên tsutramon/sound-db/qulythuchi đã nhận. Không khoá, không tác vụ nền.
+
+> ⏰ **TỪ 28/11/2026 - LÀM ĐẦU PHIÊN**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) -
+> nhắc chủ dự án kiểm email duyệt tài khoản BCT + thư NCA ở `contact@tsudev.com`, rồi đánh giá nhãn (DMCA, Chống Lừa Đảo,
+> Project Galileo, nhãn khác). Mở trước 28/11 thì bỏ qua, làm UX1-a.
+
+> 🔔 **tsudev-b5dd kết (24/11/2026)**: #377 gộp, **`deploy-2026.11.24.1`** Worker `516aaf52` (chính sách thanh toán, chủ sở
+> hữu ở chân trang, security.txt, knip + budget:js). DK2: Tín nhiệm mạng tsudev.com ĐÃ GỬI (chờ NCA); BCT tài khoản Cá nhân
+> CHỜ DUYỆT ⇒ sau duyệt mới nộp thông báo website (phiếu gốc DK2 mục 4). TM1 mục 2 (danh bạ Tsu Tramon) + phiếu UX1 phase
+> **UX1-a** là việc kế tiếp. 👤 thay khoá VirusTotal. Không khoá, không tác vụ nền.
+
 > 🔔 **Giao diện (24/11/2026)**: phiếu [`20261124-UX1`](handover/20261124-UX1_giao-dien-chuyen-nghiep-studio.md) - chuẩn hoá
 > giao diện tsudev.com, ưu tiên Studio "Viết bài"; MỖI PHIÊN MỘT PHASE, bắt đầu **UX1-a** (PR 4.5 WorkspaceLayout + /studio).
 
