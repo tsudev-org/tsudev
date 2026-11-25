@@ -1,5 +1,19 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-LG3a, 26/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **INT1-a** (phiếu [`20261125-INT1`](handover/20261125-INT1_toan-ven-ung-dung-bat-buoc-cap-nhat.md) mục 6): bản kê
+>    `versions.json` có chữ ký. ⛔ 👤 migrate Neon trước khi gộp + đặt `VERSIONS_SIGNING_KEY` trên Render.
+> 3. LG3 phần còn của tsudev (phiếu [`20261126-LG3`](handover/20261126-LG3_nhac-dang-nhap-khi-co-internet.md) mục 4):
+>    cột `suspended` (👤 migrate Neon) + trang quản trị; gắn `<tsu-signin-reminder>` khi có trang cần.
+> 4. PRO3 còn: (e) logo BCT chờ DK2; khung ảnh Pro trên Avatar. 👤 xem lại `/pro`, `/terms`, `/privacy`,
+>    `/chinh-sach-thanh-toan` trước khi nộp BCT.
+>
+> Đã xong 26/11 (tsudev-LG3a): **LG3-a** - `.standards` v7.1.0; `<tsu-signin-reminder>` + chính sách nhịp trong
+> `@tsudev/ui`; IdP trả `status` + `status_reason` ở userinfo và JWS quyền lợi (`src/accountStatus.ts`, không
+> migration). Không deploy frontend (không trang nào đổi); backend lên theo Render khi gộp. Không khoá, không tác vụ nền.
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-ECO2/SYN1, 26/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).

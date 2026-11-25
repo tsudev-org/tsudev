@@ -7,6 +7,7 @@ import {
 } from 'crypto'
 import type { JsonWebKey, KeyObject } from 'crypto'
 import { prisma } from '@tsudev/db'
+import type { AccountStatus, StatusReason, StatusResult } from './accountStatus'
 
 /**
  * PRO-B - máy chủ quyền lợi dùng chung (docs/adr/0002-may-chu-quyen-loi.md).
@@ -102,6 +103,9 @@ export type EntitlementClaims = {
   donor: boolean
   badge: Badge
   devices_30d: number
+  /** LG3-a: trạng thái tài khoản (AUTH_AND_ACCOUNT 9.2) + mã lý do (mục 10), do máy chủ quyết. */
+  status: AccountStatus
+  status_reason: StatusReason | null
   /** PRO2: có khi app gửi bằng chứng DPoP hợp lệ (RFC 9449 6.1). */
   cnf?: { jkt: string }
 }
@@ -114,6 +118,7 @@ export function buildClaims(a: {
   state: EntState
   display: BadgeDisplay
   devices30d: number
+  account: StatusResult
   jkt?: string | null
 }): EntitlementClaims {
   const iat = Math.floor(a.now.getTime() / 1000)
@@ -128,6 +133,8 @@ export function buildClaims(a: {
     donor: Boolean(a.state.donorSince),
     badge: badgeFor(a.state, a.display, a.now),
     devices_30d: Math.max(0, Math.floor(a.devices30d)),
+    status: a.account.status,
+    status_reason: a.account.status_reason,
   }
   if (a.jkt) claims.cnf = { jkt: a.jkt }
   return claims

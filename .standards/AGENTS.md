@@ -225,6 +225,10 @@ git grep -lP '\x{2014}' -- . | grep -v '^migrations/'
 - Mọi sản phẩm có tài khoản phải đủ ba lối vào (Google, GitHub, tài khoản tsudev)
   và cơ chế Xác minh tài khoản. Chi tiết:
   [`docs/AUTH_AND_ACCOUNT.md`](docs/AUTH_AND_ACCOUNT.md).
+- Mọi sản phẩm có giao diện người dùng phải **nhắc đăng nhập** bằng modal nổi bỏ qua được
+  khi thiết bị có internet mà chưa đăng nhập (không chặn chức năng lõi, không gọi
+  mạng ngầm, dùng thành phần chung `TsuSignInReminder` / `<tsu-signin-reminder>`).
+  Chi tiết: [`docs/AUTH_AND_ACCOUNT.md`](docs/AUTH_AND_ACCOUNT.md) mục 14.4.
 - Mọi sản phẩm phải đủ bộ logo/favicon/icon và siêu dữ liệu nối về `tsudev.com`.
   Chi tiết: [`docs/BRAND_ASSETS.md`](docs/BRAND_ASSETS.md) mục 12 và
   [`docs/ECOSYSTEM_IDENTITY.md`](docs/ECOSYSTEM_IDENTITY.md).

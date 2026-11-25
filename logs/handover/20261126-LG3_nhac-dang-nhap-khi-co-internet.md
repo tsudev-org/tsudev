@@ -30,12 +30,12 @@
 
 ## 2. Bảng theo dõi
 
-| Repo              | Thành phần/gắn modal | Test 14.4.7 | PR / ghi chú   |
-| ----------------- | -------------------- | ----------- | -------------- |
-| tsudev-standards  | ✅ v7.1.0            | -           | PR (xem mục 4) |
-| tsudev-ui-flutter | ⬜                   | ⬜          |                |
-| tsudev            | ⬜                   | ⬜          |                |
-| các app đợt 2     | ⬜                   | ⬜          |                |
+| Repo              | Thành phần/gắn modal                      | Test 14.4.7                      | PR / ghi chú   |
+| ----------------- | ----------------------------------------- | -------------------------------- | -------------- |
+| tsudev-standards  | ✅ v7.1.0                                 | -                                | PR (xem mục 4) |
+| tsudev-ui-flutter | ⬜                                        | ⬜                               |                |
+| tsudev            | ✅ `<tsu-signin-reminder>` + IdP `status` | ✅ (trừ ca cần trình duyệt thật) | PR LG3-a       |
+| các app đợt 2     | ⬜                                        | ⬜                               |                |
 
 ## 3. Điều kiện đóng
 
@@ -50,3 +50,17 @@ một app Flutter (Android) + một app desktop Windows.
   `.standards` v7.1.0, `<tsu-signin-reminder>` (Custom Element trong `@tsudev/ui`, nhịp 14.4.2 lưu `localStorage`,
   nguyên văn 14.4.3, test 14.4.7), IdP trả `status` + mã lý do ở `userinfo` và JWS quyền lợi. Xếp TRƯỚC INT1-a vì không
   vướng việc 👤.
+- 26/11/2026 - tsudev: **LG3-a XONG** (PR `feat/lg3-a-signin-reminder`).
+  - `.standards` v7.0.0 → **v7.1.0** (`sync-standards.sh --ref v7.1.0`, khớp MANIFEST; tokens/products check xanh).
+  - `@tsudev/ui`: `lib/signinReminder.ts` (R1-R6, nhịp 24 giờ → 3 ngày → 7 ngày, hoãn 30 ngày, đăng xuất ⇒ 24 giờ,
+    kho `localStorage` `tsu.signinReminder` + `sessionStorage`, nguyên văn vi/en 14.4.3) + `elements/signinReminder.ts`
+    (`defineSignInReminder()` → Custom Element Shadow DOM, ăn token qua biến CSS, bẫy tiêu điểm, X/Esc/chạm nền = Để
+    sau, tự nhường modal `aria-modal` khác như `AppGateModal`, sự kiện `tsu-signin` {provider}). Test 14.4.7:
+    `packages/ui/test/signinReminder.test.ts` (34 ca: R1-R6, nhịp đồng hồ giả, nguyên văn so với `.standards`, không ô
+    nhập, quét nguồn 0 API mạng, an toàn SSR).
+  - IdP: `services/auth-service/src/accountStatus.ts` - `status` + `status_reason` ở userinfo/ID token (scope `openid`)
+    và JWS quyền lợi (`/ent/me`, `/ent/rp/:sub`; `sub` mất ⇒ `deleted`). Suy từ cột sẵn có, KHÔNG migration.
+  - Còn lại cho hàng tsudev (không thuộc LG3-a): (1) `suspended` chưa có cột - cần migration (👤 Neon) + trang quản trị
+    đặt/gỡ + nhật ký kiểm toán 9.2; (2) chưa gắn `<tsu-signin-reminder>` vào trang nào của tsudev.com (web đăng nhập
+    thẳng ở `/login`; gắn khi có PWA/site sản phẩm cần); (3) ca 14.4.7 cần trình duyệt thật (focus, Esc) - đo bằng
+    Playwright khi gắn vào trang.

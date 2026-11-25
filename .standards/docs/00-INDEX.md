@@ -24,7 +24,7 @@
 5. [`BRAND_ASSETS.md`](BRAND_ASSETS.md) - khi đụng logo, favicon, icon ứng dụng
 
 **Bạn đang làm chức năng đăng nhập, đăng ký, tài khoản:**
-1. [`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) - kiến trúc, ba lối vào, xác minh, ma trận quyền
+1. [`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) - kiến trúc, ba lối vào, xác minh, ma trận quyền, nhắc đăng nhập (14.4)
 2. [`CROSS_DEVICE_LOGIN.md`](CROSS_DEVICE_LOGIN.md) - "Quét để đăng nhập" bằng QR + mã khớp
 3. [`SECURITY_BASELINE.md`](SECURITY_BASELINE.md) mục 6 - ngưỡng mật khẩu, phiên, phân quyền
 4. [`ECOSYSTEM_IDENTITY.md`](ECOSYSTEM_IDENTITY.md) mục 6 và 7 - ảnh đại diện, trang hồ sơ

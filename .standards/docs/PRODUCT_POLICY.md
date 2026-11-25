@@ -1,7 +1,8 @@
-# CHÍNH SÁCH SẢN PHẨM TOÀN HỆ TSUDEV (v2.0.0)
+# CHÍNH SÁCH SẢN PHẨM TOÀN HỆ TSUDEV (v2.1.0)
 
 > Áp dụng cho MỌI phần mềm / tool / app / trò chơi / website sản phẩm của hệ sinh thái TsuDEV, ở mọi giai đoạn xây
 > dựng và phát triển. Quyết định của chủ dự án ngày **19/11/2026**. Tài liệu này nói **sản phẩm phải như thế nào**;
+> **v2.1.0 (26/11/2026, phiếu `20261126-LG3`)**: mục 7.7 - nhắc đăng nhập khi có internet (`AUTH_AND_ACCOUNT.md` 14.4).
 > **v2.0.0 (25/11/2026, phiếu `20261125-SYN1`, `20261125-INT1`)**: bỏ Pro Q3 và mọi đồng bộ/sao lưu đám mây - dữ
 > liệu chỉ ở thiết bị, đồng bộ trực tiếp qua Wi-Fi/Bluetooth/QR ([`LOCAL_SYNC.md`](LOCAL_SYNC.md)); bắt buộc cập nhật +
 > chống can thiệp ([`APP_INTEGRITY.md`](APP_INTEGRITY.md)); mục đích đăng nhập 7.7; điều khoản 7.5 và nhắc 7.6 đổi nguyên văn.
@@ -453,6 +454,8 @@ còn hạn (mục 7.4); app không có JWS còn hạn ⇒ không hiện gì ở 
 Đăng nhập tsudev.com (trực tiếp hoặc qua Google/GitHub/Apple) chỉ phục vụ: (1) **định danh** người dùng; (2) ghi nhận
 **đóng góp, ủng hộ, quyền lợi Pro**; (3) ghi nhận **sản phẩm TsuDEV người dùng đã dùng**; (4) **chống lạm dụng, tấn
 công, truy cập trái phép**. Đăng nhập vẫn là tuỳ chọn ở sản phẩm hạng C (`AUTH_AND_ACCOUNT.md`).
+Khi thiết bị có internet mà người dùng chưa đăng nhập, sản phẩm `MUST` nhắc bằng modal nổi bỏ qua được theo
+`AUTH_AND_ACCOUNT.md` mục 14.4 (v3.5.0) - nhắc, không ép; trang `/privacy` có mục neo `#dang-nhap` giải thích lý do.
 
 | Dữ liệu | Mục đích | Hạn lưu |
 | --- | --- | --- |

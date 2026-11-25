@@ -101,6 +101,33 @@ export { AppGateModal } from './components/AppGateModal';
 export type { AppGateModalProps } from './components/AppGateModal';
 export { GATE_TEXT, gateCopy, compareVersions, xTsuApp, gateFromResponse } from './lib/appGate';
 export type { GateKind, GateLang, GateCopy, GateVerdict } from './lib/appGate';
+export {
+  defineSignInReminder,
+  reminderMarkup,
+  SIGNIN_REMINDER_TAG,
+} from './elements/signinReminder';
+export {
+  SIGNIN_REMINDER_CADENCE,
+  SIGNIN_REMINDER_TEXT,
+  WHY_SIGN_IN_URL,
+  shouldShowReminder,
+  nextEligibleAt,
+  loadReminderState,
+  saveReminderState,
+  clearReminderState,
+  markShown,
+  markDismissed,
+  markSnoozed,
+  markSignedOut,
+  orderProviders,
+} from './lib/signinReminder';
+export type {
+  ReminderState,
+  ReminderContext,
+  ReminderVerdict,
+  ReminderLang,
+  ReminderProvider,
+} from './lib/signinReminder';
 
 export default Layout;
 
