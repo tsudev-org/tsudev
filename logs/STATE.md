@@ -1,5 +1,19 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-26, 25/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **ECO1-b** (phiếu [`20261125-ECO1`](handover/20261125-ECO1_nhan-open-private-ho-so-ung-ho-go-pro.md) mục 3) -
+>    logo app làm hình chìm trên thẻ, thẻ nhóm bỏ icon đầu, hiệu ứng xuất hiện khi cuộn, nền hoạ tiết (CLS = 0).
+> 3. 👤 duyệt PR **#396** (workflow contributors hằng tuần - cổng Bảo vệ bản quyền); sau gộp có thể chạy tay
+>    `gh workflow run eco-contributors.yml` để thử.
+> 4. UX1-c chỉ khi 👤 đã tạo bucket R2 `tsudev-media`; 👤 còn mở: `docs/ho-so-tac-gia.md` (ECO1-c), tài khoản
+>    Sponsors/Ko-fi/PayPal.me (ECO1-d), thay khoá VirusTotal, theo dõi HSTS preload.
+>
+> Đã xong 25/11 (tsudev-26): **ECO1-a** - dải Open/Private + "Author: TsuDEV + N Contributors" (#395,
+> `deploy-2026.11.25.8` Worker `62f266cb`). Ghi chú: `next build`/deploy làm bẩn `apps/frontend-main/next-env.d.ts` ⇒
+> thẻ deploy không tự gắn; `git checkout` tệp đó rồi `npm run release:tag`. Không khoá, không tác vụ nền.
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-7d, 25/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).

@@ -92,3 +92,15 @@
 - 25/11/2026 - tsudev-7d: mở phiếu; 👤 chốt 4 điểm (mở khoá Pro cho mọi người + trang quản lý nhãn ủng hộ; 4 kênh
   donate; SmartScreen sang `/docs`; contributors qua GitHub API). Bổ sung cùng ngày: mục 1.9 + phase ECO1-f2
   (thống kê công khai + quản lý tập trung người ủng hộ). Phase kế tiếp: **ECO1-a**.
+- 25/11/2026 - tsudev-26: **ECO1-a XONG** (#395, **`deploy-2026.11.25.8`** Worker `62f266cb`). Dải chéo góc Open (đen
+  tuyền + tam giác, viền `border-strong` ở Tối) / Private (đỏ `#B91C1C` Sáng, `#DC2626` Tối) - token `ribbon-*` + 3 cặp
+  `contrast.test.ts`; dòng `ecoAuthorLine()` dưới tên app; trường mới `repo` trong `ecosystem.ts`;
+  `npm run eco:contributors` (`scripts/eco-contributors.js`, lọc bot + nguyentrangtinhsu/tsudev-tsudev/b4djl1h +
+  claude/weblate/...) ⇒ `packages/ui/src/lib/contributors.json` (đo 25/11: lotus-share 240, tsufiles 57, các repo
+  khác 0). E2E `e2e/tests/eco-cards.spec.js` (2 chế độ × 1280/390 px, axe 0 serious, không cuộn ngang) 4/4 đạt local;
+  vá luôn cuộn ngang 22 px ở 390 px do `reveal-from-right` (chỉ dịch ngang từ 768 px). `budget:js`: `/` 154 KB. Đo
+  production: `/` + `/apps` 200, 9 Open + 1 Private, dòng Author đúng số.
+  ⛔ **Workflow hằng tuần = PR #396** (`.github/workflows/` ⇒ cổng Bảo vệ bản quyền, 👤 `nguyentrangtinhsu` duyệt).
+  Repo TẮT "Allow GitHub Actions to create and approve pull requests" ⇒ workflow đẩy nhánh `chore/eco-contributors`
+  - link compare trong Summary (bật cài đặt là quyết định của 👤, không bắt buộc). PR do GITHUB_TOKEN mở cần
+    `gh pr close/reopen` để chạy CI. Phase kế tiếp: **ECO1-b**.
