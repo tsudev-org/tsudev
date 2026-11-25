@@ -60,3 +60,4 @@ P7 (CÓ migration: trạng thái duyệt mở rộng, thùng rác, cột giai đ
   `next.config.js` là tĩnh lúc dựng, cờ Worker không gác được nó; đường lui = `wrangler rollback`. Mục "Ảnh" vẽ
   "Sắp có" (UX1-c). Còn cho UX1-b: khoảng trống trên thanh công cụ trình soạn, `act('archive')` còn `window.confirm`,
   "Nguồn tham khảo" (form cũ có, trình soạn chưa có - backend vẫn giữ dữ liệu). Phase kế tiếp: **UX1-b**.
+- 25/11/2026 - tsudev-c4 (bổ sung): #387 gộp, **`deploy-2026.11.25.5`** Worker `9f338206` (thẻ gắn tay - xem dòng dưới). Nghiệm thu production: `/` `/apps` `/blog` `/docs` `/studio` `/studio/posts` 200; `/author` `/author?tab=docs` `/author/posts/new` ⇒ 308 đúng đích; `/studio` noindex; providers chỉ provider thật. Cùng phiên: #388 bản dựng production không gọi backend dev (đặt `*_SERVICE_URL` về cổng 9 lúc dựng - lần deploy đầu đỏ vì dev stack còn sót), #372 svgo 3.3.5 (hết 3 cảnh báo Dependabot High, đều devDependency; `npm audit --omit=dev` 0).

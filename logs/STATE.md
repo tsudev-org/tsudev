@@ -8,8 +8,10 @@
 > 3. Theo dõi HSTS preload `tsudev.com` (đo 25/11: `pending`).
 > 4. 👤 còn mở: thay khoá VirusTotal.
 >
-> Đã xong 25/11 (tsudev-c4): **UX1-a** - Studio `/studio*` + WorkspaceLayout, `/author*` → 308 (xem PR + thẻ deploy ở
-> phiếu UX1 mục 4). DK3 ĐÓNG (303). Không khoá, không tác vụ nền.
+> Đã xong 25/11 (tsudev-c4): **UX1-a** - Studio `/studio*` + WorkspaceLayout, `/author*` → 308 (#387,
+> `deploy-2026.11.25.5` Worker `9f338206`). #388 cô lập bản dựng production khỏi dev stack; #372 svgo (Dependabot High).
+> DK3 ĐÓNG (303). Dependabot còn mở: #369 #373 (chưa xét), #370 `marked` 18 đỏ test services, #378 actions ⛔ cổng bản
+> quyền (👤 `nguyentrangtinhsu`). Không khoá, không tác vụ nền.
 
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (25/11/2026, sau tsudev-3e)** - làm theo thứ tự:
 >
