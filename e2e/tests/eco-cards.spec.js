@@ -33,7 +33,7 @@ const axeSerious = async (page) => {
 
 for (const theme of ['dark', 'light']) {
   for (const width of [1280, 390]) {
-    test(`thẻ app ${theme} ${width}px: dải Open/Private + Author, axe sạch, không cuộn ngang`, async ({
+    test(`thẻ app ${theme} ${width}px: dải OPEN/PRIVATE + Author, axe sạch, không cuộn ngang`, async ({
       browser,
     }, testInfo) => {
       test.setTimeout(120 * 1000);
@@ -50,7 +50,7 @@ for (const theme of ['dark', 'light']) {
         expect(await cards.count(), `${path}: có thẻ app`).toBeGreaterThan(0);
         // Nhãn chữ cũ đã thay bằng dải chéo góc.
         await expect(cards.getByText('Mã nguồn mở', { exact: true })).toHaveCount(0);
-        await expect(cards.first().locator('.tsu-ribbon__band')).toHaveText(/^(Open|Private)$/);
+        await expect(cards.first().locator('.tsu-ribbon__band')).toHaveText(/^(OPEN|PRIVATE)$/);
         await expect(
           cards.first().getByText(/^Author: TsuDEV( \+ \d+ Contributors?)?/)
         ).toBeVisible();
