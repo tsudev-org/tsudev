@@ -269,6 +269,14 @@ trong `next.config.js`, `test/oidcRewrites.test.ts` canh). Trang đồng ý: `pa
 | Đổi `sessionVersion` ⇒ mọi trạng thái OIDC của người đó bị xoá (trigger Postgres)       | như trên + migration `20261114140000` |
 | Khoá ký ES256 riêng `OIDC_SIGNING_JWK`; thiếu ⇒ `/oidc` trả 503, KHÔNG chặn khởi động   | `src/oidc.ts`                         |
 
+**Trạng thái tài khoản cho app (LG3-a, chuẩn `AUTH_AND_ACCOUNT` 9.2/10/14.4.4).** Userinfo/ID token (scope
+`openid`) và JWS quyền lợi (`/ent/me`, `/ent/rp/:sub`) mang `status` + `status_reason`, suy ra ở MỘT chỗ
+`src/accountStatus.ts` từ cột sẵn có: hẹn xoá ⇒ `pending_deletion`; vô hiệu hoá mềm ⇒ `restricted` +
+`account_deactivated`; `lockedUntil` còn hạn ⇒ `locked`; chưa xác minh quá 7 ngày ⇒ `restricted` +
+`account_restricted`; chưa xác minh trong hạn ⇒ `active` + `account_unverified`; JWS cho `sub` không còn ⇒ `deleted`.
+`suspended` (khoá do vi phạm) có trong kiểu nhưng CHƯA có cột - thêm cột cần migration (👤 Neon) và trang quản trị.
+App KHÔNG tự suy luận vi phạm ở máy khách.
+
 `oidc-provider` là ESM thuần nên test chạy bằng `node --test` trên `dist/` (Jest không nạp được `import()` động);
 `npm --workspace services/auth-service test` chạy cả hai.
 

@@ -289,6 +289,8 @@ describe('sổ cái + JWS phản ánh Pro', () => {
     expect(r.status).toBe(200)
     const p = ent.verifyEs256(r.body.jws, signerPub()).payload
     expect(p).toMatchObject({ aud: CLIENT, pro_source: 'web', badge: 'pro' })
+    // LG3-a: JWS mang trạng thái tài khoản do máy chủ quyết (người dùng thử chưa xác minh, mới tạo).
+    expect(p).toMatchObject({ status: 'active', status_reason: 'account_unverified' })
     expect(p.pro_until).toBe(Math.floor(until.getTime() / 1000))
   })
 })

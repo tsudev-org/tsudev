@@ -1,4 +1,4 @@
-# ĐỒNG BỘ TRỰC TIẾP GIỮA THIẾT BỊ - TSU LINK (Wi-Fi nội bộ, Bluetooth, mã QR) (v1.0.0)
+# ĐỒNG BỘ TRỰC TIẾP GIỮA THIẾT BỊ - TSU LINK (Wi-Fi nội bộ, Bluetooth, mã QR) (v1.0.1)
 
 > **Bắt buộc cho mọi sản phẩm TsuDEV có dữ liệu người dùng** (chủ dự án 25/11/2026, bộ quy ước v7.0.0). Dữ liệu,
 > tệp, cài đặt của người dùng **không bao giờ** rời thiết bị để lên internet, máy chủ TsuDEV hay tài khoản của nền
@@ -9,7 +9,7 @@
 
 | Mục | Giá trị |
 | :-- | :-- |
-| **Phiên bản** | 1.0.0 - bộ quy ước v7.0.0 (25/11/2026) |
+| **Phiên bản** | 1.0.1 - bộ quy ước v7.0.1 (25/11/2026): sửa công thức mã 6 chữ số (20 bit cho tới 7 chữ số), thứ tự nonce |
 | **Nền tảng kỹ thuật** | Giao thức **Lotus v2** của Lotus Share (`tsudev-org/lotus-share` `docs/GIAO-THUC-LOTUS-V2.md`): khám phá multicast, TLS hai chiều, ghim vân tay chứng thư, đã kiểm thật nhiều nền tảng. Tsu Link dùng lại và **siết thêm** (mục 2) |
 | **Thay thế** | Đồng bộ/sao lưu đám mây (TsuDEV Sync, quyền lợi Pro Q3 cũ) - bỏ từ v7.0.0 |
 | **Chi phí** | 0 đồng: không máy chủ, không băng thông internet |
@@ -43,7 +43,7 @@
 | Cách | Khi nào | Nội dung |
 | :-- | :-- | :-- |
 | **Mã QR** (mặc định) | Một bên có camera (điện thoại ↔ máy tính) | Thiết bị A hiện QR `tsulink:1?app=<ma>&fp=<vân tay A>&a=<IP:cổng>[,<IP:cổng>]&t=<mã ghép đôi 128 bit base64url>&exp=<unix>`. B quét, mở mTLS tới A (ghim `fp`), gửi `t`. A kiểm `t` (một lần, hạn **120 giây**), lưu vân tay B; B lưu vân tay A |
-| **So mã số** | Hai máy không có camera (PC ↔ PC) | Hai bên kết nối mTLS tạm, cùng hiện **6 chữ số** = 20 bit đầu của SHA-256(`tsulink-sas|` + vân tay nhỏ hơn + vân tay lớn hơn + nonce A + nonce B); người dùng xác nhận trùng trên CẢ HAI máy. Lệch ⇒ huỷ |
+| **So mã số** | Hai máy không có camera (PC ↔ PC) | Hai bên kết nối mTLS tạm, mỗi bên gửi nonce 16 byte ngẫu nhiên; cùng hiện **6 chữ số** = (4 byte đầu, big-endian, của SHA-256(`tsulink-sas|` ‖ vân tay nhỏ hơn ‖ vân tay lớn hơn ‖ nonce của bên vân tay nhỏ ‖ nonce của bên vân tay lớn)) mod 1 000 000, đủ 6 chữ số (như so số của Bluetooth; "nhỏ/lớn" theo thứ tự byte của chuỗi hex chữ HOA). Vector: `tsulink` `conformance/sas-vector-1.txt`. Người dùng xác nhận trùng trên CẢ HAI máy. Lệch ⇒ huỷ |
 | **Bluetooth LE** (`MAY`) | Không cùng Wi-Fi ngay lúc đó / tiện hơn quét QR | Trao đúng nội dung QR qua một đặc tính GATT, rồi vẫn so 6 chữ số. **Không** chuyển dữ liệu người dùng qua BLE (băng thông thấp, nền tảng desktop hỗ trợ không đều) |
 
 - Giới hạn: tối đa 5 lần ghép đôi sai/10 phút ⇒ khoá 10 phút. Danh sách thiết bị đã ghép đôi xem/xoá được trong Cài đặt;

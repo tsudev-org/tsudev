@@ -4,6 +4,7 @@ import { prisma } from '@tsudev/db'
 import { createRateLimit } from '@tsudev/ratelimit'
 import { entitlementSigningKey, findAccessToken, oidcIssuer } from './oidc'
 import { callerIp } from './throttle'
+import { accountStatus, STATUS_SELECT } from './accountStatus'
 import {
   buildClaims,
   countDevices30d,
@@ -94,9 +95,10 @@ async function issue(
     parsePlatform(req.headers['x-tsu-platform']),
     now
   )
-  const [{ state, display }, devices30d] = await Promise.all([
+  const [{ state, display }, devices30d, user] = await Promise.all([
     loadState(sub),
     countDevices30d(sub, clientId, now),
+    prisma.user.findUnique({ where: { id: sub }, select: STATUS_SELECT }),
   ])
   const claims = buildClaims({
     iss: oidcIssuer(),
@@ -106,6 +108,7 @@ async function issue(
     state,
     display,
     devices30d,
+    account: user ? accountStatus(user, now) : { status: 'deleted', status_reason: null },
     jkt,
   })
   res.json({ jws: signJws(claims, signer) })

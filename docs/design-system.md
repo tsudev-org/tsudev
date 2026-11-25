@@ -195,6 +195,16 @@ khung vuông `object-contain` nên không bao giờ kéo giãn. Khớp `.standar
 chưa có logo riêng (6 trò chơi) vẽ ô chuyển sắc `tint` + glyph trắng (ecosystem.ts). Test ở
 `packages/ui/test/ecosystem.test.ts` canh: mỗi sản phẩm một màu, glyph >= 3:1, logo có tệp thật.
 
+## `<tsu-signin-reminder>` - nhắc đăng nhập (LG3-a, 26/11/2026)
+
+Custom Element thuần (Shadow DOM, không React) trong `packages/ui/src/elements/signinReminder.ts`, chính sách
+R1-R6 + nhịp 24 giờ → 3 ngày → 7 ngày, hoãn 30 ngày ở `src/lib/signinReminder.ts` (chuẩn `AUTH_AND_ACCOUNT` 14.4).
+Gọi `defineSignInReminder()` một lần ở trình duyệt (SSR/Workers: không làm gì), đặt
+`<tsu-signin-reminder providers="google,github,email,qr" auto>` và bắt sự kiện `tsu-signin` {provider} để chuyển sang
+luồng PKCE của IdP. Màu ăn token qua biến CSS (xuyên Shadow DOM) nên theo đúng chế độ Sáng/Tối của trang. Không ô nhập,
+không gọi mạng (test quét nguồn), nhịp lưu `localStorage` khoá `tsu.signinReminder`, phiên theo `sessionStorage`. Tự
+nhường khi có modal `aria-modal` khác đang mở (modal khoá cập nhật `AppGateModal`). Chưa gắn vào trang nào của tsudev.com.
+
 ## Bản đồ tên: token CSS ↔ class Tailwind
 
 Tailwind không giữ giá trị nào - mọi khoá trỏ về một biến CSS.

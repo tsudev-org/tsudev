@@ -3,6 +3,7 @@ import type { JsonWebKey, KeyObject } from 'crypto'
 import type { Request, Response, RequestHandler } from 'express'
 import { prisma } from '@tsudev/db'
 import type { Prisma } from '@prisma/client'
+import { accountStatus } from './accountStatus'
 
 /**
  * P4 - tsudev.com làm nhà cung cấp OpenID Connect cho các site `*.tsudev.com`
@@ -246,6 +247,8 @@ async function findAccount(_ctx: unknown, id: string) {
         picture: u.avatarUrl || undefined,
         email: u.email,
         email_verified: Boolean(u.emailVerifiedAt),
+        // LG3-a (AUTH_AND_ACCOUNT 14.4.4): app hiện `suspended`/`restricted` theo máy chủ.
+        ...accountStatus(u, new Date()),
       }
     },
   }
@@ -287,7 +290,7 @@ export async function initOidc(): Promise<void> {
     // Client chỉ xin được khi bảng OAuthClient.scopes có nó.
     scopes: ['openid', 'offline_access', 'profile', 'email', 'tsudev.entitlements', 'tsudev.xd'],
     claims: {
-      openid: ['sub'],
+      openid: ['sub', 'status', 'status_reason'],
       profile: ['preferred_username', 'name', 'picture'],
       email: ['email', 'email_verified'],
     },
