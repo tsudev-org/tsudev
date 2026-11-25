@@ -15,6 +15,7 @@ phiên bản app của hệ tsudev); các thẻ `vYYYY.MM.DD.N` cũ giữ nguyê
 <https://github.com/tsudev-org/tsudev/tags>. Mỗi thẻ một dòng dưới đây. _English: every production deployment is
 tagged; the tag message lists the merged pull requests, and each line below summarises one tagged deployment._
 
+- deploy-2026.11.25.8 - 25/11/2026 - Thẻ ứng dụng (trang chủ, Danh sách ứng dụng) có dải chéo góc "Open" / "Private" thay nhãn chữ, dòng "Author: TsuDEV + N Contributors" dưới tên app (số liệu cập nhật từ GitHub); trang chủ không còn cuộn ngang trên điện thoại 390 px (#395).
 - deploy-2026.11.25.4 - 25/11/2026 - Trang An toàn `/security`: cách báo lỗ hổng và bằng chứng tự kiểm chứng được (SSL Labs A+, Mozilla Observatory A+, OpenSSF), liên kết ở chân trang; tsudev.com đã nộp danh sách HSTS preload (#385).
 - deploy-2026.11.25.3 - 25/11/2026 - Nền chế độ Sáng dịu mắt (bộ quy ước v6.0.0), hoạ tiết nhẹ ở đầu và chân trang, logo màn đầu hiện ngay (#384).
 - deploy-2026.11.25.2 - 25/11/2026 - Hết nháy khi tải trang (font tải sớm, font dự phòng đúng số đo, bỏ hiệu ứng ẩn ở màn đầu); trang chủ gọn hơn, thẻ danh mục chuyển sang Danh sách ứng dụng; hoạ tiết theo thể loại; chân trang mới; danh bạ Tsu Tramon (#382, #383).
