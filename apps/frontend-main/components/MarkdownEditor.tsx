@@ -80,8 +80,11 @@ const SHORT: Record<string, string> = {
   horizontalRule: '―',
 };
 const TOOLBAR_BLOCKS = BLOCKS.filter((b) => b.id in SHORT);
+// Chữ hiện có chữ cái/chữ số ("H2", "1.") ⇒ nhãn ARIA PHẢI chứa nó (axe
+// `label-content-name-mismatch`, serious - E2E UX1-d bắt ở "1."); ký hiệu thuần
+// (•, ❝, ▦) không tính là chữ nên giữ nhãn gọn.
 const ariaOf = (b: Block) =>
-  /^H\d$/.test(SHORT[b.id] ?? '') ? `${SHORT[b.id]} - ${b.label}` : b.label;
+  /[\p{L}\p{N}]/u.test(SHORT[b.id] ?? '') ? `${SHORT[b.id]} - ${b.label}` : b.label;
 
 const selectCls =
   'rounded-md border border-line-control bg-surface px-2 py-1 text-sm text-fg focus-visible:outline-2 focus-visible:outline-focus';

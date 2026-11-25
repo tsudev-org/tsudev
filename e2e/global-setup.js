@@ -35,8 +35,10 @@ const PATHS = [
   '/admin/projects',
   '/settings/profile',
   '/settings/security',
-  '/author',
-  '/author/posts/new',
+  '/studio',
+  '/studio/posts',
+  '/studio/docs',
+  '/studio/posts/new',
   '/admin/review',
 ];
 
