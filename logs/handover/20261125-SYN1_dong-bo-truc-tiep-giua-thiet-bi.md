@@ -68,3 +68,7 @@ công khai (grep toàn hệ).
   `statusDelegateFor` của client `tsusync` - gỡ khi tsusync đã lưu trữ và không còn ai gọi.
   ⇒ **Điều phối: trang bán `/pro` đổi ⇒ in lại PDF hồ sơ BCT.** `PAYMENT_DOC_DATES` không đổi (trang chính sách thanh
   toán không nhắc đồng bộ); `TERMS_DOC_DATES`/`PRIVACY_DOC_DATES` cập nhật 26/11/2026.
+- 26/11/2026 - tsudev: điều phối (in PDF BCT) báo 2 câu sót - FAQ `/pro` "Bản trên máy chủ vẫn tải về... 90 ngày" và
+  `/chinh-sach-thanh-toan` "dịch vụ đồng bộ không hoạt động". Sửa ở #405, `PAYMENT_DOC_DATES` cập nhật 26/11/2026,
+  **`deploy-2026.11.26.2`** (Worker `e021e9b9`). Lọt vì câu xuống dòng giữa "đồng" và "bộ"; `syn1NoCloud.test.ts` nay so
+  trên văn bản đã gộp khoảng trắng.
