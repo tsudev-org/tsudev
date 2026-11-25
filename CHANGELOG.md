@@ -15,6 +15,7 @@ phiên bản app của hệ tsudev); các thẻ `vYYYY.MM.DD.N` cũ giữ nguyê
 <https://github.com/tsudev-org/tsudev/tags>. Mỗi thẻ một dòng dưới đây. _English: every production deployment is
 tagged; the tag message lists the merged pull requests, and each line below summarises one tagged deployment._
 
+- deploy-2026.11.26.1 - 26/11/2026 - Nhãn OPEN/PRIVATE trên thẻ ứng dụng theo trạng thái repo GitHub (La bàn thành OPEN), chữ trắng trên nền chuyển sắc kính bóng (#402). Dữ liệu chỉ ở thiết bị: trang Pro, Điều khoản, thư nhắc gia hạn bỏ đồng bộ/sao lưu đám mây (Pro còn huy hiệu và giao diện); Chính sách quyền riêng tư thêm bảng dữ liệu tài khoản và hạn lưu (#403).
 - deploy-2026.11.25.11 - 25/11/2026 - Trang TsuDEV Pro, Điều khoản sử dụng và Chính sách thanh toán dùng câu giới thiệu mới: ứng dụng TsuDEV miễn phí; dự án gắn nhãn OPEN công khai mã nguồn trên GitHub; TsuDEV Pro không bắt buộc, chọn Pro để ủng hộ tác giả (#401).
 - deploy-2026.11.25.10 - 25/11/2026 - Cài đặt → Giao diện (`/settings/appearance`): Sáng, Tối, Hệ thống miễn phí cho mọi người; tài khoản TsuDEV Pro chọn thêm 5 chủ đề màu (Hổ phách, Chàm đêm, Rừng thông, Hoa đào, Than chì), có đủ bản Sáng và Tối; trang Pro liệt kê quyền lợi Giao diện Pro (#400).
 - deploy-2026.11.25.9 - 25/11/2026 - TsuDEV Pro ghi rõ là gói dịch vụ không bắt buộc để ủng hộ tác giả: trang Pro có câu giải thích và ô xác nhận phải đánh dấu trước khi mua; Điều khoản sử dụng và Chính sách thanh toán cập nhật 25/11/2026. Nhãn "Open" trên thẻ ứng dụng nền xanh lá, nhãn Open/Private phủ kín góc trên phải (#398).

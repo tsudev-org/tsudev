@@ -1,5 +1,20 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-ECO2/SYN1, 26/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **LG3-a** (phiếu [`20261126-LG3`](handover/20261126-LG3_nhac-dang-nhap-khi-co-internet.md) mục 4): `.standards`
+>    v7.1.0 + `<tsu-signin-reminder>` + IdP trả `status`. Không vướng 👤.
+> 3. **INT1-a** (phiếu [`20261125-INT1`](handover/20261125-INT1_toan-ven-ung-dung-bat-buoc-cap-nhat.md) mục 6 - kế hoạch
+>    phase a-f): bản kê `versions.json` có chữ ký. ⛔ 👤 migrate Neon trước khi gộp + đặt `VERSIONS_SIGNING_KEY` trên Render.
+> 4. PRO3 còn: (e) logo BCT chờ DK2; khung ảnh Pro trên Avatar. 👤 xem lại `/pro`, `/terms`, `/privacy`,
+>    `/chinh-sach-thanh-toan` trước khi nộp BCT (điều phối in lại PDF).
+>
+> Đã xong 26/11 (tsudev-ECO2/SYN1): **ECO2 ĐÓNG** (#402) + **SYN1 phần tsudev.com** (#403) cùng
+> **`deploy-2026.11.26.1`** Worker `8cd67527`; `.standards` v7.0.0; **INT1-e** modal khoá/không chính thức trong
+> `@tsudev/ui` (PR kèm STATE này). Ghi chú: 3 test `rateLimitStore` của auth-service đỏ ở máy cả trên `main` (CI xanh) -
+> không phải do thay đổi. Không khoá, không tác vụ nền.
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-PRO3c, 25/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).

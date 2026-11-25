@@ -59,3 +59,12 @@ công khai (grep toàn hệ).
 ## 5. Kết quả xử lý
 
 - 25/11/2026 - projects-05: mở phiếu; tsudev-standards v7.0.0 PR #85. Chủ dự án gộp #85; bản sao phát vào `logs/handover/` của các repo (chưa commit - phiên repo tự commit).
+- 26/11/2026 - tsudev: đợt 1 phần tsudev.com xong ở #403 (`deploy-2026.11.26.1`, Worker `8cd67527`): `.standards` v7.0.0;
+  `/pro` chỉ Q1 + Q2; điều khoản 7.5 + nhắc gia hạn 7.6 (web và thư) nguyên văn v2.0.0, thư nhắc bỏ hai mốc "trước khi
+  xoá bản sao đám mây"; `/privacy` mục "Đăng nhập tài khoản và dữ liệu trong ứng dụng" (neo `#dang-nhap`) theo bảng 7.7,
+  nhật ký tối đa 12 tháng, lối xoá tài khoản tự phục vụ `/settings/security#xoa-tai-khoan`; OAuth ghim phạm vi
+  `read:user user:email` / `openid email profile`; `/terms` giấy phép mở chỉ cho dự án OPEN. Test canh
+  `apps/frontend-main/test/syn1NoCloud.test.ts`. Giữ (MAY, 7.4): kênh `POST /api/rp/entitlements/status` và ủy quyền
+  `statusDelegateFor` của client `tsusync` - gỡ khi tsusync đã lưu trữ và không còn ai gọi.
+  ⇒ **Điều phối: trang bán `/pro` đổi ⇒ in lại PDF hồ sơ BCT.** `PAYMENT_DOC_DATES` không đổi (trang chính sách thanh
+  toán không nhắc đồng bộ); `TERMS_DOC_DATES`/`PRIVACY_DOC_DATES` cập nhật 26/11/2026.
