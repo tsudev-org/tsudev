@@ -6,6 +6,7 @@ import InstallCommands from './InstallCommands';
 import ExternalArrow from './ExternalArrow';
 import SelectCircle, { toggleOnCardClick } from './SelectCircle';
 import PlatformRow from './PlatformRow';
+import EcoRibbon, { ribbonSrLabel } from './EcoRibbon';
 
 /**
  * Thẻ một app của hệ sinh thái (danh sách /apps và khối trang chủ).
@@ -22,9 +23,10 @@ import PlatformRow from './PlatformRow';
  * nút → hàng biểu tượng nền tảng ở ĐÁY thẻ (chủ dự án yêu cầu 13/11/2026), nên các thẻ
  * cùng hàng lưới có hàng nền tảng thẳng hàng nhau.
  *
- * Mã nguồn mở/đóng là DẢI CHÉO GÓC trên phải ("Open" đen tuyền / "Private" đỏ - phiếu ECO1-a, thay nhãn
- * chữ "Mã nguồn mở/Độc quyền"); dưới tên app là dòng "Author: TsuDEV + N Contributors" chữ nhỏ mờ, số
- * lấy từ bản chụp `contributors.json` (không gọi GitHub lúc chạy).
+ * Nhãn OPEN / PRIVATE là DẢI CHÉO GÓC trên phải (`EcoRibbon`, phiếu ECO1-a + ECO2): theo `visibility` của
+ * repo GitHub trong bản chụp `contributors.json` (không gọi GitHub lúc chạy). Dưới tên app là dòng "Author:
+ * TsuDEV + N Contributors" (PRIVATE luôn 0). Thẻ PRIVATE không có nút GitHub/Releases trỏ repo nguồn -
+ * `withGithub()` ở ecosystem.ts đã bỏ liên kết đó, test ecosystem.test.ts canh.
  */
 type Props = {
   app: EcoApp;
@@ -72,12 +74,7 @@ export default function EcoAppCard({
         selectable ? 'cursor-pointer' : ''
       } ${selected ? 'border-primary ring-1 ring-primary' : 'border-line'}`}
     >
-      {/* Dải chéo góc: chữ hiển thị tiếng Anh theo chủ dự án, nhãn đọc màn hình tiếng Việt. */}
-      <div className={`tsu-ribbon ${app.openSource ? 'tsu-ribbon--open' : 'tsu-ribbon--private'}`}>
-        <span className="tsu-ribbon__band" aria-hidden="true">
-          {app.openSource ? 'Open' : 'Private'}
-        </span>
-      </div>
+      <EcoRibbon open={app.openSource} />
       <div className="flex items-start gap-4 pr-12">
         <EcoIcon
           name={app.name}
@@ -91,9 +88,7 @@ export default function EcoAppCard({
           <h3 className="font-medium text-fg text-base leading-snug">{app.name}</h3>
           <p className="mt-0.5 text-xs text-fg-muted">
             {ecoAuthorLine(app)}
-            <span className="sr-only">
-              {app.openSource ? ' - mã nguồn mở' : ' - mã nguồn đóng'}
-            </span>
+            <span className="sr-only">{ribbonSrLabel(app.openSource)}</span>
           </p>
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <Badge tone="neutral">{ECO_CATEGORY_LABEL[app.category]}</Badge>

@@ -71,14 +71,15 @@ export type EcoApp = {
   /** Kiến trúc của gói `pkg` (vd. "Linux x86-64 · ARM64"), cùng nguồn với `pkg`. */
   pkgArch?: string;
   /**
-   * Mã nguồn mở hay độc quyền - hiện thành dải chéo góc "Open" / "Private" trên thẻ (phiếu ECO1-a).
-   * `openSource: true` thì PHẢI có `repo` (test canh).
+   * Nhãn OPEN (true) / PRIVATE (false) - KHÔNG gõ tay (tsudev-standards PRODUCT_POLICY 3.7.7, phiếu ECO2):
+   * suy từ `visibility` của `repo` trong bản chụp `contributors.json` (`npm run eco:contributors`, chạy
+   * trong CI). Chỉ `public` mới là OPEN; không có `repo`, repo không đọc được hay private ⇒ PRIVATE.
    */
   openSource: boolean;
   /**
-   * Repo GitHub công khai `tsudev-org/<tên>` - nguồn số contributors của dòng "Author: TsuDEV + N
-   * Contributors" (`scripts/eco-contributors.js` đọc trường này, ghi `contributors.json`). KHÔNG BAO GIỜ
-   * trỏ tên cũ dưới `tsudev-tsudev`.
+   * Repo GitHub chứa mã nguồn `<owner>/<tên>` (`tsudev-org/*`, hoặc repo còn sống dưới `tsudev-tsudev` như
+   * La bàn) - nguồn của nhãn OPEN/PRIVATE và số contributors (`scripts/eco-contributors.js` đọc trường
+   * này). KHÔNG BAO GIỜ trỏ tên cũ đã chuyển/đổi tên (test canh).
    */
   repo?: string;
   /**
@@ -153,10 +154,27 @@ function withCatalog<
   };
 }
 
-/** Ghép số contributors từ bản chụp `contributors.json` (`npm run eco:contributors`) theo `repo`. */
-function withContributors(app: EcoApp): EcoApp {
-  const repos: Record<string, number> = CONTRIBUTORS.repos;
-  return { ...app, contributors: (app.repo && repos[app.repo]) || 0 };
+/** Dữ liệu khai tay của một app - nhãn và số contributors KHÔNG nằm ở đây (suy từ GitHub). */
+type EcoAppInput = Omit<EcoApp, 'openSource' | 'contributors'>;
+
+/**
+ * Ghép từ bản chụp GitHub `contributors.json` (`npm run eco:contributors`) theo `repo`: nhãn OPEN khi và chỉ
+ * khi repo `public` (PRODUCT_POLICY 3.7.7); repo không public thì 0 contributors và bỏ liên kết Releases
+ * trỏ vào chính repo đó (repo private không được có nút/liên kết nguồn).
+ */
+function withGithub(app: EcoAppInput): EcoApp {
+  const visibility: Record<string, string> = CONTRIBUTORS.visibility;
+  const counts: Record<string, number> = CONTRIBUTORS.repos;
+  const open = Boolean(app.repo && visibility[app.repo] === 'public');
+  if (open) return { ...app, openSource: true, contributors: counts[app.repo!] || 0 };
+  const { releases, ...rest } = app;
+  const leaksRepo = Boolean(app.repo && releases?.startsWith(`https://github.com/${app.repo}/`));
+  return {
+    ...rest,
+    ...(releases && !leaksRepo && { releases }),
+    openSource: false,
+    contributors: 0,
+  };
 }
 
 /**
@@ -186,7 +204,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       oldWebsites: ['https://trafficmonitor.tsudev.com'],
       releases: 'https://github.com/tsudev-org/tsutramon/releases/latest',
       repo: 'tsudev-org/tsutramon',
-      openSource: true,
       logo: '/eco/trafficmonitor.webp',
       tint: ['#4f46e5', '#312e81'],
       icon: 'M4.5 17a7.5 7.5 0 1 1 15 0M12 17l3.6-5.2M7.6 13.4h.01M12 9.6v.01M16.4 13.4h.01',
@@ -204,7 +221,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       releases: 'https://github.com/tsudev-org/tsucwico/releases/latest',
       winget: 'tsudev.cwico',
       repo: 'tsudev-org/tsucwico',
-      openSource: true,
       // Logo riêng do chủ dự án giao 13/11/2026 (packages/brand/source/eco/) - repo cwico
       // nhận phiếu 20261113-01 để dùng nó cho app + website.
       logo: '/eco/cwico.webp',
@@ -224,7 +240,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       releases: 'https://github.com/tsudev-org/tsuswico/releases/latest',
       winget: 'tsudev.SWICO',
       repo: 'tsudev-org/tsuswico',
-      openSource: true,
       logo: '/eco/swico.svg',
       logoLight: '/eco/swico-light.svg',
       tint: ['#059669', '#064e3b'],
@@ -242,7 +257,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       website: 'https://disk.tsudev.com',
       releases: 'https://github.com/tsudev-org/tsudisk/releases/latest',
       repo: 'tsudev-org/tsudisk',
-      openSource: true,
       logo: '/eco/disk.svg',
       logoLight: '/eco/disk-light.svg',
       tint: ['#b45309', '#78350f'],
@@ -259,7 +273,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       platforms: ['windows', 'apple', 'linux'],
       website: 'https://files.tsudev.com',
       repo: 'tsudev-org/tsufiles',
-      openSource: true,
       logo: '/eco/files.webp',
       tint: ['#7c3aed', '#4c1d95'],
       icon: 'M6 3h7l5 5v4M6 3v18h6M13 3v5h5M14.5 17H21M18.5 14.5 21 17l-2.5 2.5',
@@ -277,7 +290,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       website: 'https://lotus.tsudev.com',
       releases: 'https://github.com/tsudev-org/lotus-share/releases/latest',
       repo: 'tsudev-org/lotus-share',
-      openSource: true,
       logo: '/eco/lotus.webp',
       tint: ['#db2777', '#831843'],
       icon: 'M20.5 3.5 3.5 10l6.5 2.8L13 20zM10 12.8 20.5 3.5',
@@ -295,7 +307,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       oldWebsites: ['https://sounddb.tsudev.com'],
       releases: 'https://github.com/tsudev-org/sound-db/releases/latest',
       repo: 'tsudev-org/sound-db',
-      openSource: true,
       logo: '/eco/sounddb.svg',
       logoLight: '/eco/sounddb-light.svg',
       tint: ['#0f766e', '#134e4a'],
@@ -313,7 +324,6 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       platforms: ['android', 'windows', 'linux'],
       website: 'https://qulythuchi.tsudev.com',
       repo: 'tsudev-org/qulythuchi',
-      openSource: true,
       logo: '/eco/qulythuchi.webp',
       tint: ['#0369a1', '#0c4a6e'],
       icon: 'M3 7h18v12H3zM3 7l3-3h12l3 3M16 13h2',
@@ -326,7 +336,9 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       category: 'utility',
       platforms: ['android'],
       website: 'https://compass.tsudev.com',
-      openSource: false,
+      // Repo PUBLIC (đo 25/11/2026) ⇒ OPEN. Giữ nguyên chủ `tsudev-tsudev` - KHÔNG chuyển/đổi tên repo.
+      // Chưa có `releases`: mới có bản pre-release, `/releases/latest` của GitHub bỏ qua pre-release ⇒ 404.
+      repo: 'tsudev-tsudev/app-la-ban',
       logo: '/eco/compass.webp',
       tint: ['#2563eb', '#1e3a8a'],
       icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18zM15.5 8.5l-2 5-5 2 2-5z',
@@ -344,16 +356,15 @@ export const ECOSYSTEM_APPS: EcoApp[] = (
       website: 'https://contact.tsudev.com',
       releases: 'https://github.com/tsudev-org/tsucontact/releases/latest',
       repo: 'tsudev-org/tsucontact',
-      openSource: true,
       logo: '/eco/contact.svg',
       logoLight: '/eco/contact-light.svg',
       tint: ['#0284c7', '#0c4a6e'],
       icon: 'M4 5h16v14H4zM9 11.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM5.8 16.5a3.4 3.4 0 0 1 6.4 0M14 9.5h4M14 13h4',
     },
-  ] as EcoApp[]
+  ] as EcoAppInput[]
 )
   .map(withCatalog)
-  .map(withContributors);
+  .map(withGithub);
 
 /**
  * Trò chơi của hệ sinh thái (org GitHub `TsuGameLabs`) - chạy trên TRÌNH DUYỆT ở
@@ -447,8 +458,10 @@ export const ECO_GAMES: EcoGame[] = (
       id: 'luyen-go-phim',
       name: 'Luyện Gõ Phím',
       genre: 'Công cụ luyện tập',
+      // Lệch NGUYÊN VĂN danh-muc.json có chủ ý (ECO2): thẻ PRIVATE không được có chữ "mã nguồn mở"
+      // (PRODUCT_POLICY 3.7.7) - câu gốc nói về dự án thượng nguồn, dễ đọc thành chính trò chơi này.
       tagline:
-        'Luyện gõ phím ngoại tuyến: đo WPM, độ chính xác, theo dõi tiến bộ cục bộ. Phát triển từ dự án mã nguồn mở giấy phép MIT.',
+        'Luyện gõ phím ngoại tuyến: đo WPM, độ chính xác, theo dõi tiến bộ cục bộ. Phát triển từ một dự án theo giấy phép MIT.',
       website: 'https://luyen-go-phim.tsudev.com',
       openSource: false,
       logo: '/eco/game-luyen-go-phim.webp',

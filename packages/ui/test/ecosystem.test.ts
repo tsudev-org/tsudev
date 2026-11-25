@@ -10,7 +10,10 @@ import {
 } from '../src/lib/ecosystem';
 import CONTRIBUTORS_JSON from '../src/lib/contributors.json';
 
-const CONTRIBUTORS: { repos: Record<string, number> } = CONTRIBUTORS_JSON;
+const CONTRIBUTORS: {
+  repos: Record<string, number>;
+  visibility: Record<string, string>;
+} = CONTRIBUTORS_JSON;
 
 describe('lệnh cài từ kho APT/RPM pkg.tsudev.com', () => {
   const lotus = ECOSYSTEM_APPS.find((a) => a.id === 'lotus');
@@ -247,14 +250,50 @@ describe('Author/Contributors trên thẻ app (ECO1-a)', () => {
     'swico',
   ];
 
-  it('app mã nguồn mở nào cũng có `repo` tsudev-org/*, không mang tên cũ', () => {
-    for (const app of ECOSYSTEM_APPS.filter((a) => a.openSource)) {
+  it('mọi `repo` là tsudev-org/* hoặc tsudev-tsudev/*, không mang tên cũ đã chuyển', () => {
+    for (const app of ECOSYSTEM_APPS.filter((a) => a.repo)) {
       expect({ id: app.id, repo: app.repo }).toEqual({
         id: app.id,
-        repo: expect.stringMatching(/^tsudev-org\/[A-Za-z0-9._-]+$/),
+        repo: expect.stringMatching(/^(tsudev-org|tsudev-tsudev)\/[A-Za-z0-9._-]+$/),
       });
-      expect(OLD_NAMES).not.toContain(app.repo!.split('/')[1]);
+      const [owner, name] = app.repo!.split('/');
+      expect(OLD_NAMES).not.toContain(name);
+      if (owner === 'tsudev-tsudev') expect(['tsudev', 'tsudev-standards']).not.toContain(name);
     }
+  });
+
+  // ECO2 - tsudev-standards PRODUCT_POLICY 3.7.7: nhãn theo GitHub, không khai tay.
+  it('nhãn OPEN khi và chỉ khi repo `public` trong bản chụp', () => {
+    for (const app of ECOSYSTEM_APPS) {
+      const vis = app.repo ? CONTRIBUTORS.visibility[app.repo] : undefined;
+      expect({ id: app.id, open: app.openSource }).toEqual({ id: app.id, open: vis === 'public' });
+    }
+  });
+
+  it('bản chụp có `visibility` cho mọi repo, chỉ nhận public/private', () => {
+    expect(Object.keys(CONTRIBUTORS.visibility).sort()).toEqual(
+      Object.keys(CONTRIBUTORS.repos).sort()
+    );
+    for (const [repo, v] of Object.entries(CONTRIBUTORS.visibility)) {
+      expect({ repo, v }).toEqual({ repo, v: expect.stringMatching(/^(public|private)$/) });
+      if (v !== 'public') expect(CONTRIBUTORS.repos[repo]).toBe(0);
+    }
+  });
+
+  it('PRIVATE: không liên kết repo nguồn, không contributors, không chữ "mã nguồn mở"', () => {
+    for (const app of ECOSYSTEM_APPS.filter((a) => !a.openSource)) {
+      expect({ id: app.id, n: app.contributors }).toEqual({ id: app.id, n: 0 });
+      const text = JSON.stringify({ ...app, repo: undefined });
+      if (app.repo) expect(text).not.toContain(`github.com/${app.repo}`);
+      expect(text).not.toMatch(/mã nguồn mở|open source/i);
+    }
+    for (const g of ECO_GAMES) expect(JSON.stringify(g)).not.toMatch(/mã nguồn mở|open source/i);
+  });
+
+  it('La bàn là repo PUBLIC tsudev-tsudev/app-la-ban ⇒ OPEN', () => {
+    const compass = ECOSYSTEM_APPS.find((a) => a.id === 'compass')!;
+    expect(compass.repo).toBe('tsudev-tsudev/app-la-ban');
+    expect(compass.openSource).toBe(true);
   });
 
   it('contributors.json khớp đúng tập repo trong ecosystem.ts (quên chạy `npm run eco:contributors` thì đỏ)', () => {
@@ -267,7 +306,7 @@ describe('Author/Contributors trên thẻ app (ECO1-a)', () => {
 
   it('số contributors trên app lấy từ bản chụp theo repo', () => {
     for (const app of ECOSYSTEM_APPS) {
-      expect(app.contributors).toBe(app.repo ? CONTRIBUTORS.repos[app.repo] : 0);
+      expect(app.contributors).toBe(app.repo && app.openSource ? CONTRIBUTORS.repos[app.repo] : 0);
     }
   });
 
