@@ -105,14 +105,17 @@ async function main() {
   // Chỉ số đếm vào JSON (tệp này vào bundle trình duyệt của / và /apps - giữ nhỏ); danh sách login
   // in ra stdout để workflow đưa vào thân PR cho người duyệt đối chiếu.
   const next = JSON.stringify({ repos: result }, null, 2) + '\n';
-  const prev = fs.existsSync(OUT) ? fs.readFileSync(OUT, 'utf8') : '';
   if (check) {
+    // Chỉ ĐỌC ở chế độ kiểm; chế độ ghi thì ghi thẳng (git diff cho biết có đổi không) - không
+    // "kiểm rồi ghi" trên cùng tệp (CodeQL js/file-system-race).
+    let prev = '';
+    try {
+      prev = fs.readFileSync(OUT, 'utf8');
+    } catch {
+      /* chưa có bản chụp ⇒ coi như lệch */
+    }
     if (prev !== next) fail('contributors.json lệch GitHub - chạy `npm run eco:contributors`');
     console.log('eco-contributors: khớp');
-    return;
-  }
-  if (prev === next) {
-    console.log('eco-contributors: không đổi');
     return;
   }
   fs.writeFileSync(OUT, next);
