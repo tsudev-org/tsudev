@@ -42,8 +42,14 @@ export function writeBadgeCache(user: string, badge: TsuBadgeValue | null): void
   }
 }
 
-/** Gọi máy chủ; lỗi mạng/backend ngủ ⇒ null (không vẽ huy hiệu, không báo lỗi ở header). */
-export async function fetchOwnBadge(signal?: AbortSignal): Promise<TsuBadgeValue | null> {
+/**
+ * Gọi máy chủ; lỗi mạng/backend ngủ ⇒ null (không vẽ huy hiệu, không báo lỗi ở header).
+ * `proActive` đi kèm để header gỡ chủ đề giao diện Pro (Q2) khi Pro đã hết hạn - `null` khi
+ * không biết (lỗi mạng), và khi đó KHÔNG gỡ gì: backend ngủ không phải lý do đổi màu của ai.
+ */
+export async function fetchOwnStatus(
+  signal?: AbortSignal
+): Promise<{ badge: TsuBadgeValue | null; proActive: boolean | null }> {
   try {
     const r = await fetch('/api/account/pay/status', {
       method: 'POST',
@@ -51,10 +57,17 @@ export async function fetchOwnBadge(signal?: AbortSignal): Promise<TsuBadgeValue
       body: '{}',
       signal,
     });
-    if (!r.ok) return null;
-    const b = ((await r.json()) as { badge?: unknown })?.badge;
-    return VALUES.includes(b as TsuBadgeValue) ? (b as TsuBadgeValue) : null;
+    if (!r.ok) return { badge: null, proActive: null };
+    const j = (await r.json()) as { badge?: unknown; proActive?: unknown };
+    return {
+      badge: VALUES.includes(j?.badge as TsuBadgeValue) ? (j.badge as TsuBadgeValue) : null,
+      proActive: typeof j?.proActive === 'boolean' ? j.proActive : null,
+    };
   } catch {
-    return null;
+    return { badge: null, proActive: null };
   }
+}
+
+export async function fetchOwnBadge(signal?: AbortSignal): Promise<TsuBadgeValue | null> {
+  return (await fetchOwnStatus(signal)).badge;
 }

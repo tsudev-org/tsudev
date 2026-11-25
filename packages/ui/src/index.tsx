@@ -17,6 +17,7 @@ import { SectionHeading } from './components/SectionHeading';
 import { Avatar } from './components/Avatar';
 import { Stat } from './components/Stat';
 import { ThemeToggle } from './components/ThemeToggle';
+import { ProThemePicker } from './components/ProThemePicker';
 import { Icon, PLATFORM_CHIP_CLASS, platformChipClass, platformInkClass } from './components/Icon';
 import { TableOfContents } from './components/TableOfContents';
 import { RecordFooter } from './components/RecordFooter';
@@ -66,6 +67,7 @@ export {
   Avatar,
   Stat,
   ThemeToggle,
+  ProThemePicker,
   Icon,
   PLATFORM_CHIP_CLASS,
   platformChipClass,
@@ -76,7 +78,24 @@ export {
   pageAfterResize,
 };
 
-export { BADGE_CACHE_KEY, readBadgeCache, writeBadgeCache, fetchOwnBadge } from './lib/badgeCache';
+export {
+  BADGE_CACHE_KEY,
+  readBadgeCache,
+  writeBadgeCache,
+  fetchOwnBadge,
+  fetchOwnStatus,
+} from './lib/badgeCache';
+export {
+  PRO_THEME_KEY,
+  PRO_OK_KEY,
+  PRO_THEMES,
+  PRO_THEME_IDS,
+  isProThemeId,
+  readProTheme,
+  setProTheme,
+  setProEntitled,
+} from './lib/proTheme';
+export type { ProThemeId } from './lib/proTheme';
 
 export default Layout;
 

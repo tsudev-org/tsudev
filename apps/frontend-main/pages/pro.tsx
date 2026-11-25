@@ -39,6 +39,7 @@ const PLAN: PlanKind = 'pro_year';
  */
 const FEATURES = [
   'Huy hiệu Pro cạnh tên tài khoản (ẩn được)',
+  'Giao diện Pro: thêm chủ đề màu cho website (Sáng, Tối, Hệ thống vẫn miễn phí)',
   'Đồng bộ dữ liệu giữa các thiết bị cùng tài khoản',
   'Sao lưu đám mây, mã hoá đầu cuối - máy chủ chỉ giữ bản mã',
   'Một gói cho MỌI ứng dụng TsuDEV, gắn với tài khoản',

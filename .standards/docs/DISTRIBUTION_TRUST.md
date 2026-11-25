@@ -1,4 +1,4 @@
-# PHÂN PHỐI TIN CẬY - CÀI ĐẶT KHÔNG BỊ CHẶN (v1.2.0)
+# PHÂN PHỐI TIN CẬY - CÀI ĐẶT KHÔNG BỊ CHẶN (v1.3.0)
 
 > Mọi sản phẩm tsudev phát hành thành tệp cài `MUST` đến tay người dùng qua kênh mà hệ điều hành, trình duyệt và
 > phần mềm diệt virus đã tin, với chữ ký và nguồn gốc kiểm chứng được. Tài liệu này quy định kênh theo từng nền tảng
@@ -65,6 +65,8 @@ cho tới khi có Apple Developer Program:
 - Chuẩn bị sẵn để ngày có tài khoản chỉ cần nạp bí mật: workflow có bước `codesign --options runtime --timestamp` +
   `xcrun notarytool submit --wait` + `xcrun stapler staple`, bật **Hardened Runtime**, entitlements tối thiểu; bước đó
   tự bỏ qua khi thiếu bí mật `APPLE_*`.
+- Ngày có tài khoản (v1.3.0): ký Developer ID + công chứng theo [`APPLE_CICD.md`](APPLE_CICD.md) mục 8.5 (bí mật ở
+  environment `apple`, chứng chỉ Developer ID tạo bằng `scripts/apple/setup_apple_signing.sh csr-devid`/`import-devid`).
 
 ### 1.3. Android
 
@@ -94,6 +96,10 @@ theo [`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) mục 2.1, để đầu 2027 chỉ
 - Soạn sẵn: nhãn quyền riêng tư App Store, tuyên bố mã hoá (export compliance), xếp hạng tuổi, ảnh màn hình.
 - Trong lúc chờ: chức năng nào làm được trên web `MAY` cung cấp dưới dạng PWA tại tsudev.com. KHÔNG dùng chứng chỉ
   doanh nghiệp, ad-hoc hay dịch vụ "ký IPA" bên thứ ba - vi phạm điều khoản Apple và bị thu hồi hàng loạt.
+- `MUST NOT` phát `.ipa` qua GitHub Release, nguồn AltStore/SideStore hay bất kỳ kênh ngoài App Store/TestFlight
+  (v1.3.0). `.ipa` không ký của CI chỉ là artifact ngắn hạn để chủ dự án tự ký cho máy của mình.
+- Ngày có tài khoản: dựng, ký, tải lên TestFlight theo [`APPLE_CICD.md`](APPLE_CICD.md) (workflow dùng chung
+  `tsudev-org/.github`, script `scripts/apple/setup_apple_signing.sh`, phiếu toàn hệ `20261125-AP2`).
 
 ### 1.5. Tải từ trình duyệt
 

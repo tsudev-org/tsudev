@@ -297,3 +297,81 @@ test('hai chế độ có nền trang khác nhau', () => {
   const [light, dark] = [":root[data-theme='light']", ":root[data-theme='dark']"].map(base);
   expect(new Set([light, dark]).size).toBe(2);
 });
+
+/**
+ * Chủ đề giao diện Pro (Q2, PRO3 (c), .standards DESIGN_SYSTEM.md mục 1.3): "Chủ đề Pro vẫn đạt
+ * tương phản WCAG như bảng chính" (PRODUCT_POLICY 3.7.1). Đọc THẲNG `.standards/tokens/pro-themes.css`
+ * (thứ globals.css nạp) và đo bằng ĐÚNG bộ PAIRS ở trên: bảng của chế độ + lớp chủ đề chồng lên
+ * (khối trần `:root[data-pro-theme]` là bản Sáng, khối `[data-theme="dark"]` chồng thêm ở Tối) -
+ * chủ đề ngả cả nền/viền nên mọi cặp đều có thể đổi. Bộ quy ước đã đo bằng ngưỡng của nó, nhưng
+ * web có vài ngưỡng chặt hơn (icon 4.5:1, đầu chữ chuyển sắc hero 4.5:1): trượt ở đây thì báo
+ * tsudev-standards, đừng hạ ngưỡng.
+ */
+const PRO_CSS = readFileSync(
+  join(__dirname, '..', '..', '..', '.standards', 'tokens', 'pro-themes.css'),
+  'utf8'
+).replace(/\/\*[\s\S]*?\*\//g, '');
+
+function proBlock(sel: string): Record<string, string> {
+  for (const m of PRO_CSS.matchAll(/(?:^|\n)([^{}]+)\{([^{}]*)\}/g)) {
+    if ((m[1] as string).trim() !== sel) continue;
+    const out: Record<string, string> = {};
+    for (const v of (m[2] as string).matchAll(/(--[\w-]+):\s*([^;]+);/g))
+      out[v[1] as string] = (v[2] as string).trim();
+    return out;
+  }
+  throw new Error(`Không tìm thấy khối "${sel}" trong pro-themes.css`);
+}
+
+const PRO_IDS = [...PRO_CSS.matchAll(/:root\[data-pro-theme="([a-z0-9-]+)"\]\s*\{/g)].map(
+  (m) => m[1] as string
+);
+
+// Khung ảnh đại diện Pro (`--pro-ring-*`) là thành phần đồ hoạ: 3:1 trên mọi nền ổn định.
+const PRO_RING_PAIRS: Array<[string, string, number, string]> = [
+  ['--pro-ring-start', '--bg-base', 3, 'đầu khung ảnh trên nền trang'],
+  ['--pro-ring-start', '--bg-surface', 3, 'đầu khung ảnh trên card'],
+  ['--pro-ring-start', '--bg-subtle', 3, 'đầu khung ảnh trên khối lồng'],
+  ['--pro-ring-end', '--bg-base', 3, 'cuối khung ảnh trên nền trang'],
+  ['--pro-ring-end', '--bg-surface', 3, 'cuối khung ảnh trên card'],
+  ['--pro-ring-end', '--bg-subtle', 3, 'cuối khung ảnh trên khối lồng'],
+];
+
+test('có chủ đề Pro để đo (bộ đọc CSS không trượt)', () => {
+  expect(PRO_IDS.length).toBeGreaterThanOrEqual(5);
+});
+
+describe.each(
+  PRO_IDS.flatMap((id) => [
+    [id, 'Sáng', ":root[data-theme='light']", false] as const,
+    [id, 'Tối', ":root[data-theme='dark']", true] as const,
+  ])
+)('tương phản - chủ đề Pro %s, chế độ %s', (id, _label, selector, dark) => {
+  const t: Record<string, string> = {
+    ...tokensIn(selector),
+    ...proBlock(`:root[data-pro-theme="${id}"]`),
+    ...(dark ? proBlock(`:root[data-pro-theme="${id}"][data-theme="dark"]`) : {}),
+  };
+
+  test.each([...PAIRS, ...PRO_RING_PAIRS])('%s trên %s ≥ %s:1 (%s)', (fg, bg, min) => {
+    expect(t[fg]).toBeDefined();
+    expect(t[bg]).toBeDefined();
+    const ratio = contrast(t[fg] as string, t[bg] as string);
+    expect({
+      theme: id,
+      pair: `${fg}/${bg}`,
+      ok: ratio >= min,
+      ratio: Number(ratio.toFixed(2)),
+    }).toMatchObject({ ok: true });
+  });
+
+  test('bốn tầng bề mặt vẫn phân biệt được', () => {
+    const l = (n: string) => luminance(t[n] as string);
+    for (const [a, b] of [
+      ['--bg-base', '--bg-surface'],
+      ['--bg-base', '--bg-subtle'],
+      ['--bg-subtle', '--bg-hover'],
+    ])
+      expect(Math.abs(l(a!) - l(b!))).toBeGreaterThanOrEqual(0.001);
+  });
+});

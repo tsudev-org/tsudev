@@ -362,6 +362,13 @@ if [[ $IS_CENTRAL == 1 ]]; then
         fail "lớp bản sắc sản phẩm lỗi - chạy: node scripts/check-products.mjs"
       fi
     fi
+    if [[ -f scripts/gen-pro-themes.mjs ]]; then
+      if node scripts/gen-pro-themes.mjs --check >/dev/null 2>&1; then
+        pass "chủ đề Pro: khớp bản sinh, đạt WCAG trên nền ngả sắc"
+      else
+        fail "chủ đề Pro lệch bản sinh hoặc trượt WCAG - chạy: node scripts/gen-pro-themes.mjs"
+      fi
+    fi
   else
     warn "thiếu node - bỏ qua kiểm tra token"
   fi

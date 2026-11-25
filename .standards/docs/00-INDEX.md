@@ -43,6 +43,7 @@
 6. [`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) - ngôn ngữ/giao diện theo hệ thống, không quảng cáo, Pro (gói tự nguyện ủng hộ tác giả, 3.7) + Ủng hộ, huy hiệu, iOS, ảnh/video website, lưu cục bộ - đồng bộ là Pro
 7. [`STORE_SUBMISSION.md`](STORE_SUBMISSION.md) - phiên agent tự điền biểu mẫu nộp duyệt cửa hàng/antivirus
 8. [`EMAIL.md`](EMAIL.md) - địa chỉ `@tsudev.com` công bố trên README, cửa hàng, SECURITY/PRIVACY phải có trong danh mục
+9. [`APPLE_CICD.md`](APPLE_CICD.md) - bản iOS/iPadOS/macOS: dựng, ký, TestFlight từ Ubuntu (không cần Mac)
 
 **Bạn sắp commit hoặc mở PR:**
 1. [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md) - nhánh, commit, PR
@@ -90,6 +91,7 @@
 | [`DISTRIBUTION_TRUST.md`](DISTRIBUTION_TRUST.md) | Cài không bị chặn: cửa hàng, ký mã, notarize, chống báo nhầm, hồ sơ nền tảng | Bất khả xâm phạm |
 | [`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) | Chính sách sản phẩm: mặc định theo hệ thống, không quảng cáo, Pro/Ủng hộ, huy hiệu, iOS, website có hình/video, lưu cục bộ - đồng bộ là Pro | Bất khả xâm phạm |
 | [`STORE_SUBMISSION.md`](STORE_SUBMISSION.md) | Nộp duyệt cửa hàng/nền tảng: phiên agent điền biểu mẫu trên trình duyệt | Bất khả xâm phạm |
+| [`APPLE_CICD.md`](APPLE_CICD.md) | Apple iOS/iPadOS/macOS: CI/CD từ Ubuntu, ký, TestFlight, bí mật `APPLE_*`, script `scripts/apple/` | Bất khả xâm phạm |
 | [`RICH_TEXT_EDITOR.md`](RICH_TEXT_EDITOR.md) | Trình soạn thảo nội dung | Bất khả xâm phạm |
 | [`SEARCH_AND_FILTER.md`](SEARCH_AND_FILTER.md) | Tìm kiếm và lọc tiếng Việt | Bất khả xâm phạm |
 | [`ONBOARDING.md`](ONBOARDING.md) | Triển khai và bộ câu lệnh agent | Hướng dẫn |

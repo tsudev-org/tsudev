@@ -1,0 +1,277 @@
+{
+  "meta": {
+    "name": "tsudev-pro-themes",
+    "version": "1.0.0",
+    "updated": "25/11/2026",
+    "note": "Chủ đề Pro (quyền lợi Q2, PRODUCT_POLICY.md 3.7.1; DESIGN_SYSTEM.md mục 1.3). Chỉ sửa id/name/hue/chroma/tint/ringShift/note rồi chạy node scripts/gen-pro-themes.mjs; colors là bản SINH RA. Chủ đề Pro chỉ THÊM lựa chọn: Sáng/Tối/Hệ thống, tương phản cao và bảng màu mặc định của sản phẩm luôn miễn phí."
+  },
+  "themes": [
+    {
+      "id": "ho-phach",
+      "name": {
+        "vi": "Hổ phách",
+        "en": "Amber"
+      },
+      "hue": 80,
+      "chroma": 0.15,
+      "tint": 0.014,
+      "ringShift": -35,
+      "note": "Vàng hổ phách ấm - sắc 'thành viên' quen thuộc, xa danger (đỏ) > 45°",
+      "colors": {
+        "light": {
+          "bg-base": "#F6F0E7",
+          "bg-surface": "#FFF9F0",
+          "bg-subtle": "#F2ECE2",
+          "bg-hover": "#EFE9E0",
+          "border": "#DFDAD0",
+          "border-strong": "#CFC9C0",
+          "text-link": "#755201",
+          "primary": "#8B6202",
+          "primary-hover": "#755201",
+          "primary-active": "#604303",
+          "on-primary": "#FFFFFF",
+          "focus-ring": "#8B6202",
+          "accent": "#654702",
+          "glow": "rgba(139, 98, 2, 0.1)",
+          "icon-info": "#8B6202",
+          "icon-nav": "#755201",
+          "pro-ring-start": "#8B6202",
+          "pro-ring-end": "#9D5431"
+        },
+        "dark": {
+          "bg-base": "#0D0905",
+          "bg-surface": "#14100A",
+          "bg-subtle": "#1B1711",
+          "bg-hover": "#231F18",
+          "border": "#2A261F",
+          "border-strong": "#35312A",
+          "text-link": "#E0AC4C",
+          "primary": "#D79A01",
+          "primary-hover": "#E4AF50",
+          "primary-active": "#BB8608",
+          "on-primary": "#0A0A0A",
+          "focus-ring": "#D79A01",
+          "accent": "#F0C57A",
+          "glow": "rgba(215, 154, 1, 0.14)",
+          "icon-info": "#D79A01",
+          "icon-nav": "#E0AC4C",
+          "pro-ring-start": "#D79A01",
+          "pro-ring-end": "#F28450"
+        }
+      }
+    },
+    {
+      "id": "cham-dem",
+      "name": {
+        "vi": "Chàm đêm",
+        "en": "Midnight Indigo"
+      },
+      "hue": 272,
+      "chroma": 0.17,
+      "tint": 0.016,
+      "note": "Chàm sâu - khoảng trống giữa TsuDEV (233) và TsuFiles (293) trên vòng màu sản phẩm",
+      "colors": {
+        "light": {
+          "bg-base": "#EDF0FC",
+          "bg-surface": "#F8FAFE",
+          "bg-subtle": "#E9ECF8",
+          "bg-hover": "#E6E9F5",
+          "border": "#D6DAE5",
+          "border-strong": "#C6CAD5",
+          "text-link": "#3D4CB8",
+          "primary": "#4C5FCC",
+          "primary-hover": "#3D4CB8",
+          "primary-active": "#2F39A4",
+          "on-primary": "#FFFFFF",
+          "focus-ring": "#4C5FCC",
+          "accent": "#3340AB",
+          "glow": "rgba(76, 95, 204, 0.1)",
+          "icon-info": "#4C5FCC",
+          "icon-nav": "#3D4CB8",
+          "pro-ring-start": "#4C5FCC",
+          "pro-ring-end": "#8C47B1"
+        },
+        "dark": {
+          "bg-base": "#080A11",
+          "bg-surface": "#0E1118",
+          "bg-subtle": "#15181F",
+          "bg-hover": "#1D2028",
+          "border": "#24262F",
+          "border-strong": "#2F313A",
+          "text-link": "#9FB3FE",
+          "primary": "#8AA1FE",
+          "primary-hover": "#A3B7FE",
+          "primary-active": "#6F87F9",
+          "on-primary": "#0A0A0A",
+          "focus-ring": "#8AA1FE",
+          "accent": "#BBCAFE",
+          "glow": "rgba(138, 161, 254, 0.14)",
+          "icon-info": "#8AA1FE",
+          "icon-nav": "#9FB3FE",
+          "pro-ring-start": "#8AA1FE",
+          "pro-ring-end": "#C58DE6"
+        }
+      }
+    },
+    {
+      "id": "rung-thong",
+      "name": {
+        "vi": "Rừng thông",
+        "en": "Pine"
+      },
+      "hue": 150,
+      "chroma": 0.11,
+      "tint": 0.012,
+      "note": "Xanh thông trầm, chroma thấp để dịu mắt khi đọc lâu",
+      "colors": {
+        "light": {
+          "bg-base": "#EBF3ED",
+          "bg-surface": "#F4FCF6",
+          "bg-subtle": "#E7EFE8",
+          "bg-hover": "#E4ECE6",
+          "border": "#D5DDD6",
+          "border-strong": "#C5CDC6",
+          "text-link": "#196632",
+          "primary": "#2E7743",
+          "primary-hover": "#196632",
+          "primary-active": "#025424",
+          "on-primary": "#FFFFFF",
+          "focus-ring": "#2E7743",
+          "accent": "#035926",
+          "glow": "rgba(46, 119, 67, 0.1)",
+          "icon-info": "#2E7743",
+          "icon-nav": "#196632",
+          "pro-ring-start": "#2E7743",
+          "pro-ring-end": "#037671"
+        },
+        "dark": {
+          "bg-base": "#070C08",
+          "bg-surface": "#0D120E",
+          "bg-subtle": "#141915",
+          "bg-hover": "#1C221D",
+          "border": "#232824",
+          "border-strong": "#2E342F",
+          "text-link": "#85C292",
+          "primary": "#6CB57D",
+          "primary-hover": "#88C595",
+          "primary-active": "#579F68",
+          "on-primary": "#0A0A0A",
+          "focus-ring": "#6CB57D",
+          "accent": "#A6D8AF",
+          "glow": "rgba(108, 181, 125, 0.14)",
+          "icon-info": "#6CB57D",
+          "icon-nav": "#85C292",
+          "pro-ring-start": "#6CB57D",
+          "pro-ring-end": "#34B7B1"
+        }
+      }
+    },
+    {
+      "id": "hoa-dao",
+      "name": {
+        "vi": "Hoa đào",
+        "en": "Peach Blossom"
+      },
+      "hue": 355,
+      "chroma": 0.14,
+      "tint": 0.012,
+      "ringShift": -40,
+      "note": "Hồng hoa đào ngày Tết; cách danger > 15° để không giống nút Xoá",
+      "colors": {
+        "light": {
+          "bg-base": "#F8EEF1",
+          "bg-surface": "#FFF8FA",
+          "bg-subtle": "#F4E9ED",
+          "bg-hover": "#F1E7EA",
+          "border": "#E1D7DB",
+          "border-strong": "#D1C7CA",
+          "text-link": "#973462",
+          "primary": "#AA4673",
+          "primary-hover": "#973462",
+          "primary-active": "#832151",
+          "on-primary": "#FFFFFF",
+          "focus-ring": "#AA4673",
+          "accent": "#882655",
+          "glow": "rgba(170, 70, 115, 0.1)",
+          "icon-info": "#AA4673",
+          "icon-nav": "#973462",
+          "pro-ring-start": "#AA4673",
+          "pro-ring-end": "#8C52A6"
+        },
+        "dark": {
+          "bg-base": "#0E080A",
+          "bg-surface": "#150F11",
+          "bg-subtle": "#1D1618",
+          "bg-hover": "#251E20",
+          "border": "#2C2427",
+          "border-strong": "#372F32",
+          "text-link": "#F79ABE",
+          "primary": "#EE83AF",
+          "primary-hover": "#FA9DC2",
+          "primary-active": "#D66D9A",
+          "on-primary": "#0A0A0A",
+          "focus-ring": "#EE83AF",
+          "accent": "#FFB8D2",
+          "glow": "rgba(238, 131, 175, 0.14)",
+          "icon-info": "#EE83AF",
+          "icon-nav": "#F79ABE",
+          "pro-ring-start": "#EE83AF",
+          "pro-ring-end": "#CB8EE7"
+        }
+      }
+    },
+    {
+      "id": "than-chi",
+      "name": {
+        "vi": "Than chì",
+        "en": "Graphite"
+      },
+      "hue": 255,
+      "chroma": 0.03,
+      "tint": 0.006,
+      "note": "Gần đơn sắc, tối giản - cho người thích giao diện trung tính",
+      "colors": {
+        "light": {
+          "bg-base": "#EEF1F5",
+          "bg-surface": "#F7FAFE",
+          "bg-subtle": "#EAEDF1",
+          "bg-hover": "#E7EAEE",
+          "border": "#D8DBDE",
+          "border-strong": "#C8CACE",
+          "text-link": "#4D5969",
+          "primary": "#5E6A7A",
+          "primary-hover": "#4D5969",
+          "primary-active": "#3D4958",
+          "on-primary": "#FFFFFF",
+          "focus-ring": "#5E6A7A",
+          "accent": "#424E5E",
+          "glow": "rgba(94, 106, 122, 0.1)",
+          "icon-info": "#5E6A7A",
+          "icon-nav": "#4D5969",
+          "pro-ring-start": "#5E6A7A",
+          "pro-ring-end": "#6A6678"
+        },
+        "dark": {
+          "bg-base": "#080A0D",
+          "bg-surface": "#0F1114",
+          "bg-subtle": "#16181B",
+          "bg-hover": "#1E2023",
+          "border": "#25272A",
+          "border-strong": "#303235",
+          "text-link": "#ABB7C6",
+          "primary": "#9AA7B9",
+          "primary-hover": "#AEBACA",
+          "primary-active": "#8592A3",
+          "on-primary": "#0A0A0A",
+          "focus-ring": "#9AA7B9",
+          "accent": "#C2CCD8",
+          "glow": "rgba(154, 167, 185, 0.14)",
+          "icon-info": "#9AA7B9",
+          "icon-nav": "#ABB7C6",
+          "pro-ring-start": "#9AA7B9",
+          "pro-ring-end": "#A7A2B7"
+        }
+      }
+    }
+  ]
+}
