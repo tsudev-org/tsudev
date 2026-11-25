@@ -109,7 +109,9 @@ test('Studio: viết → menu / chèn hộp ghi chú + bảng → tự lưu → 
   await page.keyboard.type('Cột A');
   await expect(editor.locator('table')).toHaveCount(1);
 
-  await editor.getByText('Đoạn mở đầu E2E.').click();
+  // Về cuối đoạn ĐẦU bằng phím, không click: ở CI cú click vào đoạn văn ngay sau khi
+  // gõ trong ô bảng không dời được con trỏ ra khỏi ô (#393 lần 1: ghi chú rơi vào ô).
+  await page.keyboard.press('Control+Home');
   await page.keyboard.press('End');
   await page.keyboard.press('Enter');
   await slashInsert(page, 'ghi', 'Hộp ghi chú');
