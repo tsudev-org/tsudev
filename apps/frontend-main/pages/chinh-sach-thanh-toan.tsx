@@ -48,9 +48,9 @@ const SECTIONS = [
           </li>
         </ul>
         <p>
-          Mọi ứng dụng TsuDEV miễn phí và mã nguồn mở: không mua Pro vẫn dùng được đầy đủ tính năng
-          cốt lõi. Phần mềm miễn phí trên tsudev.com không thu phí và không bị giới hạn bởi văn bản
-          này.
+          Ứng dụng TsuDEV miễn phí; dự án gắn nhãn OPEN công khai mã nguồn trên GitHub. Không mua
+          Pro vẫn dùng được đầy đủ tính năng cốt lõi. Phần mềm miễn phí trên tsudev.com không thu
+          phí và không bị giới hạn bởi văn bản này.
         </p>
       </>
     ),

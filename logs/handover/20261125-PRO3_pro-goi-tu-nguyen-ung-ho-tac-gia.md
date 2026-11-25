@@ -43,3 +43,7 @@
   chế độ bằng đủ bộ cặp của web + `--pro-ring-*` ≥ 3:1. Chưa làm: khung ảnh đại diện Pro (`--pro-ring-*` trên Avatar).
   Trả lời điều phối: app nhãn Private ở `/apps` là **La bàn** (`compass`, `tsudev-tsudev/app-la-ban`); 5 trò chơi
   TsuGameLabs cũng Private.
+- 25/11/2026 - tsudev-PRO3c: gộp #400, `deploy-2026.11.25.10` (Worker `3bff95e6`). Đo production: `/settings/appearance` 200
+  có "Chủ đề màu", `/pro` có quyền lợi Giao diện Pro, CSS có đủ 5 `data-pro-theme`, băm CSP khớp. **(c) XONG.**
+  Câu định vị mới (v6.6.0, 👤 duyệt): PR kế tiếp đổi `/pro`, mô tả SEO `/pro`, `/terms`, `/chinh-sach-thanh-toan`.
+  Còn: (e) logo BCT chờ DK2; khung ảnh Pro `--pro-ring-*` trên Avatar (Q2 phần khung ảnh) chưa làm.
