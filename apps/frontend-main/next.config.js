@@ -43,6 +43,17 @@ const nextConfig = {
       { source: '/dieu-khoan', destination: '/terms', permanent: true },
       { source: '/quyen-rieng-tu', destination: '/privacy', permanent: true },
       { source: '/noi-quy', destination: '/rules', permanent: true },
+      // IA-02 (UX1-a): khu soạn bài đổi tên /author → /studio. 308 (permanent) giữ
+      // query; GIỮ VÔ THỜI HẠN - bookmark và liên kết trong thư cũ trỏ vào đây.
+      // Thẻ Tài liệu cũ (`?tab=docs`) nay là trang riêng - phải đứng TRƯỚC luật chung.
+      {
+        source: '/author',
+        has: [{ type: 'query', key: 'tab', value: 'docs' }],
+        destination: '/studio/docs',
+        permanent: true,
+      },
+      { source: '/author', destination: '/studio', permanent: true },
+      { source: '/author/:path*', destination: '/studio/:path*', permanent: true },
     ];
   },
 

@@ -140,7 +140,7 @@ Tài khoản đã seed:
 | -------- | ------- | ------------------------------------------- |
 | `tsudev` | OWNER   | `/admin`, `/admin/projects` (bản phát hành) |
 | `alice`  | MEMBER  | luồng người dùng thường                     |
-| `bob`    | AUTHOR  | `/author` - đăng bài và tài liệu            |
+| `bob`    | AUTHOR  | `/studio` - đăng bài và tài liệu            |
 
 Gọi API trực tiếp (không qua trình duyệt) thì tự ký một khẳng định danh tính bằng `@tsudev/identity-token` - xem
 [auth.md](auth.md).

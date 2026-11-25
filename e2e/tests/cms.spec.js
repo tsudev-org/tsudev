@@ -14,13 +14,13 @@ test('AUTHOR viết → gửi duyệt → duyệt → bài hiện ở /blog', as
   const authorCtx = await browser.newContext({ ignoreHTTPSErrors: true });
   const author = await authorCtx.newPage();
   await signIn(author, MAIN, 'bob');
-  await author.goto(`${MAIN}/author/posts/new`, { waitUntil: 'networkidle' });
+  await author.goto(`${MAIN}/studio/posts/new`, { waitUntil: 'networkidle' });
   await author.fill('#title', title);
   const editor = author.getByRole('textbox', { name: 'Nội dung' });
   await editor.click();
   await author.keyboard.type('Đoạn mở đầu có dấu tiếng Việt.');
   await author.getByRole('button', { name: 'Lưu', exact: true }).click();
-  await expect(author).toHaveURL(/\/author\/posts\/(?!new)[a-z0-9-]+$/, { timeout: 15000 });
+  await expect(author).toHaveURL(/\/studio\/posts\/(?!new)[a-z0-9-]+$/, { timeout: 15000 });
   await expect(author.getByText('Bản nháp', { exact: true })).toBeVisible();
   await author.getByRole('button', { name: 'Gửi duyệt' }).click();
   await expect(author.getByText('Chờ duyệt', { exact: true }).first()).toBeVisible();
