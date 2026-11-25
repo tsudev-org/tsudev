@@ -99,10 +99,9 @@ describe('dueKind - cửa sổ mốc', () => {
     [0, 'expired'],
     [7 * DAY - 1, 'expired'],
     [7 * DAY, null],
-    [60 * DAY, 'purge30'],
-    [67 * DAY, null],
-    [83 * DAY, 'purge7'],
-    [90 * DAY, null],
+    // Mốc "trước khi xoá bản sao đám mây" đã bỏ (PRODUCT_POLICY v2.0.0 mục 7).
+    [60 * DAY, null],
+    [83 * DAY, null],
   ])('lệch %d ms ⇒ %s', (d, k) => {
     expect(pr.dueKind(pu, NOW + d)).toBe(k)
   })
@@ -117,12 +116,8 @@ describe('runReminders', () => {
     await mk('xa', NOW + 30 * DAY)
     await pr.runReminders(NOW)
     const first = mine(sent)
-    expect(first.map((m) => m.to.replace(P, '').split('@')[0]).sort()).toEqual([
-      'a7',
-      'het',
-      'x30',
-      'x7',
-    ])
+    // Hết kỳ lâu rồi (x30, x7) ⇒ không còn thư nào: không còn bản sao đám mây để báo xoá.
+    expect(first.map((m) => m.to.replace(P, '').split('@')[0]).sort()).toEqual(['a7', 'het'])
     sent = []
     await pr.runReminders(NOW + 3600_000)
     expect(mine(sent)).toHaveLength(0)
@@ -142,6 +137,15 @@ describe('runReminders', () => {
       `<https://tsudev.test/api/pro/huy-nhac?${link.split('?')[1]}>`
     )
     expect(m.headers?.['List-Unsubscribe-Post']).toBe('List-Unsubscribe=One-Click')
+  })
+
+  it('không thư nào nhắc tới đồng bộ/đám mây (SYN1)', async () => {
+    await mk('sy7', NOW + 3 * DAY)
+    await mk('syhet', NOW - DAY)
+    await pr.runReminders(NOW)
+    const m = mine(sent)
+    expect(m).toHaveLength(2)
+    for (const x of m) expect(x.html).not.toMatch(/đồng bộ|đám mây/i)
   })
 
   it('không gửi: chưa xác minh email, đã huỷ nhận, bị thu hồi', async () => {

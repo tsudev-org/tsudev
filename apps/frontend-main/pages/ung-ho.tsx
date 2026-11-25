@@ -148,7 +148,7 @@ export default function UngHoPage() {
           <p className="mt-1.5 text-sm text-fg-secondary">
             Tuỳ chọn: đăng nhập và ủng hộ qua mã dưới đây để nhận huy hiệu Ủng hộ cạnh tên tài khoản
             - vĩnh viễn, hiện ở mọi ứng dụng TsuDEV, ẩn được bất cứ lúc nào. Không mở khoá tính năng
-            nào. Muốn đồng bộ đám mây thì xem{' '}
+            nào. Muốn thêm giao diện Pro thì xem{' '}
             <a href="/pro" className="text-link hover:underline">
               TsuDEV Pro
             </a>

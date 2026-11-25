@@ -1,4 +1,4 @@
-# XÁC THỰC VÀ KIẾN TRÚC TÀI KHOẢN - mọi project/tool/phần mềm tsudev (v3.3.0)
+# XÁC THỰC VÀ KIẾN TRÚC TÀI KHOẢN - mọi project/tool/phần mềm tsudev (v3.4.0)
 
 > Đăng nhập, đăng ký, liên kết nhà cung cấp, trạng thái tài khoản, và cơ chế
 > **Xác minh tài khoản**. Đây là chuẩn bắt buộc, không phải gợi ý.
@@ -39,13 +39,13 @@ khi** viết dòng mã xác thực đầu tiên, rồi ghi hạng đó vào `REA
 | Hạng | Mô tả | Xác thực |
 | --- | --- | --- |
 | **A - Web có tài khoản** | Website, ứng dụng web, bảng quản trị. Ví dụ: `tsudev` | `MUST` đủ mục 3 tới 13 |
-| **B - Desktop/app có kết nối** | App cài đặt nhưng có tính năng cần máy chủ (đồng bộ, giấy phép, báo cáo) | `MUST` đủ mục 3 tới 13, thêm mục 14.1 |
+| **B - Desktop/app có kết nối** | App cài đặt nhưng có tính năng cần máy chủ (tài khoản, quyền lợi, giấy phép) - KHÔNG gửi dữ liệu người dùng (`PRODUCT_POLICY` 7.1 N2) | `MUST` đủ mục 3 tới 13, thêm mục 14.1 |
 | **C - Ngoại tuyến** | Chạy trọn vẹn không cần internet. Ví dụ: `tsuswico` rà quét máy tính, `tsucontact` chuyển CSV sang vCard | Đăng nhập là **tùy chọn**, theo mục 14 |
 
 **Quy tắc cứng:** hạng C `MUST NOT` chặn bất kỳ chức năng lõi nào sau một màn
 hình đăng nhập. Người dùng mở phần mềm ra là dùng được ngay. Đăng nhập ở hạng C
-chỉ mở thêm phần cộng thêm (đồng bộ báo cáo, lưu hồ sơ máy, cấu hình theo tài
-khoản), và `MUST` nêu rõ mở thêm cái gì ngay tại nút đăng nhập.
+chỉ mở thêm phần cộng thêm (huy hiệu, quyền lợi Pro, ghi nhận ủng hộ - KHÔNG
+đưa dữ liệu người dùng lên máy chủ, `PRODUCT_POLICY` mục 7), và `MUST` nêu rõ mở thêm cái gì ngay tại nút đăng nhập.
 
 Sản phẩm hạng A và B `MUST NOT` tự dựng kho người dùng riêng. Danh tính của hệ
 sinh thái là **một**, ở `tsudev.com` (mục 2).
@@ -599,13 +599,14 @@ kiện để chia sẻ liên kết giữa các sản phẩm mà không hỏng.
 - Chức năng lõi `MUST` chạy đủ ở **chế độ khách**, không tài khoản, không mạng.
   Với `tsuswico`, rà quét và xuất báo cáo là chức năng lõi.
 - Nút đăng nhập `MUST` nói rõ nó mở thêm gì. Ví dụ đúng: `Đăng nhập tài khoản
-  tsudev để đồng bộ báo cáo và lưu hồ sơ máy`. Ví dụ sai: một nút `Đăng nhập`
+  tsudev để nhận huy hiệu và quyền lợi Pro`. Ví dụ sai: một nút `Đăng nhập`
   trống nghĩa.
 - `MUST NOT` gọi mạng ngầm khi người dùng chưa đăng nhập. Phần mềm rà quét máy
   tính mà tự gọi ra ngoài là điều đầu tiên bị công cụ bảo mật gắn cờ, và đúng ra
   phải như vậy.
 - `MUST` có công tắc **Chế độ ngoại tuyến hoàn toàn** trong Cài đặt, khi bật thì
-  chặn mọi kết nối ra, kể cả kiểm tra bản cập nhật.
+  chặn mọi kết nối ra, kể cả kiểm tra bản cập nhật; khi đó mọi tính năng cần máy
+  chủ tắt và bật lại chỉ sau khi qua cổng phiên bản ([`APP_INTEGRITY.md`](APP_INTEGRITY.md) mục 2.2).
 
 ### 14.2. Token khi ngoại tuyến
 
@@ -620,8 +621,8 @@ kiện để chia sẻ liên kết giữa các sản phẩm mà không hỏng.
 
 ### 14.3. Mã cài đặt (từ v3.9.0)
 
-Dùng để đếm số thiết bị của một tài khoản cho quyền lợi Pro
-([`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) mục 7.3), không để định danh máy.
+Dùng để ghi nhận sản phẩm/thiết bị đã dùng và chống lạm dụng
+([`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) mục 7.7), không để định danh máy.
 
 - `MUST` là chuỗi **ngẫu nhiên 128 bit** từ bộ sinh số ngẫu nhiên mật mã của nền
   tảng, mã hoá base64url không đệm, sinh ở **lần chạy đầu** và lưu cục bộ cùng
@@ -631,7 +632,7 @@ Dùng để đếm số thiết bị của một tài khoản cho quyền lợi 
   tay trình duyệt/phần cứng, hay bất kỳ giá trị nào sống lâu hơn bản cài.
 - Chỉ gửi khi người dùng **đã đăng nhập**, trong header `X-Tsu-Installation` của
   các lượt gọi lấy quyền lợi (`/api/me/entitlements`, `/api/rp/entitlements/*`)
-  và máy chủ đồng bộ. Chưa đăng nhập ⇒ không gửi đi đâu (mục 14.1).
+  và API của sản phẩm. Chưa đăng nhập ⇒ không gửi đi đâu (mục 14.1).
 - Máy chủ chỉ lưu **HMAC-SHA-256** của mã với khoá bí mật phía máy chủ, trong
   bảng `AppInstallation {userId, clientId, installationIdHash, platform,
   lastSeenAt}`; JWS quyền lợi chỉ trả số đếm `devices_30d`, KHÔNG trả danh sách.

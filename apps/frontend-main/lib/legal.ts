@@ -38,7 +38,14 @@ export const DOC_DATES = {
 /** Ngày của /terms - tách riêng từ PRO3 (25/11/2026: thêm mục Gói TsuDEV Pro). */
 export const TERMS_DOC_DATES = {
   effective: '05/11/2026',
-  updated: '25/11/2026',
+  updated: '26/11/2026',
+};
+
+// /privacy: thêm mục "Đăng nhập tài khoản và dữ liệu trong ứng dụng" theo PRODUCT_POLICY 7.7
+// (phiếu SYN1, 26/11/2026) - tách khỏi DOC_DATES để /rules không đổi ngày theo.
+export const PRIVACY_DOC_DATES = {
+  effective: '05/11/2026',
+  updated: '26/11/2026',
 };
 
 /** Ngày của /chinh-sach-thanh-toan (văn bản ban hành riêng, phiếu DK2). */

@@ -10,7 +10,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 export const RENEWAL_TEXT = {
   title: 'Gia hạn TsuDEV Pro',
-  body: 'Gói TsuDEV Pro của bạn hết hạn sau {n} ngày (ngày {ngày}). Gia hạn để tiếp tục đồng bộ và sao lưu đám mây. Nếu không gia hạn, ứng dụng sẽ trở về bản miễn phí: dữ liệu trên thiết bị vẫn giữ nguyên nhưng không còn đồng bộ lên đám mây.',
+  body: 'Gói TsuDEV Pro của bạn hết hạn sau {n} ngày (ngày {ngày}). Gia hạn để giữ huy hiệu và giao diện Pro. Nếu không gia hạn, tài khoản sẽ trở về bản miễn phí; mọi tính năng và dữ liệu trên thiết bị vẫn giữ nguyên.',
   primary: 'Gia hạn',
   secondary: 'Để sau',
 } as const;

@@ -61,9 +61,10 @@ const SECTIONS = [
           <a href="/chinh-sach-thanh-toan">Chính sách thanh toán, hoàn tiền và khiếu nại</a>.
         </p>
         <p>
-          Mã nguồn các ứng dụng được phát hành theo giấy phép mở ghi ở từng dự án. Bản phái sinh
-          (fork) do bên khác phát hành không được dùng tên &quot;TsuDEV Pro&quot; và không được dùng
-          máy chủ quyền lợi, đồng bộ hay tài khoản của tsudev.com để phục vụ người dùng của họ.
+          Mã nguồn các dự án gắn nhãn OPEN được phát hành theo giấy phép mở ghi ở từng dự án; dự án
+          gắn nhãn PRIVATE không công khai mã nguồn. Bản phái sinh (fork) do bên khác phát hành
+          không được dùng tên &quot;TsuDEV Pro&quot; và không được dùng máy chủ quyền lợi hay tài
+          khoản của tsudev.com để phục vụ người dùng của họ.
         </p>
         <p>
           Chúng tôi có quyền bổ sung, thay đổi hoặc ngừng cung cấp một phần dịch vụ. Với thay đổi

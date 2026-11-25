@@ -114,9 +114,9 @@ export async function payCall<T = Record<string, unknown>>(
  * Điều khoản kênh web, đứng TRƯỚC nút mua (khuôn PRODUCT_POLICY 7.5). Web là trả trước từng kỳ,
  * KHÔNG tự gia hạn ⇒ không dùng câu "tự gia hạn" của thuê bao cửa hàng.
  */
-/** Điều khoản đứng TRƯỚC nút mua - NGUYÊN VĂN PRODUCT_POLICY 7.5 (v4.0.0), `test/proTerms.test.ts` canh. */
+/** Điều khoản đứng TRƯỚC nút mua - NGUYÊN VĂN PRODUCT_POLICY 7.5 (v2.0.0, bộ quy ước v7.0.0), `test/proTerms.test.ts` canh. */
 export const webTerms = (price: number) =>
-  `TsuDEV Pro ${vnd(price)} cho 1 năm, KHÔNG tự gia hạn. Gia hạn sớm được cộng thêm 1 năm vào thời hạn còn lại. Hết hạn mà chưa gia hạn, ứng dụng trở về bản miễn phí và ngừng đồng bộ lên đám mây; dữ liệu trên thiết bị vẫn giữ nguyên, bản sao trên đám mây còn tải về được 90 ngày rồi bị xoá.`;
+  `TsuDEV Pro ${vnd(price)} cho 1 năm, KHÔNG tự gia hạn. Gia hạn sớm được cộng thêm 1 năm vào thời hạn còn lại. Hết hạn mà chưa gia hạn, tài khoản trở về bản miễn phí: huy hiệu và giao diện Pro tắt; mọi tính năng và dữ liệu trên thiết bị vẫn giữ nguyên.`;
 
 /**
  * PRODUCT_POLICY 3.7.3 (v6.1.0, phiếu PRO3): câu định vị và ô xác nhận đứng TRƯỚC nút mua,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { LegalDoc } from '../components/LegalDoc';
-import { OPERATOR, DOC_DATES, LEGAL_BASIS } from '../lib/legal';
+import { OPERATOR, PRIVACY_DOC_DATES, LEGAL_BASIS } from '../lib/legal';
 
 const SECTIONS = [
   {
@@ -78,6 +78,81 @@ const SECTIONS = [
           thực hiện khi có sự đồng ý của cha, mẹ hoặc người giám hộ theo quy định của pháp luật. Nếu
           phát hiện đã thu thập dữ liệu trẻ em không đúng quy định, chúng tôi sẽ ngừng xử lý và xóa
           dữ liệu đó.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'dang-nhap-ung-dung',
+    heading: 'Đăng nhập tài khoản và dữ liệu trong ứng dụng TsuDEV',
+    body: (
+      <>
+        <p>
+          Dữ liệu bạn tạo trong các ứng dụng TsuDEV <strong>chỉ nằm trên thiết bị của bạn</strong>.
+          Chúng tôi không tải dữ liệu, tệp, ảnh, danh bạ hay vị trí của bạn lên máy chủ TsuDEV hoặc
+          dịch vụ lưu trữ của bên thứ ba. Muốn mang dữ liệu sang máy khác, bạn đồng bộ trực tiếp
+          giữa hai thiết bị trong cùng mạng Wi-Fi/Bluetooth sau khi ghép đôi bằng mã QR, hoặc xuất
+          ra tệp sao lưu do chính bạn giữ.
+        </p>
+        <p>
+          Đăng nhập tài khoản TsuDEV (trực tiếp hoặc qua Google/GitHub) là tuỳ chọn và chỉ phục vụ:
+          (1) định danh bạn; (2) ghi nhận đóng góp, ủng hộ và quyền lợi TsuDEV Pro; (3) ghi nhận sản
+          phẩm TsuDEV bạn đã dùng; (4) chống lạm dụng, tấn công và truy cập trái phép. Với Google và
+          GitHub, chúng tôi chỉ xin quyền đọc định danh cơ bản (tên, email, ảnh đại diện) - không
+          xin quyền truy cập Drive, ảnh, danh bạ hay kho mã của bạn.
+        </p>
+        <div className="overflow-x-auto">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Dữ liệu</th>
+                <th scope="col">Mục đích</th>
+                <th scope="col">Hạn lưu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Mã tài khoản, email đã xác minh, tên hiển thị, ảnh đại diện (bạn sửa được)</td>
+                <td>(1), (2)</td>
+                <td>Tới khi xoá tài khoản</td>
+              </tr>
+              <tr>
+                <td>
+                  Liên kết nhà cung cấp đăng nhập (mã định danh của Google/GitHub, không giữ token
+                  truy cập dữ liệu)
+                </td>
+                <td>(1)</td>
+                <td>Tới khi gỡ liên kết</td>
+              </tr>
+              <tr>
+                <td>Giao dịch TsuDEV Pro / Ủng hộ</td>
+                <td>(2), nghĩa vụ kế toán và thuế</td>
+                <td>Theo thời hạn pháp luật kế toán yêu cầu</td>
+              </tr>
+              <tr>
+                <td>
+                  Sản phẩm đã dùng: mã ứng dụng, mã cài đặt đã băm, nền tảng, phiên bản, lần cuối
+                  thấy
+                </td>
+                <td>(3), (4)</td>
+                <td>Xoá sau 90 ngày không hoạt động</td>
+              </tr>
+              <tr>
+                <td>
+                  Nhật ký an ninh: đăng nhập, ứng dụng không qua được kiểm tra toàn vẹn, yêu cầu bị
+                  từ chối vì phiên bản cũ, địa chỉ IP rút gọn
+                </td>
+                <td>(4)</td>
+                <td>Tối đa 12 tháng</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Bạn tự xoá tài khoản bất cứ lúc nào ở{' '}
+          <a href="/settings/security#xoa-tai-khoan">Cài đặt → Bảo mật → Xoá tài khoản</a>: tài
+          khoản được hẹn xoá sau 30 ngày (đăng nhập lại trước hạn để huỷ), quá hạn thì xoá vĩnh
+          viễn.
         </p>
       </>
     ),
@@ -229,7 +304,7 @@ const SECTIONS = [
         <p>
           Chúng tôi chỉ lưu dữ liệu trong thời gian cần thiết cho mục đích đã nêu. Cụ thể: dữ liệu
           tài khoản được lưu trong suốt thời gian tài khoản còn hoạt động; nhật ký kỹ thuật và nhật
-          ký bảo mật được lưu tối đa 24 tháng; dữ liệu phục vụ nghĩa vụ pháp lý được lưu theo đúng
+          ký bảo mật được lưu tối đa 12 tháng; dữ liệu phục vụ nghĩa vụ pháp lý được lưu theo đúng
           thời hạn mà pháp luật chuyên ngành yêu cầu. Hết thời hạn, dữ liệu được xóa hoặc ẩn danh
           hóa.
         </p>
@@ -318,8 +393,8 @@ export default function PrivacyPage() {
       eyebrow="Pháp lý"
       title="Chính sách quyền riêng tư và bảo vệ dữ liệu cá nhân"
       lead="Cách TsuDEV thu thập, sử dụng và bảo vệ dữ liệu cá nhân của bạn, cùng các quyền bạn có thể thực hiện bất cứ lúc nào theo Luật Bảo vệ dữ liệu cá nhân 2025."
-      effective={DOC_DATES.effective}
-      updated={DOC_DATES.updated}
+      effective={PRIVACY_DOC_DATES.effective}
+      updated={PRIVACY_DOC_DATES.updated}
       sections={SECTIONS}
       note={
         <>

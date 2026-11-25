@@ -231,11 +231,18 @@ const providers: Provider[] = [
 // Nhà cung cấp bên thứ ba: chỉ thêm khi ĐÃ cấu hình đủ. next-auth vẫn dựng ra
 // một provider khi thiếu biến - chỉ là nó không bao giờ đăng nhập được, và
 // người dùng thấy một nút bấm không làm gì cả.
+//
+// Phạm vi GHIM TƯỜNG MINH (PRODUCT_POLICY 7.7, phiếu SYN1): đăng nhập bên thứ ba
+// chỉ để định danh - KHÔNG xin quyền đọc repo, Drive, ảnh, danh bạ... Ghim ở đây
+// để một bản next-auth mới đổi mặc định cũng không nới được; `test/oauthScopes.test.ts` canh.
+export const GITHUB_SCOPE = 'read:user user:email';
+export const GOOGLE_SCOPE = 'openid email profile';
 if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
   providers.push(
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      authorization: { params: { scope: GITHUB_SCOPE } },
     })
   );
 }
@@ -244,6 +251,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: { params: { scope: GOOGLE_SCOPE } },
     })
   );
 }
