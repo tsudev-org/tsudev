@@ -1,4 +1,4 @@
-import React, { useSyncExternalStore } from 'react';
+import React, { useCallback, useRef, useSyncExternalStore } from 'react';
 import { useSession, signIn } from 'next-auth/react';
 import { Layout, Button, Icon, EmptyState } from '@tsudev/ui';
 import type { IconName } from '@tsudev/ui';
@@ -101,6 +101,24 @@ export function WorkspaceLayout({
 }: Props) {
   const { data: session, status } = useSession();
   const collapsed = useSyncExternalStore(subscribe, readCollapsed, () => false);
+  // Chiều cao thanh tiêu đề dính đổi theo bề rộng (hành động xuống dòng) - đặt
+  // thành biến CSS trên vùng nội dung để thanh công cụ trình soạn dính NGAY dưới
+  // nó (`.tsu-editor-toolbar`). Ghi thẳng style: không cần vẽ lại React.
+  // Callback ref, KHÔNG useEffect([]): thanh được dựng lại khi phiên nạp xong (cây
+  // khác nhau trước/sau đăng nhập) - effect một lần theo dõi nút DOM đã gỡ, biến
+  // đứng ở chiều cao cũ và thanh công cụ chui dưới thanh tiêu đề (đo 25/11/2026).
+  const roRef = useRef<ResizeObserver | null>(null);
+  const barRef = useCallback((bar: HTMLDivElement | null) => {
+    roRef.current?.disconnect();
+    roRef.current = null;
+    const host = bar?.parentElement;
+    if (!bar || !host || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() =>
+      host.style.setProperty('--studio-bar-h', `${bar.offsetHeight}px`)
+    );
+    ro.observe(bar);
+    roRef.current = ro;
+  }, []);
   const role = (session?.user as { role?: string } | undefined)?.role;
   const nav = NAV.filter((n) => !n.min || hasAtLeastRole(role, n.min));
 
@@ -215,6 +233,7 @@ export function WorkspaceLayout({
         <div className="min-w-0 flex-1">
           {/* Thanh tiêu đề DÍNH: hành động chính luôn trong tầm tay khi cuộn bài dài (ED-04). */}
           <div
+            ref={barRef}
             className="sticky top-16 z-30 -mx-4 px-4 py-3 mb-5 border-b border-line flex flex-wrap items-center justify-between gap-3 backdrop-blur-md"
             style={{ backgroundColor: 'color-mix(in srgb, var(--bg-base) 88%, transparent)' }}
           >

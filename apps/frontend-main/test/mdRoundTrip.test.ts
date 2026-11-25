@@ -6,29 +6,22 @@
  * lặng, vì test cũ chỉ canh ranh giới XSS chứ không canh độ đủ cú pháp.
  *
  * Tệp này dùng CHÍNH bộ tuần tự hoá của trình soạn (`@tiptap/markdown`, cùng cấu
- * hình extension với `components/MarkdownEditor.tsx`) để sinh Markdown cho từng
- * nút trên thanh công cụ, rồi khẳng định `renderMarkdown` vẽ ra đúng thẻ.
- * Thêm nút mới vào trình soạn mà không thêm ca ở đây ⇒ test "mọi nút có ca" đỏ.
+ * hình extension `components/editor/extensions.ts`) để sinh Markdown cho từng
+ * nút/khối của trình soạn, rồi khẳng định `renderMarkdown` vẽ ra đúng thẻ VÀ đọc
+ * ngược Markdown đó về đúng cây nút (khứ hồi hai chiều).
+ * Thêm nút/khối mới mà không thêm ca ở đây ⇒ test "mọi nút có ca" đỏ.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { MarkdownManager } from '@tiptap/markdown';
-import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
+import { contentExtensions } from '../components/editor/extensions';
+import { BLOCKS } from '../components/editor/blocks';
 import { extractHeadings, renderMarkdown } from '../lib/md';
 
 type Node = Record<string, unknown>;
 
-const manager = new MarkdownManager({
-  extensions: [
-    StarterKit.configure({
-      underline: false,
-      link: { openOnClick: false, autolink: true, protocols: ['http', 'https', 'mailto'] },
-      heading: { levels: [2, 3, 4] },
-    }),
-    Image,
-  ],
-});
+// CHÍNH bộ extension của trình soạn (một nguồn - `components/editor/extensions.ts`).
+const manager = new MarkdownManager({ extensions: contentExtensions() });
 
 const text = (t: string, marks: string[] = []): Node => ({
   type: 'text',
@@ -39,54 +32,27 @@ const para = (...content: Node[]): Node => ({ type: 'paragraph', content });
 const item = (t: string): Node => ({ type: 'listItem', content: [para(text(t))] });
 const toMd = (...content: Node[]): string => manager.serialize({ type: 'doc', content });
 
-/** Mỗi nút thanh công cụ (nhãn y hệt `MarkdownEditor.tsx`) ⇒ tài liệu nó tạo + thẻ phải vẽ ra. */
+const cell = (kind: string, t: string): Node => ({ type: kind, content: [para(text(t))] });
+const linkDoc = [
+  para({
+    type: 'text',
+    text: 'tsudev',
+    marks: [{ type: 'link', attrs: { href: 'https://tsudev.com/blog' } }],
+  }),
+];
+const linkRe = /<a href="https:\/\/tsudev\.com\/blog">tsudev<\/a>/;
+
+/** Nút ĐỊNH DẠNG/CHÈN có nhãn literal trong `<Btn label="...">` (thanh công cụ + menu nổi). */
 const BUTTONS: Record<string, { doc: Node[]; expect: RegExp }> = {
   'Đậm (Ctrl+B)': { doc: [para(text('đậm', ['bold']))], expect: /<strong>đậm<\/strong>/ },
   'Nghiêng (Ctrl+I)': { doc: [para(text('nghiêng', ['italic']))], expect: /<em>nghiêng<\/em>/ },
   'Gạch ngang': { doc: [para(text('gạch', ['strike']))], expect: /<del>gạch<\/del>/ },
   'Mã trong dòng': { doc: [para(text('a<b', ['code']))], expect: /<code>a&lt;b<\/code>/ },
-  'Tiêu đề cấp 2': {
-    doc: [{ type: 'heading', attrs: { level: 2 }, content: [text('Hai')] }],
-    expect: /<h2 id="hai">Hai<\/h2>/,
-  },
-  'Tiêu đề cấp 3': {
-    doc: [{ type: 'heading', attrs: { level: 3 }, content: [text('Ba')] }],
-    expect: /<h3 id="ba">Ba<\/h3>/,
-  },
-  'Tiêu đề cấp 4': {
-    doc: [{ type: 'heading', attrs: { level: 4 }, content: [text('Bốn')] }],
-    expect: /<h4 id="bon">Bốn<\/h4>/,
-  },
-  'Danh sách chấm': {
-    doc: [{ type: 'bulletList', content: [item('một'), item('hai')] }],
-    expect: /<ul>\s*<li>một<\/li>\s*<li>hai<\/li>\s*<\/ul>/,
-  },
-  'Danh sách số': {
-    doc: [{ type: 'orderedList', attrs: { start: 1 }, content: [item('một'), item('hai')] }],
-    expect: /<ol>\s*<li>một<\/li>\s*<li>hai<\/li>\s*<\/ol>/,
-  },
-  'Trích dẫn': {
-    doc: [{ type: 'blockquote', content: [para(text('lời dẫn'))] }],
-    expect: /<blockquote>\s*<p>lời dẫn<\/p>\s*<\/blockquote>/,
-  },
-  'Khối mã': {
-    doc: [{ type: 'codeBlock', attrs: { language: 'bash' }, content: [text('ls -la')] }],
+  'Liên kết (Ctrl+K)': { doc: linkDoc, expect: linkRe },
+  'Hộp ghi chú': {
+    doc: [{ type: 'callout', attrs: { kind: 'note' }, content: [para(text('Lưu ý'))] }],
     expect:
-      /<div class="code-lang">bash<\/div><pre><code class="language-bash">ls -la<\/code><\/pre>/,
-  },
-  'Đường phân cách': {
-    doc: [para(text('a')), { type: 'horizontalRule' }, para(text('b'))],
-    expect: /<hr>/,
-  },
-  'Liên kết': {
-    doc: [
-      para({
-        type: 'text',
-        text: 'tsudev',
-        marks: [{ type: 'link', attrs: { href: 'https://tsudev.com/blog' } }],
-      }),
-    ],
-    expect: /<a href="https:\/\/tsudev\.com\/blog">tsudev<\/a>/,
+      /<aside class="md-callout md-callout-note" role="note"><p class="md-callout-title">Ghi chú<\/p>\s*<p>Lưu ý<\/p>/,
   },
   Ảnh: {
     doc: [
@@ -99,25 +65,158 @@ const BUTTONS: Record<string, { doc: Node[]; expect: RegExp }> = {
       /<figure class="md-figure"><img src="https:\/\/media\.tsudev\.com\/a\.webp" alt="Mô tả"[^>]*><figcaption>Chú thích<\/figcaption><\/figure>/,
   },
 };
+// Menu nổi khi bôi chọn: cùng lệnh với nút thanh công cụ.
+BUTTONS['Đậm'] = BUTTONS['Đậm (Ctrl+B)']!;
+BUTTONS['Nghiêng'] = BUTTONS['Nghiêng (Ctrl+I)']!;
+BUTTONS['Gạch'] = BUTTONS['Gạch ngang']!;
+BUTTONS['Mã'] = BUTTONS['Mã trong dòng']!;
+BUTTONS['Gắn liên kết'] = BUTTONS['Liên kết (Ctrl+K)']!;
 
-/** Nút không sinh nội dung - không cần ca. */
-const NON_CONTENT = new Set(['Hoàn tác (Ctrl+Z)', 'Làm lại (Ctrl+Shift+Z)']);
+/** Mỗi khối trong `BLOCKS` (menu `/` + nút khối trên thanh công cụ). */
+const calloutCase = (kind: string, title: string) => ({
+  doc: [
+    {
+      type: 'callout',
+      attrs: { kind },
+      content: [para(text('Dòng một', ['bold'])), para(text('Dòng hai'))],
+    },
+  ],
+  expect: new RegExp(
+    `<aside class="md-callout md-callout-${kind}" role="note"><p class="md-callout-title">${title}</p>\\s*<p><strong>Dòng một</strong></p>\\s*<p>Dòng hai</p>\\s*</aside>`
+  ),
+});
+const BLOCK_CASES: Record<string, { doc: Node[]; expect: RegExp }> = {
+  paragraph: { doc: [para(text('chữ'))], expect: /^<p>chữ<\/p>/ },
+  h2: {
+    doc: [{ type: 'heading', attrs: { level: 2 }, content: [text('Hai')] }],
+    expect: /<h2 id="hai">Hai<\/h2>/,
+  },
+  h3: {
+    doc: [{ type: 'heading', attrs: { level: 3 }, content: [text('Ba')] }],
+    expect: /<h3 id="ba">Ba<\/h3>/,
+  },
+  h4: {
+    doc: [{ type: 'heading', attrs: { level: 4 }, content: [text('Bốn')] }],
+    expect: /<h4 id="bon">Bốn<\/h4>/,
+  },
+  bulletList: {
+    doc: [{ type: 'bulletList', content: [item('một'), item('hai')] }],
+    expect: /<ul>\s*<li>một<\/li>\s*<li>hai<\/li>\s*<\/ul>/,
+  },
+  orderedList: {
+    doc: [{ type: 'orderedList', content: [item('một'), item('hai')] }],
+    expect: /<ol>\s*<li>một<\/li>\s*<li>hai<\/li>\s*<\/ol>/,
+  },
+  taskList: {
+    doc: [
+      {
+        type: 'taskList',
+        content: [
+          { type: 'taskItem', attrs: { checked: false }, content: [para(text('chưa'))] },
+          { type: 'taskItem', attrs: { checked: true }, content: [para(text('xong'))] },
+        ],
+      },
+    ],
+    expect:
+      /<ul>\s*<li><input disabled="" type="checkbox"> chưa<\/li>\s*<li><input checked="" disabled="" type="checkbox"> xong<\/li>/,
+  },
+  blockquote: {
+    doc: [{ type: 'blockquote', content: [para(text('lời dẫn'))] }],
+    expect: /<blockquote>\s*<p>lời dẫn<\/p>\s*<\/blockquote>/,
+  },
+  'callout-note': calloutCase('note', 'Ghi chú'),
+  'callout-tip': calloutCase('tip', 'Mẹo'),
+  'callout-important': calloutCase('important', 'Quan trọng'),
+  'callout-warning': calloutCase('warning', 'Cảnh báo'),
+  'callout-caution': calloutCase('caution', 'Thận trọng'),
+  codeBlock: {
+    doc: [{ type: 'codeBlock', attrs: { language: 'bash' }, content: [text('ls -la')] }],
+    expect:
+      /<div class="code-lang">bash<\/div><pre><code class="language-bash">ls -la<\/code><\/pre>/,
+  },
+  table: {
+    doc: [
+      {
+        type: 'table',
+        content: [
+          { type: 'tableRow', content: [cell('tableHeader', 'A'), cell('tableHeader', 'B')] },
+          { type: 'tableRow', content: [cell('tableCell', '1'), cell('tableCell', '2')] },
+        ],
+      },
+    ],
+    expect:
+      /<div class="md-table"><table><thead><tr>\s*<th>A<\/th>\s*<th>B<\/th>[\s\S]*<td>1<\/td>\s*<td>2<\/td>/,
+  },
+  horizontalRule: {
+    doc: [para(text('a')), { type: 'horizontalRule' }, para(text('b'))],
+    expect: /<hr>/,
+  },
+};
+
+/** Nút không sinh nội dung MỚI - không cần ca (thao tác bảng đã có ca `table`). */
+const NON_CONTENT = new Set([
+  'Hoàn tác (Ctrl+Z)',
+  'Làm lại (Ctrl+Shift+Z)',
+  'Phím tắt (?)',
+  'Thêm hàng phía dưới',
+  'Thêm cột bên phải',
+  'Xoá hàng',
+  'Xoá cột',
+  'Xoá bảng',
+  'Gỡ hộp ghi chú',
+]);
+
+/** Gỡ thuộc tính mặc định mà bộ đọc thêm vào, để so cây nút với cây gốc. */
+const strip = (n: unknown): unknown => {
+  if (Array.isArray(n)) return n.map(strip);
+  if (!n || typeof n !== 'object') return n;
+  const o: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(n as Record<string, unknown>)) {
+    if (k === 'attrs') {
+      const a = Object.fromEntries(
+        Object.entries(v as Record<string, unknown>).filter(
+          ([, x]) => x !== null && x !== undefined
+        )
+      );
+      if (Object.keys(a).length) o.attrs = a;
+    } else o[k] = strip(v);
+  }
+  return o;
+};
 
 describe('khứ hồi: mỗi nút của trình soạn vẽ đúng thẻ trên trang công khai', () => {
-  test('mọi nút trên thanh công cụ đều có ca trong test này', () => {
+  test('mọi nút trên thanh công cụ và menu nổi đều có ca trong test này', () => {
     const src = readFileSync(join(__dirname, '../components/MarkdownEditor.tsx'), 'utf8');
     const labels = [...src.matchAll(/<Btn\s+label="([^"]+)"/g)].map((m) => m[1] as string);
-    const levels = /\(\[([\d,\s]+)\] as const\)\.map\(\(level\)/.exec(src)?.[1] ?? '';
-    for (const l of levels.split(',')) labels.push(`Tiêu đề cấp ${l.trim()}`);
     // Bắt được ít nhất đủ số nút hiện có - regex trích nhãn hỏng thì test không được xanh rỗng.
-    expect(labels.length).toBeGreaterThanOrEqual(15);
+    expect(labels.length).toBeGreaterThanOrEqual(20);
     const missing = labels.filter((l) => !NON_CONTENT.has(l) && !(l in BUTTONS));
     expect(missing).toEqual([]);
   });
 
-  test.each(Object.entries(BUTTONS))('%s', (_label, { doc, expect: want }) => {
-    const md = toMd(...doc);
-    expect(renderMarkdown(md)).toMatch(want);
+  test('mọi khối của menu `/` có ca khứ hồi', () => {
+    expect(BLOCKS.length).toBeGreaterThanOrEqual(15);
+    expect(BLOCKS.map((b) => b.id).filter((id) => !(id in BLOCK_CASES))).toEqual([]);
+  });
+
+  test.each(Object.entries({ ...BUTTONS, ...BLOCK_CASES }))(
+    '%s',
+    (_label, { doc, expect: want }) => {
+      const md = toMd(...doc);
+      expect(renderMarkdown(md)).toMatch(want);
+      // Chiều ngược: Markdown đã lưu mở lại trong trình soạn ra ĐÚNG cây nút ban đầu.
+      expect(strip(manager.parse(md).content)).toEqual(strip(doc));
+    }
+  );
+
+  test('hộp ghi chú viết tay theo GitHub (chữ cùng dòng với dấu) đọc được vào trình soạn', () => {
+    const doc = manager.parse('> [!WARNING] Cẩn thận\n> dòng hai\n\nsau');
+    expect(doc.content?.[0]).toMatchObject({ type: 'callout', attrs: { kind: 'warning' } });
+    expect(doc.content?.[1]).toMatchObject({ type: 'paragraph' });
+  });
+
+  test('trích dẫn thường KHÔNG bị đọc thành hộp ghi chú', () => {
+    expect(manager.parse('> chỉ là trích dẫn').content?.[0]?.type).toBe('blockquote');
   });
 });
 
