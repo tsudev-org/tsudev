@@ -1,0 +1,77 @@
+name: Contributors hệ sinh thái
+
+# Cập nhật hằng tuần số contributors của repo từng app (dòng "Author: TsuDEV + N Contributors" trên thẻ
+# trang chủ + /apps - phiếu 20261125-ECO1, phase ECO1-a). Trang KHÔNG gọi GitHub lúc chạy: bản chụp
+# packages/ui/src/lib/contributors.json do scripts/eco-contributors.js sinh. Đổi ⇒ đẩy nhánh
+# chore/eco-contributors và mở PR (người duyệt đối chiếu danh sách login trong thân PR).
+#
+# PR do GITHUB_TOKEN mở KHÔNG tự chạy CI (chặn đệ quy của GitHub) ⇒ đóng rồi mở lại PR bằng tài khoản người
+# (`gh pr close <số> && gh pr reopen <số>`) để 13 check bắt buộc chạy. Repo đang TẮT "Allow GitHub Actions to
+# create and approve pull requests" ⇒ bước tạo PR chỉ cảnh báo + ghi link so sánh vào Summary, nhánh vẫn được đẩy.
+on:
+  schedule:
+    - cron: '41 2 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eco-contributors
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Đếm contributors + mở PR khi đổi
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+      - name: Đếm contributors (GitHub REST)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/eco-contributors.js | tee "$RUNNER_TEMP/contributors.txt"
+      - name: Đẩy nhánh + mở PR khi đổi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BR: chore/eco-contributors
+        run: |
+          if git diff --quiet -- packages/ui/src/lib/contributors.json; then
+            echo "Không đổi - không mở PR."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$BR"
+          git add packages/ui/src/lib/contributors.json
+          git commit -m 'chore(eco): cập nhật số contributors hệ sinh thái'
+          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${BR}"
+          {
+            echo 'Cập nhật hằng tuần bởi workflow `Contributors hệ sinh thái` (`scripts/eco-contributors.js`).'
+            echo
+            echo 'Đã lọc bot, tài khoản TsuDEV và tài khoản tự động. Danh sách login để đối chiếu:'
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/contributors.txt"
+            echo '```'
+            echo
+            echo 'CI không tự chạy với PR do GITHUB_TOKEN mở: `gh pr close <số> && gh pr reopen <số>`.'
+          } > "$RUNNER_TEMP/body.md"
+          if [ "$(gh pr view "$BR" --json state --jq .state 2>/dev/null)" = "OPEN" ]; then
+            echo "PR của nhánh $BR đang mở - đã cập nhật nhánh."
+            exit 0
+          fi
+          if ! gh pr create --base main --head "$BR" \
+            --title 'chore(eco): cập nhật số contributors hệ sinh thái' --body-file "$RUNNER_TEMP/body.md"; then
+            URL="https://github.com/${GITHUB_REPOSITORY}/compare/main...${BR}?expand=1"
+            echo "::warning::Không tạo được PR (cài đặt Actions chặn) - mở tay: ${URL}"
+            { echo "### Mở PR tay"; echo; echo "${URL}"; echo; cat "$RUNNER_TEMP/body.md"; } >> "$GITHUB_STEP_SUMMARY"
+          fi
