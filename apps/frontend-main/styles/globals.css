@@ -505,6 +505,59 @@
   border-color: color-mix(in srgb, var(--sp) 60%, var(--border));
 }
 
+/* Dải chéo góc TRÊN PHẢI của thẻ app (phiếu ECO1-a, chủ dự án chốt 25/11/2026): "Open" nền đen tuyền ở
+   cả hai chế độ, kèm tam giác cách điệu; "Private" nền đỏ. Khung bọc tự cắt (overflow hidden) nên thẻ
+   không phải overflow:hidden - focus ring và quầng bóng của thẻ giữ nguyên. Vị trí tuyệt đối, kích thước
+   cố định ⇒ không gây CLS; không hoạt ảnh. Hàng đầu thẻ chừa `pr-8` để tên app / ô chọn tròn không nằm
+   dưới dải (EcoAppCard). Màu: token ribbon-* (contrast.test.ts). */
+.tsu-ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 5.5rem;
+  height: 5.5rem;
+  overflow: hidden;
+  pointer-events: none;
+  border-top-right-radius: inherit;
+}
+.tsu-ribbon__band {
+  position: absolute;
+  top: 1.125rem;
+  right: -1.875rem;
+  width: 7.5rem;
+  transform: rotate(45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  height: 1.125rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.tsu-ribbon--open .tsu-ribbon__band {
+  background: var(--ribbon-open-bg);
+  color: var(--ribbon-open-ink);
+}
+/* Ở chế độ Tối dải đen nằm trên thẻ gần đen: viền mảnh để còn thấy hình dải. */
+:root:not([data-theme='light']) .tsu-ribbon--open .tsu-ribbon__band {
+  box-shadow: 0 0 0 1px var(--border-strong);
+}
+.tsu-ribbon--open .tsu-ribbon__band::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 0.25rem solid transparent;
+  border-right: 0.25rem solid transparent;
+  border-bottom: 0.375rem solid currentColor;
+}
+.tsu-ribbon--private .tsu-ribbon__band {
+  background: var(--ribbon-private-bg);
+  color: var(--ribbon-private-ink);
+}
+
 /* Hoạ tiết lưới mờ dần về cuối khối - dùng cùng .tsu-grid. */
 .tsu-grid-fade {
   mask-image: radial-gradient(70% 60% at 50% 0%, #000 20%, transparent 70%);
@@ -995,12 +1048,16 @@ html:not([data-auth-author]) .tsu-auth-author {
   outline-offset: 3px;
 }
 
-/* Trượt vào từ phía thẻ lệch về - chỉ khi useScrollReveal đã bật (xem khối SCROLL-REVEAL). */
-[data-reveal='on'] .reveal.reveal-from-left {
-  transform: translateX(-40px);
-}
-[data-reveal='on'] .reveal.reveal-from-right {
-  transform: translateX(40px);
+/* Trượt vào từ phía thẻ lệch về - chỉ khi useScrollReveal đã bật (xem khối SCROLL-REVEAL), và CHỈ từ
+   768px: ở màn hẹp thẻ rộng 100%, dịch ngang 40px đẩy bề rộng tài liệu ⇒ trang chủ cuộn ngang ở 390px
+   (đo 25/11/2026, e2e/tests/eco-cards.spec.js). Màn hẹp dùng kiểu trượt từ dưới lên mặc định của .reveal. */
+@media (min-width: 768px) {
+  [data-reveal='on'] .reveal.reveal-from-left {
+    transform: translateX(-40px);
+  }
+  [data-reveal='on'] .reveal.reveal-from-right {
+    transform: translateX(40px);
+  }
 }
 [data-reveal='on'] .reveal.reveal-from-left.is-in,
 [data-reveal='on'] .reveal.reveal-from-right.is-in {

@@ -102,7 +102,7 @@ module.exports = defineConfig({
       // bốn service, không cần MinIO.
       name: 'app',
       testMatch:
-        /(smoke|invite|release-security|react-hooks-7|cms|vi-ime|qr-login|studio)\.spec\.js/,
+        /(smoke|invite|release-security|react-hooks-7|cms|vi-ime|qr-login|studio|eco-cards)\.spec\.js/,
     },
     {
       // Cần MinIO + storage-service ⇒ chỉ chạy khi có full stack

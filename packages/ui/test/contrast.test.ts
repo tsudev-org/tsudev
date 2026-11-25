@@ -126,6 +126,12 @@ const PAIRS: Array<[string, string, number, string]> = [
   ['--badge-donor-ink', '--badge-donor-bg', 4.5, 'chữ Ủng hộ trên nền huy hiệu'],
   ['--badge-donor-border', '--bg-base', 3, 'viền huy hiệu Ủng hộ trên nền trang'],
   ['--badge-donor-border', '--bg-surface', 3, 'viền huy hiệu Ủng hộ trên card'],
+  // Dải chéo góc Open/Private trên thẻ app (ECO1-a): chữ trắng trên nền đen tuyền / đỏ; nền đỏ là
+  // đồ hoạ mang nghĩa nên cũng phải tách khỏi nền thẻ (3:1). Dải Open đen trên thẻ Tối dựa vào
+  // viền --border-strong, không vào chính nền.
+  ['--ribbon-open-ink', '--ribbon-open-bg', 4.5, 'chữ Open trên dải chéo góc'],
+  ['--ribbon-private-ink', '--ribbon-private-bg', 4.5, 'chữ Private trên dải chéo góc'],
+  ['--ribbon-private-bg', '--bg-surface', 3, 'dải Private trên nền thẻ'],
 
   // Khối "không tải được nội dung" của EmptyState đặt chữ THƯỜNG (không phải
   // nhãn) lên nền tint cảnh báo. Cặp này khác bốn cặp -ink/-tint ngay trên: ở
