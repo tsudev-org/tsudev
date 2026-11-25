@@ -1,6 +1,6 @@
 import React from 'react';
 import { LegalDoc } from '../components/LegalDoc';
-import { OPERATOR, DOC_DATES, LEGAL_BASIS } from '../lib/legal';
+import { OPERATOR, TERMS_DOC_DATES, LEGAL_BASIS } from '../lib/legal';
 
 const SECTIONS = [
   {
@@ -51,6 +51,20 @@ const SECTIONS = [
             truy cập passkey).
           </li>
         </ul>
+        <h3>Gói TsuDEV Pro</h3>
+        <p>
+          Mọi ứng dụng TsuDEV miễn phí và mã nguồn mở; bạn dùng được đầy đủ tính năng cốt lõi mà
+          không phải trả tiền. <strong>TsuDEV Pro là gói dịch vụ trả phí không bắt buộc</strong>:
+          người dùng tự chọn mua để ủng hộ tác giả duy trì và phát triển dự án, đổi lại tài khoản
+          nhận thêm các quyền lợi liệt kê ở <a href="/pro">trang Pro</a>. Giá, thanh toán, hoàn tiền
+          và khiếu nại theo{' '}
+          <a href="/chinh-sach-thanh-toan">Chính sách thanh toán, hoàn tiền và khiếu nại</a>.
+        </p>
+        <p>
+          Mã nguồn các ứng dụng được phát hành theo giấy phép mở ghi ở từng dự án. Bản phái sinh
+          (fork) do bên khác phát hành không được dùng tên &quot;TsuDEV Pro&quot; và không được dùng
+          máy chủ quyền lợi, đồng bộ hay tài khoản của tsudev.com để phục vụ người dùng của họ.
+        </p>
         <p>
           Chúng tôi có quyền bổ sung, thay đổi hoặc ngừng cung cấp một phần dịch vụ. Với thay đổi
           lớn ảnh hưởng đến quyền lợi của bạn, chúng tôi thông báo trước ít nhất 15 ngày.
@@ -302,8 +316,8 @@ export default function TermsPage() {
       eyebrow="Pháp lý"
       title="Điều khoản sử dụng dịch vụ TsuDEV"
       lead="Các quy định ràng buộc giữa bạn và TsuDEV khi tải phần mềm, đọc tài liệu, blog và sử dụng tài khoản trên TsuDEV."
-      effective={DOC_DATES.effective}
-      updated={DOC_DATES.updated}
+      effective={TERMS_DOC_DATES.effective}
+      updated={TERMS_DOC_DATES.updated}
       sections={SECTIONS}
       note={
         <>

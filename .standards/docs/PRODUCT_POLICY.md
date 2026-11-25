@@ -1,7 +1,9 @@
-# CHÍNH SÁCH SẢN PHẨM TOÀN HỆ TSUDEV (v1.2.0)
+# CHÍNH SÁCH SẢN PHẨM TOÀN HỆ TSUDEV (v1.3.0)
 
 > Áp dụng cho MỌI phần mềm / tool / app / trò chơi / website sản phẩm của hệ sinh thái TsuDEV, ở mọi giai đoạn xây
 > dựng và phát triển. Quyết định của chủ dự án ngày **19/11/2026**. Tài liệu này nói **sản phẩm phải như thế nào**;
+> **v1.3.0 (25/11/2026, phiếu `20261125-PRO3`)**: mọi sản phẩm miễn phí, mã nguồn mở; **Pro là gói KHÔNG bắt buộc để
+> ủng hộ tác giả** - quyền lợi, lời mời mua, màn thanh toán và nghĩa vụ pháp lý ở **mục 3.7**.
 > cách đưa sản phẩm tới người dùng không bị chặn ở [`DISTRIBUTION_TRUST.md`](DISTRIBUTION_TRUST.md); cách agent hỗ
 > trợ điền hồ sơ nộp duyệt ở [`STORE_SUBMISSION.md`](STORE_SUBMISSION.md).
 
@@ -9,7 +11,7 @@
 
 1. Mặc định khi cài lần đầu: ngôn ngữ và giao diện theo hệ thống
 2. Nền tảng: thứ tự ưu tiên và kế hoạch iOS
-3. Không quảng cáo - chỉ gói Pro và Ủng hộ
+3. Không quảng cáo - chỉ gói Pro và Ủng hộ (3.7: Pro là gói tự nguyện ủng hộ tác giả)
 4. Huy hiệu Pro / Ủng hộ
 5. Website của từng sản phẩm: hình ảnh và video
 6. Kiến trúc và bảo mật - mức tối thiểu cho mọi sản phẩm
@@ -112,6 +114,88 @@ Android, không đợi có Mac:
    Điều khoản (giá, thời hạn 1 năm, không tự gia hạn, điều gì xảy ra khi hết hạn) `MUST` hiện TRƯỚC nút mua - yêu cầu
    của cả Google và Apple; nội dung nguyên văn ở mục 7.5.
 6. Hoàn tiền, huỷ: theo chính sách của kênh mua; ghi rõ ở trang Điều khoản của tsudev.com.
+
+### 3.7. Pro là gói tự nguyện ủng hộ tác giả (v1.3.0 - chủ dự án 25/11/2026, phiếu `20261125-PRO3`)
+
+**Định hướng:** mọi phần mềm/tool/app/trò chơi TsuDEV **miễn phí, mã nguồn mở, không quảng cáo**, để cộng đồng dùng và
+đóng góp trên GitHub. Không ai phải mua gì để dùng đủ tính năng cốt lõi. **TsuDEV Pro** (490.000 ₫ / 1 năm, mục 7.2) là
+cách người dùng **tự chọn** ủng hộ tác giả và dự án; đổi lại tài khoản nhận vài quyền lợi **thêm**, không lấy đi gì của
+bản miễn phí.
+
+#### 3.7.1. Quyền lợi Pro - danh sách đóng
+
+| Mã | Quyền lợi | Nơi kiểm | Ghi chú |
+| --- | --- | --- | --- |
+| **Q1** | **Huy hiệu Pro** cạnh tên tài khoản ở mọi app/website (mục 4) | Máy chủ quyền lợi tsudev.com (JWS `badge`) | Ẩn/hiện được |
+| **Q2** | **Giao diện Pro**: bộ chủ đề màu bổ sung, biểu tượng app thay thế (nơi nền tảng hỗ trợ), khung ảnh đại diện | Trong app, theo JWS quyền lợi | Lấy từ token của bộ quy ước + `tsudev_ui` / `@tsudev/ui`; repo không tự chế |
+| **Q3** | **Đồng bộ + sao lưu đám mây** mã hoá đầu cuối (mục 7) | Máy chủ đồng bộ (`402 pro_required`) | Lý do có phí thật: chỉ Pro tốn dung lượng máy chủ (N7) |
+
+- Thêm quyền lợi riêng của một sản phẩm ⇒ ADR của repo + chủ dự án duyệt, và nó `MUST` là **tiện nghi thêm**, không
+  phải tính năng cốt lõi đang/sắp có ở bản miễn phí.
+- `MUST` miễn phí mãi, KHÔNG bao giờ là Pro: chế độ Sáng/Tối/Hệ thống, cỡ chữ, tương phản cao, giảm chuyển động, mọi hỗ
+  trợ tiếp cận (`ACCESSIBILITY.md`), ngôn ngữ, xuất/nhập/sao lưu **ra tệp**, bảo mật (khoá app, mã hoá cục bộ), cập
+  nhật bảo mật.
+- Giao diện Pro chỉ **thêm** lựa chọn. `MUST NOT` làm giao diện miễn phí kém đi (không làm mờ, không chèn khung khoá,
+  không watermark, không gắn chữ "nâng cấp" lên mọi nút). Chủ đề Pro vẫn đạt tương phản WCAG như bảng chính.
+- Huy hiệu Pro `MUST NOT` dùng dấu tích/khiên hay chữ "Đã xác minh" - Pro không phải xác minh danh tính.
+
+#### 3.7.2. Mời mua - không thao túng
+
+- Lối vào Pro chỉ ở: **Tài khoản / Cài đặt**, màn **Giới thiệu**, trang `tsudev.com/pro`, và hai hộp thoại đã duyệt
+  (mục 7.3, 7.6). `MUST NOT` chèn lời mời Pro giữa luồng làm việc chính, màn khởi động, thông báo đẩy, email tiếp thị.
+- `MUST NOT`: đếm ngược, "giảm giá chỉ hôm nay", giá gạch giả, nút "Không, tôi không muốn ủng hộ" kiểu bêu riếu
+  (confirmshaming), chọn sẵn Pro, ẩn nút đóng.
+- Giá hiển thị đủ và một lần: **490.000 ₫ / 1 năm, đã gồm thuế** (web) hoặc giá cửa hàng trả về (Play/App Store).
+
+#### 3.7.3. Màn mua - nội dung bắt buộc (mọi kênh)
+
+Theo thứ tự, TRƯỚC nút thanh toán:
+
+1. **Câu định vị** (nguyên văn):
+   - vi: "Mọi ứng dụng TsuDEV miễn phí và mã nguồn mở. TsuDEV Pro không bắt buộc: bạn chọn Pro để ủng hộ tác giả duy
+     trì và phát triển dự án, đổi lại tài khoản nhận thêm các quyền lợi dưới đây."
+   - en: "Every TsuDEV app is free and open source. TsuDEV Pro is optional: choose Pro to support the author in
+     maintaining and developing the project, and your account gets the extra benefits below."
+2. Danh sách quyền lợi **đang hoạt động thật** (Q1-Q3; quyền lợi chưa làm xong `MUST NOT` hiện).
+3. Điều khoản kỳ hạn nguyên văn mục 7.5 + liên kết **Chính sách thanh toán, hoàn tiền và khiếu nại**
+   (`tsudev.com/chinh-sach-thanh-toan`) và Điều khoản.
+4. **Ô xác nhận** (web/desktop/APK ngoài cửa hàng - nút thanh toán bị vô hiệu tới khi đánh dấu; Play/App Store - đánh
+   dấu trước khi mở luồng mua của cửa hàng), không chọn sẵn:
+   - vi: "Tôi hiểu TsuDEV Pro là gói dịch vụ trả phí không bắt buộc, có thời hạn 1 năm và không tự gia hạn."
+   - en: "I understand TsuDEV Pro is an optional paid plan that lasts 1 year and does not renew automatically."
+
+#### 3.7.4. Gọi đúng tên - không khai sai về pháp lý
+
+- Người mua Pro **nhận quyền lợi**, nên về pháp luật đó là **mua dịch vụ số**, không phải quyên góp. Văn bản pháp lý,
+  hoá đơn, biên nhận, tờ khai cửa hàng gọi Pro là **"gói dịch vụ"**. Lời "ủng hộ tác giả" chỉ là lý do/tinh thần, đặt
+  cạnh, không thay tên gọi.
+- **Ủng hộ** (20.000-200.000 ₫) mới là đóng góp tự nguyện: chỉ có huy hiệu Ủng hộ, không mở khoá gì (mục 4.3).
+- `MUST NOT` dùng trong nội dung công khai (website, app, cửa hàng, README) khi TsuDEV chưa có pháp nhân tương ứng:
+  "tổ chức phi lợi nhuận", "non-profit organization", "quỹ từ thiện", "quyên góp được khấu trừ thuế", "tax-deductible".
+  Được dùng: "miễn phí", "mã nguồn mở", "không quảng cáo", "không vì quảng cáo hay bán dữ liệu".
+
+#### 3.7.5. Nghĩa vụ pháp lý (Việt Nam)
+
+- **Chỉ `tsudev.com` nhận thanh toán web** cho Pro/Ủng hộ của cả hệ (mục 3.3). Website sản phẩm khác `MUST NOT` tự
+  nhận tiền (QR, chuyển khoản, cổng thanh toán) - chỉ liên kết tới `tsudev.com/pro?app=<client_id>` /
+  `tsudev.com/ung-ho?app=<client_id>`.
+- `tsudev.com` `MUST` thông báo website TMĐT với Bộ Công Thương (online.gov.vn; phiếu `20261124-DK2`) và giữ trang
+  `/chinh-sach-thanh-toan`, `/terms`, `/privacy`, thông tin chủ sở hữu ở chân trang khớp với hồ sơ đã nộp. Đổi giá,
+  quyền lợi, kênh thanh toán ⇒ cập nhật trang + khai sửa đổi hồ sơ BCT.
+- **Logo "Đã thông báo Bộ Công Thương"** chỉ hiện trên **đúng tên miền đã được duyệt**, bằng mã nhúng/liên kết do cổng
+  cấp (trang xác minh trên online.gov.vn). Website khác của hệ `MUST NOT` hiện logo này (kể cả "cho đồng bộ"). Nhãn tin
+  cậy cho mọi website: Tín nhiệm mạng (NCA) và bằng chứng kiểm chứng được ở trang `/security` (phiếu SEC2).
+- Website/dự án **tự bán** hàng hoá/dịch vụ trong tương lai (vd. dịch vụ thiệp cưới, sản phẩm OCOP) `MUST` có hồ sơ BCT
+  riêng **trước khi mở bán**; cho nhiều người bán cùng đăng bán (sàn) là loại **đăng ký** khác, có thể đòi hộ kinh
+  doanh/doanh nghiệp ⇒ dừng, chủ dự án quyết.
+- Doanh thu Pro/Ủng hộ do chủ dự án kê khai thuế; agent không tự khai, không tự hứa hẹn về thuế với người dùng.
+
+#### 3.7.6. Mã nguồn mở và quyền lợi
+
+- Mã kiểm Pro trong app là mã mở, `MUST NOT` làm rối/che giấu. Q1 và Q3 do máy chủ tsudev.com kiểm nên bản fork không
+  tự cấp được; Q2 chạy trên máy nên bản fork có thể tự bật - chấp nhận, đúng tinh thần mã nguồn mở.
+- Bản fork không được dùng tên "TsuDEV Pro" và không được dùng máy chủ quyền lợi/đồng bộ của tsudev.com cho người dùng
+  của họ (Điều khoản sử dụng).
 
 ## 4. Huy hiệu Pro / Ủng hộ
 
@@ -391,6 +475,9 @@ JWS còn hạn ⇒ không hiện gì ở mục này (coi như miễn phí, mục
   máy chủ; hết hạn ⇒ về bản miễn phí, không mất dữ liệu.
 - [ ] Huy hiệu Pro/Ủng hộ đúng bảng 4.1, có lựa chọn hiển thị, tôn trọng giảm chuyển động.
 - [ ] Bản Play: ủng hộ cấp huy hiệu đi qua Play Billing (mục 4.3).
+- [ ] Pro đúng mục 3.7: chỉ quyền lợi Q1-Q3 đang chạy thật; tiếp cận/Sáng-Tối/xuất tệp vẫn miễn phí; lối vào Pro chỉ ở
+  chỗ cho phép, không thao túng; màn mua có câu định vị + điều khoản + ô xác nhận (vi/en); website sản phẩm không tự
+  nhận tiền; không hiện logo BCT trên tên miền chưa được duyệt; không chữ "phi lợi nhuận/non-profit".
 - [ ] Có thư mục `ios/` dựng được trên CI macOS (app di động); kết quả thử trên iPhone thật ghi ở `logs/`.
 - [ ] Website sản phẩm có hero có hình, ảnh từng tính năng, video giới thiệu, ảnh theo nền tảng (mục 5).
 - [ ] Bản miễn phí ngắt mạng vẫn đủ tính năng cốt lõi; chưa có Pro ⇒ 0 byte dữ liệu người dùng rời máy (đo bằng proxy).

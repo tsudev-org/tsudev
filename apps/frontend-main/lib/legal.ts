@@ -29,16 +29,22 @@ export const OPERATOR = {
 };
 
 // Ngày ban hành/hiệu lực của chính các văn bản này trên tsudev - không phải
-// ngày hiệu lực của luật.
+// ngày hiệu lực của luật. Dùng cho /privacy, /rules.
 export const DOC_DATES = {
   effective: '05/11/2026',
   updated: '05/11/2026',
 };
 
+/** Ngày của /terms - tách riêng từ PRO3 (25/11/2026: thêm mục Gói TsuDEV Pro). */
+export const TERMS_DOC_DATES = {
+  effective: '05/11/2026',
+  updated: '25/11/2026',
+};
+
 /** Ngày của /chinh-sach-thanh-toan (văn bản ban hành riêng, phiếu DK2). */
 export const PAYMENT_DOC_DATES = {
   effective: '24/11/2026',
-  updated: '24/11/2026',
+  updated: '25/11/2026',
 };
 
 // Cơ sở pháp lý được viện dẫn trong cả ba văn bản. Rà lại mỗi khi luật thay đổi:

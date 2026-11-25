@@ -13,6 +13,9 @@ blog, kho tài liệu và **xác thực**.
 
 Một sản phẩm của [TsuDEV](https://tsudev.com).
 
+Miễn phí, mã nguồn mở (Apache-2.0); TsuDEV Pro là tuỳ chọn để ủng hộ tác giả
+([tsudev.com/pro](https://tsudev.com/pro)).
+
 **Hạng sản phẩm: A - Web có tài khoản** (`.standards/docs/AUTH_AND_ACCOUNT.md`
 mục 1). Hạng A `MUST NOT` tự dựng kho người dùng riêng: danh tính của hệ sinh
 thái là một, ở `tsudev.com`.

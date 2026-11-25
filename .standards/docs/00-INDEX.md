@@ -40,7 +40,7 @@
 3. [`VERSIONING.md`](VERSIONING.md) - đặt tên bản phát hành
 4. [`PACKAGING.md`](PACKAGING.md) - cài bằng lệnh: winget, Scoop, apt/rpm, Homebrew
 5. [`DISTRIBUTION_TRUST.md`](DISTRIBUTION_TRUST.md) - cửa hàng, ký mã, chống báo nhầm antivirus, hồ sơ nền tảng
-6. [`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) - ngôn ngữ/giao diện theo hệ thống, không quảng cáo, Pro + Ủng hộ, huy hiệu, iOS, ảnh/video website, lưu cục bộ - đồng bộ là Pro
+6. [`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) - ngôn ngữ/giao diện theo hệ thống, không quảng cáo, Pro (gói tự nguyện ủng hộ tác giả, 3.7) + Ủng hộ, huy hiệu, iOS, ảnh/video website, lưu cục bộ - đồng bộ là Pro
 7. [`STORE_SUBMISSION.md`](STORE_SUBMISSION.md) - phiên agent tự điền biểu mẫu nộp duyệt cửa hàng/antivirus
 8. [`EMAIL.md`](EMAIL.md) - địa chỉ `@tsudev.com` công bố trên README, cửa hàng, SECURITY/PRIVACY phải có trong danh mục
 
