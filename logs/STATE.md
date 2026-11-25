@@ -1,5 +1,19 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-PRO3, 25/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **PRO3 còn mở** (phiếu [`20261125-PRO3`](handover/20261125-PRO3_pro-goi-tu-nguyen-ung-ho-tac-gia.md)): (c) Q2 chủ đề
+>    Pro trong `@tsudev/ui` + Cài đặt → Giao diện (xong thì thêm Q2 vào `FEATURES` của `/pro`); (e) logo BCT ở
+>    `SiteFooter.tsx` CHỈ sau khi DK2 được duyệt (cổng Bảo vệ bản quyền ⇒ 👤 duyệt).
+> 3. **ECO1-b** như dưới. ⛔ **ECO1-e ĐÃ HUỶ** (👤 25/11: giữ Pro tự nguyện) - đừng gỡ `/pro`.
+> 4. AP3 (iPhone/iPad PWA): thêm nút "iPhone / iPad (web)" ở `/apps` CHỈ sau khi các repo app xong.
+>
+> Đã xong 25/11 (tsudev-PRO3): **PRO3 (a)(b)(d)(f)** + nhãn Open xanh lá phủ góc (#398, `deploy-2026.11.25.9` Worker
+> `da201bae`). `PAYMENT_DOC_DATES` hiệu lực 24/11, cập nhật 25/11/2026; `TERMS_DOC_DATES` tách riêng. Sửa E2E Studio
+> chập chờn (đặt con trỏ qua API TipTap). Ghi chú: chạy E2E ở máy với `DEV_PROXY_PORT` khác ⇒ `.env` lệch, pre-push
+> chặn - `npm run topology:gen` trước khi push. Không khoá, không tác vụ nền.
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-26, 25/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
