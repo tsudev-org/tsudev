@@ -32,3 +32,14 @@
 - 25/11/2026 - tsudev-PRO3: gộp #398, `deploy-2026.11.25.9` (Worker `da201bae`). Đo production: `/pro` có câu định vị +
   ô xác nhận; `/terms`, `/chinh-sach-thanh-toan` có "gói dịch vụ trả phí không bắt buộc", ngày cập nhật 25/11/2026.
   Đã nhắn projects-4c, projects-05. Còn (c) Q2, (e) logo BCT.
+
+- 25/11/2026 - điều phối projects-05: (c) Q2 có token - tsudev-standards **v6.4.0** `tokens/pro-themes.json` + `pro-themes.css` (`DESIGN_SYSTEM.md` mục 1.3). Web: sync `.standards` v6.4.0, nạp `pro-themes.css` sau `products.css`, `<html data-pro-theme="<id>">` chỉ khi JWS có Pro + người dùng chọn; bộ chọn Cài đặt → Giao diện (chưa Pro thấy mẫu, chỉ Mặc định chọn được + "Tìm hiểu TsuDEV Pro"); khung ảnh `--pro-ring-start/end`. Tham khảo tsudev-ui-flutter v0.7.0. Nhãn Private ở `/apps` (tsudev-d8 báo) ⇒ chờ 👤 quyết.
+- 25/11/2026 - tsudev-PRO3c: (c) Q2 web. `.standards` → v6.4.0; `globals.css` nạp `pro-themes.css` SAU `products.css`;
+  `@tsudev/ui`: `lib/proTheme.ts` (khoá `tsudev-pro-theme` = lựa chọn, GIỮ khi hết Pro; `tsudev-pro-ok` = cờ Pro do
+  SiteHeader ghi theo `pay/status`, xoá khi hết Pro/đăng xuất), `ProThemePicker`, `proThemes.generated.ts` (sinh từ
+  `pro-themes.json`, `tokens:check` canh). Script chống nháy `_document.tsx` đặt `data-pro-theme` CHỈ khi có cờ Pro + id
+  thuộc danh sách chuẩn. Trang `/settings/appearance` (menu tài khoản "Giao diện"): Sáng/Tối/Hệ thống miễn phí; chưa Pro
+  thấy mẫu, chỉ Mặc định chọn được + "Tìm hiểu TsuDEV Pro". `/pro` FEATURES thêm Q2. `contrast.test.ts` đo 5 chủ đề × 2
+  chế độ bằng đủ bộ cặp của web + `--pro-ring-*` ≥ 3:1. Chưa làm: khung ảnh đại diện Pro (`--pro-ring-*` trên Avatar).
+  Trả lời điều phối: app nhãn Private ở `/apps` là **La bàn** (`compass`, `tsudev-tsudev/app-la-ban`); 5 trò chơi
+  TsuGameLabs cũng Private.

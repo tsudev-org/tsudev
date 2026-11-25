@@ -1,0 +1,34 @@
+# <repo>/.github/workflows/apple-testflight.yml - gọi workflow dùng chung (tsudev-standards docs/APPLE_CICD.md mục 8.3).
+# Chỉ sửa khối `with:`. Trống APPLE_TEAM_ID_GHIM (chưa có Apple Developer Program) => không chạy gì.
+name: Apple TestFlight
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+    paths:                      # chỉ áp cho nhánh; nhãn luôn chạy
+      - 'apps/app/**'
+      - 'packages/**'
+      - '.github/workflows/apple-testflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: apple-testflight-${{ github.ref }}
+  cancel-in-progress: false     # không huỷ giữa chừng một lần tải lên
+
+jobs:
+  ios:
+    # Nhãn v* luôn lên TestFlight; push main chỉ khi bật biến APPLE_TESTFLIGHT_ON_PUSH=true.
+    if: vars.APPLE_TEAM_ID != '' && (github.ref_type == 'tag' || github.event_name == 'workflow_dispatch' || vars.APPLE_TESTFLIGHT_ON_PUSH == 'true')
+    uses: tsudev-org/.github/.github/workflows/apple-ios-testflight.yml@179e7710c115adce84430655b0dfa916cb04a846 # tsudev-org/.github#7
+    with:
+      app-dir: apps/app
+      bundle-id: com.tsudev.qulythuchi
+      extension-ids: com.tsudev.qulythuchi.QuickWidget
+      team-id-pin: ''           # APPLE_TEAM_ID_GHIM: điền Team ID 10 ký tự khi có tài khoản (PR riêng)
+      flutter-version: '3.50.1'
+      flutter-commit: ae9b586f34a8443573f82ef57c3bf914a908cbf7
+    secrets: inherit

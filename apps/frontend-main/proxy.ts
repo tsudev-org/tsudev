@@ -49,7 +49,7 @@ import type { NextRequest } from 'next/server';
 // `fs` để đọc `_document.tsx`. `test/csp.test.ts` tính lại băm TỪ NGUỒN và bắt
 // lệch (giống cách themeTokens.test.ts canh màu chép ra ngoài).
 // ---------------------------------------------------------------------------
-const THEME_SCRIPT_HASH = 'sha256-h6wfmO95RYTohJ//VaLrnap1eOLX6gyDRAqUNMecxPg=';
+const THEME_SCRIPT_HASH = 'sha256-i+ZRDYchvv9EqbLxr8XsHxr2QnkQpcA2Zfwf6HFT5rQ=';
 const CF_INSIGHTS = 'https://static.cloudflareinsights.com';
 // P1.7 Turnstile: script widget + iframe thử thách đều ở origin này.
 const CF_TURNSTILE = 'https://challenges.cloudflare.com';

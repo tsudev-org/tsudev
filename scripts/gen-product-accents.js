@@ -15,6 +15,10 @@
  *
  * Chỉ lấy `primary`: viền/điểm nhấn là trang trí (không mang chữ) nên không cần cặp tương
  * phản, và `primary` đã được cổng của bộ quy ước đo trên nền chuẩn của cả hai chế độ.
+ *
+ * Tệp sinh thứ hai - `packages/ui/src/lib/proThemes.generated.ts` (PRO3 (c), Q2): id, tên và màu
+ * mẫu của các chủ đề Pro trong `.standards/tokens/pro-themes.json` (DESIGN_SYSTEM.md mục 1.3).
+ * CSS của chủ đề thì nạp THẲNG `.standards/tokens/pro-themes.css` (globals.css), không chép.
  */
 
 const fs = require('fs');
@@ -23,6 +27,8 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, '.standards', 'tokens', 'products');
 const OUT = path.join(ROOT, 'packages', 'ui', 'src', 'lib', 'productAccents.generated.ts');
+const PRO_SRC = path.join(ROOT, '.standards', 'tokens', 'pro-themes.json');
+const OUT_PRO = path.join(ROOT, 'packages', 'ui', 'src', 'lib', 'proThemes.generated.ts');
 const HEX = /^#[0-9A-Fa-f]{6}$/;
 
 function build() {
@@ -51,17 +57,56 @@ function build() {
   ].join('\n');
 }
 
-const next = build();
-if (process.argv.includes('--check')) {
-  const cur = fs.existsSync(OUT) ? fs.readFileSync(OUT, 'utf8') : '';
-  if (cur !== next) {
-    console.error(
-      'products: productAccents.generated.ts lệch .standards/tokens/products - chạy `npm run products:gen`.'
+function buildPro() {
+  const { themes } = JSON.parse(fs.readFileSync(PRO_SRC, 'utf8'));
+  const rows = [];
+  for (const t of themes) {
+    if (!/^[a-z][a-z0-9-]*$/.test(t.id || ''))
+      throw new Error(`pro-themes: id không hợp lệ: ${t.id}`);
+    const c = (m, r) => {
+      const v = t.colors?.[m]?.[r];
+      if (!HEX.test(v || '')) throw new Error(`pro-themes ${t.id}: thiếu colors.${m}.${r}`);
+      return v;
+    };
+    rows.push(
+      `  { id: '${t.id}', label: ${JSON.stringify(t.name.vi)}, ` +
+        `light: '${c('light', 'primary')}', dark: '${c('dark', 'primary')}', ` +
+        `ring: { light: ['${c('light', 'pro-ring-start')}', '${c('light', 'pro-ring-end')}'], ` +
+        `dark: ['${c('dark', 'pro-ring-start')}', '${c('dark', 'pro-ring-end')}'] } },`
     );
-    process.exit(1);
   }
-  console.log('products: productAccents.generated.ts khớp .standards.');
+  return [
+    '// SINH TỰ ĐỘNG bởi scripts/gen-product-accents.js - ĐỪNG SỬA TAY. Cập nhật: `npm run products:gen`.',
+    '// Nguồn: .standards/tokens/pro-themes.json (chủ đề Pro Q2, DESIGN_SYSTEM.md mục 1.3).',
+    '/* eslint-disable */',
+    '// prettier-ignore',
+    'export const PRO_THEME_DATA = [',
+    ...rows,
+    '] as const;',
+    '',
+  ].join('\n');
+}
+
+const outputs = [
+  [OUT, build()],
+  [OUT_PRO, buildPro()],
+];
+if (process.argv.includes('--check')) {
+  let bad = false;
+  for (const [file, next] of outputs) {
+    const cur = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+    if (cur !== next) {
+      bad = true;
+      console.error(
+        `products: ${path.basename(file)} lệch .standards/tokens - chạy \`npm run products:gen\`.`
+      );
+    }
+  }
+  if (bad) process.exit(1);
+  console.log('products: productAccents.generated.ts + proThemes.generated.ts khớp .standards.');
 } else {
-  fs.writeFileSync(OUT, next);
-  console.log(`products: đã ghi ${path.relative(ROOT, OUT)}`);
+  for (const [file, next] of outputs) {
+    fs.writeFileSync(file, next);
+    console.log(`products: đã ghi ${path.relative(ROOT, file)}`);
+  }
 }

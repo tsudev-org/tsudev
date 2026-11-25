@@ -6,7 +6,8 @@ import { hasAtLeastRole } from '@tsudev/types';
 import { saveAuthHint } from '../lib/authHint';
 import { TsuBadge } from './TsuBadge';
 import type { TsuBadgeValue } from './TsuBadge';
-import { fetchOwnBadge, readBadgeCache, writeBadgeCache } from '../lib/badgeCache';
+import { fetchOwnStatus, readBadgeCache, writeBadgeCache } from '../lib/badgeCache';
+import { setProEntitled } from '../lib/proTheme';
 // tsudev là MỘT site nên href tương đối. Trước đây có hai origin (trang chính và
 // diễn đàn) nên mọi link điều hướng buộc phải là URL tuyệt đối.
 type NavItem = {
@@ -62,8 +63,11 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
     const ac = new AbortController();
     Promise.resolve().then(async () => {
       if (cached) return setBadge(cached);
-      const b = await fetchOwnBadge(ac.signal);
+      const { badge: b, proActive } = await fetchOwnStatus(ac.signal);
       if (ac.signal.aborted) return;
+      // Chủ đề giao diện Pro (Q2) theo quyền lợi: chỉ áp khi máy chủ nói CÓ Pro; nói không ⇒ thôi
+      // áp (lựa chọn vẫn nhớ). Lỗi mạng (`null`) không đổi gì.
+      if (proActive !== null) setProEntitled(proActive);
       writeBadgeCache(userName, b);
       setBadge(b);
     });
@@ -73,6 +77,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
   const logout = () => {
     writeBadgeCache('', null);
     saveAuthHint(null);
+    setProEntitled(false);
     signOut();
   };
 
@@ -256,6 +261,12 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
                 Bảo mật tài khoản
               </a>
               <a
+                href="/settings/appearance"
+                className="block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle"
+              >
+                Giao diện
+              </a>
+              <a
                 href="/settings/badge"
                 className="block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle"
               >
@@ -397,6 +408,20 @@ const UserMenu = ({ pending, name, email, image, badge, canAuthor, onLogout }: U
               />
             </svg>
             Hồ sơ tài khoản
+          </a>
+          <a href="/settings/appearance" className={item}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 3a9 9 0 1 0 0 18c1.1 0 1.7-.8 1.7-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7H16a5 5 0 0 0 5-5C21 6.4 17 3 12 3Z"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinejoin="round"
+              />
+              <circle cx="7.5" cy="11.5" r="1.2" fill="currentColor" />
+              <circle cx="10.5" cy="7.5" r="1.2" fill="currentColor" />
+              <circle cx="15" cy="7.8" r="1.2" fill="currentColor" />
+            </svg>
+            Giao diện
           </a>
           <a href="/settings/badge" className={item}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">

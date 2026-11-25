@@ -1,4 +1,4 @@
-# NỘP DUYỆT CỬA HÀNG VÀ NỀN TẢNG - QUY TRÌNH AGENT ĐIỀN BIỂU MẪU (v1.2.0)
+# NỘP DUYỆT CỬA HÀNG VÀ NỀN TẢNG - QUY TRÌNH AGENT ĐIỀN BIỂU MẪU (v1.3.0)
 
 > Quyết định chủ dự án 19/11/2026: agent của từng dự án `MUST` có quy trình **đề xuất chủ dự án mở một phiên riêng**
 > trong đó agent **tự mở trình duyệt và tự điền** từng trường của các biểu mẫu nộp duyệt (Google Play Console,
@@ -146,7 +146,7 @@ Giữ tên ứng dụng, xếp hạng tuổi IARC, thuộc tính (danh mục, y�
 
 Khi có Mac + Apple Developer Program: nhãn quyền riêng tư, tuân thủ xuất khẩu mã hoá, xếp hạng tuổi, IAP thuê bao,
 ảnh 6,9"/6,5"/iPad, thông tin cho người duyệt (tài khoản thử), TestFlight trước App Store. Soạn sẵn `docs/store/app-store.md`
-từ bây giờ.
+từ bây giờ. Dựng, ký, tải bản lên TestFlight và danh sách kiểm App Review: [`APPLE_CICD.md`](APPLE_CICD.md) (mục 6, 9).
 
 ### 4.4. Không bị antivirus / trình duyệt chặn (0 đồng)
 

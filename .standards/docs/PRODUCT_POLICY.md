@@ -127,7 +127,7 @@ bản miễn phí.
 | Mã | Quyền lợi | Nơi kiểm | Ghi chú |
 | --- | --- | --- | --- |
 | **Q1** | **Huy hiệu Pro** cạnh tên tài khoản ở mọi app/website (mục 4) | Máy chủ quyền lợi tsudev.com (JWS `badge`) | Ẩn/hiện được |
-| **Q2** | **Giao diện Pro**: bộ chủ đề màu bổ sung, biểu tượng app thay thế (nơi nền tảng hỗ trợ), khung ảnh đại diện | Trong app, theo JWS quyền lợi | Lấy từ token của bộ quy ước + `tsudev_ui` / `@tsudev/ui`; repo không tự chế |
+| **Q2** | **Giao diện Pro**: bộ chủ đề màu bổ sung, biểu tượng app thay thế (nơi nền tảng hỗ trợ), khung ảnh đại diện | Trong app, theo JWS quyền lợi | 5 chủ đề trong `tokens/pro-themes.json` (`DESIGN_SYSTEM.md` mục 1.3) qua `tsudev_ui` / `@tsudev/ui`; repo không tự chế |
 | **Q3** | **Đồng bộ + sao lưu đám mây** mã hoá đầu cuối (mục 7) | Máy chủ đồng bộ (`402 pro_required`) | Lý do có phí thật: chỉ Pro tốn dung lượng máy chủ (N7) |
 
 - Thêm quyền lợi riêng của một sản phẩm ⇒ ADR của repo + chủ dự án duyệt, và nó `MUST` là **tiện nghi thêm**, không

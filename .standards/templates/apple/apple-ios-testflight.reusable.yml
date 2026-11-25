@@ -1,0 +1,287 @@
+# Workflow DÙNG CHUNG (workflow_call): ký "Apple Distribution" + tải bản iOS (Flutter) lên App Store Connect / TestFlight.
+# Chuẩn: tsudev-standards v6.2.0 `docs/APPLE_CICD.md` mục 8; phiếu toàn hệ 20261125-AP2.
+#
+# Cách gọi: chép `templates/apple/apple-testflight.yml` của bộ quy ước vào `<repo>/.github/workflows/`, sửa khối `with:`.
+#   uses: tsudev-org/.github/.github/workflows/apple-ios-testflight.yml@<SHA ghim>
+#   secrets: inherit
+# Bí mật nằm ở environment `apple` CỦA REPO GỌI (chỉ nhánh main + nhãn v*), đặt bằng
+# `scripts/apple/setup_apple_signing.sh push` của bộ quy ước. `team-id-pin` trống ⇒ job không chạy (chưa có tài khoản).
+
+name: Apple iOS TestFlight (dùng chung)
+
+on:
+  workflow_call:
+    inputs:
+      app-dir:
+        description: 'Thư mục app Flutter (chứa pubspec.yaml và ios/), vd "app" hoặc "apps/app"'
+        type: string
+        required: true
+      bundle-id:
+        description: 'Bundle ID chính, vd com.tsudev.qulythuchi (= applicationId Android)'
+        type: string
+        required: true
+      extension-ids:
+        description: 'Bundle ID các phần mở rộng, cách nhau dấu phẩy; rỗng nếu không có'
+        type: string
+        default: ''
+      team-id-pin:
+        description: 'Team ID Apple GHIM trong workflow repo gọi (10 ký tự). Rỗng => job không chạy.'
+        type: string
+        required: true
+      flutter-version:
+        type: string
+        required: true
+      flutter-commit:
+        description: 'Commit SHA đầy đủ của nhãn flutter-version (chống tráo nhãn)'
+        type: string
+        required: true
+      xcode-version:
+        description: 'Xcode ỔN ĐỊNH, ghim cứng (không lấy bản mới nhất). Cập nhật theo mục 13.'
+        type: string
+        default: '26.6'
+      runner:
+        type: string
+        default: 'macos-26'
+      min-ios:
+        description: 'Deployment target tối thiểu cho phép'
+        type: string
+        default: '15.0'
+      max-ios:
+        description: 'Deployment target tối đa cho phép (iPhone 8 dừng ở iOS 16.7)'
+        type: string
+        default: '16.0'
+      upload:
+        description: 'false = chỉ archive + kiểm, không tải lên'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  testflight:
+    name: iOS -> TestFlight
+    if: inputs.team-id-pin != ''
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 90
+    environment: apple
+    defaults:
+      run:
+        shell: bash
+    env:
+      APP_DIR: ${{ inputs.app-dir }}
+      BUNDLE_ID: ${{ inputs.bundle-id }}
+      EXT_IDS: ${{ inputs.extension-ids }}
+      TEAM_PIN: ${{ inputs.team-id-pin }}
+      APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
+      APPLE_ASC_KEY_ID: ${{ vars.APPLE_ASC_KEY_ID }}
+      APPLE_ASC_ISSUER_ID: ${{ vars.APPLE_ASC_ISSUER_ID }}
+      XCODE_VERSION: ${{ inputs.xcode-version }}
+      FLUTTER_VERSION: ${{ inputs.flutter-version }}
+      FLUTTER_COMMIT: ${{ inputs.flutter-commit }}
+      MIN_IOS: ${{ inputs.min-ios }}
+      MAX_IOS: ${{ inputs.max-ios }}
+      REF_TYPE: ${{ github.ref_type }}
+      REF_NAME: ${{ github.ref_name }}
+      RUN_NUMBER: ${{ github.run_number }}
+      BUILD_OFFSET: ${{ vars.APPLE_BUILD_OFFSET || '0' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Kiểm Team ID (ghim trong workflow = biến repo)
+        run: |
+          set -euo pipefail
+          [[ "$TEAM_PIN" =~ ^[A-Z0-9]{10}$ ]] || { echo "::error::team-id-pin sai dạng"; exit 1; }
+          [[ "${APPLE_TEAM_ID-}" == "$TEAM_PIN" ]] \
+            || { echo "::error::vars.APPLE_TEAM_ID khác Team ID ghim - dừng (bí mật có thể bị tráo)"; exit 1; }
+          [[ -n "${APPLE_ASC_KEY_ID-}" && -n "${APPLE_ASC_ISSUER_ID-}" ]] \
+            || { echo "::error::Thiếu APPLE_ASC_KEY_ID/APPLE_ASC_ISSUER_ID ở environment apple"; exit 1; }
+
+      - name: Chọn Xcode (ghim, chặn beta/RC)
+        run: |
+          set -euo pipefail
+          app="/Applications/Xcode_${XCODE_VERSION}.app"
+          [[ -d "$app" ]] || { echo "::error::Runner không có $app. Có:"; ls -d /Applications/Xcode*.app; exit 1; }
+          real="$(readlink -f "$app")"
+          case "$real" in *[Bb]eta*|*Release_Candidate*|*_RC*) echo "::error::$real là beta/RC"; exit 1 ;; esac
+          sudo xcode-select -s "$app/Contents/Developer"
+          xcodebuild -version
+          major="$(xcodebuild -version | sed -n 's/^Xcode \([0-9]*\).*/\1/p')"
+          (( major >= 26 )) || { echo "::error::App Store Connect đòi Xcode 26+ (SDK iOS 26) từ 28/04/2026"; exit 1; }
+
+      - name: Cài Flutter (ghim nhãn + commit)
+        run: |
+          set -euo pipefail
+          git clone --depth 1 -b "$FLUTTER_VERSION" https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
+          [[ "$(git -C "$RUNNER_TEMP/flutter" rev-parse HEAD)" == "$FLUTTER_COMMIT" ]] \
+            || { echo "::error::Nhãn Flutter $FLUTTER_VERSION không trỏ tới commit đã ghim"; exit 1; }
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+
+      - name: Rust cho iOS (nếu app có lõi Rust)
+        run: |
+          set -euo pipefail
+          if find . -maxdepth 4 -name Cargo.toml -not -path '*/node_modules/*' -not -path './.git/*' | grep -q .; then
+            command -v rustup >/dev/null || { echo "::error::Runner thiếu rustup"; exit 1; }
+            rustup target add aarch64-apple-ios
+          else
+            echo "Không có Cargo.toml - bỏ qua"
+          fi
+
+      - name: Kiểm tĩnh cấu hình iOS
+        working-directory: ${{ inputs.app-dir }}/ios
+        run: |
+          set -euo pipefail
+          pb() { /usr/libexec/PlistBuddy -c "Print :$1" "$2" 2>/dev/null; }
+          plutil -lint Runner/Info.plist
+          test -f Runner/PrivacyInfo.xcprivacy || { echo "::error::Thiếu Runner/PrivacyInfo.xcprivacy"; exit 1; }
+          plutil -lint Runner/PrivacyInfo.xcprivacy
+          grep -q "PRODUCT_BUNDLE_IDENTIFIER = $BUNDLE_ID;" Runner.xcodeproj/project.pbxproj \
+            || { echo "::error::project.pbxproj không có bundle id $BUNDLE_ID"; exit 1; }
+          # Khai mã hoá xuất khẩu phải CÓ (true/false theo quyết định đã ghi ở docs/store/IDENTITY.md) - thiếu => TestFlight kẹt "Missing Compliance".
+          pb ITSAppUsesNonExemptEncryption Runner/Info.plist >/dev/null \
+            || { echo "::error::Info.plist thiếu ITSAppUsesNonExemptEncryption (mục 9.3)"; exit 1; }
+          for ent in $(find Runner -name '*.entitlements'); do
+            plutil -lint "$ent"
+            if pb aps-environment "$ent" >/dev/null; then echo "::warning::$ent có aps-environment - chỉ giữ khi app dùng push"; fi
+          done
+          # Deployment target trong [MIN_IOS, MAX_IOS] (iPhone 8 = iOS 16.7).
+          vlt() { [[ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | head -1)" == "$1" ]]; }
+          for v in $(grep -ho 'IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*' Runner.xcodeproj/project.pbxproj | awk '{print $3}' | sort -u); do
+            vlt "$MIN_IOS" "$v" && vlt "$v" "$MAX_IOS" \
+              || { echo "::error::IPHONEOS_DEPLOYMENT_TARGET=$v ngoài [$MIN_IOS, $MAX_IOS]"; exit 1; }
+          done
+
+      - name: Tính phiên bản (VERSIONING + mục 8.4)
+        run: |
+          set -euo pipefail
+          ver="$(sed -n 's/^version: *\([0-9][0-9.]*\).*/\1/p' "$APP_DIR/pubspec.yaml" | head -1)"
+          [[ -n "$ver" ]] || { echo "::error::Không đọc được version trong pubspec.yaml"; exit 1; }
+          if [[ "$REF_TYPE" == tag ]]; then
+            [[ "$REF_NAME" == "v$ver" ]] || { echo "::error::Nhãn $REF_NAME khác v$ver (pubspec)"; exit 1; }
+            [[ "$ver" =~ ^[0-9]{2}\.[0-9]{1,2}\.[0-9]{4}$ ]] || { echo "::error::version $ver sai dạng YY.M.DDNN"; exit 1; }
+            [[ "${ver: -2}" != 99 ]] || { echo "::error::NN=99 dành riêng cho bản TestFlight liên tục"; exit 1; }
+            name="$ver"; number="$ver"; internal=false
+          else
+            # Bản liên tục: chuyến (train) riêng mỗi ngày YY.M.DD99, số build = run_number + offset (tăng dần).
+            name="$(TZ=Asia/Ho_Chi_Minh date +%y.%-m.%d)99"
+            number="$(( RUN_NUMBER + BUILD_OFFSET ))"
+            internal=true
+          fi
+          { echo "BUILD_NAME=$name"; echo "BUILD_NUMBER=$number"; echo "INTERNAL_ONLY=$internal"; } >> "$GITHUB_ENV"
+          echo "Phiên bản $name ($number), chỉ nội bộ: $internal"
+
+      - name: Nạp chứng chỉ + khoá API vào keychain tạm
+        env:
+          APPLE_DIST_P12_BASE64: ${{ secrets.APPLE_DIST_P12_BASE64 }}
+          APPLE_P12_PASSWORD: ${{ secrets.APPLE_P12_PASSWORD }}
+          APPLE_ASC_KEY_P8_BASE64: ${{ secrets.APPLE_ASC_KEY_P8_BASE64 }}
+        run: |
+          set -euo pipefail
+          [[ -n "${APPLE_DIST_P12_BASE64-}" && -n "${APPLE_P12_PASSWORD-}" && -n "${APPLE_ASC_KEY_P8_BASE64-}" ]] \
+            || { echo "::error::Thiếu secret ở environment apple - chạy setup_apple_signing.sh push"; exit 1; }
+          p8="$RUNNER_TEMP/AuthKey_${APPLE_ASC_KEY_ID}.p8"
+          (umask 077; printf '%s' "$APPLE_ASC_KEY_P8_BASE64" | base64 --decode > "$p8")
+          grep -q 'BEGIN PRIVATE KEY' "$p8" || { echo "::error::APPLE_ASC_KEY_P8_BASE64 không phải khoá .p8"; exit 1; }
+          echo "ASC_P8=$p8" >> "$GITHUB_ENV"
+          kc="$RUNNER_TEMP/tsudev-ky.keychain-db"; kc_pw="$(openssl rand -hex 24)"
+          security create-keychain -p "$kc_pw" "$kc"
+          security set-keychain-settings -lut 3600 "$kc"
+          security unlock-keychain -p "$kc_pw" "$kc"
+          p12="$RUNNER_TEMP/dist.p12"
+          (umask 077; printf '%s' "$APPLE_DIST_P12_BASE64" | base64 --decode > "$p12")
+          security import "$p12" -k "$kc" -P "$APPLE_P12_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/xcodebuild
+          rm -f "$p12"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$kc_pw" "$kc" >/dev/null
+          # Giữ danh sách keychain sẵn có, chỉ THÊM keychain tạm lên đầu.
+          old="$(security list-keychains -d user | tr -d '"' | xargs)"
+          # shellcheck disable=SC2086
+          security list-keychains -d user -s "$kc" $old
+          echo "KEYCHAIN=$kc" >> "$GITHUB_ENV"
+          security find-identity -v -p codesigning "$kc" | grep -q "($TEAM_PIN)" \
+            || { echo "::error::Chứng chỉ Apple Distribution không thuộc Team $TEAM_PIN"; exit 1; }
+
+      - name: Archive (ký tự động qua khoá API)
+        working-directory: ${{ inputs.app-dir }}
+        run: |
+          set -euo pipefail
+          flutter config --no-analytics
+          flutter pub get
+          flutter build ios --release --config-only --build-name "$BUILD_NAME" --build-number "$BUILD_NUMBER"
+          xcodebuild archive -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -allowProvisioningUpdates -authenticationKeyPath "$ASC_P8" \
+            -authenticationKeyID "$APPLE_ASC_KEY_ID" -authenticationKeyIssuerID "$APPLE_ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$TEAM_PIN" CODE_SIGN_STYLE=Automatic \
+            > "$RUNNER_TEMP/xcodebuild-archive.log" 2>&1 \
+            || { tail -n 80 "$RUNNER_TEMP/xcodebuild-archive.log"; exit 1; }
+          tail -n 5 "$RUNNER_TEMP/xcodebuild-archive.log"
+
+      - name: Kiểm bản archive
+        run: |
+          set -euo pipefail
+          app="$(find "$RUNNER_TEMP/App.xcarchive/Products/Applications" -maxdepth 1 -name '*.app' | head -1)"
+          [[ -n "$app" ]] || { echo "::error::Archive không có .app"; exit 1; }
+          px() { plutil -extract "$1" raw "$2/Info.plist"; }
+          [[ "$(px CFBundleIdentifier "$app")" == "$BUNDLE_ID" ]]
+          [[ "$(px CFBundleShortVersionString "$app")" == "$BUILD_NAME" ]]
+          [[ "$(px CFBundleVersion "$app")" == "$BUILD_NUMBER" ]]
+          [[ "$(codesign -dv "$app" 2>&1 | sed -n 's/^TeamIdentifier=//p')" == "$TEAM_PIN" ]] \
+            || { echo "::error::TeamIdentifier của chữ ký khác Team ghim"; exit 1; }
+          test -f "$app/PrivacyInfo.xcprivacy" || { echo "::error::PrivacyInfo.xcprivacy không vào gói"; exit 1; }
+          lipo -info "$app/$(px CFBundleExecutable "$app")" | grep -q arm64
+          IFS=',' read -ra exts <<< "$EXT_IDS"
+          for id in "${exts[@]}"; do
+            [[ -z "$id" ]] && continue
+            ex=""
+            for f in "$app"/PlugIns/*.appex/Info.plist; do
+              [[ -f "$f" && "$(plutil -extract CFBundleIdentifier raw "$f")" == "$id" ]] && { ex="$f"; break; }
+            done
+            [[ -n "$ex" ]] || { echo "::error::Thiếu phần mở rộng $id trong PlugIns"; exit 1; }
+            [[ "$(plutil -extract CFBundleShortVersionString raw "$ex")" == "$BUILD_NAME" ]] \
+              || { echo "::error::Phiên bản của $id khác app"; exit 1; }
+          done
+          echo "### iOS $BUNDLE_ID $BUILD_NAME ($BUILD_NUMBER)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Tạo ExportOptions (Team ID lúc chạy)
+        run: |
+          set -euo pipefail
+          opts="$RUNNER_TEMP/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c 'Add :method string app-store-connect' "$opts"
+          /usr/libexec/PlistBuddy -c 'Add :destination string upload' "$opts"
+          /usr/libexec/PlistBuddy -c "Add :teamID string $TEAM_PIN" "$opts"
+          /usr/libexec/PlistBuddy -c 'Add :signingStyle string automatic' "$opts"
+          /usr/libexec/PlistBuddy -c 'Add :uploadSymbols bool true' "$opts"
+          /usr/libexec/PlistBuddy -c 'Add :manageAppVersionAndBuildNumber bool false' "$opts"
+          /usr/libexec/PlistBuddy -c "Add :testFlightInternalTestingOnly bool $INTERNAL_ONLY" "$opts"
+          plutil -lint "$opts"
+
+      - name: Tải lên App Store Connect / TestFlight
+        if: inputs.upload
+        run: |
+          set -euo pipefail
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/upload" \
+            -allowProvisioningUpdates -authenticationKeyPath "$ASC_P8" \
+            -authenticationKeyID "$APPLE_ASC_KEY_ID" -authenticationKeyIssuerID "$APPLE_ASC_ISSUER_ID" \
+            > "$RUNNER_TEMP/xcodebuild-upload.log" 2>&1 \
+            || { tail -n 80 "$RUNNER_TEMP/xcodebuild-upload.log"; exit 1; }
+          tail -n 5 "$RUNNER_TEMP/xcodebuild-upload.log"
+          echo "Đã tải lên. Kiểm trên Ubuntu: setup_apple_signing.sh builds $BUNDLE_ID" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Lưu log xcodebuild khi lỗi
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: xcodebuild-logs-${{ github.run_number }}
+          path: ${{ runner.temp }}/xcodebuild-*.log
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Xoá keychain tạm + khoá API
+        if: always()
+        run: |
+          if [[ -n "${KEYCHAIN-}" ]]; then security delete-keychain "$KEYCHAIN" || true; fi
+          rm -f "$RUNNER_TEMP"/AuthKey_*.p8 "$RUNNER_TEMP/dist.p12" || true
+          rm -rf "$HOME/.appstoreconnect/private_keys" || true

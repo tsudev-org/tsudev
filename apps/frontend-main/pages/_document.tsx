@@ -34,6 +34,10 @@ const DARK_BASE = '#0a0a0a';
  * tính này, trước lần vẽ đầu. Gợi ý chỉ để vẽ giao diện - KHÔNG phải bằng chứng đăng
  * nhập; mọi cổng quyền vẫn ở máy chủ.
  *
+ * Chủ đề màu Pro (Q2, `packages/ui/src/lib/proTheme.ts`) cũng áp ở đây - `data-pro-theme` CHỈ
+ * khi có cờ Pro `tsudev-pro-ok` và id nằm trong danh sách chuẩn (id lạ ⇒ không đặt). Khoá và
+ * danh sách id viết thẳng (script băm CSP), `test/proTheme.test.ts` canh khớp `@tsudev/ui`.
+ *
  * Đổi script này ⇒ cập nhật `THEME_SCRIPT_HASH` trong proxy.ts (test/csp.test.ts bắt).
  */
 const PRELOAD_FONTS = [
@@ -62,6 +66,12 @@ const THEME_SCRIPT = `
   d.setAttribute('data-theme', mode);
   var m = document.querySelector('meta[name="theme-color"]');
   if (m) m.setAttribute('content', BASE[mode]);
+  try {
+    var pro = localStorage.getItem('tsudev-pro-theme');
+    var ids = ['ho-phach', 'cham-dem', 'rung-thong', 'hoa-dao', 'than-chi'];
+    if (localStorage.getItem('tsudev-pro-ok') === '1' && ids.indexOf(pro) >= 0)
+      d.setAttribute('data-pro-theme', pro);
+  } catch (e) {}
   try {
     var h = JSON.parse(localStorage.getItem('tsu-auth') || 'null');
     if (h && typeof h === 'object') {

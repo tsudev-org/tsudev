@@ -16,6 +16,11 @@
    Màu nhấn, bo góc (--radius-control) và font tiêu đề (--font-display) của tsudev
    đến từ .standards/tokens/products/tsudev.json - KHÔNG khai lại ở repo này. */
 @import '../../../.standards/tokens/products.css' layer(base);
+/* Chủ đề giao diện Pro (Q2, DESIGN_SYSTEM.md mục 1.3): lớp thứ ba, nạp SAU products.css - cùng
+   độ đặc hiệu với khối data-product nên THỨ TỰ này là chốt. Chỉ có hiệu lực khi <html> mang
+   data-pro-theme (đặt bởi script ở _document.tsx khi tài khoản có Pro); tương phản cao của hệ
+   điều hành luôn thắng (khối @media trong tệp). */
+@import '../../../.standards/tokens/pro-themes.css' layer(base);
 /* Font TỰ HOST. Đừng thay bằng @import từ fonts.googleapis.com - đã thử và nó
    IM LẶNG KHÔNG NẠP GÌ trong nhiều tháng.
 

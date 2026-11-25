@@ -1,4 +1,4 @@
-# QUY ƯỚC PHIÊN BẢN (v3.0.0)
+# QUY ƯỚC PHIÊN BẢN (v3.1.0)
 
 Hệ sinh thái tsudev dùng **ba** khuôn phiên bản cho ba thứ khác nhau. Nhầm lẫn
 giữa chúng là nguồn gốc của phần lớn tranh cãi khi phát hành.
@@ -79,6 +79,7 @@ Khuôn theo ngày trả lời được câu đó ngay từ tên tệp.
 | Phiên bản trong mã/manifest | = phiên bản sản phẩm (không `v`) | `26.11.1704` |
 | Android `versionCode` | số nguyên `YYMDDNN` | `26111704` |
 | iOS `CFBundleVersion` | `YY.M.DDNN` (`CFBundleShortVersionString` cũng vậy) | `26.11.1704` |
+| iOS bản TestFlight liên tục (đẩy `main`, v3.1.0) | `CFBundleShortVersionString` = `YY.M.DD99` (`NN = 99` dành riêng, nhãn phát hành `MUST NOT` dùng), `CFBundleVersion` = `run_number + APPLE_BUILD_OFFSET`; chỉ thử nội bộ - [`APPLE_CICD.md`](APPLE_CICD.md) mục 8.4 | `26.11.2599` (build `57`) |
 | Windows FileVersion / MSIX `Version` (4 phần) | `YY.M.DDNN.0` | `26.11.1704.0` |
 | Gói Linux (deb/rpm) | `{phiên bản}-{revision}` do kho đặt | `26.11.1704-1` |
 

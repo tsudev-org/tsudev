@@ -1,8 +1,9 @@
-# QUY ƯỚC GIAO DIỆN TOÀN PROJECT (DESIGN SYSTEM) - v4.1.0
+# QUY ƯỚC GIAO DIỆN TOÀN PROJECT (DESIGN SYSTEM) - v4.2.0
 
 > Áp dụng cho MỌI website, tool, phần mềm desktop (Electron/C#/Python/C++), app trong hệ sinh thái.
-> Nguồn giá trị duy nhất: `tokens/design-tokens.json` (lớp nền chung) và `tokens/products/<id>.json` (lớp bản sắc).
-> `tokens/tokens.css` và `tokens/products.css` là bản **sinh tự động** từ JSON - KHÔNG sửa tay, sinh lại bằng
+> Nguồn giá trị duy nhất: `tokens/design-tokens.json` (lớp nền chung), `tokens/products/<id>.json` (lớp bản sắc) và
+> `tokens/pro-themes.json` (chủ đề Pro, mục 1.3).
+> `tokens/tokens.css`, `tokens/products.css`, `tokens/pro-themes.css` là bản **sinh tự động** từ JSON - KHÔNG sửa tay, sinh lại bằng
 > `node scripts/build-tokens.mjs`.
 > Cấm hard-code màu/cỡ chữ/radius trong source code - chỉ dùng token.
 > Quy tắc khả năng truy cập đầy đủ: [`ACCESSIBILITY.md`](ACCESSIBILITY.md).
@@ -156,6 +157,51 @@ lệch · `quy-dao` vòng quỹ đạo · `canh-sen` cánh sen nối điểm · 
 `cot-tang-truong` cột tăng dần · `khoi-phan-vung` thanh chia phân vùng · `song-am` sóng âm · `vong-dong-tam` vòng
 đồng tâm · `cham-luoi` lưới chấm · `song-cheo` sọc chéo (hai giá trị cuối còn trống cho sản phẩm mới).
 
+### 1.3. Chủ đề Pro (`tokens/pro-themes.json`) - quyền lợi Q2
+
+Quyền lợi **Q2 "Giao diện Pro"** (`PRODUCT_POLICY.md` 3.7.1) dùng đúng bộ chủ đề này ở mọi app/website; repo con
+`MUST NOT` tự chế chủ đề. Chủ đề Pro là **lớp thứ ba**, phủ lên lớp nền + lớp bản sắc khi người dùng chọn:
+
+| `data-pro-theme` | Tên (vi / en) | Hue | Nút chính Tối / Sáng | Khung ảnh (Tối) | Tinh thần |
+| --- | --- | --- | --- | --- | --- |
+| `ho-phach` | Hổ phách / Amber | 80 | `#D79A01` / `#8B6202` | `#D79A01` → `#F28450` | Vàng ấm |
+| `cham-dem` | Chàm đêm / Midnight Indigo | 272 | `#8AA1FE` / `#4C5FCC` | `#8AA1FE` → `#C58DE6` | Chàm sâu |
+| `rung-thong` | Rừng thông / Pine | 150 | `#6CB57D` / `#2E7743` | `#6CB57D` → `#34B7B1` | Xanh trầm, dịu mắt |
+| `hoa-dao` | Hoa đào / Peach Blossom | 355 | `#EE83AF` / `#AA4673` | `#EE83AF` → `#CB8EE7` | Hồng ngày Tết |
+| `than-chi` | Than chì / Graphite | 255 | `#9AA7B9` / `#5E6A7A` | `#9AA7B9` → `#A7A2B7` | Gần đơn sắc |
+
+Mỗi chủ đề gồm 18 vai trò cho từng chế độ: 6 vai trò nền/viền **ngả sắc nhẹ** (giữ độ sáng OKLCH của lớp nền chung,
+thêm chroma `tint` theo `hue`), 10 vai trò nhấn như lớp bản sắc, và `pro-ring-start` / `pro-ring-end` (chuyển sắc của
+**khung ảnh đại diện**, ≥ 3:1 trên mọi nền ổn định - WCAG 1.4.11). Chữ, trạng thái (`success`/`warning`/`danger`/`info`)
+và lớp phủ giữ nguyên lớp nền chung để ý nghĩa màu không đổi.
+
+**Màu không chọn tay.** `node scripts/gen-pro-themes.mjs` sinh `colors` từ `hue`/`chroma`/`tint`/`ringShift`: vai trò
+nhấn dùng chính thuật toán dò WCAG của `gen-product-palette.mjs` nhưng đo trên **nền đã ngả sắc**; cả bảng được đo lại
+bằng đúng bộ ngưỡng của `check-contrast.mjs` (mục 1.1); trượt ⇒ tự giảm `tint` từng bước. Cổng kiểm (`--check`, chạy
+trong `check-standards.sh`): khớp bản sinh, đạt WCAG, primary cách `danger` ≥ 15°, hai chủ đề có màu cách nhau ≥ 20°.
+
+Quy tắc dùng:
+
+- **Chỉ thêm lựa chọn.** Mặc định luôn là bảng của sản phẩm; Sáng/Tối/Hệ thống, cỡ chữ, **tương phản cao**, giảm chuyển
+  động vẫn miễn phí và **tương phản cao thắng chủ đề Pro** (CSS nằm trong `@media not (prefers-contrast: more)`; app
+  gốc `MUST` bỏ chủ đề Pro khi bật tương phản cao của hệ điều hành hoặc của app).
+- Chỉ áp khi JWS quyền lợi có Pro (Q2 kiểm trên máy - bản fork tự bật được, chấp nhận theo `PRODUCT_POLICY` 3.7.6).
+  Hết hạn Pro ⇒ quay về bảng sản phẩm **không** mất dữ liệu, không hộp thoại chen ngang; lựa chọn được nhớ để dùng lại.
+- Bộ chọn nằm ở **Cài đặt → Giao diện**, hiện mẫu màu thật của cả hai chế độ; người chưa có Pro thấy bộ chọn ở trạng
+  thái xem trước + một liên kết "Tìm hiểu TsuDEV Pro" (đúng lối vào mục 3.7.3 của `PRODUCT_POLICY`), không khoá mờ cả màn.
+- Chủ đề Pro không đổi `layout`/`shape`/`motif`/font của sản phẩm, không đổi logo. Khối liên kết hệ sinh thái giữ
+  nhận diện TsuDEV (mục 1.2.1).
+- **Biểu tượng app thay thế** (phần còn lại của Q2): mỗi app chỉ dùng biểu tượng vẽ từ logo của chính nó trên nền màu
+  `primary` của chủ đề (Tối), theo `BRAND_ASSETS.md`; nền tảng không hỗ trợ ⇒ bỏ, không giả lập.
+- Thêm/đổi chủ đề: PR vào repo này (sửa nguồn trong JSON → `gen-pro-themes.mjs` → `build-tokens.mjs`), là MINOR; xoá
+  hoặc đổi `id` một chủ đề là MAJOR (người dùng đã chọn sẽ mất lựa chọn - app `MUST` quay về mặc định nếu gặp id lạ).
+
+#### 1.3.1. Cách dùng
+
+- Web: nạp `tokens.css` → `products.css` → `pro-themes.css`; đặt `<html data-pro-theme="<id>">` khi người dùng chọn và
+  có Pro; bỏ thuộc tính để về mặc định.
+- Flutter: `tsudev_ui` (`TsuProTheme`) sinh từ `pro-themes.json`; desktop khác: parse JSON, gộp đè sau lớp bản sắc (mục 7).
+
 ## 2. Bo góc & viền (Radius)
 
 | Token | Giá trị | Áp dụng |
@@ -258,7 +304,7 @@ Chuỗi version trong code/manifest = `26.11.1701` (đồng bộ với tên file
 
 | Nền tảng | Cách dùng |
 |---|---|
-| Web (React/Vue/HTML) | Import `tokens/tokens.css` rồi `tokens/products.css`, dùng `var(--primary)`… Đặt `data-theme` + `data-product` trên `<html>` và `data-platform="web"` trên `<body>`. Tiêu đề dùng `var(--font-display)`, nút dùng `var(--radius-control)` |
+| Web (React/Vue/HTML) | Import `tokens/tokens.css` rồi `tokens/products.css` (rồi `tokens/pro-themes.css` nếu có Q2), dùng `var(--primary)`… Đặt `data-theme` + `data-product` trên `<html>` và `data-platform="web"` trên `<body>`. Tiêu đề dùng `var(--font-display)`, nút dùng `var(--radius-control)` |
 | Electron | Như Web, `data-platform="desktop"` |
 | C# (WPF/WinForms) | Parse `design-tokens.json`, gộp đè `products/<id>.json` → nạp vào ResourceDictionary/Theme class |
 | Python (PyQt/Tkinter) | Parse hai JSON (nền + sản phẩm) → sinh QSS/style dict |
@@ -268,13 +314,15 @@ Quy trình đổi giao diện:
 
 1. **Chỉ sửa `tokens/design-tokens.json`** (lớp nền) hoặc `tokens/products/<id>.json` (lớp bản sắc: sửa `hue`/`chroma`
    rồi chạy `node scripts/gen-product-palette.mjs <id>`, không sửa tay `colors`).
-2. Chạy `node scripts/build-tokens.mjs` để sinh lại `tokens/tokens.css` và `tokens/products.css`.
-3. Chạy `node scripts/check-contrast.mjs` và `node scripts/check-products.mjs` - phải đạt toàn bộ.
+2. Chạy `node scripts/build-tokens.mjs` để sinh lại `tokens/tokens.css`, `tokens/products.css` và `tokens/pro-themes.css`
+   (đổi chủ đề Pro: chạy `node scripts/gen-pro-themes.mjs` trước).
+3. Chạy `node scripts/check-contrast.mjs`, `node scripts/check-products.mjs` và `node scripts/gen-pro-themes.mjs --check`
+   - phải đạt toàn bộ.
 4. Chạy `./scripts/make-manifest.sh` rồi `./scripts/check-standards.sh`.
 5. Tăng phiên bản theo [`VERSIONING.md`](VERSIONING.md) mục 1 - **đổi giá trị một token
    màu ở lớp nền luôn là thay đổi phá vỡ (MAJOR)**, kể cả khi chỉ để sửa lỗi. Thêm sản phẩm mới là MINOR; đổi
    màu của MỘT sản phẩm là MINOR kèm phiếu sang đúng repo đó.
 6. Repo con chạy `./scripts/sync-standards.sh` và tự cập nhật ở lần build kế tiếp.
 
-`MUST NOT` sửa tay `tokens.css` / `products.css`. Mọi thay đổi ở đó sẽ bị lần sinh sau ghi đè, và cổng
+`MUST NOT` sửa tay `tokens.css` / `products.css` / `pro-themes.css`. Mọi thay đổi ở đó sẽ bị lần sinh sau ghi đè, và cổng
 kiểm sẽ báo lệch.
