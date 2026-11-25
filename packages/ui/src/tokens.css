@@ -83,6 +83,10 @@
   --badge-donor-bg: #042f2e;
   --badge-donor-border: #2dd4bf;
   --badge-donor-ink: #99f6e4;
+  --ribbon-open-bg: #0a0a0a;
+  --ribbon-open-ink: #ffffff;
+  --ribbon-private-bg: #dc2626;
+  --ribbon-private-ink: #ffffff;
 }
 
 /* Sáng - chỉ đến bằng lựa chọn thủ công hoặc "Hệ thống". */
@@ -146,6 +150,10 @@
   --badge-donor-bg: #ccfbf1;
   --badge-donor-border: #0f766e;
   --badge-donor-ink: #134e4a;
+  --ribbon-open-bg: #0a0a0a;
+  --ribbon-open-ink: #ffffff;
+  --ribbon-private-bg: #b91c1c;
+  --ribbon-private-ink: #ffffff;
 }
 
 /* ------------------------------------------------------------

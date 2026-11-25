@@ -32,6 +32,7 @@ import {
   guessInstallTarget,
   INSTALL_TARGETS,
   PKG_REPO,
+  ecoAuthorLine,
 } from './lib/ecosystem';
 
 export {
@@ -45,6 +46,7 @@ export {
   guessInstallTarget,
   INSTALL_TARGETS,
   PKG_REPO,
+  ecoAuthorLine,
   SiteHeader,
   SiteFooter,
   Button,

@@ -6,7 +6,11 @@ import {
   installPlan,
   guessInstallTarget,
   INSTALL_TARGETS,
+  ecoAuthorLine,
 } from '../src/lib/ecosystem';
+import CONTRIBUTORS_JSON from '../src/lib/contributors.json';
+
+const CONTRIBUTORS: { repos: Record<string, number> } = CONTRIBUTORS_JSON;
 
 describe('lệnh cài từ kho APT/RPM pkg.tsudev.com', () => {
   const lotus = ECOSYSTEM_APPS.find((a) => a.id === 'lotus');
@@ -229,5 +233,48 @@ describe('lệnh cài GỘP theo hệ điều hành (khay chọn nhiều ở /ap
     expect(guessInstallTarget('Mozilla/5.0 (X11; Fedora; Linux x86_64)')).toBe('fedora');
     expect(guessInstallTarget('Mozilla/5.0 (X11; Linux x86_64)')).toBe('debian');
     expect(guessInstallTarget('Mozilla/5.0 (Linux; Android 14)')).toBe('windows');
+  });
+});
+
+describe('Author/Contributors trên thẻ app (ECO1-a)', () => {
+  // Tên cũ bất khả xâm phạm (CLAUDE.md): repo đã đổi tên, chỉ sống nhờ chuyển hướng.
+  const OLD_NAMES = [
+    'tsudev-files',
+    'tsudev-contact',
+    'tsudev-swico',
+    'tsudev-cwico',
+    'tsudev-trafficmonitor',
+    'swico',
+  ];
+
+  it('app mã nguồn mở nào cũng có `repo` tsudev-org/*, không mang tên cũ', () => {
+    for (const app of ECOSYSTEM_APPS.filter((a) => a.openSource)) {
+      expect({ id: app.id, repo: app.repo }).toEqual({
+        id: app.id,
+        repo: expect.stringMatching(/^tsudev-org\/[A-Za-z0-9._-]+$/),
+      });
+      expect(OLD_NAMES).not.toContain(app.repo!.split('/')[1]);
+    }
+  });
+
+  it('contributors.json khớp đúng tập repo trong ecosystem.ts (quên chạy `npm run eco:contributors` thì đỏ)', () => {
+    const repos = [...new Set(ECOSYSTEM_APPS.flatMap((a) => (a.repo ? [a.repo] : [])))].sort();
+    expect(Object.keys(CONTRIBUTORS.repos).sort()).toEqual(repos);
+    for (const n of Object.values(CONTRIBUTORS.repos)) {
+      expect(Number.isInteger(n) && n >= 0).toBe(true);
+    }
+  });
+
+  it('số contributors trên app lấy từ bản chụp theo repo', () => {
+    for (const app of ECOSYSTEM_APPS) {
+      expect(app.contributors).toBe(app.repo ? CONTRIBUTORS.repos[app.repo] : 0);
+    }
+  });
+
+  it('dòng tác giả: không contributor / số ít / số nhiều', () => {
+    expect(ecoAuthorLine({ contributors: 0 })).toBe('Author: TsuDEV');
+    expect(ecoAuthorLine({})).toBe('Author: TsuDEV');
+    expect(ecoAuthorLine({ contributors: 1 })).toBe('Author: TsuDEV + 1 Contributor');
+    expect(ecoAuthorLine({ contributors: 3 })).toBe('Author: TsuDEV + 3 Contributors');
   });
 });

@@ -6,6 +6,7 @@
     "base": ".standards/tokens/design-tokens.json"
   },
   "$platform_note": "platform-*/on-platform-* = MÀU HÃNG của bốn nền tảng phát hành, CHỈ dùng cho trạng thái rê chuột của ô dấu hiệu nền tảng (PLATFORM_CHIP_CLASS trong packages/ui/src/components/icons.ts). Màu hãng làm NỀN ô, dấu hiệu đổi sang mực on-platform-* - nhờ vậy giữ được đúng mã hex của hãng ở mọi chế độ mà vẫn qua 4.5:1 (contrast.test.ts), điều không thể nếu tô thẳng xanh Android #3DDC84 hay vàng Tux #FCC624 lên nền sáng (~1.6-1.9:1). Apple không có màu hãng: dùng mực đậm nhất của chế độ, đảo ở chế độ Tối. KHÔNG dùng các màu này cho chữ hay vai trò khác.",
+  "$ribbon_note": "ribbon-* = dải chéo góc TRÊN PHẢI của thẻ app (phiếu ECO1-a, chủ dự án chốt 25/11/2026): \"Open\" nền ĐEN TUYỀN ở CẢ HAI chế độ (ở chế độ Tối dải có viền line-strong để còn tách khỏi thẻ), \"Private\" nền ĐỎ. Chữ trắng trên cả hai - contrast.test.ts canh ≥4.5:1, và nền đỏ ≥3:1 với nền thẻ (đồ hoạ, WCAG 1.4.11). Chỉ dùng cho dải này, không dùng làm màu nguy hiểm/lỗi (đã có danger-*).",
   "$color_note": "accent, glow, icon-info, icon-nav và cả bảng nền đen tuyền + xanh logo nay nằm ở bảng chuẩn (.standards v5.0.0: design-tokens.json color.* + tokens/products/tsudev.json) - repo này KHÔNG khai lại. icon-* = mã màu theo NHÓM HÀNH ĐỘNG: mắt nhận ra nhóm trước khi đọc nhãn, điều một hàng icon cùng màu xám không làm được. Sáu sắc, không nhiều hơn - quá bảy màu thì chúng thôi là mã và trở thành nhiễu. status-ink/status-tint = cặp cho badge: bảng `color` chỉ định nghĩa màu trạng thái ĐẶC (dùng với on-status), còn badge nền nhạt cần một sắc chữ ĐẬM HƠN mới đạt 4.5:1 - ở chế độ Light màu trạng thái gốc chỉ đạt 4.0-4.3:1 trên chính tint 12% của nó. text-muted và border-control KHÔNG còn ở đây: cả hai đã được nhận vào bảng chuẩn (.standards/ v2.8.0) với ĐÚNG giá trị mà khối này từng ghi đè - xem $accessibility_gap.",
   "light": {
     "glow-alt": "rgba(14,116,144,0.06)",
@@ -35,7 +36,11 @@
     "badge-pro-ink": "#0A0A0A",
     "badge-donor-bg": "#CCFBF1",
     "badge-donor-border": "#0F766E",
-    "badge-donor-ink": "#134E4A"
+    "badge-donor-ink": "#134E4A",
+    "ribbon-open-bg": "#0A0A0A",
+    "ribbon-open-ink": "#FFFFFF",
+    "ribbon-private-bg": "#B91C1C",
+    "ribbon-private-ink": "#FFFFFF"
   },
   "dark": {
     "glow-alt": "rgba(30,144,255,0.08)",
@@ -65,7 +70,11 @@
     "badge-pro-ink": "#0A0A0A",
     "badge-donor-bg": "#042F2E",
     "badge-donor-border": "#2DD4BF",
-    "badge-donor-ink": "#99F6E4"
+    "badge-donor-ink": "#99F6E4",
+    "ribbon-open-bg": "#0A0A0A",
+    "ribbon-open-ink": "#FFFFFF",
+    "ribbon-private-bg": "#DC2626",
+    "ribbon-private-ink": "#FFFFFF"
   },
   "typography": {
     "$note": "Thang chữ của DESIGN_SYSTEM.md §4 dừng ở 30px (H1) - đủ cho giao diện công cụ, nhưng khối hero của một website cần bậc lớn hơn. Ba bậc dưới đây nối tiếp 30px theo lưới 4px và CHỈ dùng cho tiêu đề hero/marketing, không dùng trong luồng thao tác.",

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon, Badge, ECO_CATEGORY_LABEL, PRODUCT_PRIMARY } from '@tsudev/ui';
+import { Icon, Badge, ECO_CATEGORY_LABEL, PRODUCT_PRIMARY, ecoAuthorLine } from '@tsudev/ui';
 import type { EcoApp } from '@tsudev/ui';
 import EcoIcon from './EcoIcon';
 import InstallCommands from './InstallCommands';
@@ -21,6 +21,10 @@ import PlatformRow from './PlatformRow';
  * Bố cục thống nhất mọi thẻ sản phẩm (app lẫn trò chơi): đầu thẻ → mô tả → lệnh cài →
  * nút → hàng biểu tượng nền tảng ở ĐÁY thẻ (chủ dự án yêu cầu 13/11/2026), nên các thẻ
  * cùng hàng lưới có hàng nền tảng thẳng hàng nhau.
+ *
+ * Mã nguồn mở/đóng là DẢI CHÉO GÓC trên phải ("Open" đen tuyền / "Private" đỏ - phiếu ECO1-a, thay nhãn
+ * chữ "Mã nguồn mở/Độc quyền"); dưới tên app là dòng "Author: TsuDEV + N Contributors" chữ nhỏ mờ, số
+ * lấy từ bản chụp `contributors.json` (không gọi GitHub lúc chạy).
  */
 type Props = {
   app: EcoApp;
@@ -64,11 +68,17 @@ export default function EcoAppCard({
       data-selected={selectable ? Boolean(selected) : undefined}
       data-product-accent={accent ? app.id : undefined}
       style={accent}
-      className={`tsu-glow-card ${accent ? 'tsu-sp-accent ' : ''}flex min-w-0 flex-col rounded-lg border bg-surface p-5 transition-colors ${
+      className={`tsu-glow-card ${accent ? 'tsu-sp-accent ' : ''}relative flex min-w-0 flex-col rounded-lg border bg-surface p-5 transition-colors ${
         selectable ? 'cursor-pointer' : ''
       } ${selected ? 'border-primary ring-1 ring-primary' : 'border-line'}`}
     >
-      <div className="flex items-start gap-4">
+      {/* Dải chéo góc: chữ hiển thị tiếng Anh theo chủ dự án, nhãn đọc màn hình tiếng Việt. */}
+      <div className={`tsu-ribbon ${app.openSource ? 'tsu-ribbon--open' : 'tsu-ribbon--private'}`}>
+        <span className="tsu-ribbon__band" aria-hidden="true">
+          {app.openSource ? 'Open' : 'Private'}
+        </span>
+      </div>
+      <div className="flex items-start gap-4 pr-8">
         <EcoIcon
           name={app.name}
           logo={app.logo}
@@ -79,9 +89,14 @@ export default function EcoAppCard({
         />
         <div className="min-w-0 flex-1">
           <h3 className="font-medium text-fg text-base leading-snug">{app.name}</h3>
-          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+          <p className="mt-0.5 text-xs text-fg-muted">
+            {ecoAuthorLine(app)}
+            <span className="sr-only">
+              {app.openSource ? ' - mã nguồn mở' : ' - mã nguồn đóng'}
+            </span>
+          </p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <Badge tone="neutral">{ECO_CATEGORY_LABEL[app.category]}</Badge>
-            <Badge tone="outline">{app.openSource ? 'Mã nguồn mở' : 'Độc quyền'}</Badge>
           </div>
         </div>
         {selectable && (

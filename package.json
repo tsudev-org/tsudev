@@ -56,6 +56,7 @@
     "r2:cors": "npx wrangler r2 bucket cors set tsudev --file infrastructure/r2/cors.tsudev.json",
     "r2:cors:list": "npx wrangler r2 bucket cors list tsudev",
     "pkg:catalog": "node scripts/pkg-catalog-sync.js",
+    "eco:contributors": "node scripts/eco-contributors.js",
     "release:tag": "node scripts/release-tag.js",
     "install-scripts:sha": "node scripts/install-scripts-sha.js",
     "he-sinh-thai:tin-hieu": "node scripts/he-sinh-thai/tin-hieu.mjs",

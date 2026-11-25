@@ -16,6 +16,6 @@
   },
   // stories/ cố ý đứng ngoài: Storybook không nằm trong CI và còn lấy react@18
   // từ root, nên kiểm kiểu chúng chỉ tạo ra tiếng ồn không chặn được lỗi thật.
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/**/*.json"],
   "exclude": ["src/stories/**"]
 }
