@@ -3,16 +3,60 @@
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-LG3a, 26/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
-> 2. **INT1-a** (phiếu [`20261125-INT1`](handover/20261125-INT1_toan-ven-ung-dung-bat-buoc-cap-nhat.md) mục 6): bản kê
->    `versions.json` có chữ ký. ⛔ 👤 migrate Neon trước khi gộp + đặt `VERSIONS_SIGNING_KEY` trên Render.
-> 3. LG3 phần còn của tsudev (phiếu [`20261126-LG3`](handover/20261126-LG3_nhac-dang-nhap-khi-co-internet.md) mục 4):
->    cột `suspended` (👤 migrate Neon) + trang quản trị; gắn `<tsu-signin-reminder>` khi có trang cần.
+> 2. **INT1-a + `suspended` của LG3 trong CÙNG PR** (phiếu
+>    [`20261125-INT1`](handover/20261125-INT1_toan-ven-ung-dung-bat-buoc-cap-nhat.md) mục 6 + phiếu
+>    [`20261126-LG3`](handover/20261126-LG3_nhac-dang-nhap-khi-co-internet.md) mục 4) - để chủ dự án chỉ migrate Neon
+>    MỘT lần. ⛔ 👤 migrate Neon trước khi gộp + đặt `VERSIONS_SIGNING_KEY` trên Render. Prompt chuẩn ở cuối khối này.
+> 3. LG3 còn lại: gắn `<tsu-signin-reminder>` khi có trang cần.
 > 4. PRO3 còn: (e) logo BCT chờ DK2; khung ảnh Pro trên Avatar. 👤 xem lại `/pro`, `/terms`, `/privacy`,
 >    `/chinh-sach-thanh-toan` trước khi nộp BCT.
 >
 > Đã xong 26/11 (tsudev-LG3a): **LG3-a** - `.standards` v7.1.0; `<tsu-signin-reminder>` + chính sách nhịp trong
 > `@tsudev/ui`; IdP trả `status` + `status_reason` ở userinfo và JWS quyền lợi (`src/accountStatus.ts`, không
 > migration). Không deploy frontend (không trang nào đổi); backend lên theo Render khi gộp. Không khoá, không tác vụ nền.
+
+**Prompt chuẩn cho phiên kế tiếp** (chủ dự án chốt 26/11/2026; từ 28/11 thêm câu đầu "Làm phiếu 20261128-NH1 trước."):
+
+```text
+Đọc AGENTS.md, rồi CHỈ khối 🔔 đầu tiên của logs/STATE.md và các phiếu nó trỏ tới
+(không đọc các khối 🔔 cũ hơn). Chạy akb start + akb search trước khi làm.
+
+Làm phase INT1-a (phiếu logs/handover/20261125-INT1 mục 6): bản kê versions.json
+có chữ ký. GỘP vào CÙNG PR phần `suspended` của LG3 (phiếu
+logs/handover/20261126-LG3 mục 4), để chủ dự án chỉ migrate Neon MỘT lần:
+- Migration thêm cột vào User: mốc tạm khoá + lý do (theo AUTH_AND_ACCOUNT 9.2).
+  Gộp chung một thư mục migration với INT1-a, hoặc hai migration liền nhau.
+- services/auth-service/src/accountStatus.ts suy ra `suspended` +
+  `account_suspended` từ cột mới; cập nhật test accountStatus + entitlements.
+- OWNER đặt/gỡ tạm khoá ở trang quản lý tài khoản (/api/identity/useradmin/*),
+  sửa khớp ĐỦ BỐN chỗ trong một commit theo CLAUDE.md (route + test useradmin +
+  proxy ALLOWED + pages/admin/accounts.tsx). Ghi nhật ký kiểm toán vào
+  TrustAuditLog (ai, từ gì sang gì, lý do, thời điểm, IP).
+- Tài khoản bị tạm khoá: các đường ghi đã xác thực trả 403 `account_suspended`
+  (mục 10); xem nội dung công khai và Xuất dữ liệu vẫn chạy.
+Đổi schema.prisma ⇒ chạy npm run db:generate.
+
+Quyền: tự chọn phương án kỹ thuật, tự commit/push/mở PR/gộp khi CI xanh,
+tự deploy frontend và đo production. Migration: URL Neon ở
+~/.config/tsudev/neon.env (không in nội dung) - pg_dump 18 sao lưu vào
+~/tsudev-backups, kiểm tệp dump tồn tại, migrate lên Neon TRƯỚC rồi mới gộp,
+xác nhận bằng prisma migrate status. VERSIONS_SIGNING_KEY: tự sinh khoá, ghi
+vào tệp quyền 600 trong ~/.config/tsudev/, KHÔNG in ra log, rồi DỪNG báo tôi
+đặt lên Render trước khi gộp. Chỉ dừng hỏi khi gặp việc 👤 hoặc cổng
+Bảo vệ bản quyền.
+
+Tiết kiệm: định vị bằng grep rồi đọc đúng đoạn; chạy test theo workspace bị
+ảnh hưởng; gộp cổng (lint/typecheck/format) một lần cuối cụm; dồn sửa
+tài liệu/STATE/CHANGELOG vào cùng PR với code; chờ CI bằng tác vụ nền.
+
+Cuối phiên: cập nhật phiếu INT1 và LG3 (mục kết quả), khối 🔔 mới ở đầu STATE,
+CHANGELOG nếu có deploy, akb close + akb sync, báo điều phối qua SendMessage.
+Trả lời tôi bằng tiếng Việt, ngắn gọn.
+```
+
+Chủ dự án muốn tự migrate (như phiếu DP2) ⇒ thay câu "Migration: ..." bằng: "Migration: KHÔNG tự chạy - khi PR sẵn
+sàng thì DỪNG, đưa tôi tên nhánh để tôi tự sao lưu + migrate theo docs/deployment.md, chờ tôi báo "đã migrate" rồi mới
+gộp." Nếu `~/.config/tsudev/neon.env` đã bị xoá thì bắt buộc dùng câu thay này.
 
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-ECO2/SYN1, 26/11/2026)** - làm theo thứ tự:
 >
