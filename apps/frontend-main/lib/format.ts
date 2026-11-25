@@ -53,3 +53,9 @@ export const formatDateTimeVN = (d: DateLike): string => {
   const dt = parse(d);
   return dt ? `${TIME.format(dt)} ${DATE.format(dt)}` : NO_DATE;
 };
+
+/** `HH:mm` - chỉ báo trong ngày, vd. "Đã lưu 10:42" của trình soạn. */
+export const formatTimeVN = (d: DateLike): string => {
+  const dt = parse(d);
+  return dt ? TIME.format(dt) : NO_DATE;
+};

@@ -690,6 +690,11 @@
 .prose-tsu del {
   text-decoration: line-through;
 }
+/* Danh sách việc (`- [ ]`): bỏ dấu chấm đầu dòng - ô tích đã là dấu mục. */
+.prose-tsu li:has(> input[type='checkbox']) {
+  list-style: none;
+  margin-left: -1.4em;
+}
 .prose-tsu li > input[type='checkbox'] {
   margin-right: 0.5em;
   vertical-align: middle;
@@ -759,6 +764,71 @@
   --callout: var(--danger);
   --callout-tint: var(--danger-tint);
   --callout-ink: var(--danger-ink);
+}
+/*
+ * Trình soạn (UX1-b): những thứ CHỈ có trong DOM của Tiptap. Trang công khai vẽ
+ * từ Markdown nên không có các lớp này - đừng dời chúng ra khỏi `.tsu-editor`.
+ */
+.tsu-editor .md-callout::before {
+  content: attr(data-label);
+  display: block;
+  margin-bottom: 0.25em;
+  font-weight: var(--fw-semibold);
+  color: var(--callout-ink);
+}
+.tsu-editor ul[data-type='taskList'] {
+  list-style: none;
+  padding-left: 0;
+}
+.tsu-editor ul[data-type='taskList'] > li {
+  display: flex;
+  gap: 0.5em;
+  align-items: flex-start;
+}
+.tsu-editor ul[data-type='taskList'] > li > label {
+  margin-top: 0.3em;
+  flex: none;
+}
+.tsu-editor ul[data-type='taskList'] > li > div {
+  flex: 1;
+  min-width: 0;
+}
+.tsu-editor ul[data-type='taskList'] > li p {
+  margin: 0;
+}
+.tsu-editor table {
+  table-layout: fixed;
+}
+/* Thanh công cụ DÍNH ngay dưới thanh tiêu đề Studio (cao thay đổi theo bề rộng -
+   WorkspaceLayout đo bằng ResizeObserver và đặt --studio-bar-h). Chỉ từ lg: màn
+   hẹp đã có thanh tiêu đề dính chiếm gần 1/5 chiều cao. */
+@media (min-width: 64rem) {
+  .tsu-editor-toolbar {
+    position: sticky;
+    top: calc(4rem + var(--studio-bar-h, 0px));
+    z-index: 20;
+  }
+}
+.tsu-editor td,
+.tsu-editor th {
+  position: relative;
+  vertical-align: top;
+  border: 1px solid var(--border);
+}
+.tsu-editor td p,
+.tsu-editor th p {
+  margin: 0;
+}
+.tsu-editor .selectedCell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--glow);
+}
+.tsu-editor .ProseMirror-selectednode {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 /* Bảng rộng cuộn trong khung riêng (390 px không cuộn ngang cả trang). */
 .prose-tsu .md-table {
