@@ -74,6 +74,15 @@ try {
   const env = {
     ...process.env,
     NEXT_PUBLIC_MAIN_URL: mainUrl,
+    // Bản dựng KHÔNG được nói chuyện với backend nào. Không đặt thì getStaticProps
+    // rơi về địa chỉ mặc định (localhost) của lib/services.ts - và nếu máy dev
+    // đang chạy dev stack, dữ liệu DEV đi vào bản dựng + cache ISR đẩy lên R2, hoặc
+    // build đỏ ("`redirect` can not be returned from getStaticProps", /projects -
+    // ISS-20261125-0204, gặp 25/11/2026). Cổng 9 (discard) đóng ⇒ lỗi kết nối ngay,
+    // y như CI. Lúc CHẠY, Worker đọc ba biến này từ `vars` của wrangler.jsonc.
+    CONTENT_SERVICE_URL: 'http://127.0.0.1:9',
+    STORAGE_SERVICE_URL: 'http://127.0.0.1:9',
+    AUTH_SERVICE_URL: 'http://127.0.0.1:9',
     // Hai cờ dev từng được xoá tường minh ở đây làm đai an toàn thứ hai. Cả hai
     // nay đã bị GỠ KHỎI MÃ NGUỒN - không còn dòng nào đọc chúng - nên việc xoá
     // ở đây là mã chết, và mã chết trong một tệp bảo mật đọc như một lớp phòng
