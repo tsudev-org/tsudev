@@ -1,5 +1,21 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-7d, 25/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **ECO1-a** (phiếu MỚI [`20261125-ECO1`](handover/20261125-ECO1_nhan-open-private-ho-so-ung-ho-go-pro.md) mục 3) -
+>    nhãn chéo góc Open/Private + "Author: TsuDEV + N Contributors" (script GitHub API + Action hằng tuần). ECO1 gom
+>    yêu cầu 25/11 của chủ dự án: nền thẻ, hồ sơ tác giả, "Ủng hộ tính năng mới", gỡ Pro, nhãn + thống kê người ủng
+>    hộ, modal trước khi app mở trình duyệt - 8 phase, MỖI PHIÊN MỘT PHASE.
+> 3. UX1-c chỉ khi 👤 đã tạo bucket R2 `tsudev-media` + `media.tsudev.com` (đo 25/11: CHƯA có).
+> 4. 👤 còn mở: điền `docs/ho-so-tac-gia.md` (cho ECO1-c); đăng ký GitHub Sponsors / Ko-fi / PayPal.me (ECO1-d); thay
+>    khoá VirusTotal; theo dõi HSTS preload.
+>
+> Đã xong 25/11 (tsudev-7d): **UX1-d** - E2E Studio + axe 2 chế độ (#393, `deploy-2026.11.25.7` Worker `f61d0e13`).
+> Phiếu BQ1 (trang Bản quyền: tác giả/contributors/phiên bản) đặt vào `logs/handover/` của tsudev-trafficmonitor
+> (đã nhắn phiên -62), tsufiles, lotus-share (không có phiên chạy). Cổng 8080 bị ubnd chiếm ⇒ `DEV_PROXY_PORT=8081`.
+> Không khoá, không tác vụ nền.
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-d9, 25/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).

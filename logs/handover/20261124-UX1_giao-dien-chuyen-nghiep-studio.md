@@ -79,3 +79,13 @@ P7 (CÓ migration: trạng thái duyệt mở rộng, thùng rác, cột giai đ
   CHƯA làm (để phase sau/P7): Xem trước Sáng/Tối riêng trong khung (token treo `:root`), nháp localStorage của ED-08,
   ô thẻ chip ED-13, ghi đè sửa chồng cho MODERATOR+, bài xoá mềm vẫn giữ slug (lưu bài mới trùng tiêu đề ⇒ 409).
   Phase kế tiếp: **UX1-c** (⛔ 👤 tạo bucket R2 `tsudev-media` + miền `media.tsudev.com` trước khi merge).
+- 25/11/2026 - tsudev-7d: **UX1-d XONG** (PR 4.7, #393, **`deploy-2026.11.25.7`** Worker `f61d0e13`). UX1-c bỏ qua vì
+  CHƯA có bucket R2 `tsudev-media` (`wrangler r2 bucket list` không có; `media.tsudev.com` chỉ 302 sang sumy).
+  `e2e/tests/studio.spec.js` (dự án `app`, đã khai `testMatch`): bob đăng nhập mật khẩu + `totpCode()` → viết → menu `/`
+  chèn bảng + hộp ghi chú → chờ hẹn giờ tự lưu 30 s THẬT → khẳng định Markdown máy chủ (`> [!NOTE]`, bảng GFM, thứ tự) →
+  tải lại dựng đúng khối → Gửi duyệt ⇒ "Chờ duyệt". axe-core (wcag2a/aa + 21a/aa) 0 critical/serious trên `/studio`,
+  `/studio/posts`, `/studio/docs`, `/studio/posts/new` × Tối/Sáng, ảnh chụp đính kèm báo cáo. `axe-core` thành
+  devDependency gốc (tiêm từ node_modules, không CDN). E2E bắt lỗi a11y THẬT: nút "1." nhãn "Danh sách số"
+  (`label-content-name-mismatch`) ⇒ `ariaOf` thêm chữ hiện khi có chữ/số. Làm ấm `/studio*` thay `/author*`. Bẫy CI:
+  click/Ctrl+Home không rời ô bảng ⇒ đặt vùng chọn DOM (LES-20261125-1512-de51). Phase kế tiếp: UX1-c khi 👤 tạo bucket;
+  trước đó làm phiếu [`20261125-ECO1`](20261125-ECO1_nhan-open-private-ho-so-ung-ho-go-pro.md) (ECO1-a), UX1-e/f/g sau ECO1-c.
