@@ -34,14 +34,13 @@ import type { PayStatus, PlanKind } from '../lib/pay';
 const PLAN: PlanKind = 'pro_year';
 
 /**
- * Danh sách ĐÓNG (PRODUCT_POLICY 3.7.1), CHỈ quyền lợi đang chạy thật: Q1 huy hiệu, Q3 đồng bộ +
- * sao lưu. Q2 (giao diện Pro) chỉ thêm vào đây khi chủ đề Pro đã có ở Cài đặt → Giao diện.
+ * Danh sách ĐÓNG (PRODUCT_POLICY 3.7.1), CHỈ quyền lợi đang chạy thật: Q1 huy hiệu, Q2 giao diện
+ * Pro. Q3 (đồng bộ + sao lưu đám mây) đã BỎ (PRODUCT_POLICY v2.0.0 mục 7, phiếu SYN1) - dữ liệu
+ * chỉ ở thiết bị, đồng bộ trực tiếp qua Tsu Link miễn phí cho mọi người.
  */
 const FEATURES = [
   'Huy hiệu Pro cạnh tên tài khoản (ẩn được)',
   'Giao diện Pro: thêm chủ đề màu cho website (Sáng, Tối, Hệ thống vẫn miễn phí)',
-  'Đồng bộ dữ liệu giữa các thiết bị cùng tài khoản',
-  'Sao lưu đám mây, mã hoá đầu cuối - máy chủ chỉ giữ bản mã',
   'Một gói cho MỌI ứng dụng TsuDEV, gắn với tài khoản',
 ];
 
@@ -68,7 +67,7 @@ export default function ProPage() {
       <Seo
         title="TsuDEV Pro"
         path="/pro"
-        description="TsuDEV Pro là gói dịch vụ không bắt buộc để ủng hộ tác giả: huy hiệu Pro, đồng bộ và sao lưu đám mây mã hoá đầu cuối. 490.000 ₫ cho 1 năm, không tự gia hạn. Ứng dụng TsuDEV miễn phí; dự án gắn nhãn OPEN công khai mã nguồn trên GitHub."
+        description="TsuDEV Pro là gói dịch vụ không bắt buộc để ủng hộ tác giả: huy hiệu Pro và giao diện Pro. 490.000 ₫ cho 1 năm, không tự gia hạn. Ứng dụng TsuDEV miễn phí; dự án gắn nhãn OPEN công khai mã nguồn trên GitHub."
       />
       <PageHeader
         eyebrow="Hệ sinh thái TsuDEV"
@@ -77,7 +76,7 @@ export default function ProPage() {
             TsuDEV <span className="tsu-text-gradient">Pro</span>
           </>
         }
-        description="Gói không bắt buộc để ủng hộ tác giả. Bản miễn phí có đủ tính năng cốt lõi và không gửi gì lên mạng; Pro thêm huy hiệu và đồng bộ, sao lưu đám mây - cho mọi ứng dụng TsuDEV, bằng một tài khoản."
+        description="Gói không bắt buộc để ủng hộ tác giả. Bản miễn phí có đủ tính năng cốt lõi và không gửi gì lên mạng; Pro thêm huy hiệu và giao diện Pro - cho mọi ứng dụng TsuDEV, bằng một tài khoản."
         crumbs={[{ label: 'Trang chủ', href: '/' }, { label: 'Pro' }]}
       />
 

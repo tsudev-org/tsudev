@@ -12,8 +12,8 @@ import { callerIp } from './throttle'
  * Người đã xác minh email nhận tối đa MỘT thư ở mỗi mốc của mỗi `pro_until`:
  *   before7 - 7 ngày trước khi hết kỳ   [pro_until - 7d, pro_until)
  *   expired - ngày hết kỳ               [pro_until, + 7d)
- *   purge30 - 30 ngày trước khi xoá     [pro_until + 60d, + 67d)
- *   purge7  - 7 ngày trước khi xoá      [pro_until + 83d, + 90d)
+ * (Hai mốc "trước khi xoá bản sao đám mây" đã gỡ 26/11/2026 - PRODUCT_POLICY v2.0.0 mục 7 bỏ
+ * đồng bộ đám mây, phiếu SYN1. Cột `kind` cũ trong DB có thể còn `purge30`/`purge7`: chỉ là lịch sử.)
  * Mỗi mốc có cửa sổ 7 ngày (không phải đúng một thời điểm): cron chạy mỗi ngày một lần và
  * có thể lỡ vài lượt (Render ngủ, Resend lỗi) - vẫn gửi được, nhưng không gửi thư "ngày hết
  * kỳ" cho người đã hết kỳ từ ba tuần trước (lúc tính năng lên production).
@@ -28,18 +28,16 @@ import { callerIp } from './throttle'
 
 const DAY = 24 * 60 * 60 * 1000
 
-export type ReminderKind = 'before7' | 'expired' | 'purge30' | 'purge7'
+export type ReminderKind = 'before7' | 'expired'
 
 /** [bắt đầu, kết thúc) tính bằng ms lệch so với `pro_until`. */
 export const WINDOWS: ReadonlyArray<{ kind: ReminderKind; from: number; to: number }> = [
   { kind: 'before7', from: -7 * DAY, to: 0 },
   { kind: 'expired', from: 0, to: 7 * DAY },
-  { kind: 'purge30', from: 60 * DAY, to: 67 * DAY },
-  { kind: 'purge7', from: 83 * DAY, to: 90 * DAY },
 ]
 
-/** Bản sao đám mây bị xoá ở `pro_until` + 90 ngày (PRODUCT_POLICY 7.2). */
-export const PURGE_AFTER = 90 * DAY
+/** Cửa sổ xa nhất sau `pro_until` còn nhắc (mốc `expired`). */
+const LAST_WINDOW_END = 7 * DAY
 
 /** Sự kiện đặt `pro_until` vào quá khứ vì THU HỒI, không phải vì hết kỳ. */
 const REVOKE_KINDS = ['admin.revoke', 'play.voided']
@@ -62,21 +60,15 @@ export const formatDateVN = (d: Date): string => TZ_DATE.format(d)
 const daysLeft = (target: number, now: number): number =>
   Math.max(1, Math.ceil((target - now) / DAY))
 
-/** Nguyên văn PRODUCT_POLICY 7.6 (hai mốc đầu) - `test/proReminders.test.ts` đối chiếu `.standards`. */
+/** Nguyên văn PRODUCT_POLICY 7.6 (v2.0.0) - `test/proReminders.test.ts` đối chiếu `.standards`. */
 export const TEXT = {
   before7: {
     title: 'Gia hạn TsuDEV Pro',
-    body: 'Gói TsuDEV Pro của bạn hết hạn sau {n} ngày (ngày {ngày}). Gia hạn để tiếp tục đồng bộ và sao lưu đám mây. Nếu không gia hạn, ứng dụng sẽ trở về bản miễn phí: dữ liệu trên thiết bị vẫn giữ nguyên nhưng không còn đồng bộ lên đám mây.',
+    body: 'Gói TsuDEV Pro của bạn hết hạn sau {n} ngày (ngày {ngày}). Gia hạn để giữ huy hiệu và giao diện Pro. Nếu không gia hạn, tài khoản sẽ trở về bản miễn phí; mọi tính năng và dữ liệu trên thiết bị vẫn giữ nguyên.',
   },
   expired: {
     title: 'TsuDEV Pro đã hết hạn',
-    body: 'Ứng dụng đã trở về bản miễn phí và ngừng đồng bộ lên đám mây. Dữ liệu trên thiết bị vẫn giữ nguyên. Bản sao trên đám mây còn tải về được tới ngày {ngày_xoá}.',
-  },
-  // Hai mốc trước khi xoá: bộ quy ước chưa có câu nguyên văn (7.2 chỉ quy định mốc) - viết theo
-  // giọng 7.6, nói rõ dữ liệu trên thiết bị KHÔNG bị xoá.
-  purge: {
-    title: 'Bản sao đám mây TsuDEV sẽ bị xoá sau {n} ngày',
-    body: 'TsuDEV Pro của bạn đã hết hạn từ ngày {ngày}. Bản sao trên đám mây sẽ bị xoá vào ngày {ngày_xoá}. Gia hạn trước ngày đó để giữ lại và tiếp tục đồng bộ, hoặc mở ứng dụng để tải bản sao về. Dữ liệu trên thiết bị không bao giờ bị xoá.',
+    body: 'Tài khoản đã trở về bản miễn phí: huy hiệu và giao diện Pro đã tắt. Mọi tính năng và dữ liệu trên thiết bị vẫn giữ nguyên.',
   },
 } as const
 
@@ -122,7 +114,6 @@ export function buildMail(
   unsubLink: string
 ): ReminderMail {
   const until = proUntil.getTime()
-  const purgeAt = new Date(until + PURGE_AFTER)
   let subject: string
   let body: string
   if (kind === 'before7') {
@@ -130,15 +121,9 @@ export function buildMail(
     body = TEXT.before7.body
       .replace('{n}', String(daysLeft(until, now)))
       .replace('{ngày}', formatDateVN(proUntil))
-  } else if (kind === 'expired') {
-    subject = TEXT.expired.title
-    body = TEXT.expired.body.replace('{ngày_xoá}', formatDateVN(purgeAt))
   } else {
-    const n = String(daysLeft(purgeAt.getTime(), now))
-    subject = TEXT.purge.title.replace('{n}', n)
-    body = TEXT.purge.body
-      .replace('{ngày}', formatDateVN(proUntil))
-      .replace('{ngày_xoá}', formatDateVN(purgeAt))
+    subject = TEXT.expired.title
+    body = TEXT.expired.body
   }
   const renew = `${siteUrl()}/pro`
   const html = `<p>Chào ${esc(displayName)},</p>
@@ -172,14 +157,14 @@ export async function runReminders(
     sent: 0,
     failed: 0,
     skipped: 0,
-    byKind: { before7: 0, expired: 0, purge30: 0, purge7: 0 },
+    byKind: { before7: 0, expired: 0 },
   }
   const unsubOk = unsubKey() !== null
   if (!unsubOk) throw new Error('INTERNAL_IDENTITY_SECRET chưa đặt - không tạo được link huỷ nhận')
 
   const rows = await prisma.entitlement.findMany({
     where: {
-      proUntil: { gt: new Date(now - PURGE_AFTER), lte: new Date(now + 7 * DAY) },
+      proUntil: { gt: new Date(now - LAST_WINDOW_END), lte: new Date(now + 7 * DAY) },
       remindersOptOutAt: null,
       user: { emailVerifiedAt: { not: null }, deactivatedAt: null, deletionScheduledAt: null },
     },

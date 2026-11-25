@@ -503,7 +503,10 @@ export default function SecurityPage() {
             />
           </Section>
 
-          <section className="rounded-lg border border-danger bg-surface p-5 sm:p-6">
+          <section
+            id="xoa-tai-khoan"
+            className="rounded-lg border border-danger bg-surface p-5 sm:p-6"
+          >
             <h2 className="text-base font-semibold text-danger">Vùng nguy hiểm</h2>
             <p className="mt-1 text-sm text-fg-muted">
               Cả hai thao tác đòi mật khẩu hiện tại và sẽ đăng xuất bạn ngay.

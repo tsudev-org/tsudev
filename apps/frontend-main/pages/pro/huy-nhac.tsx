@@ -61,7 +61,7 @@ export default function ProUnsubscribePage() {
   return (
     <AuthShell
       title="Huỷ nhận thư nhắc gia hạn"
-      description="Ngừng nhận thư nhắc khi TsuDEV Pro sắp hết hạn, đã hết hạn và trước khi bản sao đám mây bị xoá."
+      description="Ngừng nhận thư nhắc khi TsuDEV Pro sắp hết hạn và khi đã hết hạn."
       noindex
     >
       <Button
