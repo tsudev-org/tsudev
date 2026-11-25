@@ -5,7 +5,8 @@
 > 1. PR UX2-b (nền Sáng v6.0.0 + hoạ tiết header/footer + logo màn đầu) - nếu chưa gộp: CI xanh ⇒ gộp ⇒ deploy ⇒
 >    `release:tag` ⇒ CHANGELOG ⇒ quay khung hình `https://tsudev.com/` (phiếu [`20261125-UX2`](handover/20261125-UX2_chong-nhay-tai-trang-giao-dien-trang-chu.md)).
 > 2. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md).
-> 3. **SEC2-e** (phiếu [`20261125-SEC2`](handover/20261125-SEC2_trang-security-bang-chung-tin-cay.md)).
+> 3. PR SEC2-e (trang `/security`, chạm `SiteFooter.tsx` ⇒ 👤 Approve) ⇒ gộp ⇒ deploy ⇒ grep "Báo lỗ hổng" trên
+>    production. HSTS preload `tsudev.com` ĐÃ NỘP 25/11 (`pending`) - kiểm `hstspreload.org/api/v2/status?domain=tsudev.com`.
 > 4. **UX1-a** (phiếu [`20261124-UX1`](handover/20261124-UX1_giao-dien-chuyen-nghiep-studio.md)).
 > 5. 👤 còn mở: thử thư "Quên mật khẩu" (EM2); SQL phiếu [`20261125-DK3`](handover/20261125-DK3_client-oidc-tsutramon.md)
 >    (client OIDC `tsutramon`) rồi đo 303; thay khoá VirusTotal.
