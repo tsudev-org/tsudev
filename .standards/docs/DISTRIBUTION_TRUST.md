@@ -1,4 +1,4 @@
-# PHÂN PHỐI TIN CẬY - CÀI ĐẶT KHÔNG BỊ CHẶN (v1.3.0)
+# PHÂN PHỐI TIN CẬY - CÀI ĐẶT KHÔNG BỊ CHẶN (v1.4.0)
 
 > Mọi sản phẩm tsudev phát hành thành tệp cài `MUST` đến tay người dùng qua kênh mà hệ điều hành, trình duyệt và
 > phần mềm diệt virus đã tin, với chữ ký và nguồn gốc kiểm chứng được. Tài liệu này quy định kênh theo từng nền tảng
@@ -124,7 +124,8 @@ theo [`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) mục 2.1, để đầu 2027 chỉ
 
 **Phòng từ khi dựng:**
 
-- KHÔNG nén/làm rối tệp thực thi (UPX, packer, obfuscator). Python: tránh PyInstaller một tệp (`--onefile`) - giải nén
+- KHÔNG nén/đóng gói bảo vệ tệp thực thi (UPX, packer, protector). Làm rối mã CHỈ cho dự án PRIVATE, CHỈ bằng công
+  cụ và cấu hình ở [`APP_INTEGRITY.md`](APP_INTEGRITY.md) mục 5 (đã chọn để an toàn với antivirus) và qua cổng 5.4. Python: tránh PyInstaller một tệp (`--onefile`) - giải nén
   vào thư mục tạm là mẫu hành vi của mã độc; dùng `--onedir` trong bộ cài hoặc Nuitka; nếu buộc dùng PyInstaller thì
   dựng bootloader từ nguồn.
 - KHÔNG tải và chạy mã từ URL lúc chạy (ngoài updater theo mục 2.5), không tự thêm khởi động cùng Windows khi người
@@ -224,7 +225,8 @@ miền con `*.tsudev.com` một lần) - agent tạo bản ghi qua API Cloudflar
 - [ ] VirusTotal 0 engine gắn cờ (hoặc phiếu báo nhầm đã nộp và Release còn ở nháp).
 - [ ] Mọi kênh đã công bố (Store, Play, winget, Scoop, Homebrew, APT/RPM) nhận bản mới; `doi-chieu-kenh` 0 lệch.
 - [ ] Trang tải về nói đúng trạng thái ký của từng nền tảng - không hứa "không cảnh báo" ở nền tảng chưa đạt.
-- [ ] Không có tệp dùng packer/obfuscator; bộ cài không tải thêm mã không ký.
+- [ ] Không có tệp dùng packer/protector; làm rối mã (chỉ PRIVATE) đúng `APP_INTEGRITY.md` mục 5; bộ cài không tải
+  thêm mã không ký.
 
 ## 8. Tuân thủ pháp luật Việt Nam (checklist kỹ thuật - 👤 xác nhận văn bản)
 

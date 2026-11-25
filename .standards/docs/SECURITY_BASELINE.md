@@ -1,6 +1,10 @@
-# CHUẨN BẢO MẬT BẮT BUỘC - mọi project/tool/phần mềm tsudev (v3.0.0)
+# CHUẨN BẢO MẬT BẮT BUỘC - mọi project/tool/phần mềm tsudev (v3.1.0)
 
 > **Bất khả xâm phạm.** File này là chuẩn tối thiểu, không phải danh sách gợi ý.
+>
+> **Từ v7.0.0 bộ quy ước (25/11/2026)**: chống can thiệp/bắt buộc cập nhật/chứng thực app/làm rối mã theo
+> [`APP_INTEGRITY.md`](APP_INTEGRITY.md); dữ liệu người dùng không rời thiết bị, đồng bộ trực tiếp theo
+> [`LOCAL_SYNC.md`](LOCAL_SYNC.md). Hai tài liệu đó cùng mức bắt buộc với file này.
 > Repo con mang bản sao chỉ-đọc, đồng bộ xuống từ `tsudev-standards`, không sửa ngược.
 >
 > Ký hiệu mức độ (theo RFC 2119): `MUST` = bắt buộc, không đạt thì không được
