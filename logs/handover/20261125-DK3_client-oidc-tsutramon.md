@@ -30,3 +30,4 @@ ON CONFLICT (id) DO NOTHING;
 ## Kết quả xử lý
 
 - 25/11/2026 - tsudev-trafficmonitor: mở phiếu.
+- 25/11/2026 - tsudev-3e: phiếu vào repo (#382). Máy không có URL Neon ⇒ 👤 chạy `bash ~/dk3-tsutramon.sh` trong terminal WSL riêng (INSERT + SELECT + curl kiểm 303).

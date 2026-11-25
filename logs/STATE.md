@@ -1,19 +1,18 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
-> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (25/11/2026, sau tsudev-3e lượt 2)** - làm theo thứ tự:
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (25/11/2026, sau tsudev-3e)** - làm theo thứ tự:
 >
-> 1. PR UX2-b (nền Sáng v6.0.0 + hoạ tiết header/footer + logo màn đầu) - nếu chưa gộp: CI xanh ⇒ gộp ⇒ deploy ⇒
->    `release:tag` ⇒ CHANGELOG ⇒ quay khung hình `https://tsudev.com/` (phiếu [`20261125-UX2`](handover/20261125-UX2_chong-nhay-tai-trang-giao-dien-trang-chu.md)).
-> 2. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md).
-> 3. PR SEC2-e (trang `/security`, chạm `SiteFooter.tsx` ⇒ 👤 Approve) ⇒ gộp ⇒ deploy ⇒ grep "Báo lỗ hổng" trên
->    production. HSTS preload `tsudev.com` ĐÃ NỘP 25/11 (`pending`) - kiểm `hstspreload.org/api/v2/status?domain=tsudev.com`.
-> 4. **UX1-a** (phiếu [`20261124-UX1`](handover/20261124-UX1_giao-dien-chuyen-nghiep-studio.md)).
-> 5. 👤 còn mở: thử thư "Quên mật khẩu" (EM2); SQL phiếu [`20261125-DK3`](handover/20261125-DK3_client-oidc-tsutramon.md)
->    (client OIDC `tsutramon`) rồi đo 303; thay khoá VirusTotal.
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **UX1-a** (phiếu [`20261124-UX1`](handover/20261124-UX1_giao-dien-chuyen-nghiep-studio.md)) - WorkspaceLayout + `/studio`.
+> 3. DK3: nếu `curl` `/oidc/auth?client_id=tsutramon` đã 303 ⇒ ghi Kết quả phiếu
+>    [`20261125-DK3`](handover/20261125-DK3_client-oidc-tsutramon.md) + nhắn phiên tsudev-trafficmonitor; chưa ⇒ 👤 chạy
+>    `bash ~/dk3-tsutramon.sh` trong terminal WSL riêng (tệp ngoài repo, nhập URL Neon ẩn).
+> 4. Theo dõi HSTS preload `tsudev.com` (`hstspreload.org/api/v2/status?domain=tsudev.com`: pending ⇒ preloaded).
+> 5. 👤 còn mở: thay khoá VirusTotal.
 >
-> Đã xong 25/11 (tsudev-3e): #381 `deploy-2026.11.25.1`; #382 UX2-a + #383 TM1 mục 2 `deploy-2026.11.25.2` (hết nháy khi
-> Ctrl+F5, đo 7 khung thay vì 55); tsudev-standards **v6.0.0** (nền Sáng giấy, mô tả mới, font tiêu đề, Tsu Tramon) -
-> các repo khác sync theo Hướng dẫn nâng cấp + phiếu UI2 toàn hệ. Không khoá, không tác vụ nền.
+> Đã xong 25/11 (tsudev-3e): #381 `.1`, #382+#383 `.2` (hết nháy Ctrl+F5), tsudev-standards **v6.0.0** + #384 `.3` (nền
+> Sáng giấy), #385 `.4` (`/security`, HSTS preload đã nộp). EM2: chủ dự án thử "Quên mật khẩu" đạt. Phiếu UI2 toàn hệ đã
+> phát + các phiên tsutramon/sound-db/qulythuchi đã nhận. Không khoá, không tác vụ nền.
 
 > ⏰ **TỪ 28/11/2026 - LÀM ĐẦU PHIÊN**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) -
 > nhắc chủ dự án kiểm email duyệt tài khoản BCT + thư NCA ở `contact@tsudev.com`, rồi đánh giá nhãn (DMCA, Chống Lừa Đảo,
