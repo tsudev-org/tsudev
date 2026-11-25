@@ -58,6 +58,31 @@ const savedMarkdown = async (page, slug) => {
   return String(out.j.contentMd ?? out.j.post?.contentMd ?? '');
 };
 
+/** Đặt con trỏ ở cuối đoạn văn ĐẦU TIÊN của trình soạn. */
+const caretToEndOfFirstParagraph = async (page) => {
+  await page.evaluate(() => {
+    const root = document.querySelector('.ProseMirror');
+    const p = root.querySelector(':scope > p');
+    root.focus();
+    const r = document.createRange();
+    r.selectNodeContents(p);
+    r.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(r);
+  });
+  // Chờ ProseMirror nhận vùng chọn: đoạn chứa con trỏ phải là đoạn đầu.
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const n = window.getSelection().anchorNode;
+        const el = n && (n.nodeType === 1 ? n : n.parentElement);
+        return el?.closest('td, th') ? 'cell' : el?.closest('.ProseMirror > p') ? 'p1' : 'other';
+      })
+    )
+    .toBe('p1');
+};
+
 /** Gõ `/<lọc>` ở đoạn trống hiện tại rồi chọn khối có nhãn `label`. Lọc KHÔNG có
  * dấu cách: dấu cách đóng menu (giống Notion), nên "/ghi chu" là chữ thường. */
 const slashInsert = async (page, query, label) => {
@@ -109,13 +134,15 @@ test('Studio: viết → menu / chèn hộp ghi chú + bảng → tự lưu → 
   await page.keyboard.type('Cột A');
   await expect(editor.locator('table')).toHaveCount(1);
 
-  // Về cuối đoạn ĐẦU bằng phím, không click: ở CI cú click vào đoạn văn ngay sau khi
-  // gõ trong ô bảng không dời được con trỏ ra khỏi ô (#393 lần 1: ghi chú rơi vào ô).
-  await page.keyboard.press('Control+Home');
-  await page.keyboard.press('End');
+  // Về cuối đoạn ĐẦU bằng vùng chọn DOM, không click/phím: ở CI cả click lẫn
+  // Ctrl+Home đều để con trỏ ở lại ô bảng (#393 hai lần: ghi chú rơi vào ô).
+  // ProseMirror nhận vùng chọn qua `selectionchange`, rồi Enter tách đoạn đúng chỗ.
+  await caretToEndOfFirstParagraph(page);
   await page.keyboard.press('Enter');
   await slashInsert(page, 'ghi', 'Hộp ghi chú');
   await page.keyboard.type('Nội dung hộp ghi chú.');
+  // Hộp ghi chú phải nằm NGOÀI bảng (GFM làm phẳng khối trong ô thành `<br>`).
+  await expect(editor.locator('table aside')).toHaveCount(0);
   await expect(editor.locator('aside[data-callout="note"]')).toContainText('Nội dung hộp ghi chú.');
 
   // KHÔNG bấm Lưu: chờ hẹn giờ tự lưu. Trước khi nó chạy, máy chủ chưa có bảng.
