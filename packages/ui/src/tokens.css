@@ -83,8 +83,8 @@
   --badge-donor-bg: #042f2e;
   --badge-donor-border: #2dd4bf;
   --badge-donor-ink: #99f6e4;
-  --ribbon-open-bg: #0a0a0a;
-  --ribbon-open-ink: #ffffff;
+  --ribbon-open-bg: #22c55e;
+  --ribbon-open-ink: #0a0a0a;
   --ribbon-private-bg: #dc2626;
   --ribbon-private-ink: #ffffff;
 }
@@ -150,8 +150,8 @@
   --badge-donor-bg: #ccfbf1;
   --badge-donor-border: #0f766e;
   --badge-donor-ink: #134e4a;
-  --ribbon-open-bg: #0a0a0a;
-  --ribbon-open-ink: #ffffff;
+  --ribbon-open-bg: #16a34a;
+  --ribbon-open-ink: #0a0a0a;
   --ribbon-private-bg: #b91c1c;
   --ribbon-private-ink: #ffffff;
 }

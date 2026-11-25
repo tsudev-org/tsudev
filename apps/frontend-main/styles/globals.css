@@ -505,11 +505,13 @@
   border-color: color-mix(in srgb, var(--sp) 60%, var(--border));
 }
 
-/* Dải chéo góc TRÊN PHẢI của thẻ app (phiếu ECO1-a, chủ dự án chốt 25/11/2026): "Open" nền đen tuyền ở
-   cả hai chế độ, kèm tam giác cách điệu; "Private" nền đỏ. Khung bọc tự cắt (overflow hidden) nên thẻ
-   không phải overflow:hidden - focus ring và quầng bóng của thẻ giữ nguyên. Vị trí tuyệt đối, kích thước
-   cố định ⇒ không gây CLS; không hoạt ảnh. Hàng đầu thẻ chừa `pr-8` để tên app / ô chọn tròn không nằm
-   dưới dải (EcoAppCard). Màu: token ribbon-* (contrast.test.ts). */
+/* Nhãn góc TRÊN PHẢI của thẻ app (phiếu ECO1-a; chủ dự án đổi 25/11/2026 tối): tam giác màu PHỦ KÍN tới
+   sát góc thẻ (clip-path), chữ chạy chéo 45°. "Open" nền xanh lá tươi + tam giác cách điệu, "Private" nền
+   đỏ. Khung tự cắt nên thẻ không phải overflow:hidden - focus ring và quầng bóng của thẻ giữ nguyên; góc
+   bo theo thẻ (border-top-right-radius: inherit). Vị trí tuyệt đối, kích thước cố định ⇒ không gây CLS;
+   không hoạt ảnh. Hàng đầu thẻ chừa `pr-12` (3rem + p-5 = 4.25rem ≥ bề ngang tam giác ở đỉnh ô chọn tròn) để tên app / ô chọn tròn không nằm dưới nhãn (EcoAppCard).
+   Hình học: cạnh 5.5rem, tâm dải chữ cách góc 2.5rem theo đường chéo ⇒ mép trong dải chữ rộng ~3.9rem
+   (đủ "PRIVATE"), mép ngoài 3.06rem < cạnh huyền 3.89rem. Màu: token ribbon-* (contrast.test.ts). */
 .tsu-ribbon {
   position: absolute;
   top: 0;
@@ -519,12 +521,13 @@
   overflow: hidden;
   pointer-events: none;
   border-top-right-radius: inherit;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
 }
 .tsu-ribbon__band {
   position: absolute;
-  top: 1.125rem;
-  right: -1.875rem;
-  width: 7.5rem;
+  top: 1.205rem;
+  right: -1.732rem;
+  width: 7rem;
   transform: rotate(45deg);
   display: flex;
   align-items: center;
@@ -537,13 +540,9 @@
   text-transform: uppercase;
   line-height: 1;
 }
-.tsu-ribbon--open .tsu-ribbon__band {
+.tsu-ribbon--open {
   background: var(--ribbon-open-bg);
   color: var(--ribbon-open-ink);
-}
-/* Ở chế độ Tối dải đen nằm trên thẻ gần đen: viền mảnh để còn thấy hình dải. */
-:root:not([data-theme='light']) .tsu-ribbon--open .tsu-ribbon__band {
-  box-shadow: 0 0 0 1px var(--border-strong);
 }
 .tsu-ribbon--open .tsu-ribbon__band::before {
   content: '';
@@ -553,7 +552,7 @@
   border-right: 0.25rem solid transparent;
   border-bottom: 0.375rem solid currentColor;
 }
-.tsu-ribbon--private .tsu-ribbon__band {
+.tsu-ribbon--private {
   background: var(--ribbon-private-bg);
   color: var(--ribbon-private-ink);
 }
