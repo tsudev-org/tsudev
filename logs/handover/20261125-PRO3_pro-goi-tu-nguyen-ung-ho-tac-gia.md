@@ -29,3 +29,6 @@
   `TERMS_DOC_DATES` tách riêng; (d) không chữ cấm (test quét nguồn), lối vào Pro đúng chỗ (Cài đặt, /ung-ho, chính sách);
   (f) README + mô tả `/apps`; `.standards` → v6.1.0; test `proTerms.test.ts`. Còn: (c) chủ đề Pro Q2 (phiên sau),
   (e) logo BCT chờ DK2. Mâu thuẫn ECO1-e đã xử lý (huỷ). PR: xem dòng kế tiếp khi mở.
+- 25/11/2026 - tsudev-PRO3: gộp #398, `deploy-2026.11.25.9` (Worker `da201bae`). Đo production: `/pro` có câu định vị +
+  ô xác nhận; `/terms`, `/chinh-sach-thanh-toan` có "gói dịch vụ trả phí không bắt buộc", ngày cập nhật 25/11/2026.
+  Đã nhắn projects-4c, projects-05. Còn (c) Q2, (e) logo BCT.
