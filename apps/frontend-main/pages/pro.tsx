@@ -7,7 +7,15 @@ import PageHeader from '../components/PageHeader';
 import { PaymentInstructions, loginHref, usePurchase } from '../components/PayPanel';
 import { useLoader } from '../lib/useLoader';
 import { formatDateVN } from '../lib/format';
-import { appParam, payCall, vnd, webTerms, PLAN_PRICE } from '../lib/pay';
+import {
+  appParam,
+  payCall,
+  vnd,
+  webTerms,
+  PLAN_PRICE,
+  PRO_CONSENT,
+  PRO_POSITIONING,
+} from '../lib/pay';
 import type { PayStatus, PlanKind } from '../lib/pay';
 
 /**
@@ -17,15 +25,23 @@ import type { PayStatus, PlanKind } from '../lib/pay';
  *
  * Điều khoản đứng TRƯỚC nút mua, NGUYÊN VĂN PRODUCT_POLICY 7.5 (v4.0.0: một kỳ 1 năm, không
  * tự gia hạn ở mọi kênh) - `webTerms()` trong lib/pay.ts, test/proTerms.test.ts canh.
+ *
+ * PRO3 (PRODUCT_POLICY 3.7, v6.1.0): Pro là gói dịch vụ KHÔNG BẮT BUỘC để ủng hộ tác giả. Thứ tự
+ * trước nút mua: câu định vị → quyền lợi ĐANG CHẠY → điều khoản 7.5 + liên kết chính sách → ô xác
+ * nhận không chọn sẵn; nút mua (kể cả "Đăng nhập để mua") vô hiệu tới khi đánh dấu.
  */
 /** PRODUCT_POLICY 7.2 (v4.0.0): MỘT gói Pro kỳ 1 năm - gói tháng đã bỏ (PRO2). */
 const PLAN: PlanKind = 'pro_year';
 
+/**
+ * Danh sách ĐÓNG (PRODUCT_POLICY 3.7.1), CHỈ quyền lợi đang chạy thật: Q1 huy hiệu, Q3 đồng bộ +
+ * sao lưu. Q2 (giao diện Pro) chỉ thêm vào đây khi chủ đề Pro đã có ở Cài đặt → Giao diện.
+ */
 const FEATURES = [
+  'Huy hiệu Pro cạnh tên tài khoản (ẩn được)',
   'Đồng bộ dữ liệu giữa các thiết bị cùng tài khoản',
   'Sao lưu đám mây, mã hoá đầu cuối - máy chủ chỉ giữ bản mã',
   'Một gói cho MỌI ứng dụng TsuDEV, gắn với tài khoản',
-  'Huy hiệu Pro cạnh tên tài khoản (ẩn được)',
 ];
 
 export default function ProPage() {
@@ -34,6 +50,8 @@ export default function ProPage() {
   const { status } = useSession();
   const [me, setMe] = useState<PayStatus | null>(null);
   const { intent, busy, error, buy, reset } = usePurchase(app);
+  // Ô xác nhận KHÔNG chọn sẵn (3.7.3 bước 4).
+  const [agreed, setAgreed] = useState(false);
 
   const load = useCallback(async (signal?: AbortSignal) => {
     const r = await payCall<PayStatus>('pay/status', {}, signal);
@@ -49,7 +67,7 @@ export default function ProPage() {
       <Seo
         title="TsuDEV Pro"
         path="/pro"
-        description="TsuDEV Pro: đồng bộ và sao lưu đám mây mã hoá đầu cuối cho mọi ứng dụng TsuDEV. 490.000 ₫ cho 1 năm, trả bằng chuyển khoản VietQR, không tự gia hạn."
+        description="TsuDEV Pro là gói dịch vụ không bắt buộc để ủng hộ tác giả: huy hiệu Pro, đồng bộ và sao lưu đám mây mã hoá đầu cuối. 490.000 ₫ cho 1 năm, không tự gia hạn. Mọi ứng dụng TsuDEV miễn phí và mã nguồn mở."
       />
       <PageHeader
         eyebrow="Hệ sinh thái TsuDEV"
@@ -58,7 +76,7 @@ export default function ProPage() {
             TsuDEV <span className="tsu-text-gradient">Pro</span>
           </>
         }
-        description="Bản miễn phí lưu mọi thứ trên thiết bị của bạn và không gửi gì lên mạng. Pro thêm đồng bộ và sao lưu đám mây giữa các thiết bị - cho mọi ứng dụng TsuDEV, bằng một tài khoản."
+        description="Gói không bắt buộc để ủng hộ tác giả. Bản miễn phí có đủ tính năng cốt lõi và không gửi gì lên mạng; Pro thêm huy hiệu và đồng bộ, sao lưu đám mây - cho mọi ứng dụng TsuDEV, bằng một tài khoản."
         crumbs={[{ label: 'Trang chủ', href: '/' }, { label: 'Pro' }]}
       />
 
@@ -76,6 +94,9 @@ export default function ProPage() {
             </span>
           </div>
         )}
+
+        {/* Câu định vị NGUYÊN VĂN (PRODUCT_POLICY 3.7.3 bước 1). */}
+        <p className="mb-6 max-w-3xl text-base text-fg">{PRO_POSITIONING}</p>
 
         <ul className="grid gap-3 sm:grid-cols-2" aria-label="Quyền lợi Pro">
           {FEATURES.map((f) => (
@@ -100,22 +121,42 @@ export default function ProPage() {
 
         {/* Điều khoản TRƯỚC nút mua (PRODUCT_POLICY 7.5). */}
         <p className="mt-6 rounded-md border border-line bg-subtle p-4 text-sm text-fg" role="note">
-          {webTerms(PLAN_PRICE[PLAN])}
+          {webTerms(PLAN_PRICE[PLAN])} Xem thêm{' '}
+          <a href="/chinh-sach-thanh-toan" className="text-link hover:underline">
+            Chính sách thanh toán, hoàn tiền và khiếu nại
+          </a>{' '}
+          và{' '}
+          <a href="/terms" className="text-link hover:underline">
+            Điều khoản sử dụng
+          </a>
+          .
         </p>
+
+        <label className="mt-4 flex max-w-2xl cursor-pointer items-start gap-2.5 text-sm text-fg">
+          <input
+            type="checkbox"
+            className="mt-0.5 h-4 w-4 shrink-0 accent-(--primary)"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+          />
+          <span>{PRO_CONSENT}</span>
+        </label>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {status === 'authenticated' ? (
-            <Button onClick={() => buy(PLAN)} disabled={busy !== null}>
+            <Button onClick={() => buy(PLAN)} disabled={!agreed || busy !== null}>
               {busy
                 ? 'Đang tạo mã…'
                 : me?.proActive
                   ? `Gia hạn 1 năm - ${vnd(PLAN_PRICE[PLAN])}`
                   : `Mua 1 năm - ${vnd(PLAN_PRICE[PLAN])}`}
             </Button>
-          ) : (
+          ) : agreed ? (
             <Button as="a" href={loginHref(here)}>
               Đăng nhập để mua
             </Button>
+          ) : (
+            <Button disabled>Đăng nhập để mua</Button>
           )}
           <span className="text-xs text-fg-muted">Không dùng thử miễn phí. Giá đã gồm thuế.</span>
         </div>

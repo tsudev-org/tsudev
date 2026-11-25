@@ -78,7 +78,7 @@ export default function EcoAppCard({
           {app.openSource ? 'Open' : 'Private'}
         </span>
       </div>
-      <div className="flex items-start gap-4 pr-8">
+      <div className="flex items-start gap-4 pr-12">
         <EcoIcon
           name={app.name}
           logo={app.logo}

@@ -35,9 +35,11 @@ const SECTIONS = [
       <>
         <ul>
           <li>
-            <strong>TsuDEV Pro - 1 năm</strong>: {PRO}, giá đã gồm thuế, trả trước một lần cho 12
-            tháng, <strong>không tự gia hạn</strong>. Gia hạn sớm cộng thêm 1 năm vào thời hạn còn
-            lại. Quyền lợi chi tiết ở <a href="/pro">trang Pro</a>.
+            <strong>TsuDEV Pro - 1 năm</strong>: gói dịch vụ trả phí <strong>không bắt buộc</strong>
+            , người dùng tự chọn để ủng hộ tác giả duy trì và phát triển dự án, đổi lại tài khoản
+            nhận thêm quyền lợi. {PRO}, giá đã gồm thuế, trả trước một lần cho 12 tháng,{' '}
+            <strong>không tự gia hạn</strong>. Gia hạn sớm cộng thêm 1 năm vào thời hạn còn lại.
+            Quyền lợi chi tiết ở <a href="/pro">trang Pro</a>.
           </li>
           <li>
             <strong>Ủng hộ</strong> (20.000 ₫ - 200.000 ₫): khoản đóng góp tự nguyện cho nhà phát
@@ -45,7 +47,11 @@ const SECTIONS = [
             khoản.
           </li>
         </ul>
-        <p>Phần mềm miễn phí trên tsudev.com không thu phí và không bị giới hạn bởi văn bản này.</p>
+        <p>
+          Mọi ứng dụng TsuDEV miễn phí và mã nguồn mở: không mua Pro vẫn dùng được đầy đủ tính năng
+          cốt lõi. Phần mềm miễn phí trên tsudev.com không thu phí và không bị giới hạn bởi văn bản
+          này.
+        </p>
       </>
     ),
   },

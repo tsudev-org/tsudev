@@ -60,27 +60,27 @@ const savedMarkdown = async (page, slug) => {
 
 /** Đặt con trỏ ở cuối đoạn văn ĐẦU TIÊN của trình soạn. */
 const caretToEndOfFirstParagraph = async (page) => {
+  // Đặt con trỏ qua API của TipTap (gắn ở `.ProseMirror`.editor), KHÔNG qua vùng chọn DOM:
+  // ProseMirror nhận vùng chọn DOM qua `selectionchange` bất đồng bộ, nên ở CI phím Enter
+  // kế tiếp có lúc vẫn chạy với con trỏ cũ trong ô bảng (#393 hai lần, #398 hai lần liền).
   await page.evaluate(() => {
-    const root = document.querySelector('.ProseMirror');
-    const p = root.querySelector(':scope > p');
-    root.focus();
-    const r = document.createRange();
-    r.selectNodeContents(p);
-    r.collapse(false);
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(r);
+    const ed = document.querySelector('.ProseMirror').editor;
+    const end = ed.state.doc.firstChild.nodeSize - 1;
+    ed.chain().focus().setTextSelection(end).run();
   });
-  // Chờ ProseMirror nhận vùng chọn: đoạn chứa con trỏ phải là đoạn đầu.
+  // Chờ TRẠNG THÁI của trình soạn (không chỉ DOM): con trỏ ở cuối đoạn đầu.
   await expect
     .poll(() =>
       page.evaluate(() => {
-        const n = window.getSelection().anchorNode;
-        const el = n && (n.nodeType === 1 ? n : n.parentElement);
-        return el?.closest('td, th') ? 'cell' : el?.closest('.ProseMirror > p') ? 'p1' : 'other';
+        const ed = document.querySelector('.ProseMirror').editor;
+        const { $from, empty } = ed.state.selection;
+        const first = ed.state.doc.firstChild;
+        return empty && $from.parent === first && $from.parentOffset === first.content.size
+          ? 'p1-end'
+          : 'other';
       })
     )
-    .toBe('p1');
+    .toBe('p1-end');
 };
 
 /** Gõ `/<lọc>` ở đoạn trống hiện tại rồi chọn khối có nhãn `label`. Lọc KHÔNG có

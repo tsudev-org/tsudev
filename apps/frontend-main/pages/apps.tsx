@@ -137,7 +137,7 @@ export default function AppsPage() {
             Danh sách <span className="tsu-text-gradient">ứng dụng</span>
           </>
         }
-        description="Tìm app bạn cần, mở website riêng của sản phẩm hoặc tải bản mới nhất. Chọn nhiều app để lấy một lệnh cài tất cả - riêng cho Windows, macOS hay Linux."
+        description="Miễn phí, không quảng cáo; nhãn Open/Private cho biết mã nguồn có công khai hay không. Tìm app bạn cần, mở website riêng của sản phẩm hoặc tải bản mới nhất. Chọn nhiều app để lấy một lệnh cài tất cả - riêng cho Windows, macOS hay Linux."
         crumbs={[{ label: 'Trang chủ', href: '/' }, { label: 'Ứng dụng' }]}
       />
 

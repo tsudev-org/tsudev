@@ -117,3 +117,13 @@ export async function payCall<T = Record<string, unknown>>(
 /** Điều khoản đứng TRƯỚC nút mua - NGUYÊN VĂN PRODUCT_POLICY 7.5 (v4.0.0), `test/proTerms.test.ts` canh. */
 export const webTerms = (price: number) =>
   `TsuDEV Pro ${vnd(price)} cho 1 năm, KHÔNG tự gia hạn. Gia hạn sớm được cộng thêm 1 năm vào thời hạn còn lại. Hết hạn mà chưa gia hạn, ứng dụng trở về bản miễn phí và ngừng đồng bộ lên đám mây; dữ liệu trên thiết bị vẫn giữ nguyên, bản sao trên đám mây còn tải về được 90 ngày rồi bị xoá.`;
+
+/**
+ * PRODUCT_POLICY 3.7.3 (v6.1.0, phiếu PRO3): câu định vị và ô xác nhận đứng TRƯỚC nút mua,
+ * NGUYÊN VĂN - test/proTerms.test.ts đối chiếu với `.standards/`.
+ */
+export const PRO_POSITIONING =
+  'Mọi ứng dụng TsuDEV miễn phí và mã nguồn mở. TsuDEV Pro không bắt buộc: bạn chọn Pro để ủng hộ tác giả duy trì và phát triển dự án, đổi lại tài khoản nhận thêm các quyền lợi dưới đây.';
+
+export const PRO_CONSENT =
+  'Tôi hiểu TsuDEV Pro là gói dịch vụ trả phí không bắt buộc, có thời hạn 1 năm và không tự gia hạn.';

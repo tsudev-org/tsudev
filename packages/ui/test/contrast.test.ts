@@ -132,6 +132,7 @@ const PAIRS: Array<[string, string, number, string]> = [
   ['--ribbon-open-ink', '--ribbon-open-bg', 4.5, 'chữ Open trên dải chéo góc'],
   ['--ribbon-private-ink', '--ribbon-private-bg', 4.5, 'chữ Private trên dải chéo góc'],
   ['--ribbon-private-bg', '--bg-surface', 3, 'dải Private trên nền thẻ'],
+  ['--ribbon-open-bg', '--bg-surface', 3, 'nhãn Open trên nền thẻ'],
 
   // Khối "không tải được nội dung" của EmptyState đặt chữ THƯỜNG (không phải
   // nhãn) lên nền tint cảnh báo. Cặp này khác bốn cặp -ink/-tint ngay trên: ở
