@@ -1,5 +1,17 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-d9, 25/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **UX1-c** (phiếu [`20261124-UX1`](handover/20261124-UX1_giao-dien-chuyen-nghiep-studio.md) mục 2) - tải ảnh WebP.
+>    ⛔ 👤 chủ dự án tạo bucket R2 `tsudev-media` + miền `media.tsudev.com` TRƯỚC khi merge; chưa có ⇒ làm UX1-d (E2E
+>    Studio) trước.
+> 3. Theo dõi HSTS preload `tsudev.com`. 4. 👤 thay khoá VirusTotal.
+>
+> Đã xong 25/11 (tsudev-d9): **UX1-b** - trình soạn đầy đủ (#390, `deploy-2026.11.25.6` Worker `0ae74ecd`). Ghi chú:
+> máy KHÔNG có `jq` (dùng `gh --jq`/python); cổng 8080 có lúc bị backend `ubnd` chiếm ⇒ `DEV_PROXY=0` và mở
+> `tsudev.localhost:3000`. Dependabot còn mở như phiếu trước (#369 #373 #370 #378). Không khoá, không tác vụ nền.
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-c4, 25/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).

@@ -61,3 +61,21 @@ P7 (CÓ migration: trạng thái duyệt mở rộng, thùng rác, cột giai đ
   "Sắp có" (UX1-c). Còn cho UX1-b: khoảng trống trên thanh công cụ trình soạn, `act('archive')` còn `window.confirm`,
   "Nguồn tham khảo" (form cũ có, trình soạn chưa có - backend vẫn giữ dữ liệu). Phase kế tiếp: **UX1-b**.
 - 25/11/2026 - tsudev-c4 (bổ sung): #387 gộp, **`deploy-2026.11.25.5`** Worker `9f338206` (thẻ gắn tay - xem dòng dưới). Nghiệm thu production: `/` `/apps` `/blog` `/docs` `/studio` `/studio/posts` 200; `/author` `/author?tab=docs` `/author/posts/new` ⇒ 308 đúng đích; `/studio` noindex; providers chỉ provider thật. Cùng phiên: #388 bản dựng production không gọi backend dev (đặt `*_SERVICE_URL` về cổng 9 lúc dựng - lần deploy đầu đỏ vì dev stack còn sót), #372 svgo 3.3.5 (hết 3 cảnh báo Dependabot High, đều devDependency; `npm audit --omit=dev` 0).
+- 25/11/2026 - tsudev-d9: **UX1-b XONG** (PR 4.6, #390, **`deploy-2026.11.25.6`** Worker `0ae74ecd`, thẻ gắn tay).
+  Trình soạn: menu `/` (16 khối, lọc không dấu, `components/editor/blocks.ts`), menu nổi khi bôi chọn, bảng GFM
+  (TableKit + hàng ngữ cảnh), danh sách việc, hộp ghi chú `> [!NOTE..CAUTION]` là NÚT RIÊNG có tokenizer
+  (`components/editor/callout.ts` - trích dẫn có "[!NOTE]" bị thoát `\[!NOTE\]`), ngôn ngữ khối mã, chú thích ảnh
+  (title ⇒ figcaption), hộp thoại Liên kết/Ảnh thay `window.prompt`, Ctrl+K, bảng phím tắt `?`/Ctrl+/, đếm từ + phút
+  đọc. Không chèn khối vào ô bảng (GFM làm phẳng thành `<br>`). Một bộ extension cho trình soạn và test
+  (`components/editor/extensions.ts`). Trang: tự lưu 30 s qua `/autosave` (chỉ Nháp) + `updatedAt` mọi lần ghi + hộp
+  409 "Bài đã được sửa lúc HH:mm bởi X", chỉ báo "Đã lưu HH:mm" (`formatTimeVN`), Xem trước Máy tính/Di động 390 px
+  (đúng `renderMarkdown`, chunk lười riêng), bảng Kiểm tra (`lib/contentChecks.ts`, hàm thuần cho P7/WF-05), rời trang
+  ⇒ ConfirmDialog (chặn click `<a>` cùng origin - WorkspaceLayout dùng `<a>` thường nên `routeChangeStart` không chạy),
+  Lưu trữ ⇒ ConfirmDialog, "Nguồn tham khảo" trở lại, Ctrl+S / Ctrl+Enter / Ctrl+Shift+P. Việc dở UX1-a đều xong:
+  thanh công cụ một dòng cuộn ngang + dính dưới thanh tiêu đề (`--studio-bar-h`, ResizeObserver qua callback ref).
+  Đo: khứ hồi HAI chiều mọi nút/khối (80 ca), `contentChecks` 7 ca, frontend 396 test; `budget:js`
+  `/studio/posts/[slug]` 153.2 KB (Tiptap + bảng ở chunk lười ~101 KB gzip); Playwright ở dev: Markdown lưu đúng,
+  thanh dính 159 = 159 px, 390 px không cuộn ngang, Sáng + Tối. Production: `/studio*` 200, `/author/posts/new` 308.
+  CHƯA làm (để phase sau/P7): Xem trước Sáng/Tối riêng trong khung (token treo `:root`), nháp localStorage của ED-08,
+  ô thẻ chip ED-13, ghi đè sửa chồng cho MODERATOR+, bài xoá mềm vẫn giữ slug (lưu bài mới trùng tiêu đề ⇒ 409).
+  Phase kế tiếp: **UX1-c** (⛔ 👤 tạo bucket R2 `tsudev-media` + miền `media.tsudev.com` trước khi merge).
