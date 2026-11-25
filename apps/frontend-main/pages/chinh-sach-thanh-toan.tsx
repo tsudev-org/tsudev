@@ -87,9 +87,9 @@ const SECTIONS = [
         <ul>
           <li>
             <strong>Pro mua trên tsudev.com</strong>: hoàn <strong>toàn bộ</strong> nếu bạn yêu cầu
-            trong vòng 7 ngày kể từ khi Pro được kích hoạt. Sau 7 ngày, hoàn tiền khi dịch vụ đồng
-            bộ không hoạt động do lỗi của chúng tôi mà không khắc phục được trong 7 ngày kể từ khi
-            nhận báo lỗi - số tiền hoàn tính theo số ngày còn lại.
+            trong vòng 7 ngày kể từ khi Pro được kích hoạt. Sau 7 ngày, hoàn tiền khi quyền lợi Pro
+            (huy hiệu Pro, giao diện Pro) không hoạt động do lỗi của chúng tôi mà không khắc phục
+            được trong 7 ngày kể từ khi nhận báo lỗi - số tiền hoàn tính theo số ngày còn lại.
           </li>
           <li>
             <strong>Chuyển nhầm, chuyển thừa, chuyển trùng</strong> (sai số tiền, sai mã, chuyển hai
