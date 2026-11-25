@@ -68,7 +68,7 @@ export default function ProPage() {
       <Seo
         title="TsuDEV Pro"
         path="/pro"
-        description="TsuDEV Pro là gói dịch vụ không bắt buộc để ủng hộ tác giả: huy hiệu Pro, đồng bộ và sao lưu đám mây mã hoá đầu cuối. 490.000 ₫ cho 1 năm, không tự gia hạn. Mọi ứng dụng TsuDEV miễn phí và mã nguồn mở."
+        description="TsuDEV Pro là gói dịch vụ không bắt buộc để ủng hộ tác giả: huy hiệu Pro, đồng bộ và sao lưu đám mây mã hoá đầu cuối. 490.000 ₫ cho 1 năm, không tự gia hạn. Ứng dụng TsuDEV miễn phí; dự án gắn nhãn OPEN công khai mã nguồn trên GitHub."
       />
       <PageHeader
         eyebrow="Hệ sinh thái TsuDEV"

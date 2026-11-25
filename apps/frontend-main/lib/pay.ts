@@ -123,7 +123,7 @@ export const webTerms = (price: number) =>
  * NGUYÊN VĂN - test/proTerms.test.ts đối chiếu với `.standards/`.
  */
 export const PRO_POSITIONING =
-  'Mọi ứng dụng TsuDEV miễn phí và mã nguồn mở. TsuDEV Pro không bắt buộc: bạn chọn Pro để ủng hộ tác giả duy trì và phát triển dự án, đổi lại tài khoản nhận thêm các quyền lợi dưới đây.';
+  'Ứng dụng TsuDEV miễn phí; dự án gắn nhãn OPEN công khai mã nguồn trên GitHub. TsuDEV Pro không bắt buộc: bạn chọn Pro để ủng hộ tác giả duy trì và phát triển dự án, đổi lại tài khoản nhận thêm các quyền lợi dưới đây.';
 
 export const PRO_CONSENT =
   'Tôi hiểu TsuDEV Pro là gói dịch vụ trả phí không bắt buộc, có thời hạn 1 năm và không tự gia hạn.';

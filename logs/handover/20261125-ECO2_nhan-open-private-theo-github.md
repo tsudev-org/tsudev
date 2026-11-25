@@ -59,7 +59,18 @@
   nếu giữ lệnh cài) và không có chữ "mã nguồn mở".
 - E2E smoke `/apps` + ảnh chụp Sáng/Tối, khổ hẹp/rộng; deploy; đo production (OPEN chữ trắng, La bàn = OPEN, game = PRIVATE).
 
-## 2. Việc 👤 (điều phối hỏi, phiên tsudev KHÔNG tự quyết)
+### D. Câu định vị mới (chủ dự án DUYỆT 25/11/2026 - tsudev-standards v6.6.0 `PRODUCT_POLICY` 3.7.3)
+
+Đổi `/pro` và mọi nơi hiện câu định vị sang NGUYÊN VĂN (sync `.standards` v6.6.0):
+
+- vi: "Ứng dụng TsuDEV miễn phí; dự án gắn nhãn OPEN công khai mã nguồn trên GitHub. TsuDEV Pro không bắt buộc: bạn chọn
+  Pro để ủng hộ tác giả duy trì và phát triển dự án, đổi lại tài khoản nhận thêm các quyền lợi dưới đây."
+- en: "TsuDEV apps are free; projects labelled OPEN publish their source code on GitHub. TsuDEV Pro is optional: choose
+  Pro to support the author in maintaining and developing the project, and your account gets the extra benefits below."
+
+Trang bán đổi ⇒ báo điều phối thẻ deploy (in lại PDF hồ sơ BCT). Flutter đã xong: `tsudev_ui` v0.7.1.
+
+## 2. Việc 👤 (điều phối hỏi, phiên tsudev KHÔNG tự quyết) - ✅ ĐÃ QUYẾT 25/11/2026, xem mục 1.D
 
 - Câu định vị PRO3 3.7.3 nguyên văn "Mọi ứng dụng TsuDEV miễn phí và mã nguồn mở" trên `/pro` + `ProPurchaseSheet`
   trong khi có dự án PRIVATE (6 trò chơi). Chuẩn 3.7.7 mới: câu "mã nguồn mở" chỉ nói về dự án OPEN ⇒ cần chủ dự án duyệt

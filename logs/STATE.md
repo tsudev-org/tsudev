@@ -1,5 +1,16 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-PRO3c, 25/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **ECO2** (phiếu MỚI [`20261125-ECO2`](handover/20261125-ECO2_nhan-open-private-theo-github.md)): nhãn OPEN/PRIVATE
+>    theo `visibility` GitHub (La bàn là repo PUBLIC ⇒ OPEN), chữ OPEN trắng trên xanh đậm, chuyển sắc + kính bóng;
+>    chuẩn tsudev-standards v6.5.0 PRODUCT_POLICY 3.7.7 (đã Release). PR riêng.
+> 3. PRO3 còn: (e) logo BCT chờ DK2; khung ảnh Pro (`--pro-ring-*`) trên Avatar.
+>
+> Đã xong 25/11 (tsudev-PRO3c): **PRO3 (c)** chủ đề Pro Q2 (#400, `deploy-2026.11.25.10` Worker `3bff95e6`) +
+> câu định vị mới v6.6.0 (PR kế tiếp). Không khoá, không tác vụ nền.
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-PRO3, 25/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).

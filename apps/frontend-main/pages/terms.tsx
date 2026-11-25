@@ -53,11 +53,11 @@ const SECTIONS = [
         </ul>
         <h3>Gói TsuDEV Pro</h3>
         <p>
-          Mọi ứng dụng TsuDEV miễn phí và mã nguồn mở; bạn dùng được đầy đủ tính năng cốt lõi mà
-          không phải trả tiền. <strong>TsuDEV Pro là gói dịch vụ trả phí không bắt buộc</strong>:
-          người dùng tự chọn mua để ủng hộ tác giả duy trì và phát triển dự án, đổi lại tài khoản
-          nhận thêm các quyền lợi liệt kê ở <a href="/pro">trang Pro</a>. Giá, thanh toán, hoàn tiền
-          và khiếu nại theo{' '}
+          Ứng dụng TsuDEV miễn phí; dự án gắn nhãn OPEN công khai mã nguồn trên GitHub. Bạn dùng
+          được đầy đủ tính năng cốt lõi mà không phải trả tiền.{' '}
+          <strong>TsuDEV Pro là gói dịch vụ trả phí không bắt buộc</strong>: người dùng tự chọn mua
+          để ủng hộ tác giả duy trì và phát triển dự án, đổi lại tài khoản nhận thêm các quyền lợi
+          liệt kê ở <a href="/pro">trang Pro</a>. Giá, thanh toán, hoàn tiền và khiếu nại theo{' '}
           <a href="/chinh-sach-thanh-toan">Chính sách thanh toán, hoàn tiền và khiếu nại</a>.
         </p>
         <p>
