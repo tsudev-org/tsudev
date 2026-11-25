@@ -1,5 +1,16 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-c4, 25/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **UX1-b** (phiếu [`20261124-UX1`](handover/20261124-UX1_giao-dien-chuyen-nghiep-studio.md) mục 2 + việc còn ghi ở
+>    dòng UX1-a mục 4) - trình soạn: menu `/`, menu nổi, bảng, callout, phím tắt, Kiểm tra, chỉ báo tự lưu.
+> 3. Theo dõi HSTS preload `tsudev.com` (đo 25/11: `pending`).
+> 4. 👤 còn mở: thay khoá VirusTotal.
+>
+> Đã xong 25/11 (tsudev-c4): **UX1-a** - Studio `/studio*` + WorkspaceLayout, `/author*` → 308 (xem PR + thẻ deploy ở
+> phiếu UX1 mục 4). DK3 ĐÓNG (303). Không khoá, không tác vụ nền.
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (25/11/2026, sau tsudev-3e)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).

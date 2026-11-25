@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import { Badge, Button, Input, Layout } from '@tsudev/ui';
+import { Badge, Button, Icon, Input } from '@tsudev/ui';
 
-import Seo from '../../../components/Seo';
+import { WorkspaceLayout } from '../../../components/WorkspaceLayout';
 import { Notice } from '../../../components/AuthShell';
 import { MfaRequiredNotice } from '../../../components/MfaRequiredNotice';
 import { formatDateTimeVN } from '../../../lib/format';
@@ -30,7 +30,7 @@ const MarkdownEditor = dynamic(
 /**
  * Trang soạn bài hai cột (P2.3, khuôn CMS quantri): trái trình soạn Tiptap (D3,
  * ra Markdown), phải hộp Xuất bản / Chuyên mục / Thẻ / Ảnh bìa / SEO.
- * `/author/posts/new` = bài mới; lưu lần đầu thì URL đổi sang slug thật.
+ * `/studio/posts/new` = bài mới; lưu lần đầu thì URL đổi sang slug thật.
  *
  * Tự lưu mỗi 10 giây CHỈ khi bài là BẢN NHÁP. Bài đã đăng mà tự lưu thì mỗi lần
  * lưu là một lần sửa nội dung bài công khai - với tác giả, nó kéo bài về chờ duyệt
@@ -122,7 +122,7 @@ async function api(path: string, method = 'GET', body?: unknown) {
   return { ok: res.ok, status: res.status, data };
 }
 
-export default function AuthorPostEditor() {
+export default function StudioPostEditor() {
   const router = useRouter();
   const { status: auth } = useSession();
   const slugParam = typeof router.query.slug === 'string' ? router.query.slug : '';
@@ -196,7 +196,7 @@ export default function AuthorPostEditor() {
       setSavedAt(formatDateTimeVN(new Date().toISOString()));
       if (!quiet) setMsg({ kind: 'ok', text: 'Đã lưu.' });
       if (!post || saved.slug !== post.slug) {
-        router.replace(`/author/posts/${saved.slug}`, undefined, { shallow: true });
+        router.replace(`/studio/posts/${saved.slug}`, undefined, { shallow: true });
       }
       return saved;
     },
@@ -252,50 +252,48 @@ export default function AuthorPostEditor() {
   const label = STATUS_LABEL[st];
   const published = st === 'PUBLISHED' || st === 'SCHEDULED';
 
-  if (auth !== 'authenticated') {
-    return (
-      <Layout active="/author">
-        <Seo title="Soạn bài" path="/author/posts" noindex />
-        <h1 className="sr-only">Soạn bài</h1>
-        <p className="text-sm text-fg-muted">
-          {auth === 'loading' ? 'Đang tải…' : 'Bạn cần đăng nhập.'}
-        </p>
-      </Layout>
-    );
-  }
-  if (mfa) {
-    return (
-      <Layout active="/author">
-        <Seo title="Soạn bài" path="/author/posts" noindex />
-        <MfaRequiredNotice />
-      </Layout>
-    );
+  const saveState = saving
+    ? 'Đang lưu…'
+    : dirty
+      ? 'Có thay đổi chưa lưu'
+      : savedAt
+        ? `Đã lưu lúc ${savedAt}`
+        : '';
+  const shell = {
+    section: 'posts' as const,
+    title: isNew && !post ? 'Bài mới' : form.title.trim() || 'Sửa bài',
+    path: '/studio/posts',
+    parent: { label: 'Bài viết', href: '/studio/posts' },
+  };
+
+  if (auth !== 'authenticated' || mfa) {
+    return <WorkspaceLayout {...shell}>{mfa && <MfaRequiredNotice />}</WorkspaceLayout>;
   }
 
   return (
-    <Layout active="/author">
-      <Seo title={isNew ? 'Bài mới' : 'Sửa bài'} path="/author/posts" noindex />
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <a href="/author" className="text-sm text-link hover:underline">
-            ← Bài của tôi
-          </a>
-          <h1 className="text-xl font-semibold text-fg">
-            {isNew && !post ? 'Bài mới' : 'Sửa bài'}
-          </h1>
+    <WorkspaceLayout
+      {...shell}
+      meta={
+        <span className="inline-flex flex-wrap items-center gap-2">
           <Badge tone={label.tone}>{label.text}</Badge>
-        </div>
-        <p className="text-xs text-fg-muted" aria-live="polite">
-          {saving
-            ? 'Đang lưu…'
-            : dirty
-              ? 'Có thay đổi chưa lưu'
-              : savedAt
-                ? `Đã lưu lúc ${savedAt}`
-                : ''}
-        </p>
-      </div>
-
+          <span aria-live="polite">{saveState}</span>
+        </span>
+      }
+      actions={
+        <>
+          <Button size="sm" variant="secondary" onClick={() => save(false)} disabled={saving}>
+            <Icon name="save" />
+            Lưu
+          </Button>
+          {st === 'DRAFT' && (
+            <Button size="sm" onClick={() => act('submit')} disabled={saving}>
+              <Icon name="send" />
+              Gửi duyệt
+            </Button>
+          )}
+        </>
+      }
+    >
       {post?.reviewNote && st === 'DRAFT' && (
         <div className="mt-4">
           <Notice kind="error">Người duyệt trả bài về: {post.reviewNote}</Notice>
@@ -313,7 +311,7 @@ export default function AuthorPostEditor() {
         </p>
       )}
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div className="mt-2 grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="flex min-w-0 flex-col gap-4">
           <Input id="title" label="Tiêu đề" value={form.title} onChange={set('title')} required />
           <MarkdownEditor value={form.contentMd} onChange={setContent} resetKey={resetKey} />
@@ -323,13 +321,10 @@ export default function AuthorPostEditor() {
           <section className="rounded-lg border border-line bg-surface p-4">
             <h2 className="text-sm font-semibold text-fg">Xuất bản</h2>
             <div className="mt-3 flex flex-col gap-2">
-              <Button onClick={() => save(false)} disabled={saving}>
-                Lưu
-              </Button>
               {st === 'DRAFT' && (
-                <Button variant="secondary" onClick={() => act('submit')} disabled={saving}>
-                  Gửi duyệt
-                </Button>
+                <p className="text-sm text-fg-muted">
+                  Bản nháp chỉ bạn thấy. Bấm &quot;Gửi duyệt&quot; ở thanh trên khi xong.
+                </p>
               )}
               {st === 'PENDING' && (
                 <Button variant="secondary" onClick={() => act('withdraw')}>
@@ -352,7 +347,7 @@ export default function AuthorPostEditor() {
               {post && (
                 <a
                   className="text-center text-sm text-link hover:underline"
-                  href={`/author/posts/${post.slug}/history`}
+                  href={`/studio/posts/${post.slug}/history`}
                 >
                   Lịch sử chỉnh sửa
                 </a>
@@ -443,6 +438,6 @@ export default function AuthorPostEditor() {
           </section>
         </aside>
       </div>
-    </Layout>
+    </WorkspaceLayout>
   );
 }

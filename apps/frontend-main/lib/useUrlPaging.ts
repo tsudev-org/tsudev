@@ -50,8 +50,8 @@ export const EMPTY_PAGE_META: PageMeta = {
 };
 
 /**
- * `prefix` chỉ cần khi một trang có NHIỀU vùng bản ghi (ví dụ `/author` có
- * hai thẻ Bài viết · Tài liệu): một cặp `page`/`page_size` dùng chung sẽ làm lật
+ * `prefix` chỉ cần khi một trang có NHIỀU vùng bản ghi (ví dụ một trang có
+ * hai bảng Bài viết · Tài liệu): một cặp `page`/`page_size` dùng chung sẽ làm lật
  * trang bài viết kéo theo cả danh sách tài liệu. Tham số gửi LÊN máy chủ vẫn luôn mang tên chuẩn
  * `page`/`page_size` (mục 8.1) - tiền tố chỉ sống trong URL của trang.
  */
@@ -91,9 +91,17 @@ export function useUrlPaging(tableId: string, prefix = ''): UrlPaging {
  * `router.query` cũ, nên effect chạy sau xoá tham số mà effect chạy trước vừa
  * đặt. Trên trang bốn bảng điều đó xảy ra ngay ở lần dựng đầu.
  */
-export function useUrlPagingSync(tables: UrlPaging[]) {
+export function useUrlPagingSync(
+  tables: UrlPaging[],
+  /**
+   * Tham số lọc khác của trang (`status`, `q`, `sort` - UX1-a) ghi CÙNG lượt
+   * replace với phân trang, cùng lý do như trên. Giá trị rỗng ⇒ gỡ khỏi URL.
+   */
+  extra: Record<string, string> = {}
+) {
   const router = useRouter();
-  const key = tables.map((t) => `${t.ready}:${t.page}:${t.pageSize}`).join('|');
+  const key =
+    tables.map((t) => `${t.ready}:${t.page}:${t.pageSize}`).join('|') + '|' + JSON.stringify(extra);
   useEffect(() => {
     if (!router.isReady || tables.some((t) => !t.ready)) return;
     const next: Record<string, string> = {};
@@ -101,8 +109,15 @@ export function useUrlPagingSync(tables: UrlPaging[]) {
       next[t.pageKey] = String(t.page);
       next[t.sizeKey] = String(t.pageSize);
     }
-    if (Object.entries(next).every(([k, v]) => router.query[k] === v)) return;
-    router.replace({ pathname: router.pathname, query: { ...router.query, ...next } }, undefined, {
+    const query: Record<string, string | string[] | undefined> = { ...router.query, ...next };
+    let same = Object.entries(next).every(([k, v]) => router.query[k] === v);
+    for (const [k, v] of Object.entries(extra)) {
+      if ((router.query[k] ?? '') !== v) same = false;
+      if (v) query[k] = v;
+      else delete query[k];
+    }
+    if (same) return;
+    router.replace({ pathname: router.pathname, query }, undefined, {
       shallow: true,
     });
     // `router` cố ý không nằm trong deps: nó đổi định danh mỗi lần replace shallow.

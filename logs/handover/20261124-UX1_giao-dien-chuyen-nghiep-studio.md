@@ -49,3 +49,14 @@ P7 (CÓ migration: trạng thái duyệt mở rộng, thùng rác, cột giai đ
 ## 4. Kết quả xử lý (mỗi phase một dòng)
 
 - 24/11/2026 - tsudev-b5dd: mở phiếu. Phase kế tiếp: **UX1-a**.
+- 25/11/2026 - tsudev-c4: **UX1-a XONG** (PR 4.5). `components/WorkspaceLayout.tsx` (thanh bên thu gọn nhớ ở
+  localStorage `tsu-studio-nav` qua `useSyncExternalStore`, màn hẹp thành dải tab; thanh tiêu đề DÍNH chứa hành động);
+  `/studio` (tổng quan: 4 thẻ số + lượt xem 30 ngày + "Tiếp tục viết"), `/studio/posts` (chip trạng thái có số đếm,
+  tìm `q` gõ trễ 300 ms, sắp xếp, xoá qua Modal - không `window.confirm`), `/studio/docs`, trình soạn + lịch sử chuyển
+  sang `/studio/posts/*` (Lưu/Gửi duyệt ở thanh dính). Form 13 ô của `/author` GỠ (ED-02). `/author*` → `/studio*`
+  **308** (`?tab=docs` → `/studio/docs`); "Viết bài" rời menu công khai → menu tài khoản "Studio - viết bài" (F-08).
+  `useUrlPagingSync(tables, extra)` ghi bộ lọc cùng lượt replace. Đo: axe 0 critical/serious 4 trang × 2 chế độ,
+  390 px không cuộn ngang, `budget:js` `/studio/docs` 160.9 KB. **Không dùng cờ `STUDIO_V2`** (CI-06): chuyển hướng
+  `next.config.js` là tĩnh lúc dựng, cờ Worker không gác được nó; đường lui = `wrangler rollback`. Mục "Ảnh" vẽ
+  "Sắp có" (UX1-c). Còn cho UX1-b: khoảng trống trên thanh công cụ trình soạn, `act('archive')` còn `window.confirm`,
+  "Nguồn tham khảo" (form cũ có, trình soạn chưa có - backend vẫn giữ dữ liệu). Phase kế tiếp: **UX1-b**.

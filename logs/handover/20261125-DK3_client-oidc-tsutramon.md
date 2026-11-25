@@ -2,7 +2,7 @@
 
 - **Mã phiếu**: 20261125-DK3
 - **Từ**: phiên `tsudev-trafficmonitor` (SES-20261125-0022-ee38), 25/11/2026 - **Đến**: phiên kế tiếp của `tsudev` (hoặc chủ dự án 👤)
-- **Trạng thái**: MỞ
+- **Trạng thái**: ĐÓNG (25/11/2026)
 - **Căn cứ**: tsutramon `docs/adr/0002-*.md` mục 2.4-2.5 (P9: đăng nhập OIDC PKCE + JWS quyền lợi + đăng nhập QR);
   PRODUCT_POLICY 7.4 (`aud` của JWS quyền lợi = `client_id`); mẫu đã chạy: phiếu `20261122-DK1` (client `tsudisk`).
 
@@ -31,3 +31,4 @@ ON CONFLICT (id) DO NOTHING;
 
 - 25/11/2026 - tsudev-trafficmonitor: mở phiếu.
 - 25/11/2026 - tsudev-3e: phiếu vào repo (#382). Máy không có URL Neon ⇒ 👤 chạy `bash ~/dk3-tsutramon.sh` trong terminal WSL riêng (INSERT + SELECT + curl kiểm 303).
+- 25/11/2026 - tsudev-c4: ĐO lại lệnh trên ⇒ **303** (chủ dự án đã chạy `~/dk3-tsutramon.sh`). Đã nhắn phiên tsudev-trafficmonitor-61. ĐÓNG.

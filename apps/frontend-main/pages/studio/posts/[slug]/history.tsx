@@ -1,9 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import { Button, Layout } from '@tsudev/ui';
+import { Button } from '@tsudev/ui';
 
-import Seo from '../../../../components/Seo';
+import { WorkspaceLayout } from '../../../../components/WorkspaceLayout';
 import { Notice } from '../../../../components/AuthShell';
 import { formatDateTimeVN } from '../../../../lib/format';
 import { lineDiff } from '../../../../lib/lineDiff';
@@ -29,7 +29,7 @@ export default function PostHistory() {
   const load = useCallback(
     async (signal?: AbortSignal) => {
       if (!slug) return;
-      const base = `/api/content/author/posts/${encodeURIComponent(slug)}`;
+      const base = `/api/content/studio/posts/${encodeURIComponent(slug)}`;
       const [r, p] = await Promise.all([
         fetch(`${base}/revisions?page_size=100`, { signal }),
         fetch(base, { signal }),
@@ -44,7 +44,7 @@ export default function PostHistory() {
   useLoader(load, status === 'authenticated' && router.isReady);
 
   const pick = async (id: string) => {
-    const r = await fetch(`/api/content/author/posts/${encodeURIComponent(slug)}/revisions/${id}`);
+    const r = await fetch(`/api/content/studio/posts/${encodeURIComponent(slug)}/revisions/${id}`);
     if (r.ok) setPicked((await r.json()) as Full);
   };
 
@@ -52,25 +52,27 @@ export default function PostHistory() {
     if (!picked) return;
     if (!window.confirm('Khôi phục bản này? Nội dung hiện tại vẫn còn trong lịch sử.')) return;
     const r = await fetch(
-      `/api/content/author/posts/${encodeURIComponent(slug)}/revisions/${picked.id}/restore`,
+      `/api/content/studio/posts/${encodeURIComponent(slug)}/revisions/${picked.id}/restore`,
       { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }
     );
     if (!r.ok) return setMsg({ kind: 'error', text: 'Không khôi phục được.' });
-    router.push(`/author/posts/${encodeURIComponent(slug)}`);
+    router.push(`/studio/posts/${encodeURIComponent(slug)}`);
   };
 
   const diff = picked ? lineDiff(picked.contentMd, current) : null;
 
   return (
-    <Layout active="/author">
-      <Seo title="Lịch sử chỉnh sửa" path="/author/posts" noindex />
-      <a
-        href={`/author/posts/${encodeURIComponent(slug)}`}
-        className="text-sm text-link hover:underline"
-      >
-        ← Về trang soạn
-      </a>
-      <h1 className="mt-2 text-xl font-semibold text-fg">Lịch sử chỉnh sửa</h1>
+    <WorkspaceLayout
+      section="posts"
+      title="Lịch sử chỉnh sửa"
+      path="/studio/posts"
+      parent={{ label: 'Bài viết', href: '/studio/posts' }}
+      actions={
+        <Button size="sm" variant="ghost" as="a" href={`/studio/posts/${encodeURIComponent(slug)}`}>
+          Về trang soạn
+        </Button>
+      }
+    >
       {msg && (
         <div className="mt-4">
           <Notice kind={msg.kind}>{msg.text}</Notice>
@@ -144,6 +146,6 @@ export default function PostHistory() {
           )}
         </section>
       </div>
-    </Layout>
+    </WorkspaceLayout>
   );
 }

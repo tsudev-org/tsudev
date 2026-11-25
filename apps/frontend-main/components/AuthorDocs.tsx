@@ -8,7 +8,7 @@ import type { UrlPaging } from '../lib/useUrlPaging';
 import { useLoader } from '../lib/useLoader';
 
 /**
- * Thẻ "Tài liệu" của trang /author - soạn Doc cho /docs.
+ * Trang `/studio/docs` - soạn Doc cho /docs.
  *
  * Trước thẻ này, đường ghi Doc duy nhất ở production là Toà soạn Agent AI; gỡ
  * Toà soạn mà thiếu nó thì /docs đóng băng (kế hoạch Q4/2026 §8.3b). Tài liệu là

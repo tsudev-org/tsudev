@@ -13,7 +13,6 @@ type NavItem = {
   key: string;
   path: string;
   label: string;
-  needsAuthor?: boolean;
 };
 
 const NAV: NavItem[] = [
@@ -24,10 +23,8 @@ const NAV: NavItem[] = [
   // và mọi app thật nằm ở /apps. /projects tự chuyển về /apps khi trống.
   { key: 'blog', path: '/blog', label: 'Blog' },
   { key: 'docs', path: '/docs', label: 'Tài liệu' },
-  // Chỉ hiện với tài khoản đăng bài (AUTHOR trở lên). Trang /author tự đá người
-  // chưa đủ quyền, nên giấu link để không hứa hão - KHÔNG phải
-  // bảo mật (cổng thật là requireAuthor của content-service, đọc DB fail closed).
-  { key: 'author', path: '/author', label: 'Viết bài', needsAuthor: true },
+  // "Viết bài" (/author) RỜI menu công khai từ UX1-a (F-08): lối vào Studio nằm ở
+  // menu tài khoản - xem `canAuthor` bên dưới.
 ];
 
 // Trang truyền `active` theo đường dẫn ('/blog') hoặc theo khoá ('home').
@@ -79,11 +76,6 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
     signOut();
   };
 
-  // Mục "Viết bài": rõ phiên thì lọc thật; đang loading thì giữ lại và để CSS
-  // (`tsu-auth-author`) quyết định theo gợi ý.
-  const nav = NAV.filter((n) => !n.needsAuthor || canAuthor || pending);
-  const navClass = (n: NavItem) => (n.needsAuthor && pending ? ' tsu-auth-author' : '');
-
   return (
     // Kiểu supabase.com: header CÙNG NỀN với trang (kính mờ trên --bg-base), chỉ một
     // đường hairline ở mép dưới - không dải màu, không vạch chuyển sắc, để trang
@@ -101,14 +93,14 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
             <Logo />
           </a>
           <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Chính">
-            {nav.map((n) => (
+            {NAV.map((n) => (
               <a
                 key={n.key}
                 href={n.path}
                 aria-current={isActive(n, active) ? 'page' : undefined}
                 className={`px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors duration-fast ${
                   isActive(n, active) ? 'text-fg' : 'text-fg-secondary hover:text-fg'
-                }${navClass(n)}`}
+                }`}
               >
                 {n.label}
               </a>
@@ -168,6 +160,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
               email={session?.user?.email || ''}
               image={session?.user?.image || undefined}
               badge={session ? badge : null}
+              canAuthor={canAuthor}
               onLogout={logout}
             />
           )}
@@ -208,11 +201,11 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
 
       {open && (
         <nav className="md:hidden border-t border-line px-4 py-2" aria-label="Di động">
-          {nav.map((n) => (
+          {NAV.map((n) => (
             <a
               key={n.key}
               href={n.path}
-              className={`block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle${navClass(n)}`}
+              className="block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle"
             >
               {n.label}
             </a>
@@ -236,6 +229,20 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
           */}
           {(session || pending) && (
             <div className={`mt-1 border-t border-line pt-1${pending ? ' tsu-auth-in' : ''}`}>
+              {/* Studio chỉ cho tài khoản đăng bài (AUTHOR+). Rõ phiên thì lọc thật;
+                  đang loading thì vẽ và để CSS (`tsu-auth-author`, theo gợi ý) quyết
+                  định. Giấu link để không hứa hão - KHÔNG phải bảo mật (cổng thật là
+                  requireAuthor của content-service, đọc DB fail closed). */}
+              {(canAuthor || pending) && (
+                <a
+                  href="/studio"
+                  className={`block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle${
+                    pending ? ' tsu-auth-author' : ''
+                  }`}
+                >
+                  Studio - viết bài
+                </a>
+              )}
               <a
                 href="/settings/profile"
                 className="block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle"
@@ -268,6 +275,7 @@ type UserMenuProps = {
   email: string;
   image?: string;
   badge?: TsuBadgeValue | null;
+  canAuthor?: boolean;
   onLogout: () => void;
 };
 
@@ -285,7 +293,7 @@ type UserMenuProps = {
  * (`.tsu-user-name`) - không biết tên thật thì không chọn được biến thể avatar, và
  * vẽ sai một biến thể rồi đổi là đúng kiểu nháy mà authHint đi xoá.
  */
-const UserMenu = ({ pending, name, email, image, badge, onLogout }: UserMenuProps) => {
+const UserMenu = ({ pending, name, email, image, badge, canAuthor, onLogout }: UserMenuProps) => {
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   const btn = useRef<HTMLButtonElement>(null);
@@ -364,6 +372,20 @@ const UserMenu = ({ pending, name, email, image, badge, onLogout }: UserMenuProp
               {email && email !== name && <p className="text-xs text-fg-muted truncate">{email}</p>}
             </div>
           </div>
+          {canAuthor && (
+            <a href="/studio" className={item}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16v4zM13.5 6.5l4 4"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Studio - viết bài
+            </a>
+          )}
           <a href="/settings/profile" className={item}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.7" />

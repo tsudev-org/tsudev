@@ -116,7 +116,7 @@ cộng lại:
 Từ khi trust-service bị gỡ (04/11/2026) không còn endpoint nào đi thẳng tới
 tầng danh tính mà không qua `INTERNAL_API_TOKEN` (trước đó `/api/trust/programs`
 đóng vai đó). Phép đo nay đi QUA site, với một phiên đã đăng nhập: thao tác ghi
-bất kỳ ở `/author` hay `/admin` trả `503 {"error":"Máy chủ chưa cấu hình xác thực"}`
+bất kỳ ở `/studio` hay `/admin` trả `503 {"error":"Máy chủ chưa cấu hình xác thực"}`
 ⇒ **thiếu khoá**; trả 401/403 ⇒ khoá có, vấn đề nằm ở phiên hoặc vai trò.
 
 Giá trị phải dài **≥ 32 ký tự** và **trùng nguyên văn** secret cùng tên của
