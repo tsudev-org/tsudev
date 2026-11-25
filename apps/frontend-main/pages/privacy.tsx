@@ -83,7 +83,7 @@ const SECTIONS = [
     ),
   },
   {
-    id: 'dang-nhap-ung-dung',
+    id: 'dang-nhap',
     heading: 'Đăng nhập tài khoản và dữ liệu trong ứng dụng TsuDEV',
     body: (
       <>

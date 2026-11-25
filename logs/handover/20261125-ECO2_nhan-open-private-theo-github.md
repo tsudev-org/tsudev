@@ -1,6 +1,6 @@
 # PHIẾU ECO2 - Nhãn OPEN / PRIVATE theo trạng thái repo GitHub + chữ trắng + chuyển sắc, kính bóng
 
-- **Mã phiếu**: 20261125-ECO2 - **Từ**: điều phối `projects-05`, 25/11/2026 - **Trạng thái**: MỞ - **Cho**: phiên tsudev
+- **Mã phiếu**: 20261125-ECO2 - **Từ**: điều phối `projects-05`, 25/11/2026 - **Trạng thái**: ĐÓNG 26/11/2026 - **Cho**: phiên tsudev
 - **Yêu cầu chủ dự án (25/11/2026, nguyên ý)**:
   1. Repo GitHub **công khai** ⇒ tsudev.com gắn nhãn **OPEN**; repo **riêng tư** ⇒ nhãn **PRIVATE**. Mọi dự án private
      KHÔNG đính kèm mã nguồn, chỉ hiển thị để giới thiệu, KHÔNG có nút điều hướng tới repo GitHub.
@@ -83,3 +83,6 @@ Mục 1 A-C xong, production đúng, PR gộp + thẻ deploy ghi vào mục 4; b
 ## 4. Kết quả xử lý
 
 - 25/11/2026 - projects-05: mở phiếu.
+- 26/11/2026 - tsudev (phiên ECO2/SYN1): A-C xong ở #402 (`aaa9b42` + sửa E2E chờ chữ hoa `OPEN`/`PRIVATE`), D ở #401.
+  Deploy chung với SYN1: **`deploy-2026.11.26.1`** (Worker `8cd67527`). Đo production `/apps`: 10 OPEN (La bàn = OPEN),
+  6 trò chơi PRIVATE kèm nhãn đọc màn hình "mã nguồn riêng tư", không thẻ PRIVATE nào có `github.com`. ĐÓNG.

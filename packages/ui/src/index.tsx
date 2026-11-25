@@ -97,6 +97,11 @@ export {
 } from './lib/proTheme';
 export type { ProThemeId } from './lib/proTheme';
 
+export { AppGateModal } from './components/AppGateModal';
+export type { AppGateModalProps } from './components/AppGateModal';
+export { GATE_TEXT, gateCopy, compareVersions, xTsuApp, gateFromResponse } from './lib/appGate';
+export type { GateKind, GateLang, GateCopy, GateVerdict } from './lib/appGate';
+
 export default Layout;
 
 // Kiểu của prop cũng là một phần hợp đồng công khai của design system. Không
