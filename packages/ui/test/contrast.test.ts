@@ -126,13 +126,8 @@ const PAIRS: Array<[string, string, number, string]> = [
   ['--badge-donor-ink', '--badge-donor-bg', 4.5, 'chữ Ủng hộ trên nền huy hiệu'],
   ['--badge-donor-border', '--bg-base', 3, 'viền huy hiệu Ủng hộ trên nền trang'],
   ['--badge-donor-border', '--bg-surface', 3, 'viền huy hiệu Ủng hộ trên card'],
-  // Dải chéo góc Open/Private trên thẻ app (ECO1-a): chữ trắng trên nền đen tuyền / đỏ; nền đỏ là
-  // đồ hoạ mang nghĩa nên cũng phải tách khỏi nền thẻ (3:1). Dải Open đen trên thẻ Tối dựa vào
-  // viền --border-strong, không vào chính nền.
-  ['--ribbon-open-ink', '--ribbon-open-bg', 4.5, 'chữ Open trên dải chéo góc'],
-  ['--ribbon-private-ink', '--ribbon-private-bg', 4.5, 'chữ Private trên dải chéo góc'],
-  ['--ribbon-private-bg', '--bg-surface', 3, 'dải Private trên nền thẻ'],
-  ['--ribbon-open-bg', '--bg-surface', 3, 'nhãn Open trên nền thẻ'],
+  // Nhãn OPEN/PRIVATE (ECO2) có nền CHUYỂN SẮC + lớp kính bóng - không đo được bằng một cặp hex,
+  // xem khối `nhãn OPEN/PRIVATE` ở cuối tệp.
 
   // Khối "không tải được nội dung" của EmptyState đặt chữ THƯỜNG (không phải
   // nhãn) lên nền tint cảnh báo. Cặp này khác bốn cặp -ink/-tint ngay trên: ở
@@ -373,5 +368,64 @@ describe.each(
       ['--bg-subtle', '--bg-hover'],
     ])
       expect(Math.abs(l(a!) - l(b!))).toBeGreaterThanOrEqual(0.001);
+  });
+});
+
+/** Trộn `fg` (rgba) lên nền đặc `bg` (hex) - lớp kính bóng phủ trên chuyển sắc. */
+function blendRgba(rgba: string, bg: string): string {
+  const m = /rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+)\s*\)/.exec(rgba);
+  if (!m) throw new Error(`không đọc được ${rgba}`);
+  const a = Number(m[4]);
+  const h = bg.replace('#', '');
+  return (
+    '#' +
+    [1, 2, 3]
+      .map((i) => {
+        const b = parseInt(h.slice((i - 1) * 2, (i - 1) * 2 + 2), 16);
+        const v = Math.round(Number(m[i]) * a + b * (1 - a));
+        return v.toString(16).padStart(2, '0');
+      })
+      .join('')
+  );
+}
+
+/**
+ * Nhãn OPEN/PRIVATE (phiếu ECO2, tsudev-standards PRODUCT_POLICY 3.7.7): chữ phải đạt 4.5:1 trên MỌI
+ * điểm của nền. Nền là chuyển sắc -from → -to rồi phủ lớp bóng `--ribbon-gloss` (mạnh nhất ở mép trên).
+ * Nội suy sRGB giữa hai điểm đổi đơn điệu từng kênh ⇒ độ chói đơn điệu ⇒ điểm tệ nhất là một trong hai
+ * đầu; đo cả hai đầu SAU KHI trộn lớp bóng ở alpha cao nhất (điểm sáng nhất có thể có).
+ */
+describe.each([
+  ['Tối (mặc định)', ':root'],
+  ['Sáng', ":root[data-theme='light']"],
+  ['Tối', ":root[data-theme='dark']"],
+])('nhãn OPEN/PRIVATE - chế độ %s', (_label, selector) => {
+  const t = tokensIn(selector);
+  test.each(['open', 'private'])('chữ %s ≥ 4.5:1 trên mọi điểm chuyển sắc đã phủ kính', (kind) => {
+    const ink = t[`--ribbon-${kind}-ink`] as string;
+    const gloss = t['--ribbon-gloss'] as string;
+    expect(ink.toLowerCase()).toBe('#ffffff');
+    for (const stop of ['from', 'to']) {
+      const bg = t[`--ribbon-${kind}-${stop}`] as string;
+      expect(contrast(ink, bg)).toBeGreaterThanOrEqual(4.5);
+      const lit = blendRgba(gloss, bg);
+      expect({ stop, lit, ratio: Number(contrast(ink, lit).toFixed(2)) }).toEqual({
+        stop,
+        lit,
+        ratio: expect.any(Number),
+      });
+      expect(contrast(ink, lit)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+  // Ranh giới đồ hoạ của nhãn (WCAG 1.4.11): hoặc cả hai đầu chuyển sắc tách khỏi nền thẻ, hoặc viền
+  // sáng -rim dọc cạnh huyền làm việc đó (chế độ Tối - nền đậm cần cho chữ trắng thì chìm vào thẻ tối).
+  test.each(['open', 'private'])('nhãn %s tách khỏi nền thẻ ≥ 3:1', (kind) => {
+    const surface = t['--bg-surface'] as string;
+    const fill = Math.min(
+      contrast(t[`--ribbon-${kind}-from`] as string, surface),
+      contrast(t[`--ribbon-${kind}-to`] as string, surface)
+    );
+    const rim = contrast(t[`--ribbon-${kind}-rim`] as string, surface);
+    expect(Math.max(fill, rim)).toBeGreaterThanOrEqual(3);
   });
 });

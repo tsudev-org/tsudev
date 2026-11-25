@@ -6,6 +6,7 @@ import InstallCommands from './InstallCommands';
 import ExternalArrow from './ExternalArrow';
 import SelectCircle, { toggleOnCardClick } from './SelectCircle';
 import PlatformRow from './PlatformRow';
+import EcoRibbon, { ribbonSrLabel } from './EcoRibbon';
 
 /**
  * Thẻ một trò chơi của hệ sinh thái (mục "Trò chơi" ở /apps).
@@ -13,8 +14,8 @@ import PlatformRow from './PlatformRow';
  * Game chạy trên trình duyệt ở website riêng: nút chính mở tab mới. Game đã có bản
  * cài máy tính trong kho pkg.tsudev.com (`pkg`) thì hiện thêm khối lệnh APT/DNF
  * (phiếu 20261113-01) và CHỌN ĐƯỢC như thẻ app để vào lệnh cài gộp. Không nhúng
- * iframe - game cấm đóng khung (`frame-ancestors 'self'`). Repo private nên không có
- * link mã nguồn. Bố cục giống `EcoAppCard` (hàng nền tảng ở đáy thẻ).
+ * iframe - game cấm đóng khung (`frame-ancestors 'self'`). Repo private ⇒ nhãn PRIVATE (ECO2,
+ * PRODUCT_POLICY 3.7.7): chỉ giới thiệu, không link mã nguồn/tổ chức GitHub. Bố cục giống `EcoAppCard` (hàng nền tảng ở đáy thẻ).
  */
 type Props = {
   game: EcoGame;
@@ -30,14 +31,18 @@ export default function EcoGameCard({ game, selected, onToggle }: Props) {
     <article
       onClick={selectable ? (e) => toggleOnCardClick(e, () => onToggle?.(game.id)) : undefined}
       data-selected={selectable ? Boolean(selected) : undefined}
-      className={`tsu-glow-card flex min-w-0 flex-col rounded-lg border bg-surface p-5 transition-colors ${
+      className={`tsu-glow-card relative flex min-w-0 flex-col rounded-lg border bg-surface p-5 transition-colors ${
         selectable ? 'cursor-pointer' : ''
       } ${selected ? 'border-primary ring-1 ring-primary' : 'border-line'}`}
     >
-      <div className="flex items-start gap-4">
+      <EcoRibbon open={game.openSource} />
+      <div className="flex items-start gap-4 pr-12">
         <EcoIcon name={game.name} logo={game.logo} tint={game.tint} icon={game.icon} tile />
         <div className="min-w-0 flex-1">
-          <h3 className="font-medium text-fg text-base leading-snug">{game.name}</h3>
+          <h3 className="font-medium text-fg text-base leading-snug">
+            {game.name}
+            <span className="sr-only">{ribbonSrLabel(game.openSource)}</span>
+          </h3>
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
             <Badge tone="neutral">{game.genre}</Badge>
           </div>

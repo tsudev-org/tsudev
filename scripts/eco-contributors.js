@@ -1,8 +1,12 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * Đếm CONTRIBUTORS của repo từng app hệ sinh thái (phiếu 20261125-ECO1, phase ECO1-a) và ghi
- * `packages/ui/src/lib/contributors.json` - nguồn của dòng "Author: TsuDEV + N Contributors" trên thẻ app.
+ * Chụp trạng thái GitHub của repo từng app hệ sinh thái và ghi `packages/ui/src/lib/contributors.json`:
+ *   - `visibility` (phiếu 20261125-ECO2, tsudev-standards PRODUCT_POLICY 3.7.7) - nguồn DUY NHẤT của nhãn
+ *     OPEN (repo `public`) / PRIVATE. Repo không đọc được (404/403 - private mà token không có quyền) ghi
+ *     `private`: không bao giờ đoán OPEN;
+ *   - số CONTRIBUTORS (phiếu 20261125-ECO1, phase ECO1-a) - dòng "Author: TsuDEV + N Contributors". Repo
+ *     không public thì KHÔNG đếm (không lộ gì từ repo private) - ghi 0.
  *
  *   npm run eco:contributors              # tải + ghi bản chụp (in danh sách login để người duyệt PR đối chiếu)
  *   npm run eco:contributors -- --check   # chỉ báo bản chụp có lệch GitHub không (exit 1 nếu lệch)
@@ -41,7 +45,19 @@ const AUTOMATION_LOGINS = [
 ];
 const SKIP = new Set([...OWNER_LOGINS, ...AUTOMATION_LOGINS].map((l) => l.toLowerCase()));
 
-const REPO_RE = /^tsudev-org\/[A-Za-z0-9._-]+$/;
+// tsudev-org/* hoặc repo còn sống dưới tài khoản cũ tsudev-tsudev (vd. app-la-ban) - nhưng KHÔNG BAO GIỜ một
+// tên đã chuyển/đổi tên (chỉ sống nhờ chuyển hướng của GitHub, ~/.claude/CLAUDE.md).
+const REPO_RE = /^(tsudev-org|tsudev-tsudev)\/[A-Za-z0-9._-]+$/;
+const OLD_NAMES = new Set([
+  'tsudev',
+  'tsudev-files',
+  'tsudev-contact',
+  'tsudev-swico',
+  'swico',
+  'tsudev-cwico',
+  'tsudev-trafficmonitor',
+  'tsudev-standards',
+]);
 const MAX_PAGES = 20; // 2000 contributors - trần an toàn, vượt là dừng chứ không lặp mãi
 
 function fail(msg) {
@@ -54,7 +70,11 @@ function readRepos() {
   const src = fs.readFileSync(ECOSYSTEM, 'utf8');
   const repos = [...src.matchAll(/^\s*repo:\s*'([^']+)'/gm)].map((m) => m[1]);
   if (repos.length === 0) fail('không thấy trường `repo:` nào trong ecosystem.ts');
-  for (const r of repos) if (!REPO_RE.test(r)) fail(`repo không hợp lệ (phải tsudev-org/*): ${r}`);
+  for (const r of repos) {
+    if (!REPO_RE.test(r)) fail(`repo không hợp lệ (phải tsudev-org/* hoặc tsudev-tsudev/*): ${r}`);
+    const [owner, name] = r.split('/');
+    if (owner === 'tsudev-tsudev' && OLD_NAMES.has(name)) fail(`repo mang tên cũ đã chuyển: ${r}`);
+  }
   return [...new Set(repos)].sort();
 }
 
@@ -66,13 +86,31 @@ function counts(c) {
   return !SKIP.has(login.toLowerCase());
 }
 
-async function fetchContributors(repo) {
+function ghHeaders() {
   const headers = {
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
     'User-Agent': 'tsudev-eco-contributors',
   };
   if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  return headers;
+}
+
+/** `public` | `private` | `internal`; 404/403 (không đọc được) ⇒ `private` - không đoán OPEN. */
+async function fetchVisibility(repo) {
+  const res = await fetch(`https://api.github.com/repos/${repo}`, {
+    headers: ghHeaders(),
+    signal: AbortSignal.timeout(20000),
+  });
+  if (res.status === 404 || res.status === 403) return 'private';
+  if (!res.ok) fail(`${repo}: GitHub trả ${res.status} (${(await res.text()).slice(0, 200)})`);
+  const body = await res.json();
+  const v = String(body.visibility || (body.private === false ? 'public' : 'private'));
+  return v === 'public' ? 'public' : 'private';
+}
+
+async function fetchContributors(repo) {
+  const headers = ghHeaders();
   const all = [];
   let url = `https://api.github.com/repos/${repo}/contributors?per_page=100`;
   for (let page = 0; url; page++) {
@@ -97,14 +135,19 @@ async function main() {
   const check = process.argv.includes('--check');
   const repos = readRepos();
   const result = {};
+  const visibility = {};
   for (const repo of repos) {
-    const logins = await fetchContributors(repo);
+    visibility[repo] = await fetchVisibility(repo);
+    // Repo không public: không đếm, không in login (không lộ gì từ repo private).
+    const logins = visibility[repo] === 'public' ? await fetchContributors(repo) : [];
     result[repo] = logins.length;
-    console.log(`${repo}: ${logins.length}${logins.length ? ` - ${logins.join(', ')}` : ''}`);
+    console.log(
+      `${repo} [${visibility[repo]}]: ${logins.length}${logins.length ? ` - ${logins.join(', ')}` : ''}`
+    );
   }
   // Chỉ số đếm vào JSON (tệp này vào bundle trình duyệt của / và /apps - giữ nhỏ); danh sách login
   // in ra stdout để workflow đưa vào thân PR cho người duyệt đối chiếu.
-  const next = JSON.stringify({ repos: result }, null, 2) + '\n';
+  const next = JSON.stringify({ repos: result, visibility }, null, 2) + '\n';
   if (check) {
     // Chỉ ĐỌC ở chế độ kiểm; chế độ ghi thì ghi thẳng (git diff cho biết có đổi không) - không
     // "kiểm rồi ghi" trên cùng tệp (CodeQL js/file-system-race).

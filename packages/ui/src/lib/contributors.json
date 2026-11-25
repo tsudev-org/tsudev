@@ -8,6 +8,19 @@
     "tsudev-org/tsudisk": 0,
     "tsudev-org/tsufiles": 57,
     "tsudev-org/tsuswico": 0,
-    "tsudev-org/tsutramon": 0
+    "tsudev-org/tsutramon": 0,
+    "tsudev-tsudev/app-la-ban": 0
+  },
+  "visibility": {
+    "tsudev-org/lotus-share": "public",
+    "tsudev-org/qulythuchi": "public",
+    "tsudev-org/sound-db": "public",
+    "tsudev-org/tsucontact": "public",
+    "tsudev-org/tsucwico": "public",
+    "tsudev-org/tsudisk": "public",
+    "tsudev-org/tsufiles": "public",
+    "tsudev-org/tsuswico": "public",
+    "tsudev-org/tsutramon": "public",
+    "tsudev-tsudev/app-la-ban": "public"
   }
 }

@@ -6,7 +6,7 @@
     "base": ".standards/tokens/design-tokens.json"
   },
   "$platform_note": "platform-*/on-platform-* = MÀU HÃNG của bốn nền tảng phát hành, CHỈ dùng cho trạng thái rê chuột của ô dấu hiệu nền tảng (PLATFORM_CHIP_CLASS trong packages/ui/src/components/icons.ts). Màu hãng làm NỀN ô, dấu hiệu đổi sang mực on-platform-* - nhờ vậy giữ được đúng mã hex của hãng ở mọi chế độ mà vẫn qua 4.5:1 (contrast.test.ts), điều không thể nếu tô thẳng xanh Android #3DDC84 hay vàng Tux #FCC624 lên nền sáng (~1.6-1.9:1). Apple không có màu hãng: dùng mực đậm nhất của chế độ, đảo ở chế độ Tối. KHÔNG dùng các màu này cho chữ hay vai trò khác.",
-  "$ribbon_note": "ribbon-* = nhãn tam giác phủ kín góc TRÊN PHẢI của thẻ app (phiếu ECO1-a; chủ dự án đổi 25/11/2026 tối): \"Open\" nền XANH LÁ tươi (cho phép dùng), \"Private\" nền ĐỎ. Chữ Open là MỰC ĐEN (xanh lá tươi không đạt AA dưới chữ trắng - cùng lý do on-primary), chữ Private trắng. contrast.test.ts canh chữ ≥4.5:1 và nền nhãn ≥3:1 với nền thẻ (đồ hoạ, WCAG 1.4.11). Chỉ dùng cho nhãn này, không dùng làm màu thành công/nguy hiểm (đã có success-*/danger-*).",
+  "$ribbon_note": "ribbon-* = nhãn tam giác phủ kín góc TRÊN PHẢI của thẻ app/trò chơi (ECO1-a; ECO2 25/11/2026, tsudev-standards PRODUCT_POLICY 3.7.7): OPEN = repo GitHub công khai, PRIVATE = repo riêng tư. Nền CHUYỂN SẮC -from → -to (xanh lá đậm / đỏ đậm) + lớp kính bóng ribbon-gloss phủ trên; chữ TRẮNG ở cả hai nhãn và hai chế độ. contrast.test.ts canh chữ trắng ≥4.5:1 tại MỌI điểm chuyển sắc SAU KHI trộn lớp bóng mạnh nhất (đừng tăng alpha ribbon-gloss hay làm sáng -from mà không đo lại: xanh lá tươi kiểu #22C55E chỉ ~2.3:1 với chữ trắng). Ranh giới đồ hoạ (WCAG 1.4.11, ≥3:1 với nền thẻ): ở Sáng là chính nền; ở Tối nền đậm chìm vào thẻ nên dùng viền sáng -rim dọc cạnh huyền. Chỉ dùng cho nhãn này, không dùng làm màu thành công/nguy hiểm.",
   "$color_note": "accent, glow, icon-info, icon-nav và cả bảng nền đen tuyền + xanh logo nay nằm ở bảng chuẩn (.standards v5.0.0: design-tokens.json color.* + tokens/products/tsudev.json) - repo này KHÔNG khai lại. icon-* = mã màu theo NHÓM HÀNH ĐỘNG: mắt nhận ra nhóm trước khi đọc nhãn, điều một hàng icon cùng màu xám không làm được. Sáu sắc, không nhiều hơn - quá bảy màu thì chúng thôi là mã và trở thành nhiễu. status-ink/status-tint = cặp cho badge: bảng `color` chỉ định nghĩa màu trạng thái ĐẶC (dùng với on-status), còn badge nền nhạt cần một sắc chữ ĐẬM HƠN mới đạt 4.5:1 - ở chế độ Light màu trạng thái gốc chỉ đạt 4.0-4.3:1 trên chính tint 12% của nó. text-muted và border-control KHÔNG còn ở đây: cả hai đã được nhận vào bảng chuẩn (.standards/ v2.8.0) với ĐÚNG giá trị mà khối này từng ghi đè - xem $accessibility_gap.",
   "light": {
     "glow-alt": "rgba(14,116,144,0.06)",
@@ -37,10 +37,15 @@
     "badge-donor-bg": "#CCFBF1",
     "badge-donor-border": "#0F766E",
     "badge-donor-ink": "#134E4A",
-    "ribbon-open-bg": "#16A34A",
-    "ribbon-open-ink": "#0A0A0A",
-    "ribbon-private-bg": "#B91C1C",
-    "ribbon-private-ink": "#FFFFFF"
+    "ribbon-open-from": "#13703A",
+    "ribbon-open-to": "#14532D",
+    "ribbon-open-rim": "#86EFAC",
+    "ribbon-open-ink": "#FFFFFF",
+    "ribbon-private-from": "#B91C1C",
+    "ribbon-private-to": "#7F1D1D",
+    "ribbon-private-rim": "#FCA5A5",
+    "ribbon-private-ink": "#FFFFFF",
+    "ribbon-gloss": "rgba(255,255,255,0.12)"
   },
   "dark": {
     "glow-alt": "rgba(30,144,255,0.08)",
@@ -71,10 +76,15 @@
     "badge-donor-bg": "#042F2E",
     "badge-donor-border": "#2DD4BF",
     "badge-donor-ink": "#99F6E4",
-    "ribbon-open-bg": "#22C55E",
-    "ribbon-open-ink": "#0A0A0A",
-    "ribbon-private-bg": "#DC2626",
-    "ribbon-private-ink": "#FFFFFF"
+    "ribbon-open-from": "#13703A",
+    "ribbon-open-to": "#14532D",
+    "ribbon-open-rim": "#4ADE80",
+    "ribbon-open-ink": "#FFFFFF",
+    "ribbon-private-from": "#B91C1C",
+    "ribbon-private-to": "#7F1D1D",
+    "ribbon-private-rim": "#F87171",
+    "ribbon-private-ink": "#FFFFFF",
+    "ribbon-gloss": "rgba(255,255,255,0.12)"
   },
   "typography": {
     "$note": "Thang chữ của DESIGN_SYSTEM.md §4 dừng ở 30px (H1) - đủ cho giao diện công cụ, nhưng khối hero của một website cần bậc lớn hơn. Ba bậc dưới đây nối tiếp 30px theo lưới 4px và CHỈ dùng cho tiêu đề hero/marketing, không dùng trong luồng thao tác.",
