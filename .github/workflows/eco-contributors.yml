@@ -55,15 +55,19 @@ jobs:
           git commit -m 'chore(eco): cập nhật số contributors hệ sinh thái'
           git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${BR}"
           {
-            echo 'Cập nhật hằng tuần bởi workflow `Contributors hệ sinh thái` (`scripts/eco-contributors.js`).'
-            echo
-            echo 'Đã lọc bot, tài khoản TsuDEV và tài khoản tự động. Danh sách login để đối chiếu:'
-            echo
-            echo '```'
+            cat <<'MD'
+          Cập nhật hằng tuần bởi workflow `Contributors hệ sinh thái` (`scripts/eco-contributors.js`).
+
+          Đã lọc bot, tài khoản TsuDEV và tài khoản tự động. Danh sách login để đối chiếu:
+
+          ```
+          MD
             cat "$RUNNER_TEMP/contributors.txt"
-            echo '```'
-            echo
-            echo 'CI không tự chạy với PR do GITHUB_TOKEN mở: `gh pr close <số> && gh pr reopen <số>`.'
+            cat <<'MD'
+          ```
+
+          CI không tự chạy với PR do GITHUB_TOKEN mở: `gh pr close <số> && gh pr reopen <số>`.
+          MD
           } > "$RUNNER_TEMP/body.md"
           if [ "$(gh pr view "$BR" --json state --jq .state 2>/dev/null)" = "OPEN" ]; then
             echo "PR của nhánh $BR đang mở - đã cập nhật nhánh."
