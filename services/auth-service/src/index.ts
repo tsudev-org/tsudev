@@ -25,6 +25,7 @@ import {
   issueStepUp,
   lookupUser,
   requireSecondFactor,
+  requireConsole,
   requireStepUp,
   stepUpSecret,
 } from '@tsudev/auth'
@@ -1865,6 +1866,12 @@ app.post(
 // khai /api/identity). Tên action 2 đoạn vì proxy chặn path quá 2 đoạn.
 // ---------------------------------------------------------------------------
 app.use('/api/identity/useradmin', auth)
+// CP2 (ADR-0005 L5): quản lý tài khoản là thao tác ĐIỀU HÀNH ⇒ chỉ nhận khẳng định do Worker console. ký.
+// `useradmin/security` (nhật ký bảo mật xuyên tài khoản, chỉ đọc) còn ở /admin/security của tsudev.com tới CP3.
+const consoleGate = requireConsole('auth-service')
+const consoleGateUseradmin: RequestHandler = (req, res, next) =>
+  req.path === '/security' ? next() : consoleGate(req, res, next)
+app.use('/api/identity/useradmin', consoleGateUseradmin)
 
 /** Vai trò cấp được qua công cụ. OWNER và GUEST cố ý vắng mặt. */
 // VIP gỡ khỏi danh sách 04/11/2026 cùng Con dấu tín nhiệm (nó là vé vào Con dấu).

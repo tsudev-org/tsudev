@@ -171,6 +171,8 @@ jobs:
           # dangerouslySetInnerHTML ở ba trang). Test của nó phải chạy trong CI,
           # không phải chỉ tồn tại trong repo.
           npm --workspace apps/frontend-main test
+          # Trạm điều hành (CP2): CSP/Trusted Types, tắt workers.dev, ký khẳng định đúng vùng.
+          npm --workspace apps/console test
           # Cổng tương phản của hệ token màu - đọc thẳng packages/ui/src/tokens.css.
           npm --workspace packages/ui test
 
@@ -390,6 +392,12 @@ jobs:
       - name: Dựng frontend + GÓI cho Cloudflare Workers
         run: |
           npm --workspace apps/frontend-main exec -- opennextjs-cloudflare build
+        env:
+          NEXTAUTH_SECRET: build-time-placeholder
+      - name: Dựng trạm điều hành + GÓI cho Cloudflare Workers
+        run: |
+          npm --workspace apps/console run prebuild
+          npm --workspace apps/console exec -- opennextjs-cloudflare build
         env:
           NEXTAUTH_SECRET: build-time-placeholder
       # Ngân sách tốc độ (.standards LANGUAGE_SELECTION.md mục 5.1): JS tải ban

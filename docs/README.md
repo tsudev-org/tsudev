@@ -16,6 +16,7 @@ token trả tiền mà không dùng đến.
 | _(hồ sơ đã đóng)_ hai mã màu chuẩn không đạt WCAG           | [token-upstream-proposal.md](token-upstream-proposal.md)                           |
 | _(hồ sơ đã đóng)_ cây thư mục monorepo                      | [structure-upstream-proposal.md](structure-upstream-proposal.md)                   |
 | Đưa lên production, biến môi trường, CI                     | [deployment.md](deployment.md)                                                     |
+| Trạm điều hành `console.`: lớp khoá, dựng, đo, sự cố        | [console-access.md](console-access.md)                                             |
 | Hạn mức gói miễn phí, van chi phí                           | [free-tier.md](free-tier.md)                                                       |
 | Nhận báo động khi site hỏng (Telegram)                      | [alerting.md](alerting.md)                                                         |
 | Phát hành app: tải lên R2, niêm phong, ký Ed25519           | [release-signing.md](release-signing.md)                                           |

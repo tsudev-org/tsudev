@@ -1,0 +1,24 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  // Worker RIÊNG của trạm điều hành (CP2, ADR-0005). Không đặt tên `tsudev` - đó là Worker công khai.
+  "name": "tsudev-console",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  // CHỈ tên miền nằm sau Cloudflare Access. Tắt hẳn *.workers.dev và URL xem trước: đó là đường đi vòng qua Access
+  // (L1) - proxy.ts vẫn kiểm JWT (L2) nhưng cửa không cần mở thì đừng mở.
+  "routes": [{ "pattern": "console.tsudev.com", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  // Biến LÚC CHẠY, chỉ giá trị KHÔNG bí mật. Secret (`wrangler secret put`): NEXTAUTH_SECRET (TRÙNG Worker `tsudev`),
+  // INTERNAL_IDENTITY_SECRET_CONSOLE, EDGE_SIGNING_KEY (khoá RIÊNG của console - backend nhận qua
+  // EDGE_SIGNING_KEY_CONSOLE), CF_ACCESS_TEAM_DOMAIN, CF_ACCESS_AUD_CONSOLE. KHÔNG có INTERNAL_API_TOKEN.
+  "vars": {
+    "CONTENT_SERVICE_URL": "https://tsudev-backend.onrender.com",
+    "STORAGE_SERVICE_URL": "https://tsudev-backend.onrender.com",
+    "AUTH_SERVICE_URL": "https://tsudev-backend.onrender.com",
+    "CF_ACCESS_MODE": "ghi",
+  },
+}

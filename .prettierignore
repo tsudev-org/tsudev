@@ -45,3 +45,4 @@ CLAUDE.md
 # ghi đè ngược, nên `format:check` sẽ đỏ tuỳ theo người chạy có build hay chưa.
 # Đó là cổng đỏ theo HOÀN CẢNH chứ không theo mã, kiểu tệ nhất để chẩn đoán.
 apps/frontend-main/next-env.d.ts
+apps/console/next-env.d.ts

@@ -146,11 +146,12 @@ describe('đường tự bật 2FA KHÔNG bị ép', () => {
 
   test('không route useradmin/alias nào gắn qua Router con', () => {
     const src: string = fs.readFileSync(path.join(__dirname, '../src/index.ts'), 'utf8')
-    // app.use('/api/identity/useradmin', auth) là middleware xác thực - được phép.
+    // app.use('/api/identity/useradmin', auth) là middleware xác thực, consoleGateUseradmin là cổng vùng ký (CP2) -
+    // được phép.
     // Thứ bị cấm là gắn một Router (route của nó không hiện ở router gốc).
     const mounts = src.match(/\.use\(\s*'\/api\/identity\/(?:useradmin|alias)[^)]*\)/g) ?? []
     expect(mounts.length).toBeGreaterThan(0)
-    for (const m of mounts) expect(m).toMatch(/,\s*auth\)$/)
+    for (const m of mounts) expect(m).toMatch(/,\s*(?:auth|consoleGateUseradmin)\)$/)
   })
 })
 

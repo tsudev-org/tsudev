@@ -1,5 +1,21 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP2, 26/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+>    1b. **PR #417 (mã CP2) CHỜ DUYỆT**: sửa `ci.yml` ⇒ cần chủ dự án Approve bằng `nguyentrangtinhsu` + Re-run "Bảo vệ
+>    bản quyền". Sau đó: gộp → chờ Render `live` → deploy `tsudev` + console (`npm --workspace apps/console run
+deploy`) → CHANGELOG. Cảnh báo CodeQL #141/#142 (false positive: limiter `identity-chung`) và GitGuardian
+>    41140300 (khoá giả trong test ở commit `bd93005`, đã thay) do chủ dự án đóng - agent bị bộ phân loại chặn.
+> 2. **Hoàn tất CP2** (`docs/console-access.md` mục 2-3): 👤 đồng ý xoay `NEXTAUTH_SECRET` (`scripts/console-secrets.sh
+--xoay-nextauth`) và đặt 4 biến Render; rồi đo `console.` (ẩn danh ⇒ màn Access, OWNER vào `/accounts`,
+>    `edge-stats.hasConsoleKey`, log `[access]`).
+> 3. **CP3** (phiếu [`20261126-CP1`](handover/20261126-CP1_tram-dieu-hanh-va-cong-xac-thuc-tap-trung.md) mục 1) - chỉ sau bước 2.
+> 4. Đo 26/11: CP1 sạch (chỉ lượt `curl` gọi thẳng bị đếm `thieu`); `app_header_missing` còn 2 dòng ⇒ chưa bật
+>    `X_TSU_APP_REQUIRED` (đo lại sau 03/12).
+> 5. Phiếu SEC3, LG4 (như khối CP1 mục 5-6) chưa làm. Phiếu `20261126-CTX1` (do phiên `projects-dc` gửi): chờ chủ dự án
+>    quyết. INT1-c, PRO3 như cũ.
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP1, 26/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).

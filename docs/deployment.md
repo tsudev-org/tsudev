@@ -366,6 +366,10 @@ Bắt buộc theo service:
 | Worker - `vars`            | `*_SERVICE_URL` ×3, `NEXTAUTH_URL`, `NEXTAUTH_COOKIE_DOMAIN` - khai trong `wrangler.jsonc`                                                                                                                                                                                                 |
 | Worker - `wrangler secret` | `NEXTAUTH_SECRET`, `INTERNAL_IDENTITY_SECRET`, `INTERNAL_API_TOKEN`, `EDGE_SIGNING_KEY`, `GITHUB_*`, `GOOGLE_*` - **không** commit                                                                                                                                                         |
 
+Worker `tsudev-console` (trạm điều hành, CP2) và các biến Render của vùng điều hành
+(`INTERNAL_IDENTITY_SECRET_CONSOLE`, `EDGE_SIGNING_KEY_CONSOLE`, `CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD_CONSOLE`,
+`CF_ACCESS_MODE`): xem [`console-access.md`](console-access.md).
+
 Worker cron `tsudev-newsroom-cron` (`infrastructure/canh-site-cron`) giữ secret
 tuỳ chọn: `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` (báo động) và
 `NEON_API_KEY`/`NEON_PROJECT_ID` (cổng hạn mức). Các biến của Toà soạn

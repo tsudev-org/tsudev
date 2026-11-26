@@ -1,0 +1,40 @@
+{
+  "name": "console",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "prebuild": "node scripts/copy-shared-assets.js",
+    "build": "next build --webpack",
+    "predev": "node scripts/copy-shared-assets.js",
+    "dev": "next dev -p 3001",
+    "deploy": "node ../../scripts/deploy-frontend.js deploy --app console",
+    "typecheck": "tsc --noEmit",
+    "test": "NODE_ENV=test jest --runInBand"
+  },
+  "dependencies": {
+    "@tsudev/identity-token": "*",
+    "@tsudev/types": "*",
+    "next": "16.4.6",
+    "next-auth": "^4.24.15",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@opennextjs/cloudflare": "^1.20.17",
+    "@tailwindcss/postcss": "^4.3.5",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^4.3.5",
+    "wrangler": "^4.161.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": [
+      "<rootDir>/test/**/*.test.ts"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/.next/",
+      "<rootDir>/.open-next/"
+    ]
+  }
+}

@@ -31,8 +31,28 @@ import type { Role } from '@tsudev/types';
 
 /** Ai ký. Kiểm ở phía service để một token từ hệ khác không dùng lại được. */
 export const ISSUER = 'tsudev-bff';
-/** Ký cho ai. */
+/** Ký cho ai - vùng `main` (Worker công khai `tsudev.com`). Giữ nguyên chuỗi cũ để khẳng định đang bay không gãy. */
 export const AUDIENCE = 'tsudev-services';
+
+/**
+ * VÙNG KÝ (CP2, ADR-0005 mục 4, `.standards` CONTROL_PLANE.md mục 3 L5).
+ *
+ * Mỗi Worker là một vùng và ký bằng bí mật RIÊNG, `aud` riêng. Route điều hành ở backend chỉ nhận `aud` của vùng
+ * `console`: Worker công khai bị chiếm (XSS chuỗi cung ứng, lộ secret của nó) KHÔNG ký được khẳng định cho vùng điều
+ * hành, vì nó không có `INTERNAL_IDENTITY_SECRET_CONSOLE`. Hai lớp độc lập: khoá khác nhau VÀ `aud` khác nhau - lộ nhầm
+ * cùng một khoá cho hai vùng vẫn không đổi được `aud`.
+ */
+export type Zone = 'main' | 'console';
+export const ZONES: readonly Zone[] = ['main', 'console'];
+export const ZONE_AUDIENCE: Record<Zone, string> = {
+  main: AUDIENCE,
+  console: 'tsudev-services:console',
+};
+/** Biến môi trường mang khoá của từng vùng. */
+export const ZONE_SECRET_ENV: Record<Zone, string> = {
+  main: 'INTERNAL_IDENTITY_SECRET',
+  console: 'INTERNAL_IDENTITY_SECRET_CONSOLE',
+};
 
 /**
  * Hạn dùng NGẮN, có chủ đích.
@@ -62,6 +82,8 @@ export type IdentityClaims = {
    * ghi log và gỡ lỗi được, không phải để tin.
    */
   role?: Role | string;
+  /** Vùng đã ký - do bên KIỂM điền theo khoá + `aud` khớp, không đọc từ payload. */
+  zone?: Zone;
 };
 
 const key = (secret: string): Uint8Array => new TextEncoder().encode(secret);
@@ -78,20 +100,27 @@ export const SECRET_ENV = 'INTERNAL_IDENTITY_SECRET';
  */
 export const MIN_SECRET_LEN = 32;
 
-export function readSecret(env: Record<string, string | undefined>): string | null {
-  const s = env[SECRET_ENV];
+export function readSecret(
+  env: Record<string, string | undefined>,
+  zone: Zone = 'main'
+): string | null {
+  const s = env[ZONE_SECRET_ENV[zone]];
   if (!s || s.length < MIN_SECRET_LEN) return null;
   return s;
 }
 
 /** Ký một khẳng định. Chạy được cả trên Node lẫn Cloudflare Workers (jose dùng WebCrypto). */
-export async function signIdentity(claims: IdentityClaims, secret: string): Promise<string> {
+export async function signIdentity(
+  claims: IdentityClaims,
+  secret: string,
+  zone: Zone = 'main'
+): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   return new SignJWT({ role: claims.role, sv: claims.sv })
     .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
     .setSubject(claims.sub)
     .setIssuer(ISSUER)
-    .setAudience(AUDIENCE)
+    .setAudience(ZONE_AUDIENCE[zone])
     .setIssuedAt(now)
     .setExpirationTime(now + TTL_SECONDS)
     .sign(key(secret));
@@ -100,12 +129,13 @@ export async function signIdentity(claims: IdentityClaims, secret: string): Prom
 /** Kiểm một khẳng định. Trả về null cho MỌI lý do thất bại - không phân biệt ra ngoài. */
 export async function verifyIdentity(
   token: string,
-  secret: string
+  secret: string,
+  zone: Zone = 'main'
 ): Promise<IdentityClaims | null> {
   try {
     const { payload } = await jwtVerify(token, key(secret), {
       issuer: ISSUER,
-      audience: AUDIENCE,
+      audience: ZONE_AUDIENCE[zone],
       // Không có dung sai đồng hồ. Hạn dùng đã là 120s; cộng thêm dung sai chỉ
       // nới cửa sổ mà không giải quyết vấn đề nào có thật ở đây.
       clockTolerance: 0,
@@ -116,8 +146,11 @@ export async function verifyIdentity(
       sub,
       role: typeof payload.role === 'string' ? payload.role : undefined,
       sv: typeof payload.sv === 'number' ? payload.sv : undefined,
+      zone,
     };
   } catch {
     return null;
   }
 }
+
+export * from './access';

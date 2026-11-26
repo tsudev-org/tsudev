@@ -5,6 +5,7 @@ import type { User } from '@prisma/client';
 import { hasAtLeastRole } from '@tsudev/types';
 import type { Role } from '@tsudev/types';
 import { readSecret, verifyIdentity, SECRET_ENV, MIN_SECRET_LEN } from '@tsudev/identity-token';
+import { isEdgeSigned } from './edge';
 
 export type { Role };
 
@@ -30,6 +31,8 @@ declare global {
     role?: string;
     /** Xem `IdentityClaims.sv` - đối chiếu với User.sessionVersion. */
     sv?: number;
+    /** Vùng đã ký khẳng định (`main` = tsudev.com, `console` = console.tsudev.com). Xem `requireConsole()`. */
+    zone?: 'main' | 'console';
   };
 }
 
@@ -75,7 +78,13 @@ export function createAuthMiddleware(
       return res.status(401).json({ error: 'Missing or invalid Authorization header' });
     }
 
-    const claims = await verifyIdentity(authHeader.slice(7), secret);
+    // Vùng `main` trước (đa số lượt), rồi `console` nếu có khoá riêng. Khoá + `aud` khác nhau nên một khẳng định
+    // không bao giờ khớp cả hai; `zone` lấy từ VÙNG KIỂM ĐƯỢC, không từ payload.
+    const raw = authHeader.slice(7);
+    const consoleSecret = readSecret(process.env, 'console');
+    const claims =
+      (await verifyIdentity(raw, secret, 'main')) ??
+      (consoleSecret ? await verifyIdentity(raw, consoleSecret, 'console') : null);
     if (!claims) {
       return res.status(401).json({ error: 'Invalid token' });
     }
@@ -85,6 +94,7 @@ export function createAuthMiddleware(
       preferred_username: claims.sub,
       role: claims.role,
       sv: claims.sv,
+      zone: claims.zone,
     };
     if (mayUse(req)) return next();
     try {
@@ -267,6 +277,8 @@ export async function requireSecondFactor(user: Pick<User, 'id'>, res: Response)
  */
 export function internalTokenMatches(req: Request, expected: string): boolean {
   if (!expected) return false;
+  // CP2: chữ ký biên `X-Tsu-Edge` hợp lệ (edgeGuard gắn TRƯỚC cổng này ở mọi service) là bằng chứng mạnh hơn.
+  if (isEdgeSigned(req)) return true;
   const got = req.get('x-internal-token');
   if (typeof got !== 'string' || !got) return false;
   const a = createHash('sha256').update(got).digest();
@@ -393,3 +405,4 @@ export function requireStepUp(
 
 // CP1: khoá origin `X-Tsu-Edge` - xem edge.ts.
 export * from './edge';
+export * from './console';
