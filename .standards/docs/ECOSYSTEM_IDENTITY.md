@@ -1,4 +1,4 @@
-# NHẬN DIỆN HỆ SINH THÁI TSUDEV (v4.0.0)
+# NHẬN DIỆN HỆ SINH THÁI TSUDEV (v4.1.0)
 
 > `https://tsudev.com` là nhà chung của mọi dịch vụ, sản phẩm và công cụ trong hệ
 > sinh thái. Tài liệu này quy định mọi project **tự khai mình thuộc về đâu** như
@@ -34,6 +34,10 @@ mọi trang giới thiệu, mọi bản mô tả repo:
 | **Cổng sản phẩm** | Nơi liệt kê và dẫn tới toàn bộ dịch vụ, sản phẩm, công cụ của hệ sinh thái |
 | **Nhà cung cấp danh tính** | Một tài khoản dùng chung cho mọi sản phẩm, theo [`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) mục 2 |
 | **Nguồn nhận diện** | Nơi công bố logo, bảng màu, và bản mô tả chính thức của thương hiệu |
+
+Từ v4.1.0 (bộ quy ước v7.2.0) ba vai này chia thành ba vùng tên miền theo [`CONTROL_PLANE.md`](CONTROL_PLANE.md):
+`tsudev.com` (công khai, chỉ đọc), `id.tsudev.com` (cổng xác thực - issuer OIDC vẫn là `https://tsudev.com/oidc`),
+`console.tsudev.com` (trạm điều hành sau Cloudflare Access). Website sản phẩm `MUST NOT` có trang quản trị riêng.
 
 Mô tả chuẩn, dùng nguyên văn khi cần một câu giới thiệu:
 

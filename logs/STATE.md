@@ -1,5 +1,54 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP0, 26/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **Kiểm cổng `X-Tsu-App`** (2 phút): truy vấn `app_header_missing` 7 ngày (`docs/release-signing.md` §Cổng X-Tsu-App,
+>    URL Neon ở `~/.config/tsudev/neon.env`). Còn dòng (26/11: chưa app nào gửi header) ⇒ KHÔNG bật; đã hết ⇒ bật
+>    `X_TSU_APP_REQUIRED=1` trên Render (bị chặn ⇒ đưa chủ dự án). Đo: thiếu header ⇒ 400.
+> 3. **CP1 - khoá origin `X-Tsu-Edge`** (phiếu [`20261126-CP1`](handover/20261126-CP1_tram-dieu-hanh-va-cong-xac-thuc-tap-trung.md)
+>    mục 1; ADR-0005; chuẩn `.standards` v7.2.0 `CONTROL_PLANE.md` - đồng bộ `.standards` trước nếu còn v7.1.0).
+>    Các phase sau CP2-CP7 mỗi phiên một phase.
+> 4. **INT1-c** (Key Attestation) chỉ khi 👤 đã đưa SHA-256 chứng thư ký từng app; nếu chưa ⇒ để sau CP1.
+> 5. LG3: gắn `<tsu-signin-reminder>` khi có trang cần. PRO3: (e) logo BCT chờ DK2; khung ảnh Pro trên Avatar.
+>
+> Đã xong 26/11 (tsudev-CP0): 7 cảnh báo CodeQL `js/missing-rate-limiting` (#111-113, #128-129, #136-137) đánh dấu
+> false positive kèm route giới hạn đã kiểm (`@tsudev/ratelimit` không được CodeQL mô hình hoá); #107 (Scorecard
+> branch protection) giữ - đánh đổi có chủ đích. Lập kế hoạch trạm điều hành `console.` + cổng `id.`: tsudev-standards
+> v7.2.0 `CONTROL_PLANE.md`, ADR-0005, phiếu CP1 (7 phase).
+
+**Prompt chuẩn cho phiên kế tiếp** (từ 28/11 thêm câu đầu "Làm phiếu 20261128-NH1 trước."):
+
+```text
+Đọc AGENTS.md, rồi CHỈ khối 🔔 đầu tiên của logs/STATE.md và các phiếu nó trỏ tới
+(không đọc các khối 🔔 cũ hơn). Chạy akb start + akb search trước khi làm.
+
+Làm theo thứ tự khối 🔔: (1) kiểm nhật ký app_header_missing, đủ điều kiện thì
+bật X_TSU_APP_REQUIRED=1 và đo; (2) phase kế tiếp CHƯA ✅ của phiếu
+logs/handover/20261126-CP1 mục 1 (bắt đầu CP1), đúng ADR-0005 và
+.standards/docs/CONTROL_PLANE.md; tham chiếu ~/projects/ubnd CHỈ ĐỌC theo mục 0
+của phiếu. Mỗi cơ chế chặn đi ghi → số đo sạch → chan; không đổi issuer OIDC,
+rpID passkey hay URL app đã ghim.
+
+Quyền: tự chọn phương án kỹ thuật, tự commit/push/mở PR/gộp khi CI xanh, tự xử
+lý cảnh báo CodeQL đã kiểm chứng, tự deploy frontend và đo production. Migration:
+URL Neon ở ~/.config/tsudev/neon.env (không in nội dung) - pg_dump 18 sao lưu vào
+~/tsudev-backups, kiểm tệp dump tồn tại, migrate lên Neon TRƯỚC rồi mới gộp, xác
+nhận bằng prisma migrate status. Bí mật mới: sinh vào ~/.config/tsudev/keys/ (600),
+không in ra log; Worker dùng wrangler secret put; biến Render và dashboard
+Cloudflare Zero Trust là việc 👤 - đưa bước cụ thể rồi làm tiếp phần khác. Chỉ
+dừng hỏi khi gặp việc 👤 hoặc cổng Bảo vệ bản quyền.
+
+Tiết kiệm: định vị bằng grep rồi đọc đúng đoạn; chạy test theo workspace bị ảnh
+hưởng; gộp cổng (format/lint/typecheck/topology) một lần cuối cụm; dồn sửa tài
+liệu/STATE/CHANGELOG vào cùng PR với code; chờ CI bằng tác vụ nền; không sửa
+cây làm việc trong lúc deploy chạy nền.
+
+Cuối phiên: cập nhật phiếu CP1 (bảng phase + mục 3), khối 🔔 mới ở đầu STATE kèm
+prompt chuẩn cho phase kế tiếp, CHANGELOG nếu có deploy, akb close + akb sync,
+báo điều phối qua SendMessage. Trả lời tôi bằng tiếng Việt, ngắn gọn.
+```
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-INT1b, 26/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
