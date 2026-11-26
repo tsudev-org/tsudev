@@ -42,3 +42,9 @@
 ## 3. Kết quả xử lý
 
 - 26/11/2026 - tsudev-INT1b: lập phiếu + ADR-0005; tsudev-standards v7.2.0 `CONTROL_PLANE.md` (PR #89). Kế tiếp: CP1.
+- 26/11/2026 - tsudev-CP0b: khoá `EDGE_SIGNING_KEY` đã sinh ở `~/.config/tsudev/keys/edge.env` (600) - 👤 đặt lên Render
+  (đặt sớm vô hại: mã CP1 chưa đọc biến này). Script `scripts/cloudflare-access-console.sh` (xem trước / `--ap-dung`)
+  dựng tổ chức Zero Trust, One-time PIN, ứng dụng Access `console.tsudev.com` (phủ cả tên miền) + policy theo
+  `~/.config/tsudev/console-access-emails.txt`, ghi `CF_ACCESS_TEAM_DOMAIN` + `CF_ACCESS_AUD_CONSOLE` vào
+  `~/.config/tsudev/keys/console-access.env`. Chủ dự án uỷ quyền agent tự chạy; còn chờ token API có quyền Access
+  (`~/.config/tsudev/cloudflare-access.env`) - token `cloudflare.env` đã hết hạn, token DNS không có quyền Access.
