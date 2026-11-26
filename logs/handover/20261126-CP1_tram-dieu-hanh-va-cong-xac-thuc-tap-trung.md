@@ -48,3 +48,8 @@
   `~/.config/tsudev/console-access-emails.txt`, ghi `CF_ACCESS_TEAM_DOMAIN` + `CF_ACCESS_AUD_CONSOLE` vào
   `~/.config/tsudev/keys/console-access.env`. Chủ dự án uỷ quyền agent tự chạy; còn chờ token API có quyền Access
   (`~/.config/tsudev/cloudflare-access.env`) - token `cloudflare.env` đã hết hạn, token DNS không có quyền Access.
+- 26/11/2026 - tsudev-CP0b: 👤 đã đặt `EDGE_SIGNING_KEY` trên Render. Agent chạy `scripts/cloudflare-access-console.sh
+--ap-dung`: tổ chức Zero Trust có sẵn `purple-cake-8f2a.cloudflareaccess.com` (JWKS `/cdn-cgi/access/certs` 200),
+  One-time PIN, ứng dụng Access `console.tsudev.com` (phủ cả tên miền, phiên 24 giờ, cookie HttpOnly/Lax/binding) +
+  policy Allow 1 email; `CF_ACCESS_TEAM_DOMAIN` + `CF_ACCESS_AUD_CONSOLE` ở `~/.config/tsudev/keys/console-access.env`.
+  Chạy lại không đổi gì (idempotent). `console.` chưa có DNS - CP2 deploy Worker với `custom_domain` rồi đo ẩn danh ⇒ màn Access.
