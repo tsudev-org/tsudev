@@ -232,7 +232,15 @@ app.use('/api', optionalAuth)
 // CỔNG VÙNG ĐIỀU HÀNH (CP3, ADR-0005 L5): đường ghi của Studio và quản trị chỉ nhận khẳng định danh tính do Worker
 // `console.` ký - Worker công khai bị chiếm không đăng, duyệt hay phát hành được gì. Gắn theo TIỀN TỐ để route mới
 // tự nằm sau cổng; cổng quyền (vai trò từ DB + 2FA) vẫn nằm trong từng route.
-app.use(['/api/admin', '/api/author'], requireConsole('content-service'))
+// Giới hạn tần suất cho bề mặt điều hành (CP3), đặt TRƯỚC cổng xác thực/vùng: đếm theo tài khoản (`sub` của khẳng
+// định), không có thì theo IP. Ngưỡng rộng cho người điều hành thật, đủ chặn dội request.
+const consoleRateLimit = createRateLimit({
+  name: 'content-console',
+  windowMs: 60_000,
+  max: Number(process.env.RATE_LIMIT_CONSOLE_MAX) || 300,
+  keyOf: identityKey,
+})
+app.use(['/api/admin', '/api/author'], consoleRateLimit, requireConsole('content-service'))
 
 // ---------------- Blog ----------------
 //

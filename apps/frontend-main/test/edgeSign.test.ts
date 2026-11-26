@@ -55,7 +55,7 @@ describe('kyBien (Worker cron, WebCrypto)', () => {
 });
 
 /**
- * Quét NGUỒN: mọi tệp gọi backend (`${CONTENT}`/`${IDENTITY}`/`${STORAGE}`) phải ký. Thiếu ở một proxy mới thì ở
+ * Quét NGUỒN: mọi tệp gọi backend (`${CONTENT}`/`${IDENTITY}`) phải ký. Thiếu ở một proxy mới thì ở
  * chế độ `ghi` chỉ là bộ đếm `thieu` tăng, nhưng sang `chan` thì đường đó 403 trên production - không test E2E
  * nào bắt được vì dev không đặt khoá.
  */
@@ -72,9 +72,7 @@ describe('mọi lượt gọi backend đều ký', () => {
   walk(join(root, 'pages'));
   walk(join(root, 'lib'));
 
-  const callers = files.filter((f) =>
-    /\$\{(CONTENT|IDENTITY|STORAGE)\}/.test(readFileSync(f, 'utf8'))
-  );
+  const callers = files.filter((f) => /\$\{(CONTENT|IDENTITY)\}/.test(readFileSync(f, 'utf8')));
 
   test('có tệp gọi backend để quét', () => {
     expect(callers.length).toBeGreaterThan(10);
@@ -84,8 +82,7 @@ describe('mọi lượt gọi backend đều ký', () => {
     const src = readFileSync(join(root, rel), 'utf8');
     expect(/\b(internalHeaders|edgeHeaders)\(/.test(src)).toBe(true);
     // Lượt gọi backend = fetch thẳng tới `${X}` hoặc `const url = `${X}...`` rồi fetch(url).
-    const fetches = (src.match(/(fetch\(|const url = )`\$\{(CONTENT|IDENTITY|STORAGE)\}/g) || [])
-      .length;
+    const fetches = (src.match(/(fetch\(|const url = )`\$\{(CONTENT|IDENTITY)\}/g) || []).length;
     const signs = (src.match(/\b(internalHeaders|edgeHeaders)\((?!\))/g) || []).length;
     // lib/api.ts dồn mọi lượt qua getJSON() nên một chữ ký phủ hết; ở tệp khác mỗi fetch một chữ ký.
     if (!rel.endsWith('lib/api.ts')) expect(signs).toBeGreaterThanOrEqual(fetches);

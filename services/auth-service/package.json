@@ -36,6 +36,9 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "\\.node\\.test\\.mjs$"
+    ],
+    "setupFiles": [
+      "<rootDir>/test/setupEnv.ts"
     ]
   },
   "main": "dist/index.js",

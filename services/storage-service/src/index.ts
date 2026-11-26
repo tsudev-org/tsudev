@@ -216,6 +216,14 @@ async function generatePresign(cmd: Parameters<typeof getSignedUrl>[1]) {
 const auth = createAuthMiddleware('storage')
 // CP3 (ADR-0005 L5): xin URL tải lên / tải tệp là đường GHI vào kho dùng chung ⇒ chỉ nhận vùng `console`.
 const consoleOnly = requireConsole('storage-service')
+// Giới hạn tần suất cho bề mặt điều hành (CP3), đặt TRƯỚC cổng xác thực/vùng: đếm theo tài khoản (`sub` của khẳng
+// định), không có thì theo IP. Ngưỡng rộng cho người điều hành thật, đủ chặn dội request.
+const consoleRateLimit = createRateLimit({
+  name: 'storage-console',
+  windowMs: 60_000,
+  max: Number(process.env.RATE_LIMIT_CONSOLE_MAX) || 300,
+  keyOf: identityKey,
+})
 
 async function ensureBucket() {
   try {
@@ -330,6 +338,7 @@ app.get(
 // PowerShell/curl quoting issues when sending JSON bodies.
 app.get(
   '/api/presign',
+  consoleRateLimit,
   auth,
   consoleOnly,
   requireRole('MEMBER'),
@@ -351,6 +360,7 @@ app.get(
 
 app.post(
   '/api/presign',
+  consoleRateLimit,
   auth,
   consoleOnly,
   requireRole('MEMBER'),
@@ -374,6 +384,7 @@ app.post(
 // Server-side upload fallback: accept raw binary bodies and upload to S3
 app.post(
   '/api/upload',
+  consoleRateLimit,
   auth,
   consoleOnly,
   requireRole('MEMBER'),

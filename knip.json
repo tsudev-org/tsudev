@@ -47,7 +47,7 @@
     },
     "apps/console": {
       "entry": ["open-next.config.ts", "scripts/**/*.js", "test/**/*.ts"],
-      "ignoreDependencies": ["tailwindcss", "@tsudev/types"]
+      "ignoreDependencies": ["tailwindcss"]
     }
   },
   "ignoreBinaries": ["jest"],

@@ -32,7 +32,10 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "preset": "ts-jest"
+    "preset": "ts-jest",
+    "setupFiles": [
+      "<rootDir>/test/setupEnv.ts"
+    ]
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts"
