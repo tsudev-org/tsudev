@@ -330,6 +330,29 @@ một giá trị cho ba service **và** cho frontend-main.
 JWKS phát hành (`/.well-known/tsudev-release-jwks.json`) cũng đứng ngoài - nó
 nằm ngoài `/api`, và người tải phải đọc được nó để tự kiểm chữ ký.
 
+## Khoá origin `X-Tsu-Edge` (CP1, ADR-0005)
+
+Backend trên `tsudev-backend.onrender.com` gọi thẳng được từ Internet; `X-Tsu-Edge` đòi bằng chứng request do một
+Worker của hệ gửi: `X-Tsu-Edge: <ts>.<base64url HMAC-SHA256(EDGE_SIGNING_KEY, "<ts>.<METHOD>.<pathname>")>`, `ts`
+lệch ≤ 300 giây (path + method trong chữ ký ⇒ không phát lại sang đường khác).
+
+- **Bên kiểm**: `edgeGuard()` của `@tsudev/auth` (`packages/auth/src/edge.ts`), gắn ĐẦU TIÊN trong app của cả ba
+  service (chế độ gộp gọi đúng một app con cho mỗi request ⇒ mỗi lượt xét một lần). Miễn `/health`.
+- **Bên ký**: `internalHeaders(method, url)` / `edgeHeaders(method, url)` ở `apps/frontend-main/lib/services.ts`
+  (node:crypto) - mọi BFF, `lib/api.ts`, proxy OIDC/quyền lợi/JWKS/bản kê; `fetchCoKy` ở
+  `infrastructure/canh-site-cron/src/edge.ts` (WebCrypto). Ba bên chung một vectơ thử
+  (`content-service/test/edgeGuard.test.ts` ↔ `frontend-main/test/edgeSign.test.ts`); test quét nguồn bắt proxy mới
+  quên ký.
+- **`EDGE_MODE=tat|ghi|chan`** (Render; mặc định `ghi` khi có khoá): `ghi` cho qua + đếm theo
+  `thieu|sai|het_han` × tiền tố 2 đoạn × loại UA, mỗi khoá mới in MỘT dòng `[edge] lượt KHÔNG qua biên` ra log Render;
+  `chan` ⇒ 403 `edge_required`; `tat` = rollback không cần deploy. Không có `EDGE_SIGNING_KEY` ⇒ no-op (dev, CI).
+- **Đọc bộ đếm**: `GET /api/admin/edge-stats` (ADMIN, bộ nhớ tiến trình từ lần khởi động) hoặc log Render
+  (`[edge]`). Tiêu chí sang `chan` (CP7): 7 ngày không còn dòng `thieu|sai` từ nguồn hợp lệ (chỉ còn máy quét/công cụ).
+- **Khoá**: bản gốc `~/.config/tsudev/keys/edge.env` (600). Đặt CÙNG giá trị ở Render (`EDGE_SIGNING_KEY`), Worker
+  `tsudev` và `tsudev-newsroom-cron` (`wrangler secret put EDGE_SIGNING_KEY`). Xoay: đặt khoá cũ vào
+  `EDGE_SIGNING_KEY_PREV` trên Render TRƯỚC, đổi secret ở hai Worker, rồi đổi `EDGE_SIGNING_KEY` trên Render, gỡ `_PREV`
+  sau 10 phút. `INTERNAL_API_TOKEN` vẫn chạy song song tới khi `chan` ổn định.
+
 ## Biến môi trường
 
 Mẫu: `.env.production.example` ở gốc. Secret đặt trong dashboard Render
@@ -337,11 +360,11 @@ Mẫu: `.env.production.example` ở gốc. Secret đặt trong dashboard Render
 
 Bắt buộc theo service:
 
-| Nơi chạy                   | Biến bắt buộc                                                                                                                                                                                                                                                          |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tsudev-backend` (Render)  | `DATABASE_URL`, `INTERNAL_IDENTITY_SECRET`, `TOTP_ENCRYPTION_KEY`, `RESEND_API_KEY`, `NEXT_PUBLIC_MAIN_URL`, `INTERNAL_API_TOKEN`, `S3_ENDPOINT`, `S3_PUBLIC_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `RELEASE_SIGNING_KEY`, `RELEASE_SIGNING_KEY_ID` |
-| Worker - `vars`            | `*_SERVICE_URL` ×3, `NEXTAUTH_URL`, `NEXTAUTH_COOKIE_DOMAIN` - khai trong `wrangler.jsonc`                                                                                                                                                                             |
-| Worker - `wrangler secret` | `NEXTAUTH_SECRET`, `INTERNAL_IDENTITY_SECRET`, `INTERNAL_API_TOKEN`, `GITHUB_*`, `GOOGLE_*` - **không** commit                                                                                                                                                         |
+| Nơi chạy                   | Biến bắt buộc                                                                                                                                                                                                                                                                              |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tsudev-backend` (Render)  | `DATABASE_URL`, `INTERNAL_IDENTITY_SECRET`, `TOTP_ENCRYPTION_KEY`, `RESEND_API_KEY`, `NEXT_PUBLIC_MAIN_URL`, `INTERNAL_API_TOKEN`, `EDGE_SIGNING_KEY`, `S3_ENDPOINT`, `S3_PUBLIC_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `RELEASE_SIGNING_KEY`, `RELEASE_SIGNING_KEY_ID` |
+| Worker - `vars`            | `*_SERVICE_URL` ×3, `NEXTAUTH_URL`, `NEXTAUTH_COOKIE_DOMAIN` - khai trong `wrangler.jsonc`                                                                                                                                                                                                 |
+| Worker - `wrangler secret` | `NEXTAUTH_SECRET`, `INTERNAL_IDENTITY_SECRET`, `INTERNAL_API_TOKEN`, `EDGE_SIGNING_KEY`, `GITHUB_*`, `GOOGLE_*` - **không** commit                                                                                                                                                         |
 
 Worker cron `tsudev-newsroom-cron` (`infrastructure/canh-site-cron`) giữ secret
 tuỳ chọn: `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` (báo động) và

@@ -60,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   };
   let headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...internalHeaders(),
+    ...internalHeaders('POST', `${IDENTITY}/api/identity/xd/${action}`),
     ...callerHeaders(req),
   };
 

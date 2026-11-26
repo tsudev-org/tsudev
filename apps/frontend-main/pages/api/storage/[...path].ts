@@ -59,7 +59,6 @@ function buildHeaders(
     'content-type': req.headers['content-type'] || 'application/octet-stream',
     // storage-service đọc tên tệp từ header này ở nhánh upload phía server.
     ...(fileName ? { 'x-filename': fileName } : {}),
-    ...internalHeaders(),
     ...identity,
   };
 }
@@ -83,9 +82,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const upstream = await fetch(`${STORAGE}/api/${path}${qs}`, {
+    const url = `${STORAGE}/api/${path}${qs}`;
+    const upstream = await fetch(url, {
       method: req.method,
-      headers: buildHeaders(req, await identityHeaders(token)),
+      headers: {
+        ...buildHeaders(req, await identityHeaders(token)),
+        ...internalHeaders(req.method || 'GET', url),
+      },
       // Buffer là Uint8Array, hợp lệ với BodyInit lúc chạy; kiểu của fetch
       // trong lib DOM lại không liệt kê Buffer nên phải nói rõ ra.
       body: body as BodyInit | undefined,

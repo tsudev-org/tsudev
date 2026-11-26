@@ -33,7 +33,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!token) return res.status(401).json({ error: 'Bạn cần đăng nhập' });
 
   const headers: Record<string, string> = {
-    ...internalHeaders(),
     ...(await identityHeaders(token)),
     'Content-Type': 'application/json',
   };
@@ -43,9 +42,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const qs = queryStringOf(req.url);
 
   try {
-    const upstream = await fetch(`${CONTENT}/api/${path}${qs}`, {
+    const url = `${CONTENT}/api/${path}${qs}`;
+    const upstream = await fetch(url, {
       method: req.method,
-      headers,
+      headers: { ...headers, ...internalHeaders(req.method || 'GET', url) },
       body:
         req.method === 'GET' || req.method === 'HEAD' ? undefined : JSON.stringify(req.body || {}),
     });

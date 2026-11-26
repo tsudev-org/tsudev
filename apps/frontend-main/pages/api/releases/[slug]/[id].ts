@@ -55,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // mà một mã 302 làm xong.
     const upstream = await fetch(url, {
       method: 'GET',
-      headers: internalHeaders(),
+      headers: internalHeaders('GET', url),
       redirect: 'manual',
     });
 

@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { clientIp } from './clientIp';
-import { IDENTITY } from './services';
+import { IDENTITY, edgeHeaders } from './services';
 
 /**
  * PRO-B (ADR-0002): proxy CÔNG KHAI tới máy chủ quyền lợi của auth-service (`/ent/*`).
@@ -50,9 +50,11 @@ export async function proxyEntitlement(
   try {
     // POST: thân JSON đã được Next đọc (giới hạn mặc định 1 MB); gửi lại đúng đối tượng đó.
     if (method === 'POST') headers['content-type'] = 'application/json';
-    const up = await fetch(`${IDENTITY}${upstream}`, {
+    const url = `${IDENTITY}${upstream}`;
+    const up = await fetch(url, {
       method,
-      headers,
+      // CP1: chữ ký biên - không kèm INTERNAL_API_TOKEN (người gọi không phải BFF).
+      headers: { ...headers, ...edgeHeaders(method, url) },
       redirect: 'manual',
       ...(method === 'POST' ? { body: JSON.stringify(req.body ?? {}) } : {}),
     });

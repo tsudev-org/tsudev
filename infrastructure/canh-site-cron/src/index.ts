@@ -64,6 +64,7 @@
  */
 
 import { doNoiDung, thanhDong } from './demNoiDung';
+import { fetchCoKy } from './edge';
 import { danhGiaNeon, type NeonProject } from './hanMuc';
 import { dienGiai, goiKiemToanVen } from './kiemToanVen';
 import { gopLuotXem, type D1Like } from './luotXem';
@@ -96,6 +97,8 @@ export interface Env {
   RELEASE_INTEGRITY_TOKEN?: string;
   /** Chỉ cần nếu backend bật cổng `/api` bằng INTERNAL_API_TOKEN. */
   INTERNAL_API_TOKEN?: string;
+  /** CP1: khoá chữ ký biên `X-Tsu-Edge` (cùng giá trị với Render) - `wrangler secret put EDGE_SIGNING_KEY`. */
+  EDGE_SIGNING_KEY?: string;
   /** D1 `tsudev-luot-xem` - lượt xem bài chờ gộp (luotXem.ts). */
   VIEWS_DB?: D1Like;
   /** Gác `POST /api/internal/post-views`. PHẢI GIỐNG Render. `npm run secret-views`. */
@@ -256,10 +259,13 @@ async function canhHanMucNeon(env: Env): Promise<void> {
 
 /** Gộp lượt xem bài D1 → Neon - chỉ ở nhịp thưa (route chạm database). */
 async function gopLuotXemBai(env: Env): Promise<void> {
-  const kq = await gopLuotXem(env.VIEWS_DB, env.BACKEND_URL, {
-    views: env.POST_VIEWS_TOKEN,
-    internal: env.INTERNAL_API_TOKEN,
-  });
+  const kq = await gopLuotXem(
+    env.VIEWS_DB,
+    env.BACKEND_URL,
+    { views: env.POST_VIEWS_TOKEN, internal: env.INTERNAL_API_TOKEN },
+    new Date(),
+    fetchCoKy(env.EDGE_SIGNING_KEY)
+  );
   if (!kq.chay) console.error(`[cron] lượt xem: BỎ QUA - ${kq.lyDo}`);
   else if (!kq.ok) console.error(`[cron] lượt xem: HỎNG - ${kq.lyDo} (dòng còn nằm ở D1)`);
   else console.log(`[cron] lượt xem: ${kq.dong} nhóm, ghi ${kq.ghi}, bỏ qua ${kq.boQua}`);
@@ -267,10 +273,11 @@ async function gopLuotXemBai(env: Env): Promise<void> {
 
 /** Lượt kiểm toàn vẹn - chỉ ở nhịp thưa (route chạm database + R2). */
 async function kiemToanVenPhatHanh(env: Env): Promise<void> {
-  const kq = await goiKiemToanVen(env.BACKEND_URL, {
-    integrity: env.RELEASE_INTEGRITY_TOKEN,
-    internal: env.INTERNAL_API_TOKEN,
-  });
+  const kq = await goiKiemToanVen(
+    env.BACKEND_URL,
+    { integrity: env.RELEASE_INTEGRITY_TOKEN, internal: env.INTERNAL_API_TOKEN },
+    fetchCoKy(env.EDGE_SIGNING_KEY)
+  );
   const { log, baoDong: noiDung } = dienGiai(kq);
   if (kq.chay && kq.ok && !noiDung) console.log(log);
   else console.error(log);
@@ -280,7 +287,11 @@ async function kiemToanVenPhatHanh(env: Env): Promise<void> {
 /** Thư nhắc gia hạn Pro (PRO2 2.4) - chỉ lượt sáng của nhịp thưa. */
 async function nhacGiaHanPro(env: Env, luc: number): Promise<void> {
   if (new Date(luc).getUTCHours() !== GIO_NHAC_UTC) return;
-  const kq = await goiNhacPro(env.BACKEND_URL, env.INTERNAL_API_TOKEN);
+  const kq = await goiNhacPro(
+    env.BACKEND_URL,
+    env.INTERNAL_API_TOKEN,
+    fetchCoKy(env.EDGE_SIGNING_KEY)
+  );
   if (!kq.chay) console.error(`[cron] thư nhắc Pro: BỎ QUA - ${kq.lyDo}`);
   else if (!kq.ok) {
     console.error(`[cron] thư nhắc Pro: HỎNG - ${kq.lyDo}`);

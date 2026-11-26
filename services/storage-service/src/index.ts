@@ -98,11 +98,13 @@ const {
 } = require('@aws-sdk/client-s3')
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { prisma } from '@tsudev/db'
-import { createAuthMiddleware, internalTokenMatches, requireRole } from '@tsudev/auth'
+import { createAuthMiddleware, edgeGuard, internalTokenMatches, requireRole } from '@tsudev/auth'
 import { pageMeta, parsePaging } from '@tsudev/types'
 import { createRateLimit, identityKey, largePageRateLimit, peerIp } from '@tsudev/ratelimit'
 
 const app = express()
+// CP1: khoá origin `X-Tsu-Edge` - ĐẦU TIÊN (xem @tsudev/auth edge.ts).
+app.use(edgeGuard())
 const port = process.env.PORT || process.env.PORT_STORAGE_SERVICE || 4002
 // Mặc định 0.0.0.0 - đừng đổi: bind loopback bên trong container là tự cắt liên
 // lạc giữa các container. Máy dev đặt BIND_HOST=127.0.0.1 qua .env (topology).

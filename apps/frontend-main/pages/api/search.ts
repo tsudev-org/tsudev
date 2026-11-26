@@ -25,8 +25,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const upstream = await fetch(`${CONTENT}/api/posts/search?${qs.toString()}`, {
-      headers: internalHeaders(),
+    const url = `${CONTENT}/api/posts/search?${qs.toString()}`;
+    const upstream = await fetch(url, {
+      headers: internalHeaders('GET', url),
     });
     const data = await upstream.json().catch(() => ({}));
     return res.status(upstream.status).json(data);

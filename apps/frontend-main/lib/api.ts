@@ -77,7 +77,7 @@ function seg(slug: string): string {
 
 async function getJSON<T>(url: string, fallback: T): Promise<Fetched<T>> {
   try {
-    const res = await fetch(url, { headers: internalHeaders() });
+    const res = await fetch(url, { headers: internalHeaders('GET', url) });
     if (!res.ok) {
       // Log ở phía server: đây là tầng duy nhất BIẾT lượt gọi đã thất bại, nên
       // im lặng ở đây là mất dấu vĩnh viễn. `console.error` của Worker đi vào
