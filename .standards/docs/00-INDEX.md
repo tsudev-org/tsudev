@@ -91,6 +91,7 @@
 | [`DISTRIBUTION_TRUST.md`](DISTRIBUTION_TRUST.md) | Cài không bị chặn: cửa hàng, ký mã, notarize, chống báo nhầm, hồ sơ nền tảng | Bất khả xâm phạm |
 | [`PRODUCT_POLICY.md`](PRODUCT_POLICY.md) | Chính sách sản phẩm: mặc định theo hệ thống, không quảng cáo, Pro/Ủng hộ, huy hiệu, iOS, website có hình/video, dữ liệu chỉ ở thiết bị, mục đích đăng nhập | Bất khả xâm phạm |
 | [`APP_INTEGRITY.md`](APP_INTEGRITY.md) | Toàn vẹn ứng dụng: máy chủ tự quyết, bắt buộc cập nhật (modal khoá), chứng thực app, làm rối mã PRIVATE an toàn với antivirus | Bất khả xâm phạm |
+| [`CONTROL_PLANE.md`](CONTROL_PLANE.md) | Trạm điều hành `console.tsudev.com` (Cloudflare Access + 7 lớp khoá) và cổng xác thực tập trung `id.tsudev.com`; website công khai chỉ đọc; hợp đồng điều hành website sản phẩm | Bất khả xâm phạm |
 | [`LOCAL_SYNC.md`](LOCAL_SYNC.md) | Tsu Link: đồng bộ trực tiếp giữa thiết bị qua Wi-Fi nội bộ/Bluetooth/QR, không internet; sao lưu `.tsubak` | Bất khả xâm phạm |
 | [`STORE_SUBMISSION.md`](STORE_SUBMISSION.md) | Nộp duyệt cửa hàng/nền tảng: phiên agent điền biểu mẫu trên trình duyệt | Bất khả xâm phạm |
 | [`APPLE_CICD.md`](APPLE_CICD.md) | Apple iOS/iPadOS/macOS: CI/CD từ Ubuntu, ký, TestFlight, bí mật `APPLE_*`, script `scripts/apple/` | Bất khả xâm phạm |
