@@ -70,3 +70,7 @@
   Chuyển dần: `/admin/accounts` cũ chạy song song (thân trang ở `components/admin/AccountsAdmin.tsx`).
   Còn 👤: `console-secrets.sh --xoay-nextauth` (đăng xuất mọi phiên một lần) + 4 biến Render (`docs/console-access.md` mục 2).
   Kế tiếp: **CP3** (sau khi 👤 xong và đo `console.` đạt).
+- 26/11/2026 - tsudev-CP2 (triển khai): gộp #417 (`6323f28`), Render `live`, deploy `tsudev` (`deploy-2026.11.26.5`) +
+  `tsudev-console`, đặt secret + xoay `NEXTAUTH_SECRET`; đo ẩn danh `console.` ⇒ 302 Access, `tsudev.com` không hồi quy.
+  Lượt deploy console đầu treo ở bước đẩy, chạy lại `CI=true < /dev/null` đạt (nguyên nhân chưa xác định).
+  Còn 👤: 4 biến Render + đăng nhập mở `console./accounts`; rồi đo `edge-stats.hasConsoleKey`, log `[access]`.

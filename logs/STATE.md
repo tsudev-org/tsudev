@@ -3,13 +3,13 @@
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP2, 26/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
->    1b. **PR #417 (mã CP2) CHỜ DUYỆT**: sửa `ci.yml` ⇒ cần chủ dự án Approve bằng `nguyentrangtinhsu` + Re-run "Bảo vệ
->    bản quyền". Sau đó: gộp → chờ Render `live` → deploy `tsudev` + console (`npm --workspace apps/console run
-deploy`) → CHANGELOG. Cảnh báo CodeQL #141/#142 (false positive: limiter `identity-chung`) và GitGuardian
->    41140300 (khoá giả trong test ở commit `bd93005`, đã thay) do chủ dự án đóng - agent bị bộ phân loại chặn.
-> 2. **Hoàn tất CP2** (`docs/console-access.md` mục 2-3): 👤 đồng ý xoay `NEXTAUTH_SECRET` (`scripts/console-secrets.sh
---xoay-nextauth`) và đặt 4 biến Render; rồi đo `console.` (ẩn danh ⇒ màn Access, OWNER vào `/accounts`,
->    `edge-stats.hasConsoleKey`, log `[access]`).
+> 2. **Chốt CP2** (`docs/console-access.md` mục 2-3). Đã xong 26/11: PR #417 gộp (`6323f28`), Render `live`, deploy
+>    `tsudev` (`deploy-2026.11.26.5`) + `tsudev-console`, `console-secrets.sh --xoay-nextauth`. Đo đạt: ẩn danh mọi
+>    đường `console.` (cả `/api/*`, tài nguyên tĩnh, header JWT giả) ⇒ 302 sang Access; `tsudev.com` `/`, `/blog`,
+>    `/login`, `/api/auth/{providers,session,csrf}` 200. **Còn 👤**: đặt 4 biến Render (mục 2 bước 4), đăng nhập lại ở
+>    `tsudev.com`, mở `console.tsudev.com/accounts`; sau đó agent đo `edge-stats.hasConsoleKey` + log `[access]`.
+>    Trước khi có 4 biến, `console./accounts` chưa dùng được (backend chưa nhận khoá vùng); `/admin/accounts` cũ vẫn chạy.
+>    Cảnh báo CodeQL #141/#142 và GitGuardian 41140300 (false positive / khoá giả) chờ chủ dự án đóng.
 > 3. **CP3** (phiếu [`20261126-CP1`](handover/20261126-CP1_tram-dieu-hanh-va-cong-xac-thuc-tap-trung.md) mục 1) - chỉ sau bước 2.
 > 4. Đo 26/11: CP1 sạch (chỉ lượt `curl` gọi thẳng bị đếm `thieu`); `app_header_missing` còn 2 dòng ⇒ chưa bật
 >    `X_TSU_APP_REQUIRED` (đo lại sau 03/12).
