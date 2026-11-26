@@ -47,6 +47,7 @@ const rootCfg = ts5.parseConfigFileTextToJson(
 const PROJECTS = [
   ...rootCfg.references.map((r) => r.path.replace(/^\.\//, '').replace(/\/tsconfig\.json$/, '')),
   'apps/frontend-main',
+  'apps/console',
   'infrastructure/canh-site-cron',
 ];
 

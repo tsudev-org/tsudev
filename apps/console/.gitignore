@@ -1,0 +1,11 @@
+# Sao chép lúc dựng từ apps/frontend-main/public (scripts/copy-shared-assets.js) - nguồn nằm ở đó.
+/public/fonts/
+/public/favicon*
+/public/brand/
+/public/apple-touch-icon.png
+.next/
+.open-next/
+.env.local
+.dev.vars
+cloudflare-env.d.ts
+*.tsbuildinfo

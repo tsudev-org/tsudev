@@ -41,6 +41,12 @@ const APPS = [
     urlKey: 'NEXT_PUBLIC_MAIN_URL',
     fallback: publicUrl(TOPO, 'main'),
   },
+  {
+    // Trạm điều hành (CP2) đọc CÙNG cookie phiên của main (Domain=.tsudev.localhost) - NEXTAUTH_URL là URL của main.
+    dir: 'apps/console',
+    urlKey: 'NEXT_PUBLIC_MAIN_URL',
+    fallback: publicUrl(TOPO, 'main'),
+  },
 ];
 
 function writeEnvLocal() {

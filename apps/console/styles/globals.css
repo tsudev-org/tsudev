@@ -1,0 +1,8 @@
+/* Trạm điều hành dùng CHUNG hệ token + phông của tsudev.com: nhập nguyên globals.css (thứ tự lớp, tokens.css,
+   products.css, phông tự host, Tailwind) rồi khai thêm nguồn quét lớp cho mã của console và thành phần mượn từ
+   frontend-main. Đừng chép lại khối token ở đây - hai bản là hai nơi lệch nhau (CLAUDE.md, QU-STD-1). */
+@import '../../frontend-main/styles/globals.css';
+
+@source '../pages/**/*.{ts,tsx}';
+@source '../components/**/*.{ts,tsx}';
+@source '../../frontend-main/components/**/*.{ts,tsx}';

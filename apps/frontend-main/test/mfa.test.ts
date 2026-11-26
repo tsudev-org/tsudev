@@ -66,7 +66,7 @@ describe('hợp đồng với backend', () => {
   });
 
   test('trang tài khoản xử lý step-up cho đổi vai trò và xoá (G7)', () => {
-    const src = readFileSync(join(__dirname, '../pages/admin/accounts.tsx'), 'utf8');
+    const src = readFileSync(join(__dirname, '../components/admin/AccountsAdmin.tsx'), 'utf8');
     expect(src).toContain('isStepUpRequired(');
     expect(src).toMatch(/guarded\(\s*'useradmin\/role'/);
     expect(src).toMatch(/guarded\(\s*'useradmin\/delete'/);
@@ -88,7 +88,7 @@ describe('hợp đồng với backend', () => {
     for (const f of [
       'pages/admin/projects.tsx',
       'pages/admin/content.tsx',
-      'pages/admin/accounts.tsx',
+      'components/admin/AccountsAdmin.tsx',
       'pages/admin/security.tsx',
       'components/ReleaseManager.tsx',
       'components/EmailAliases.tsx',

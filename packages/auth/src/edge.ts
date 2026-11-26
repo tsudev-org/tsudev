@@ -140,7 +140,8 @@ export const recordEdge = (
 };
 
 export const edgeKeys = (env: NodeJS.ProcessEnv = process.env): string[] =>
-  [env.EDGE_SIGNING_KEY, env.EDGE_SIGNING_KEY_PREV].filter(
+  // `_CONSOLE`: khoá biên RIÊNG của Worker console. (CP2) - lộ khoá của một Worker không giả được Worker kia ở nhật ký.
+  [env.EDGE_SIGNING_KEY, env.EDGE_SIGNING_KEY_PREV, env.EDGE_SIGNING_KEY_CONSOLE].filter(
     (k): k is string => typeof k === 'string' && k.length > 0
   );
 
@@ -155,6 +156,7 @@ export const edgeStats = (): Record<string, unknown> => {
     mode: edgeMode(),
     hasKey: Boolean(process.env.EDGE_SIGNING_KEY),
     hasPrevKey: Boolean(process.env.EDGE_SIGNING_KEY_PREV),
+    hasConsoleKey: Boolean(process.env.EDGE_SIGNING_KEY_CONSOLE),
     active: edgeKeys().length > 0 && edgeMode() !== 'tat',
     since: since.toISOString(),
     totals: tong,
@@ -173,6 +175,15 @@ export const __resetEdgeStats = (): void => {
  * Middleware - gắn ĐẦU TIÊN trong app của mỗi service (trước body parser, cổng phiên bản, OIDC). Ở chế độ gộp
  * `backend-bundle` gọi đúng MỘT app con cho mỗi request nên mỗi lượt được xét đúng một lần.
  */
+/**
+ * Request đã mang chữ ký biên HỢP LỆ (`ky`). CP2: chữ ký biên thay được `INTERNAL_API_TOKEN` tĩnh ở cổng `/api`
+ * (`internalTokenMatches`) - mạnh hơn token tĩnh (buộc METHOD + đường dẫn, sống 300 s) và cho phép Worker mới
+ * (`console.`) gọi backend mà không phải chép token tĩnh dùng chung sang (ADR-0005 mục 5). WeakSet: không rò bộ nhớ,
+ * không ai ngoài edgeGuard đánh dấu được.
+ */
+const edgeSigned = new WeakSet<object>();
+export const isEdgeSigned = (req: object): boolean => edgeSigned.has(req);
+
 export function edgeGuard(): RequestHandler {
   return (req: Request, res: Response, next: NextFunction) => {
     const keys = edgeKeys();
@@ -187,6 +198,7 @@ export function edgeGuard(): RequestHandler {
     });
     if (result === 'mien') return next();
     recordEdge(result, req.method, pathname, req.get('user-agent'));
+    if (result === 'ky') edgeSigned.add(req);
     if (result === 'ky' || mode !== 'chan') return next();
     res.setHeader('Cache-Control', 'no-store');
     return res

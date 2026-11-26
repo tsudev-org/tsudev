@@ -30,7 +30,15 @@ const path = require('path');
 const { loadTopology, prodUrl } = require('./topology/load');
 
 const ROOT = path.resolve(__dirname, '..');
-const APP = path.join(ROOT, 'apps', 'frontend-main');
+// `--app console` (CP2): cùng một đường phát hành an toàn (dời .env.local, kiểm tài khoản) cho Worker thứ hai.
+const APPS = ['frontend-main', 'console'];
+const appFlag = process.argv.indexOf('--app');
+const APP_NAME = appFlag > 0 ? process.argv[appFlag + 1] : 'frontend-main';
+if (!APPS.includes(APP_NAME)) {
+  console.error(`Không biết app "${APP_NAME}". Dùng: ${APPS.join(' | ')}`);
+  process.exit(1);
+}
+const APP = path.join(ROOT, 'apps', APP_NAME);
 const ENV_LOCAL = path.join(APP, '.env.local');
 const STASHED = path.join(APP, '.env.local.deploy-stash');
 // Tài khoản Cloudflare chứa Worker `tsudev` và bucket `tsudev-next-cache` (không phải bí mật:
@@ -126,10 +134,12 @@ try {
 
   // Cổng chống tráo QR / số tài khoản của /ung-ho (phiếu 20261112-01 mục 3.4): ảnh QR
   // phải khớp SHA-256 đã ghim và VietQR phải trỏ đúng tài khoản - lệch thì KHÔNG dựng.
-  execFileSync('npx', ['jest', 'test/ungHo.test.ts'], {
+  const isMain = APP_NAME === 'frontend-main';
+  execFileSync('npx', ['jest', isMain ? 'test/ungHo.test.ts' : 'test/consoleGate.test.ts'], {
     ...opts,
     env: { ...env, NODE_ENV: 'test' },
   });
+  // OpenNext gọi `npm run build` ⇒ `prebuild` của console tự chép phông/logo dùng chung.
   execFileSync('npx', ['opennextjs-cloudflare', 'build'], opts);
   execFileSync('npx', ['opennextjs-cloudflare', action], opts);
 } finally {
@@ -139,7 +149,8 @@ try {
 // Bản production vừa lên ⇒ gắn thẻ deploy `deploy-YYYY.MM.DD.N` cho commit đó
 // (scripts/release-tag.js). Chỉ khi deploy thật; điều kiện không đủ (HEAD không
 // trùng origin/main, cây bẩn) chỉ cảnh báo - Worker đã lên rồi, đừng báo thất bại.
-if (action === 'deploy') {
+// Thẻ deploy-* đánh dấu bản của site công khai (CHANGELOG) - console không gắn thẻ riêng.
+if (action === 'deploy' && APP_NAME === 'frontend-main') {
   // BỎ XDG_CONFIG_HOME: deploy chạy với cấu hình wrangler riêng
   // (XDG_CONFIG_HOME=~/.config/wrangler-tsudev), và `gh` - trình cấp thông tin đăng
   // nhập cho `git push` - cũng đọc cấu hình theo biến đó ⇒ không thấy phiên GitHub
