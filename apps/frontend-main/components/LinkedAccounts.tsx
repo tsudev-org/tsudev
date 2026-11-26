@@ -29,6 +29,8 @@ const LINK_ERRORS: Record<string, string> = {
   oauth_provider_already_linked:
     'Tài khoản của bạn đã liên kết một tài khoản khác của nhà cung cấp này.',
   unauthenticated: 'Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại rồi thử lại.',
+  step_up_required:
+    'Xác thực lại bằng mã TOTP đã hết hạn (5 phút) trước khi liên kết xong. Hãy thử lại.',
 };
 
 const UNLINK_ERRORS: Record<string, string> = {
@@ -84,12 +86,24 @@ export function LinkedAccounts({
     void router.replace('/settings/security#lien-ket', undefined, { shallow: true });
   }, [linkedQ, errorQ, router, setMsg]);
 
-  const link = async (id: string) => {
+  const link = async (id: string, name: string) => {
     setBusy(id);
+    // ACC1: thêm lối vào là đổi "chìa khoá" ⇒ tài khoản có TOTP xác thực lại TRƯỚC khi rời
+    // trang; token đi kèm cookie ý định và auth-service kiểm lại lúc liên kết.
+    let stepUpToken = '';
+    const check = await stepUp.run(`Liên kết ${name}`, (token) => {
+      stepUpToken = token ?? '';
+      return post('oauth/link-check', token ? { stepUp: token } : {});
+    });
+    if (!check || !check.ok) {
+      setBusy('');
+      if (check) setMsg({ kind: 'error', text: 'Không bắt đầu liên kết được. Hãy thử lại.' });
+      return;
+    }
     const res = await fetch('/api/account-link', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ provider: id }),
+      body: JSON.stringify({ provider: id, stepUp: stepUpToken }),
     }).catch(() => null);
     if (!res?.ok) {
       setBusy('');
@@ -148,7 +162,11 @@ export function LinkedAccounts({
                 Gỡ liên kết
               </Button>
             ) : (
-              <Button variant="secondary" onClick={() => link(p.id)} disabled={busy === p.id}>
+              <Button
+                variant="secondary"
+                onClick={() => link(p.id, p.name)}
+                disabled={busy === p.id}
+              >
                 {busy === p.id ? 'Đang chuyển…' : `Liên kết ${p.name}`}
               </Button>
             )}

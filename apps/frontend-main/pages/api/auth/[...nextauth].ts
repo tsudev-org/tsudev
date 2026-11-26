@@ -470,7 +470,7 @@ type SignInParams = Parameters<NonNullable<NonNullable<NextAuthOptions['callback
 async function oauthSignIn(
   { user, account, profile }: SignInParams,
   fwd: Record<string, string>,
-  link: { provider: string; token: JWT } | null = null
+  link: { provider: string; token: JWT; stepUp: string } | null = null
 ): Promise<boolean | string> {
   if (
     !account ||
@@ -484,7 +484,12 @@ async function oauthSignIn(
   // Trả về chuỗi URL ⇒ next-auth chuyển hướng mà KHÔNG đổi phiên - người dùng ở lại đúng
   // tài khoản của mình, kể cả khi email bên thứ ba khác hẳn.
   if (link && link.provider === account.provider) {
-    const code = await linkOAuthAccount(link.token, account.provider, account.providerAccountId);
+    const code = await linkOAuthAccount(
+      link.token,
+      account.provider,
+      account.providerAccountId,
+      link.stepUp
+    );
     return code === 'ok'
       ? `/settings/security?linked=${account.provider}#lien-ket`
       : `/settings/security?link_error=${code}#lien-ket`;
@@ -523,7 +528,8 @@ async function oauthSignIn(
 async function linkOAuthAccount(
   token: JWT,
   provider: string,
-  providerAccountId: string
+  providerAccountId: string,
+  stepUp = ''
 ): Promise<string> {
   try {
     const res = await fetch(`${IDENTITY}/api/identity/oauth/link`, {
@@ -533,10 +539,12 @@ async function linkOAuthAccount(
         ...internalHeaders('POST', `${IDENTITY}/api/identity/oauth/link`),
         ...(await identityHeaders(token)),
       },
-      body: JSON.stringify({ provider, providerAccountId }),
+      body: JSON.stringify({ provider, providerAccountId, ...(stepUp ? { stepUp } : {}) }),
     });
     if (res.ok) return 'ok';
-    const body = (await res.json().catch(() => ({}))) as { error?: unknown };
+    const body = (await res.json().catch(() => ({}))) as { error?: unknown; code?: unknown };
+    // ACC1: auth-service đòi step-up (token thiếu hoặc quá 5 phút) - mã chữ hoa, ánh xạ riêng.
+    if (body.code === 'STEP_UP_REQUIRED') return 'step_up_required';
     return typeof body.error === 'string' && /^[a-z_]{1,40}$/.test(body.error)
       ? body.error
       : 'link_failed';
@@ -550,7 +558,9 @@ async function linkOAuthAccount(
  * đang đăng nhập đúng người ghi trong cookie. Thiếu một điều kiện ⇒ null ⇒ luồng đăng
  * nhập thường, như trước STD43.
  */
-async function linkContext(req: NextApiRequest): Promise<{ provider: string; token: JWT } | null> {
+async function linkContext(
+  req: NextApiRequest
+): Promise<{ provider: string; token: JWT; stepUp: string } | null> {
   const parts = Array.isArray(req.query.nextauth) ? req.query.nextauth : [];
   if (parts[0] !== 'callback') return null;
   const raw = req.cookies?.[LINK_INTENT_COOKIE];
@@ -559,7 +569,7 @@ async function linkContext(req: NextApiRequest): Promise<{ provider: string; tok
   if (!intent || parts[1] !== intent.provider) return null;
   const token = await readSessionToken(req);
   if (!token || usernameFromToken(token) !== intent.username) return null;
-  return { provider: intent.provider, token };
+  return { provider: intent.provider, token, stepUp: intent.stepUp };
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

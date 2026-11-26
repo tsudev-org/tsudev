@@ -56,6 +56,8 @@ const ALLOWED = new Set([
   // next-auth gọi (sau khi nhà cung cấp xác thực), trình duyệt không được tự khai id.
   'oauth/list',
   'oauth/unlink',
+  // ACC1: kiểm step-up trước khi rời trang sang nhà cung cấp để liên kết.
+  'oauth/link-check',
   // Quản lý tài khoản & phân quyền - auth-service tự kiểm OWNER (đọc User.role
   // từ DB, không từ claim). Tên hai đoạn vì proxy chặn path quá 2 đoạn.
   'useradmin/list',
