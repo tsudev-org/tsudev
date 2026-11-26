@@ -1,20 +1,19 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
-> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP2, 26/11/2026)** - làm theo thứ tự:
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP2 chốt, 26/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
-> 2. **Chốt CP2** (`docs/console-access.md` mục 2-3). Đã xong 26/11: PR #417 gộp (`6323f28`), Render `live`, deploy
->    `tsudev` (`deploy-2026.11.26.5`) + `tsudev-console`, `console-secrets.sh --xoay-nextauth`. Đo đạt: ẩn danh mọi
->    đường `console.` (cả `/api/*`, tài nguyên tĩnh, header JWT giả) ⇒ 302 sang Access; `tsudev.com` `/`, `/blog`,
->    `/login`, `/api/auth/{providers,session,csrf}` 200. **Còn 👤**: đặt 4 biến Render (mục 2 bước 4), đăng nhập lại ở
->    `tsudev.com`, mở `console.tsudev.com/accounts`; sau đó agent đo `edge-stats.hasConsoleKey` + log `[access]`.
->    Trước khi có 4 biến, `console./accounts` chưa dùng được (backend chưa nhận khoá vùng); `/admin/accounts` cũ vẫn chạy.
->    Cảnh báo CodeQL #141/#142 và GitGuardian 41140300 (false positive / khoá giả) chờ chủ dự án đóng.
-> 3. **CP3** (phiếu [`20261126-CP1`](handover/20261126-CP1_tram-dieu-hanh-va-cong-xac-thuc-tap-trung.md) mục 1) - chỉ sau bước 2.
-> 4. Đo 26/11: CP1 sạch (chỉ lượt `curl` gọi thẳng bị đếm `thieu`); `app_header_missing` còn 2 dòng ⇒ chưa bật
->    `X_TSU_APP_REQUIRED` (đo lại sau 03/12).
-> 5. Phiếu SEC3, LG4 (như khối CP1 mục 5-6) chưa làm. Phiếu `20261126-CTX1` (do phiên `projects-dc` gửi): chờ chủ dự án
->    quyết. INT1-c, PRO3 như cũ.
+> 2. **Phép đo CP2 cuối, cần 👤**: đăng nhập lại `tsudev.com`, mở `console.tsudev.com/accounts` (OWNER + TOTP) - danh
+>    sách tài khoản phải hiện. Sau đó agent đọc log Render: không có `[access] JWT Access không đạt` và không có
+>    `[console] chưa có`. Chưa đạt ⇒ sửa trước CP3 (lùi: `docs/console-access.md` mục 4). Chưa đạt thì KHÔNG làm CP3.
+> 3. **CP3** (phiếu [`20261126-CP1`](handover/20261126-CP1_tram-dieu-hanh-va-cong-xac-thuc-tap-trung.md) mục 1).
+> 4. Đo 26/11: CP1 sạch; `app_header_missing` còn 2 dòng ⇒ chưa bật `X_TSU_APP_REQUIRED` (đo lại sau 03/12).
+> 5. Chưa làm: SEC3, LG4 (khối CP1 mục 5-6 bên dưới), `20261126-CTX1` (phiên `projects-dc` gửi, chờ chủ dự án giao).
+>    INT1-c, PRO3 như cũ. 👤 đóng cảnh báo CodeQL #141/#142 và GitGuardian 41140300 (false positive / khoá giả).
+>
+> Đã xong CP2 (26/11): #417 (`6323f28`) + #418, `deploy-2026.11.26.5`, Worker `tsudev-console`, secret + xoay
+> `NEXTAUTH_SECRET`, 👤 đặt 4 biến Render (deploy `live` 19:08). Đo đạt: ẩn danh `console.` ⇒ 302 Access; backend nhận
+> chữ ký biên khoá console (GET `/api/posts` ký đúng 200, không ký / ký sai 401); `tsudev.com` không hồi quy.
 
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP1, 26/11/2026)** - làm theo thứ tự:
 >
@@ -48,30 +47,23 @@
 Đọc AGENTS.md, rồi CHỈ khối 🔔 đầu tiên của logs/STATE.md và các phiếu nó trỏ tới
 (không đọc các khối 🔔 cũ hơn). Chạy akb start + akb search trước khi làm.
 
-Làm theo thứ tự khối 🔔: (1) kiểm Render đã chạy bản CP1 và đo bộ đếm [edge];
-(2) kiểm nhật ký app_header_missing, đủ điều kiện thì bật X_TSU_APP_REQUIRED=1
-và đo; (3) phase CP2 của phiếu logs/handover/20261126-CP1 mục 1 (khung console.),
-đúng ADR-0005 và .standards/docs/CONTROL_PLANE.md; tham chiếu ~/projects/ubnd CHỈ
-ĐỌC theo mục 0 của phiếu. Mỗi cơ chế chặn đi ghi → số đo sạch → chan; không đổi
-issuer OIDC, rpID passkey hay URL app đã ghim.
+Tôi đã mở console.tsudev.com/accounts: [được / lỗi gì].
 
-Quyền: tự chọn phương án kỹ thuật, tự commit/push/mở PR/gộp khi CI xanh, tự xử
-lý cảnh báo CodeQL đã kiểm chứng, tự deploy frontend và đo production. Migration:
-URL Neon ở ~/.config/tsudev/neon.env (không in nội dung) - pg_dump 18 sao lưu vào
-~/tsudev-backups, kiểm tệp dump tồn tại, migrate lên Neon TRƯỚC rồi mới gộp, xác
-nhận bằng prisma migrate status. Bí mật mới: sinh vào ~/.config/tsudev/keys/ (600),
-không in ra log; Worker dùng wrangler secret put; biến Render và dashboard
-Cloudflare Zero Trust là việc 👤 - đưa bước cụ thể rồi làm tiếp phần khác. Chỉ
-dừng hỏi khi gặp việc 👤 hoặc cổng Bảo vệ bản quyền.
+Làm theo thứ tự: (1) chốt phép đo CP2 theo khối 🔔 mục 2 (đọc log Render);
+không đạt thì sửa xong rồi dừng; (2) phase CP3 của phiếu logs/handover/
+20261126-CP1 mục 1, đúng ADR-0005 và .standards/docs/CONTROL_PLANE.md; lập
+phương án ở Plan Mode trước khi sửa mã. Không đổi issuer OIDC, rpID passkey hay
+URL app đã ghim.
 
-Tiết kiệm: định vị bằng grep rồi đọc đúng đoạn; chạy test theo workspace bị ảnh
-hưởng; gộp cổng (format/lint/typecheck/topology) một lần cuối cụm; dồn sửa tài
-liệu/STATE/CHANGELOG vào cùng PR với code; chờ CI bằng tác vụ nền; không sửa
-cây làm việc trong lúc deploy chạy nền.
+Quyền: tự chọn phương án kỹ thuật, tự commit/push/mở PR/gộp khi CI xanh, tự
+deploy hai Worker (XDG_CONFIG_HOME=~/.config/wrangler-tsudev) và đo production.
+Bí mật mới: sinh vào ~/.config/tsudev/keys/ (600), không in ra; biến Render và
+dashboard Cloudflare Zero Trust là việc 👤. Chỉ dừng hỏi khi gặp việc 👤 hoặc
+cổng Bảo vệ bản quyền.
 
 Cuối phiên: cập nhật phiếu CP1 (bảng phase + mục 3), khối 🔔 mới ở đầu STATE kèm
-prompt chuẩn cho phase kế tiếp, CHANGELOG nếu có deploy, akb close + akb sync,
-báo điều phối qua SendMessage. Trả lời tôi bằng tiếng Việt, ngắn gọn.
+prompt cho phase kế tiếp, CHANGELOG nếu có deploy, akb close + akb sync. Xong
+một phase thì dừng.
 ```
 
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP0, 26/11/2026)** - làm theo thứ tự:
