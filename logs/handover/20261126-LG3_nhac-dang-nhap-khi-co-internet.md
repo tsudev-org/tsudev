@@ -1,6 +1,6 @@
 # PHIẾU ĐIỀU PHỐI LG3 - Nhắc đăng nhập bằng modal nổi khi có internet (toàn hệ)
 
-- **Mã phiếu**: 20261126-LG3 - **Từ**: điều phối `projects-82`, 26/11/2026 - **Trạng thái**: MỞ
+- **Mã phiếu**: 20261126-LG3 - **Từ**: điều phối `projects-82`, 26/11/2026 - **Trạng thái**: ĐÓNG 26/11/2026 - THAY bởi `20261126-LG4` (bỏ nhắc đăng nhập tự động, chuẩn v8.0.0)
 - **Quyết định chủ dự án (26/11/2026)**: mọi sản phẩm TsuDEV nhắc người dùng đăng nhập (TsuDEV hoặc Google/GitHub/Apple)
   khi thiết bị có internet mà chưa đăng nhập - để khôi phục tài khoản/quyền lợi, báo cáo sự cố gắn tài khoản và để máy
   chủ đánh giá tài khoản có vi phạm điều khoản/quy chế hay không.
