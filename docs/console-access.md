@@ -21,7 +21,8 @@ Giao diện: CSP nonce + `strict-dynamic`, Trusted Types, `no-store`, `noindex`,
 
 1. `./scripts/cloudflare-access-console.sh --ap-dung` (đã chạy 26/11/2026; đổi email ở
    `~/.config/tsudev/console-access-emails.txt` rồi chạy lại).
-2. `XDG_CONFIG_HOME=$HOME/.config/wrangler-tsudev npm --workspace apps/console run deploy`.
+2. `XDG_CONFIG_HOME=$HOME/.config/wrangler-tsudev npm --workspace apps/console run deploy`. Bước đẩy treo không in gì
+   (gặp ở lần dựng đầu 26/11/2026) ⇒ dừng và chạy lại với `CI=true` đặt trước lệnh, thêm `< /dev/null` ở cuối.
 3. `./scripts/console-secrets.sh --xoay-nextauth` - Worker console cần CÙNG `NEXTAUTH_SECRET` với Worker `tsudev`;
    giá trị production cũ không đọc lại được nên phải xoay ở cả hai (mọi người đăng nhập lại một lần). Những lần sau
    chạy không cờ.
