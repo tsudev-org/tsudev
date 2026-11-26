@@ -213,3 +213,33 @@ dùng chung `RELEASE_SIGNING_KEY` (lộ một khoá không được cho phép gi
 ⇒ ba đường bản kê trả 503 nhưng backend VẪN khởi động (khác khoá bản phát hành: thiếu bản kê thì app giữ bản đệm,
 không ai bị chặn). Bản gốc: `~/.config/tsudev/keys/tsu-versions-2026.env` (quyền 600) - sao lưu cùng chỗ với
 `RELEASE_SIGNING_KEY`. Xoay khoá: phát bản app ghim CẢ khoá mới, chuyển khoá cũ vào `..._RETIRED`, rồi mới thay.
+
+## Cổng `X-Tsu-App` và nhật ký an ninh (INT1-b, 26/11/2026)
+
+Chuẩn: `.standards/docs/APP_INTEGRITY.md` mục 2.1 + 4, `PRODUCT_POLICY.md` 7.7. Mã:
+`services/auth-service/src/appVersionGate.ts`, `securityAudit.ts`, bảng `SecurityAuditLog`.
+
+Mọi API mà app gọi - `/api/me/entitlements`, `/api/rp/entitlements/*`, `/api/xd/*` (tức `/ent/*` của auth-service, trừ
+`/ent/reminders` của cron) và OIDC userinfo `/oidc/me` - đi qua cổng header `X-Tsu-App: <ma-san-pham>/<phiên bản>/<kênh>`:
+
+| Lượt gọi                                                                 | Kết quả                                                  |
+| ------------------------------------------------------------------------ | -------------------------------------------------------- |
+| Sai định dạng (kể cả gửi hai lần)                                        | `400 {"error":"app_header_invalid"}`                     |
+| Thiếu header, `X_TSU_APP_REQUIRED=1`                                     | `400 {"error":"app_header_required"}`                    |
+| Thiếu header, cờ chưa bật                                                | cho qua + nhật ký `app_header_missing`                   |
+| Phiên bản < `latest` của đúng (sản phẩm, kênh) trong `AppVersionChannel` | `426 {"error":"update_required","latest":"…","url":"…"}` |
+| Kênh khác, sản phẩm chưa có dòng, bằng/mới hơn `latest`                  | cho qua                                                  |
+
+- Bản thử của chính `latest` (`26.11.2601-beta.1`) là CŨ hơn `26.11.2601`. Cổng đệm bảng 60 giây trong tiến trình -
+  nâng `latest` có hiệu lực ở cổng chậm nhất 1 phút. Đọc bảng lỗi ⇒ cho qua (không khoá người dùng vì DB chập chờn).
+- BFF trình duyệt đi `/api/identity/*`, không qua cổng. Proxy Next (`lib/entitlementProxy.ts`, `pages/api/oidc/[...path].ts`)
+  PHẢI chuyển header `x-tsu-app`; `services/auth-service/test/appVersionGate.test.ts` quét nguồn canh cả thứ tự mount.
+- **Vì sao thiếu header chưa bị 400 ngay**: bản app đã cài hôm nay (tsudisk, tsuswico, máy chủ RP của qulythuchi...) chưa
+  gửi header; 400 cho chúng là khoá người dùng khi chưa có bản để cập nhật. Chủ dự án bật `X_TSU_APP_REQUIRED=1` trên
+  Render ở INT1-f, sau khi truy vấn dưới đây không còn dòng mới:
+  `SELECT "clientId", count(*) FROM "SecurityAuditLog" WHERE type='app_header_missing' AND "createdAt" > now()-interval '7 days' GROUP BY 1;`
+
+**`SecurityAuditLog`**: `type` (`update_required`, `app_header_invalid`, `app_header_missing`; INT1-c thêm
+`untrusted_client`), `clientId` (từ access token nếu có), `jktHash` (SHA-256 của thumbprint khoá DPoP - không lưu
+thumbprint gốc), `ipPrefix` (`/24` IPv4, `/48` IPv6 - không lưu IP thô), `product`/`version`/`channel`, `path`. Cùng
+(loại, mạng, app, đường dẫn) chỉ ghi một dòng mỗi 60 giây. Dòng quá 12 tháng bị xoá (mỗi giờ một lần, khi có lượt ghi).

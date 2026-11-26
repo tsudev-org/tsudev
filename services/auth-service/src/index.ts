@@ -10,6 +10,7 @@ try {
 } catch (e) {
   /* observability là tuỳ chọn */
 }
+import { appVersionGate } from './appVersionGate'
 import express from 'express'
 import type { ErrorRequestHandler, Request, RequestHandler, Response } from 'express'
 
@@ -104,6 +105,8 @@ export const app = express()
 // P4 OIDC: gắn TRƯỚC bộ parse body - provider (Koa) tự đọc thân request ở token
 // endpoint; express.json đọc trước là provider nhận luồng rỗng. Ngoài `/api` nên
 // không qua cổng INTERNAL_API_TOKEN: đây là giao thức công khai cho site con.
+// INT1-b: cổng `X-Tsu-App` (400/426) cho userinfo - app gọi nó sau đăng nhập. Gắn TRƯỚC provider.
+app.use('/oidc/me', appVersionGate)
 app.use('/oidc', oidcHandler)
 app.use(express.json({ limit: '64kb' }))
 app.disable('x-powered-by')
@@ -122,6 +125,9 @@ app.get('/health', (req, res) => res.json({ status: 'ok', service: 'auth-service
 // PRO2 2.4: thư nhắc gia hạn - `/run` cho cron (tự kiểm INTERNAL_API_TOKEN), `/unsubscribe`
 // công khai (HMAC trong link). Gắn TRƯỚC `/ent` để không bị giới hạn tần suất của quyền lợi.
 app.use('/ent/reminders', proReminderRouter)
+// INT1-b: cổng `X-Tsu-App` (400/426) cho MỌI route app gọi dưới `/ent` - SAU `/ent/reminders`
+// (cron, không phải app), TRƯỚC mọi router khác của `/ent`. `test/appVersionGate.test.ts` canh thứ tự.
+app.use('/ent', appVersionGate)
 // QR2b: vai xác nhận QR trong app (access token OIDC scope `tsudev.xd`) - giới hạn tần suất riêng, gắn TRƯỚC `/ent`.
 app.use('/ent/xd', xdAppRouter)
 app.use('/ent', entitlementRouter)

@@ -24,6 +24,8 @@ const PASS_REQ = [
   'x-tsu-platform',
   'user-agent',
   'cf-ipcountry',
+  // INT1-b: cổng phiên bản ở auth-service (400/426) - thiếu dòng này thì MỌI app bị coi như không gửi header.
+  'x-tsu-app',
 ];
 
 export async function proxyEntitlement(
