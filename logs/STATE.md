@@ -2,6 +2,12 @@
 
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-INT1a, 26/11/2026)** - làm theo thứ tự:
 >
+> 0. **Gộp PR #409** (INT1-a + `suspended`; Neon ĐÃ migrate 26/11, dump `~/tsudev-backups/truoc-int1a-20261126-0759.dump`)
+>    khi 👤 đã: (a) đặt `VERSIONS_SIGNING_KEY`, `VERSIONS_SIGNING_KEY_ID`, `VERSIONS_RAISE_TOKEN` trên Render (tệp
+>    `~/.config/tsudev/keys/tsu-versions-2026.env`); (b) đánh dấu false positive 2 cảnh báo CodeQL #136, #137
+>    (`js/missing-rate-limiting` - route có `versionsLimit`; agent bị chặn làm việc này). Sau gộp: deploy frontend
+>    (`next.config.js` + `/api/versions`), đo `curl -s https://tsudev.com/.well-known/tsudev/versions.json` (200 JSON,
+>    `products: {}`) + `.sig` + `versions-jwks.json` (kid `tsu-versions-2026`, KHÔNG phải `dev-insecure-versions`).
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
 > 2. **INT1-b** (phiếu [`20261125-INT1`](handover/20261125-INT1_toan-ven-ung-dung-bat-buoc-cap-nhat.md) mục 6): cổng
 >    `X-Tsu-App` (400/426) cho `/api/me/entitlements`, `/api/rp/*`, `userinfo` đọc `AppVersionChannel`; bảng
@@ -21,6 +27,9 @@
 ```text
 Đọc AGENTS.md, rồi CHỈ khối 🔔 đầu tiên của logs/STATE.md và các phiếu nó trỏ tới
 (không đọc các khối 🔔 cũ hơn). Chạy akb start + akb search trước khi làm.
+
+Trước tiên: nếu PR #409 chưa gộp và tôi đã báo đặt xong biến Render + xử lý
+CodeQL thì gộp nó, deploy frontend, đo bản kê production theo khối 🔔 mục 0.
 
 Làm phase INT1-b (phiếu logs/handover/20261125-INT1 mục 6): cổng header
 X-Tsu-App: <sp>/<phiên bản>/<kênh> cho API mà app gọi (/api/me/entitlements,
