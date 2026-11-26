@@ -3468,8 +3468,18 @@ function versionsTokenMatches(req: Request): boolean {
   return timingSafeEqual(a, b)
 }
 
+// Giới hạn RIÊNG cho hai route này (ngoài directLimit/accountLimit chung của /api): mỗi lượt
+// nâng làm máy chủ gọi ra ngoài tới 12 request đo URL.
+const versionsLimit = createRateLimit({
+  name: 'versions-admin',
+  windowMs: 60_000,
+  max: Number(process.env.RATE_LIMIT_VERSIONS_MAX) || 30,
+  keyOf: peerIp,
+})
+
 app.get(
   '/api/admin/versions',
+  versionsLimit,
   asyncHandler(async (req, res) => {
     if (!(await requireAdmin(req, res))) return
     const rows = await prisma.appVersionChannel.findMany({
@@ -3481,11 +3491,11 @@ app.get(
 
 app.post(
   '/api/admin/versions/:product/:channel',
+  versionsLimit,
   asyncHandler(async (req, res) => {
     let actor: { id: string; name: string }
-    if (req.get('x-versions-token') !== undefined) {
-      if (!versionsTokenMatches(req))
-        return res.status(401).json({ error: 'invalid_versions_token' })
+    // Token sai/thiếu KHÔNG rẽ nhánh riêng: rơi xuống requireAdmin (không có danh tính ⇒ 401).
+    if (versionsTokenMatches(req)) {
       actor = { id: 'pipeline', name: 'pipeline' }
     } else {
       const admin = await requireAdmin(req, res)

@@ -193,7 +193,7 @@ proxy `apps/frontend-main/pages/api/versions/[...path].ts`, bảng `AppVersionCh
 
 1. `latest` phải là bản chính thức `YY.M.DDNN`; không hạ phiên bản (409 `version_not_newer`).
 2. Chốt chặn theo kênh: máy chủ GET thật `url` (chỉ https, chỉ host phát hành: GitHub, Play, Microsoft Store, App
-   Store, `*.tsudev.com`; chuyển hướng theo tay, tối đa 5 chặng). Chặng cuối phải 200; kênh không phải cửa hàng
+   Store, `tsudev.com` - khớp chính xác, dựng lại URL từ host hằng số; chuyển hướng theo tay, tối đa 5 chặng). Chặng cuối phải 200; kênh không phải cửa hàng
    (`github`, `winget`, `scoop`...) thì phiên bản phải có trong URL ở một chặng (thẻ `v26.11.2601` hay tên tệp).
    Không đạt ⇒ 409 `download_unverified`, KHÔNG nâng. Kênh cửa hàng (`play`, `msstore`, `appstore`, `web`) chỉ đo
    được "trang còn sống" - pipeline của kênh đó PHẢI tự xác nhận bản đã qua duyệt (API cửa hàng) trước khi gọi.

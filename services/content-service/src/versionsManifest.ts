@@ -66,9 +66,13 @@ const ALLOWED_HOSTS = [
   'apps.apple.com',
   'tsudev.com',
 ]
-export function hostAllowed(host: string): boolean {
+/**
+ * Host hợp lệ ⇒ trả CHÍNH phần tử hằng trong danh sách (không phải chuỗi người gọi gửi), để
+ * URL thật sự được gọi dựng từ hằng số - khớp chính xác, không nhận tên miền con.
+ */
+export function allowedHost(host: string): string | null {
   const h = host.toLowerCase()
-  return ALLOWED_HOSTS.some((a) => h === a) || h.endsWith('.tsudev.com')
+  return ALLOWED_HOSTS.find((a) => a === h) ?? null
 }
 
 /** So hai phiên bản `a.b.c` toàn số. Âm/0/dương như `compareVersions` của @tsudev/ui. */
@@ -281,18 +285,21 @@ export async function verifyDownload(
       return { ok: false, reason: `URL không hợp lệ: ${cur}` }
     }
     if (u.protocol !== 'https:') return { ok: false, reason: `Chỉ nhận https: ${cur}` }
-    if (!hostAllowed(u.hostname))
-      return { ok: false, reason: `Host không được phép: ${u.hostname}` }
+    const host = allowedHost(u.hostname)
+    if (!host || u.port || u.username || u.password)
+      return { ok: false, reason: `Host không được phép: ${u.host}` }
+    // Dựng lại URL từ host HẰNG SỐ: không còn đường nào để giá trị người gọi chọn đích (SSRF).
+    const target = `https://${host}${u.pathname}${u.search}`
 
     let res: Response
     try {
-      res = await fetchImpl(cur, {
+      res = await fetchImpl(target, {
         method: 'HEAD',
         redirect: 'manual',
         signal: AbortSignal.timeout(TIMEOUT_MS),
       })
       if (res.status === 405 || res.status === 501) {
-        res = await fetchImpl(cur, {
+        res = await fetchImpl(target, {
           method: 'GET',
           redirect: 'manual',
           signal: AbortSignal.timeout(TIMEOUT_MS),
