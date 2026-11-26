@@ -228,18 +228,34 @@ function AppsVisual() {
   return (
     <div className="flex h-full min-h-72 items-center justify-center p-8" aria-hidden="true">
       <div className="grid grid-cols-4 gap-3 md:gap-4">
-        {withLogo.map((a, k) => (
-          <img
-            key={a.id}
-            src={a.logo}
-            alt=""
-            loading="lazy"
-            width={64}
-            height={64}
-            className="tsu-sc-float h-14 w-14 rounded-xl shadow-lg ring-1 ring-line md:h-16 md:w-16"
-            style={{ animationDelay: `${(k % 4) * 0.4 + Math.floor(k / 4) * 0.2}s` }}
-          />
-        ))}
+        {/* Logo vector nền trong suốt (Tsu Swico, Disk, SoundDB, Contact) có HAI bản: `logo` nét
+            trắng cho nền Tối, `logoLight` nét tối cho nền Sáng. Vẽ cả hai, `.tsu-eco-dark`/`.tsu-eco-light`
+            chỉ hiện bản hợp với `data-theme` - đúng như modal ở /apps (EcoIcon). Trước 26/11/2026 khối
+            này chỉ vẽ `logo` nên ở chế độ Sáng logo trắng chìm vào nền (chủ dự án báo). */}
+        {withLogo.flatMap((a, k) => {
+          const delay = { animationDelay: `${(k % 4) * 0.4 + Math.floor(k / 4) * 0.2}s` };
+          const base =
+            'tsu-sc-float h-14 w-14 rounded-xl shadow-lg ring-1 ring-line md:h-16 md:w-16';
+          const variants: [string, string][] = a.logoLight
+            ? [
+                [a.logo!, 'tsu-eco-dark'],
+                [a.logoLight, 'tsu-eco-light'],
+              ]
+            : [[a.logo!, '']];
+          return variants.map(([src, cls]) => (
+            <img
+              key={`${a.id}${cls}`}
+              src={src}
+              alt=""
+              loading="lazy"
+              width={64}
+              height={64}
+              data-eco-logo={a.name}
+              className={`${cls} ${base}`.trim()}
+              style={delay}
+            />
+          ));
+        })}
       </div>
     </div>
   );
