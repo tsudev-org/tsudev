@@ -3,9 +3,8 @@
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP1, 26/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
-> 2. **Kiểm Render đã chạy CP1**: `GET /v1/services/srv-da0buctbedkc73ae1kmg/deploys?limit=3` - bản `aeab126` (#414)
->    `update_failed` (container treo, không log); PR tài liệu CP1 kích deploy lại. Nếu vẫn hỏng ⇒ 👤 bấm "Manual Deploy"
->    trên Render. Khi đã `live`: `curl https://tsudev-backend.onrender.com/api/posts` rồi đọc log Render tìm dòng
+> 2. **Đo bộ đếm CP1** (Render `live` bản `d2bf0f1` có #414 sau lần `aeab126` update_failed): log Render `text=edge`
+>    7 ngày; `curl https://tsudev-backend.onrender.com/api/posts` rồi đọc log Render tìm dòng
 >    `[edge] lượt KHÔNG qua biên (ghi): thieu|GET /api/posts|cong-cu`; lượt qua `tsudev.com` không được sinh dòng
 >    `thieu` nào cho `/api/posts`, `/oidc`, `/ent`, `/api/identity` (nếu có ⇒ một đường ký sai, sửa trước CP2).
 > 3. **Kiểm cổng `X-Tsu-App`** (2 phút): truy vấn `app_header_missing` 7 ngày (`docs/release-signing.md` §Cổng
@@ -15,7 +14,14 @@
 >    `~/.config/tsudev/keys/console-access.env`). Worker `console` cần khoá biên RIÊNG (backend nhận danh sách khoá).
 > 5. **Phiếu SEC3** (điều phối `projects-82` đã giao 26/11): mục 2.1-2.5 cho repo tsudev, trọng tâm 2.3 web; báo lại
 >    `projects-82` qua SendMessage.
-> 6. INT1-c chỉ khi 👤 đưa SHA-256 chứng thư ký. LG3/PRO3 như khối cũ.
+> 6. **Phiếu LG4** ([`20261126-LG4`](handover/20261126-LG4_bo-nhac-dang-nhap-tu-dong-khong-lam-phien-toan-he.md), thay
+>    LG3 - LG3 ĐÓNG): đồng bộ `.standards` v8.0.0; KHÔNG gắn `<tsu-signin-reminder>`, thêm `<tsu-account-entry>`;
+>    `/privacy#dang-nhap` "đăng nhập khi bạn chọn"; rà không One Tap/chấm đỏ/lời mời tự hiện (PRODUCT_POLICY 3.8).
+>    Có thể gộp cùng phiên SEC3; xong báo `projects-82`.
+> 7. INT1-c chỉ khi 👤 đưa SHA-256 chứng thư ký. PRO3 như khối cũ.
+>
+> Đo 26/11 sau deploy: gọi thẳng `*.onrender.com` ⇒ log `[edge] thieu|GET /api/posts|cong-cu` (+ `/api/projects`,
+> `/oidc/.well-known`); lượt qua `tsudev.com` (trang, JWKS, OIDC, tìm kiếm) và nhịp cron không sinh dòng `thieu` nào.
 >
 > Đã xong 26/11 (tsudev-CP1): khoá origin `X-Tsu-Edge` ở chế độ `ghi` (#414) - bên kiểm `@tsudev/auth` `edgeGuard()`
 > ở ba service, bên ký Worker `tsudev` + `tsudev-newsroom-cron` (đã `wrangler secret put` + deploy), `/api/admin/edge-stats`.
