@@ -1,5 +1,31 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-ACC1, 27/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **CP3** (phiếu [`20261126-CP1`](handover/20261126-CP1_tram-dieu-hanh-va-cong-xac-thuc-tap-trung.md) mục 1) - Plan Mode
+>    trước, đúng ADR-0005 + `.standards/docs/CONTROL_PLANE.md`. Không đổi issuer OIDC, rpID passkey, URL app đã ghim.
+> 3. 👤 chủ dự án: dismiss CodeQL #143 (false positive, phiếu ACC1 mục 3), #141/#142, GitGuardian 41140300; xoá ba tài
+>    khoản ở phiếu ACC1 mục 2a qua `console.tsudev.com/accounts`; phiếu XK1/XK2 (xoay khoá) còn MỞ.
+> 4. Đo lại `app_header_missing` sau 03/12 trước khi bật `X_TSU_APP_REQUIRED`. Chưa làm: SEC3, LG4, CTX1, INT1-c, PRO3.
+>
+> Đã xong ACC1 (27/11): #421 logo Tsu Swico theo chế độ Sáng/Tối, #422 rào chắn tạo/liên kết tài khoản; Render `live`
+> `a5a98b0`, frontend `deploy-2026.11.27.1`. Chi tiết + số đo: phiếu ACC1 mục 3.
+>
+> Prompt phiên sau:
+>
+> ```text
+> Đọc AGENTS.md, rồi CHỈ khối 🔔 đầu tiên của logs/STATE.md và các phiếu nó trỏ tới (không đọc khối 🔔 cũ hơn).
+> Chạy akb start + akb search trước khi làm. ACC1 đã xong (27/11). Làm phase CP3 của phiếu
+> logs/handover/20261126-CP1 mục 1, đúng ADR-0005 và .standards/docs/CONTROL_PLANE.md; lập phương án ở Plan Mode
+> trước khi sửa mã. Không đổi issuer OIDC, rpID passkey hay URL app đã ghim. Quyền: tự chọn phương án, tự
+> commit/push/PR/gộp khi check bắt buộc xanh, tự deploy hai Worker (XDG_CONFIG_HOME=~/.config/wrangler-tsudev) và
+> đo production. Bí mật mới sinh vào ~/.config/tsudev/keys/ (600), không in ra; biến Render và dashboard Cloudflare
+> Zero Trust là việc 👤. Chỉ dừng hỏi khi gặp việc 👤 hoặc cổng Bảo vệ bản quyền. Cuối phiên: cập nhật phiếu CP1
+> (bảng phase + mục 3), khối 🔔 mới ở đầu STATE kèm prompt, CHANGELOG nếu deploy, akb close + akb sync. Xong một
+> phase thì dừng.
+> ```
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP2 chốt, 26/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).

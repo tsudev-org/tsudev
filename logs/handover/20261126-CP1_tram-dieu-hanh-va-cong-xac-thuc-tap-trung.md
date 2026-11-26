@@ -76,3 +76,4 @@
   Còn 👤: 4 biến Render + đăng nhập mở `console./accounts`; rồi đo `edge-stats.hasConsoleKey`, log `[access]`.
 - 26/11/2026 - tsudev-CP2 (chốt): 👤 đã đặt 4 biến Render, deploy `live`. Backend nhận chữ ký biên khoá console (đo GET).
   Còn một phép đo cần 👤: OWNER mở `console./accounts`, rồi đọc log Render `[access]`/`[console]`. Đạt mới làm **CP3**.
+- 27/11/2026 - tsudev-bc: ACC1 (bảo mật tài khoản, điều kiện trước CP3) xong - PR #422, `deploy-2026.11.27.1`. Kế tiếp: **CP3**.
