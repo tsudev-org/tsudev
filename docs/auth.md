@@ -212,6 +212,23 @@ nằm trong `ps` và trong lịch sử shell.
   không passkey, không liên kết khác) · `oauth/link` (CHỈ BFF gọi từ callback; KHÔNG có trong `ALLOWED` của proxy
   `/api/account`). Cặp đã thuộc người khác ⇒ 409 `oauth_linked_elsewhere`, không bao giờ chuyển chủ.
 
+### Rào chắn đường tạo / liên kết tài khoản (ACC1, 26/11/2026)
+
+- **Tự liên kết theo email** (`oauth/upsert` nhánh 3, đăng nhập OAuth lần đầu bằng email trùng tài khoản sẵn có, nhà
+  cung cấp khai `emailVerified`) CHỈ còn cho tài khoản MEMBER chưa có TOTP/passkey. Vai trò từ AUTHOR trở lên, hoặc đã
+  bật TOTP/passkey ⇒ 409 `oauth_link_required` (BFF hiện `OAuthAccountNotLinked`: "đăng nhập theo cách cũ rồi liên kết
+  trong cài đặt"), ghi sự kiện `oauth_autolink_blocked` và gửi thư cảnh báo cho chủ tài khoản.
+- **Liên kết khi đã đăng nhập đòi step-up** (tài khoản có TOTP): trang Bảo mật gọi `oauth/link-check` qua `useStepUp`
+  (401 `STEP_UP_REQUIRED` ⇒ hộp nhập mã) TRƯỚC khi rời trang; token đi trong cookie `tsu-link-intent` (ký chung HMAC) và
+  `oauth/link` kiểm LẠI - ranh giới thi hành ở auth-service. Chặng ở nhà cung cấp quá 5 phút ⇒ `link_error=step_up_required`.
+- **Email trùng theo hộp thư Gmail** (`services/auth-service/src/emailCanon.ts`): `gmail.com`/`googlemail.com` bỏ dấu
+  chấm và `+nhãn` khi KIỂM TRÙNG ở đăng ký (im lặng + thư), OAuth tạo mới (409 `email_taken`), `useradmin/create`
+  (409) và đổi email. Cột `email` đã lưu không đổi, không migration. Domain khác chỉ hạ chữ thường.
+- **Seed** (`packages/db/prisma/seed.js`) từ chối `NODE_ENV=production` và mọi host DB ngoài loopback
+  (`packages/db/prisma/localOnly.js`, không cờ vượt) - cùng chốt với `db:seed:dev`.
+- Chỉ ba chỗ `prisma.user.create` ở mã production (register, oauth/upsert, useradmin/create), mỗi chỗ kiểm trùng email
+  chuẩn hoá trước - `test/acc1AccountSafety.test.ts` canh; thêm chỗ thứ tư thì test đỏ.
+
 ## 6. Xác thực tài khoản theo NĐ 147/2024 - vì sao KHÔNG thu số điện thoại
 
 Quyết định 05/11/2026 (chủ dự án giao agent chọn phương án): tài khoản xác thực

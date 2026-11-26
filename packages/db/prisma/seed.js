@@ -2,6 +2,15 @@
 // Seed dữ liệu khởi tạo cho môi trường dev: user, blog, docs, chương trình dấu.
 const path = require('path')
 require('dotenv').config({ quiet: true, path: path.join(__dirname, '../../../.env') })
+
+// ACC1: chốt TRƯỚC khi nạp Prisma (không mở kết nối nào tới DB lạ). Tệp này tạo
+// alice/bob và nâng `tsudev` lên OWNER - chạy nhầm vào Neon là sự cố bảo mật.
+try {
+  require('./localOnly').assertLocalDatabase('seed')
+} catch (e) {
+  console.error(e instanceof Error ? e.message : e)
+  process.exit(1)
+}
 const { prisma } = require('../src/index')
 
 async function main() {
@@ -20,7 +29,9 @@ async function main() {
     update: { role: 'OWNER', emailVerifiedAt: new Date() },
     create: {
       username: 'tsudev',
-      email: 'devnguyentrangtinhsu@gmail.com',
+      // Email giả cục bộ (ACC1): repo Public, không đặt hộp thư thật của OWNER vào đây.
+      // Nhánh `update` không chạm email nên DB đã có giữ nguyên.
+      email: 'tsudev@tsudev.localhost',
       displayName: 'Nguyễn Trang Tình Sử',
       role: 'OWNER',
       emailVerifiedAt: new Date(),

@@ -29,7 +29,8 @@ import {
   requireStepUp,
   stepUpSecret,
 } from '@tsudev/auth'
-import { parsePaging, pageMeta, ROLES } from '@tsudev/types'
+import { hasAtLeastRole, parsePaging, pageMeta, ROLES } from '@tsudev/types'
+import { findEmailOwnerId } from './emailCanon'
 import type { Role } from '@tsudev/types'
 import { createRateLimit, identityKey, largePageRateLimit } from '@tsudev/ratelimit'
 import { postgresRateLimitStore } from './rateLimitStore'
@@ -194,6 +195,7 @@ const SENSITIVE = [
   '/api/identity/totp/backup-codes',
   '/api/identity/passkey/delete',
   '/api/identity/oauth/unlink',
+  '/api/identity/oauth/link-check',
   '/api/identity/step-up',
   '/api/identity/verify/code/confirm',
   '/api/identity/verify/code/send',
@@ -305,7 +307,9 @@ app.post(
     // Email trùng thì NGƯỢC LẠI: trả về như thể đã tạo xong. Nói "email này đã
     // đăng ký" biến form đăng ký thành công cụ dò xem ai có tài khoản ở đây.
     // Người sở hữu thật vẫn biết chuyện gì xảy ra - họ nhận được thư báo.
-    const existing = await prisma.user.findUnique({ where: { email } })
+    // ACC1: trùng theo dạng chuẩn hoá Gmail (bỏ dấu chấm/`+nhãn`) cũng là trùng - cùng một
+    // hộp thư. Thư vẫn gửi tới đúng địa chỉ người vừa nhập (chính hộp thư đó).
+    const existing = await findEmailOwnerId(email)
     if (existing) {
       const link = `${siteUrl()}/login`
       await sendMail(
@@ -557,6 +561,12 @@ app.post(
     if (!EMAIL_RE.test(email)) return res.status(409).json({ error: 'oauth_no_email' })
 
     // 3. Email đã thuộc một tài khoản sẵn có.
+    //
+    // ACC1: email KHÁC chuỗi nhưng CÙNG hộp Gmail (dấu chấm, `+nhãn`) ⇒ từ chối, không tạo
+    // tài khoản thứ hai trên cùng hộp thư, cũng không tự liên kết (chuỗi khác nhau thì người
+    // dùng không thể biết mình đang gắn vào tài khoản nào).
+    const sameBox = await findEmailOwnerId(email)
+    if (sameBox && !sameBox.exact) return res.status(409).json({ error: 'email_taken' })
     const emailOwner = await prisma.user.findUnique({
       where: { email },
       select: {
@@ -579,6 +589,27 @@ app.post(
       // CHƯA xác minh ⇒ vẫn từ chối: một tài khoản bên thứ ba khai email của người
       // khác mà chưa chứng minh kiểm soát nó là đúng đường chiếm tài khoản.
       if (!emailVerified) return res.status(409).json({ error: 'email_taken' })
+      // ACC1: KHÔNG tự liên kết vào tài khoản "đáng giá" - vai trò từ AUTHOR trở lên, hoặc đã
+      // bật TOTP/passkey. Với các tài khoản đó, "kiểm soát hộp thư" là ít hơn hẳn thứ họ đã
+      // dựng để vào (2FA), và một lối vào mới gắn im lặng sẽ đi vòng qua chính lớp đó. Chủ tài
+      // khoản liên kết qua /settings/security (đã đăng nhập + step-up). Lỗi DB ⇒ ném, 500.
+      const [hasTotp, passkeys] = await Promise.all([
+        hasConfirmedTotp(emailOwner.id),
+        prisma.webAuthnCredential.count({ where: { userId: emailOwner.id } }),
+      ])
+      if (hasAtLeastRole(emailOwner.role, 'AUTHOR') || hasTotp || passkeys > 0) {
+        await logSecurity(emailOwner.id, 'oauth_autolink_blocked', req, { note: provider })
+        sendAlert(
+          {
+            email: emailOwner.email,
+            displayName: emailOwner.displayName,
+            username: emailOwner.username,
+          },
+          'Có người thử đăng nhập bằng tài khoản bên thứ ba chưa liên kết',
+          `Nhà cung cấp: ${provider}. Lối vào này KHÔNG được gắn vào tài khoản của bạn. Nếu là bạn, hãy đăng nhập rồi liên kết ở Cài đặt > Bảo mật.`
+        )
+        return res.status(409).json({ error: 'oauth_link_required' })
+      }
       try {
         await prisma.oAuthAccount.create({
           data: { provider, providerAccountId, userId: emailOwner.id },
@@ -1082,7 +1113,10 @@ app.post(
     if (!EMAIL_RE.test(newEmail)) return res.status(400).json({ error: 'invalid_email' })
     if (newEmail === user.email.toLowerCase()) return res.status(400).json({ error: 'same_email' })
 
-    const taken = await prisma.user.findUnique({ where: { email: newEmail }, select: { id: true } })
+    // ACC1: cùng hộp Gmail với tài khoản KHÁC cũng là trùng; với chính mình (đổi cách viết
+    // dấu chấm) thì cho qua.
+    const owner = await findEmailOwnerId(newEmail)
+    const taken = owner && owner.id !== user.id
     if (taken) {
       // KHÔNG tiết lộ rằng địa chỉ đã có người dùng. Báo cho chính địa chỉ đó
       // biết có người thử gắn nó, rồi trả về như thể đã gửi thư xác nhận - cùng
@@ -1593,6 +1627,7 @@ app.post(
 // ---------------------------------------------------------------------------
 app.use('/api/identity/oauth/list', auth)
 app.use('/api/identity/oauth/link', auth)
+app.use('/api/identity/oauth/link-check', auth)
 app.use('/api/identity/oauth/unlink', auth)
 
 app.post(
@@ -1613,6 +1648,21 @@ app.post(
   })
 )
 
+/**
+ * ACC1: kiểm step-up TRƯỚC khi rời trang sang nhà cung cấp. Trang Bảo mật gọi nó qua
+ * `useStepUp` (401 STEP_UP_REQUIRED ⇒ hộp nhập TOTP), rồi gửi token vào cookie ý định
+ * liên kết; `oauth/link` kiểm LẠI chính token đó - ranh giới thi hành ở đây, không ở BFF.
+ */
+app.post(
+  '/api/identity/oauth/link-check',
+  asyncHandler(async (req, res) => {
+    const user = await lookupUser(req)
+    if (!user) return res.status(401).json({ error: 'unauthenticated' })
+    if (!(await stepUpIfTotp(req, res, user))) return
+    return res.json({ ok: true })
+  })
+)
+
 app.post(
   '/api/identity/oauth/link',
   asyncHandler(async (req, res) => {
@@ -1623,6 +1673,9 @@ app.post(
     if (!OAUTH_PROVIDERS.has(provider) || !providerAccountId) {
       return res.status(400).json({ error: 'invalid_request' })
     }
+    // ACC1: thêm một lối vào là đổi "chìa khoá" - cùng mức với gỡ liên kết, đổi email.
+    // Tài khoản có TOTP phải kèm token step-up còn hạn (5 phút), do BFF chuyển từ cookie ý định.
+    if (!(await stepUpIfTotp(req, res, user))) return
     const existing = await prisma.oAuthAccount.findUnique({
       where: { provider_providerAccountId: { provider, providerAccountId } },
       select: { userId: true },
@@ -2556,7 +2609,7 @@ app.post(
     if (await prisma.user.findUnique({ where: { username }, select: { id: true } })) {
       return res.status(409).json({ error: 'username_taken' })
     }
-    if (await prisma.user.findUnique({ where: { email }, select: { id: true } })) {
+    if (await findEmailOwnerId(email)) {
       return res.status(409).json({ error: 'email_taken' })
     }
 

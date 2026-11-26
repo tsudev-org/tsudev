@@ -41,6 +41,7 @@ const LABELS: Record<string, string> = {
   role_changed: 'Đổi vai trò',
   sessions_revoked: 'Thu hồi mọi phiên',
   oauth_linked: 'Liên kết đăng nhập bên thứ ba',
+  oauth_autolink_blocked: 'Chặn tự liên kết đăng nhập bên thứ ba',
   oauth_unlinked: 'Gỡ liên kết đăng nhập bên thứ ba',
   account_deactivated: 'Vô hiệu hoá tài khoản',
   account_reactivated: 'Khôi phục tài khoản',

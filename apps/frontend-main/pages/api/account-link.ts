@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { authOptions } from './auth/[...nextauth]';
 import { listIdpProviders } from '../../lib/idpProviders';
 import { usernameFromToken } from '../../lib/identity';
-import { createLinkIntent, linkIntentCookie } from '../../lib/linkIntent';
+import { createLinkIntent, linkIntentCookie, stepUpShapeOk } from '../../lib/linkIntent';
 import { readSessionToken } from '../../lib/sessionCookie';
 
 /**
@@ -33,7 +33,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const secret = process.env.NEXTAUTH_SECRET || '';
   if (!secret) return res.status(503).json({ error: 'Máy chủ chưa cấu hình phiên' });
-  const value = await createLinkIntent(secret, provider, usernameFromToken(token));
+  // ACC1: token step-up (từ POST /api/account/oauth/link-check) đi kèm cookie; auth-service
+  // kiểm lại ở chặng liên kết. Sai hình dạng ⇒ 400 (không đặt cookie).
+  const stepUp = typeof req.body?.stepUp === 'string' ? req.body.stepUp : '';
+  if (!stepUpShapeOk(stepUp))
+    return res.status(400).json({ error: 'Token xác thực lại không hợp lệ' });
+  const value = await createLinkIntent(secret, provider, usernameFromToken(token), stepUp);
   res.setHeader('Set-Cookie', linkIntentCookie(value, secure));
   res.setHeader('Cache-Control', 'no-store');
   return res.status(200).json({ ok: true });
