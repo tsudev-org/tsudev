@@ -32,11 +32,12 @@ export const accessMode = (v?: string): AccessMode => {
 };
 
 /** `purple-cake-8f2a.cloudflareaccess.com` | `https://.../` ⇒ `https://purple-cake-8f2a.cloudflareaccess.com`. */
-export const accessIssuer = (teamDomain: string): string =>
-  `https://${teamDomain
-    .trim()
-    .replace(/^https?:\/\//i, '')
-    .replace(/\/+$/, '')}`;
+export const accessIssuer = (teamDomain: string): string => {
+  let host = teamDomain.trim().replace(/^https?:\/\//i, '');
+  // Cắt `/` cuối bằng vòng lặp - regex `\/+$` chạy đa thức trên chuỗi nhiều `/` (CodeQL js/polynomial-redos).
+  while (host.endsWith('/')) host = host.slice(0, -1);
+  return `https://${host}`;
+};
 
 export interface AccessConfig {
   teamDomain?: string;

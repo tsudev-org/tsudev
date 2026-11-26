@@ -17,7 +17,7 @@ import {
 
 import { roleFromToken, usernameFromToken } from '../../frontend-main/lib/identity';
 
-export { CONTENT, IDENTITY, internalHeaders } from '../../frontend-main/lib/services';
+export { IDENTITY, internalHeaders } from '../../frontend-main/lib/services';
 export { readSessionToken } from '../../frontend-main/lib/sessionCookie';
 export { catchAllSegments } from '../../frontend-main/lib/identity';
 

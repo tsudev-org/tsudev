@@ -8,7 +8,7 @@
 export {}
 process.env.NODE_ENV = 'test'
 process.env.INTERNAL_IDENTITY_SECRET = 'khoa-test-du-dai-cho-hmac-256-bit!!'
-process.env.INTERNAL_IDENTITY_SECRET_CONSOLE = 'khoa-console-rieng-du-dai-cho-hmac-256!!'
+process.env.INTERNAL_IDENTITY_SECRET_CONSOLE = 'k'.repeat(40) // khoá giả của test
 process.env.NEXT_PUBLIC_MAIN_URL ||= 'https://tsudev.test'
 delete process.env.INTERNAL_API_TOKEN
 delete process.env.CF_ACCESS_MODE
@@ -175,7 +175,7 @@ describe('JWT Cloudflare Access (JWKS giả)', () => {
       .setIssuer(accessIssuer(TEAM))
       .setAudience(AUD)
       .setExpirationTime('10m')
-      .sign(new TextEncoder().encode('khoa-doi-xung-du-dai-cho-hmac-256-bit!!'))
+      .sign(new TextEncoder().encode('h'.repeat(40)))
     expect((await verifyAccessJwt(hs, cfg, jwks)).result).toBe('sai')
   })
   test('thiếu token / thiếu cấu hình', async () => {

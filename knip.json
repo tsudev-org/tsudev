@@ -44,6 +44,10 @@
     "services/auth-service": {
       "entry": ["scripts/**/*.js", "test/**/*.{ts,mjs,js}", "src/password.ts"],
       "project": ["src/**/*.ts", "scripts/**/*.js"]
+    },
+    "apps/console": {
+      "entry": ["open-next.config.ts", "scripts/**/*.js", "test/**/*.ts"],
+      "ignoreDependencies": ["tailwindcss", "@tsudev/types"]
     }
   },
   "ignoreBinaries": ["jest"],

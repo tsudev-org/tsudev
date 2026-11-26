@@ -1,6 +1,7 @@
 // CP2 - chữ ký biên `X-Tsu-Edge` hợp lệ thay được `INTERNAL_API_TOKEN` tĩnh ở cổng `/api` (ADR-0005 mục 5).
 // Worker mới (`console.`) gọi backend bằng khoá biên RIÊNG, không chép token tĩnh dùng chung sang. Thiếu/sai chữ ký
 // mà không có token ⇒ vẫn 401 như cũ.
+export {}
 process.env.INTERNAL_API_TOKEN = 'token-tinh-cho-test-0123456789'
 const request = require('supertest')
 const { signEdge } = require('@tsudev/auth')
