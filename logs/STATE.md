@@ -6,6 +6,9 @@
 > 2. **Phép đo CP2 cuối, cần 👤**: đăng nhập lại `tsudev.com`, mở `console.tsudev.com/accounts` (OWNER + TOTP) - danh
 >    sách tài khoản phải hiện. Sau đó agent đọc log Render: không có `[access] JWT Access không đạt` và không có
 >    `[console] chưa có`. Chưa đạt ⇒ sửa trước CP3 (lùi: `docs/console-access.md` mục 4). Chưa đạt thì KHÔNG làm CP3.
+>    2b. **ACC1 - bảo mật tài khoản, TRƯỚC CP3** (phiếu [`20261126-ACC1`](handover/20261126-ACC1_ra-soat-tai-khoan-va-duong-tao-tai-khoan.md)):
+>    seed chốt production, cấm tự liên kết OAuth vào vai trò cao, step-up cho liên kết, email trùng kiểu Gmail. Plan Mode trước.
+>    26/11 chủ dự án đã mở `console./accounts` được, log Render không có `[access]`/`[console]` ⇒ **CP2 ĐẠT**.
 > 3. **CP3** (phiếu [`20261126-CP1`](handover/20261126-CP1_tram-dieu-hanh-va-cong-xac-thuc-tap-trung.md) mục 1).
 > 4. Đo 26/11: CP1 sạch; `app_header_missing` còn 2 dòng ⇒ chưa bật `X_TSU_APP_REQUIRED` (đo lại sau 03/12).
 > 5. Chưa làm: SEC3, LG4 (khối CP1 mục 5-6 bên dưới), `20261126-CTX1` (phiên `projects-dc` gửi, chờ chủ dự án giao).
@@ -47,10 +50,9 @@
 Đọc AGENTS.md, rồi CHỈ khối 🔔 đầu tiên của logs/STATE.md và các phiếu nó trỏ tới
 (không đọc các khối 🔔 cũ hơn). Chạy akb start + akb search trước khi làm.
 
-Tôi đã mở console.tsudev.com/accounts: [được / lỗi gì].
+CP2 đã đạt (26/11). Làm phiếu 20261126-ACC1 trước CP3.
 
-Làm theo thứ tự: (1) chốt phép đo CP2 theo khối 🔔 mục 2 (đọc log Render);
-không đạt thì sửa xong rồi dừng; (2) phase CP3 của phiếu logs/handover/
+Làm theo thứ tự: (1) phase ACC1 (khối 🔔 mục 2b), xong thì dừng; phiên sau (2) phase CP3 của phiếu logs/handover/
 20261126-CP1 mục 1, đúng ADR-0005 và .standards/docs/CONTROL_PLANE.md; lập
 phương án ở Plan Mode trước khi sửa mã. Không đổi issuer OIDC, rpID passkey hay
 URL app đã ghim.
