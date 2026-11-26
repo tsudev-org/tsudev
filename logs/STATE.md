@@ -3,6 +3,10 @@
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP2, 26/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+>    1b. **PR #417 (mã CP2) CHỜ DUYỆT**: sửa `ci.yml` ⇒ cần chủ dự án Approve bằng `nguyentrangtinhsu` + Re-run "Bảo vệ
+>    bản quyền". Sau đó: gộp → chờ Render `live` → deploy `tsudev` + console (`npm --workspace apps/console run
+deploy`) → CHANGELOG. Cảnh báo CodeQL #141/#142 (false positive: limiter `identity-chung`) và GitGuardian
+>    41140300 (khoá giả trong test ở commit `bd93005`, đã thay) do chủ dự án đóng - agent bị bộ phân loại chặn.
 > 2. **Hoàn tất CP2** (`docs/console-access.md` mục 2-3): 👤 đồng ý xoay `NEXTAUTH_SECRET` (`scripts/console-secrets.sh
 --xoay-nextauth`) và đặt 4 biến Render; rồi đo `console.` (ẩn danh ⇒ màn Access, OWNER vào `/accounts`,
 >    `edge-stats.hasConsoleKey`, log `[access]`).
