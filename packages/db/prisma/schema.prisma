@@ -1008,3 +1008,30 @@ model AppVersionChannel {
 
   @@id([product, channel])
 }
+
+/// INT1-b (APP_INTEGRITY 4, PRODUCT_POLICY 7.7): nhật ký an ninh của lượt gọi API từ APP
+/// (`/ent/*`, OIDC userinfo) - `426`, header `X-Tsu-App` sai, chứng thực thất bại, `403`.
+/// KHÔNG gắn `User` (người gọi thường chưa xác thực) và KHÔNG chứa nội dung người dùng: IP
+/// chỉ giữ tiền tố /24 (IPv4) hoặc /48 (IPv6), `jkt` chỉ giữ SHA-256. Hạn lưu ≤ 12 tháng -
+/// auth-service tự dọn (`securityAudit.ts`).
+model SecurityAuditLog {
+  id        String   @id @default(cuid())
+  /// Mã ổn định: `update_required`, `app_header_invalid`, `app_header_missing`, `untrusted_client`...
+  type      String
+  /// `client_id` OIDC của app nếu suy ra được từ access token; NULL khi chưa biết.
+  clientId  String?
+  /// SHA-256 (hex) của `jkt` (thumbprint khoá DPoP) - so được hai lượt cùng khoá, không lộ khoá.
+  jktHash   String?
+  /// Tiền tố mạng: `203.0.113.0/24` hoặc `2001:db8:1::/48`.
+  ipPrefix  String?
+  /// Các phần của `X-Tsu-App` (đã kiểm định dạng; header sai định dạng ⇒ NULL).
+  product   String?
+  version   String?
+  channel   String?
+  /// Đường dẫn được gọi (không query).
+  path      String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([type, createdAt])
+}

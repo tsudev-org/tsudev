@@ -26,7 +26,16 @@ export const config = { api: { bodyParser: false } };
 
 const ISSUER_HOST = new URL(MAIN_URL).host;
 
-const PASS_REQ = ['content-type', 'accept', 'authorization', 'cookie', 'user-agent', 'dpop'];
+// `x-tsu-app`: INT1-b - cổng phiên bản của userinfo (`/oidc/me`) ở auth-service.
+const PASS_REQ = [
+  'content-type',
+  'accept',
+  'authorization',
+  'cookie',
+  'user-agent',
+  'dpop',
+  'x-tsu-app',
+];
 const PASS_RES = [
   'content-type',
   'location',

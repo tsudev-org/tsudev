@@ -100,6 +100,10 @@ services:
         sync: false
       - key: VERSIONS_RAISE_TOKEN
         sync: false
+      # INT1-b: `1` = thiếu header X-Tsu-App ở /ent/* và /oidc/me ⇒ 400. CHỈ bật ở INT1-f, khi
+      # SecurityAuditLog không còn dòng `app_header_missing` (bản app đã cài chưa gửi header).
+      - key: X_TSU_APP_REQUIRED
+        sync: false
       # Trung tâm an ninh phát hành (docs/security-plan.md §3, 06/11/2026).
       # RELEASE_INTEGRITY_TOKEN gác POST /api/internal/releases/integrity - PHẢI
       # GIỐNG secret cùng tên ở Worker cron (`npm run cron:secret-integrity`).

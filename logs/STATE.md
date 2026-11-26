@@ -1,5 +1,22 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-INT1b, 26/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **INT1-c** (phiếu [`20261125-INT1`](handover/20261125-INT1_toan-ven-ung-dung-bat-buoc-cap-nhat.md) mục 6):
+>    Android Key Attestation (`/api/attest/nonce`, `/api/attest/android`, bảng `AttestedKey`), DPoP bắt buộc ở
+>    `/api/me/entitlements`, `403 untrusted_client` ghi `SecurityAuditLog`. ⛔ 👤 cần SHA-256 chứng thư ký từng app +
+>    migrate Neon trước khi gộp.
+> 3. 👤 INT1-f: khi `SecurityAuditLog` hết dòng `app_header_missing` (truy vấn ở `docs/release-signing.md` §Cổng
+>    X-Tsu-App) ⇒ đặt `X_TSU_APP_REQUIRED=1` trên Render (thiếu header ⇒ 400).
+> 4. 👤 CodeQL #136/#137 (`js/missing-rate-limiting`) vẫn "open" theo API sau khi gộp #409 - kiểm lại trên tab Security.
+> 5. LG3 còn lại: gắn `<tsu-signin-reminder>` khi có trang cần. PRO3 còn: (e) logo BCT chờ DK2; khung ảnh Pro trên Avatar.
+>
+> Đã xong 26/11 (tsudev-INT1b): gộp #409 (INT1-a + `suspended`), deploy frontend, đo bản kê production (200, chữ ký
+> Ed25519 kiểm được bằng JWKS, kid `tsu-versions-2026`). **INT1-b**: cổng `X-Tsu-App` ở `/ent/*` + `/oidc/me`
+> (400/426, kênh khác cho qua, BFF không qua cổng), bảng `SecurityAuditLog` (IP /24-/48, `jkt` băm, dọn > 12 tháng).
+> Migration `20261126150000_nhat_ky_an_ninh_app` đã áp Neon (dump `~/tsudev-backups/truoc-int1b-20261126-0949.dump`).
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-INT1a, 26/11/2026)** - làm theo thứ tự:
 >
 > 0. **Gộp PR #409** (INT1-a + `suspended`; Neon ĐÃ migrate 26/11, dump `~/tsudev-backups/truoc-int1a-20261126-0759.dump`)
