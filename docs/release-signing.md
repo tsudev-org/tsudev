@@ -175,13 +175,14 @@ rồi so `payload.sha256` với kết quả `sha256sum`.
 Chuẩn: `.standards/docs/APP_INTEGRITY.md` mục 2.1. Mã: `services/content-service/src/versionsManifest.ts`,
 proxy `apps/frontend-main/pages/api/versions/[...path].ts`, bảng `AppVersionChannel`.
 
-| Đường                                                          | Việc                                                   |
-| -------------------------------------------------------------- | ------------------------------------------------------ |
-| `GET https://tsudev.com/.well-known/tsudev/versions.json`      | bản kê (byte đã ký, cache 300 s)                       |
-| `GET https://tsudev.com/.well-known/tsudev/versions.json.sig`  | chữ ký tách của đúng các byte trên                     |
-| `GET https://tsudev.com/.well-known/tsudev/versions-jwks.json` | khoá công khai `tsu-versions-2026` (app ghim lúc dựng) |
-| `POST https://tsudev.com/api/versions/raise/<sản phẩm>/<kênh>` | pipeline nâng `latest` - header `x-versions-token`     |
-| `GET/POST /api/admin/versions[/<sản phẩm>/<kênh>]` (backend)   | ADMIN (vai trò từ DB + 2FA) xem/nâng                   |
+| Đường                                                          | Việc                                                                  |
+| -------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `GET https://tsudev.com/.well-known/tsudev/versions.json`      | bản kê (byte đã ký, cache 300 s)                                      |
+| `GET https://tsudev.com/.well-known/tsudev/versions.json.sig`  | chữ ký tách của đúng các byte trên                                    |
+| `GET https://tsudev.com/.well-known/tsudev/versions-jwks.json` | khoá công khai `tsu-versions-2026` (app ghim lúc dựng)                |
+| `POST https://tsudev.com/api/versions/raise/<sản phẩm>/<kênh>` | pipeline nâng `latest` - header `x-versions-token`                    |
+| `GET/POST /api/admin/versions[/<sản phẩm>/<kênh>]` (backend)   | ADMIN (vai trò từ DB + 2FA) xem/nâng                                  |
+| `POST /api/internal/versions/<sản phẩm>/<kênh>` (backend)      | đích của proxy pipeline; chỉ `x-versions-token`, thiếu cấu hình ⇒ 503 |
 
 **Định dạng `.sig`**: JWS compact tách nội dung (RFC 7515 phụ lục F) `<b64url(header)>..<b64url(chữ ký)>`, header
 `{"alg":"EdDSA","kid":"tsu-versions-2026"}`. App kiểm Ed25519 trên `b64url(header) + "." + b64url(byte versions.json)`

@@ -81,9 +81,9 @@ ký ai nâng lúc nào).
   - Bảng `AppVersionChannel` (khoá chính `product`+`channel`). `versionsManifest.ts` (content-service): bản kê tất định,
     `expires_at` = +7 ngày, dựng lại khi nâng hoặc sau 1 ngày; chữ ký TÁCH dạng JWS detached
     `<b64url(header)>..<b64url(sig)>`, kid `tsu-versions-2026`; JWKS `/.well-known/tsudev/versions-jwks.json`.
-  - `POST /api/admin/versions/:product/:channel`: ADMIN (DB + 2FA) hoặc pipeline bằng token RIÊNG
+  - `POST /api/admin/versions/:product/:channel` (ADMIN, DB + 2FA) và `POST /api/internal/versions/...` (pipeline, token RIÊNG
     `VERSIONS_RAISE_TOKEN` (header `x-versions-token`) thay vì `INTERNAL_API_TOKEN` (lộ secret của một repo không được
-    mở cả `/api`). Chốt chặn: GET thật `url` (https, host phát hành, chuyển hướng theo tay) - 404/thiếu phiên bản ⇒ 409
+    mở cả `/api`)). Chốt chặn: GET thật `url` (https, host phát hành, chuyển hướng theo tay) - 404/thiếu phiên bản ⇒ 409
     không nâng; không hạ phiên bản; nhật ký TrustAuditLog `versions.raise`. Pipeline gọi qua
     `https://tsudev.com/api/versions/raise/<sp>/<kênh>`.
   - Thiếu `VERSIONS_SIGNING_KEY` ở production ⇒ bản kê 503, backend VẪN khởi động (quyết định: thiếu bản kê thì app giữ

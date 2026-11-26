@@ -141,8 +141,12 @@ describe('verifyDownload (chốt chặn theo kênh)', () => {
 })
 
 describe('POST /api/admin/versions/:product/:channel + GET bản kê', () => {
+  // Có `x-versions-token` ⇒ đường pipeline (/api/internal); không có ⇒ đường ADMIN (/api/admin).
   const raise = (body: Record<string, unknown>, headers: Record<string, string> = TOKEN) =>
-    request(app).post(`/api/admin/versions/${P}/github`).set(headers).send(body)
+    request(app)
+      .post(`/api/${'x-versions-token' in headers ? 'internal' : 'admin'}/versions/${P}/github`)
+      .set(headers)
+      .send(body)
 
   test('pipeline nâng ⇒ bản kê có kênh mới, chữ ký kiểm được trên byte tải về, có nhật ký', async () => {
     global.fetch = fakeFetch({ [LATEST]: res(302, TAG), [TAG]: res(200) }) as never

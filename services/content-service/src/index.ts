@@ -3453,18 +3453,19 @@ app.post(
 
 // ---------------- INT1-a: nâng `latest` của một kênh ----------------
 //
-// Hai kiểu người gọi: pipeline phát hành của các repo (header `x-versions-token` khớp
-// `VERSIONS_RAISE_TOKEN` - token RIÊNG, lộ nó chỉ nâng được phiên bản mà vẫn phải qua chốt
-// chặn đo URL) hoặc ADMIN qua BFF (requireAdmin: vai trò từ DB + 2FA). Chốt chặn theo kênh
+// HAI route, mỗi route MỘT cổng (khuôn của /api/internal/releases/integrity - không rẽ nhánh
+// xác thực theo header): pipeline phát hành các repo gọi `/api/internal/versions/...` với
+// `x-versions-token` = `VERSIONS_RAISE_TOKEN` (token RIÊNG: lộ nó chỉ nâng được phiên bản mà
+// vẫn phải qua chốt chặn đo URL; thiếu cấu hình ⇒ 503); ADMIN gọi `/api/admin/versions/...`
+// qua BFF (requireAdmin: vai trò từ DB + 2FA). Chốt chặn theo kênh
 // (MUST): máy chủ tự GET `url` - 404/không thấy phiên bản ⇒ 409, KHÔNG nâng. Không hạ
 // phiên bản (409 `version_not_newer`): hạ là mở khoá lại bản cũ đã bị chặn vì lý do nào đó.
 // Mỗi lần nâng ghi TrustAuditLog (ai, từ đâu lên đâu, url, IP) - bất biến.
-function versionsTokenMatches(req: Request): boolean {
-  const expected = process.env.VERSIONS_RAISE_TOKEN || ''
-  const got = req.get('x-versions-token')
-  if (expected.length < 32 || typeof got !== 'string' || !got) return false
+const VERSIONS_RAISE_TOKEN = process.env.VERSIONS_RAISE_TOKEN || ''
+const khopTokenPhienBan = (got: unknown): boolean => {
+  if (VERSIONS_RAISE_TOKEN.length < 32 || typeof got !== 'string' || !got) return false
   const a = createHash('sha256').update(got).digest()
-  const b = createHash('sha256').update(expected).digest()
+  const b = createHash('sha256').update(VERSIONS_RAISE_TOKEN).digest()
   return timingSafeEqual(a, b)
 }
 
@@ -3489,64 +3490,79 @@ app.get(
   })
 )
 
+/** Phần chung của hai route nâng - người gọi ĐÃ được xác thực trước khi tới đây. */
+async function nangPhienBan(
+  req: FlatParamsRequest,
+  res: Response,
+  actor: { id: string; name: string }
+) {
+  const { product, channel } = req.params
+  const latest = typeof req.body?.latest === 'string' ? req.body.latest.trim() : ''
+  const url = typeof req.body?.url === 'string' ? req.body.url.trim() : ''
+  if (!product || !versions.PRODUCT_RE.test(product)) {
+    return res.status(400).json({ error: 'invalid_product' })
+  }
+  if (!channel || !versions.CHANNEL_RE.test(channel)) {
+    return res.status(400).json({ error: 'invalid_channel' })
+  }
+  if (!versions.VERSION_RE.test(latest)) return res.status(400).json({ error: 'invalid_latest' })
+  if (!url && channel !== 'web') return res.status(400).json({ error: 'url_required' })
+  if (url.length > 500) return res.status(400).json({ error: 'invalid_url' })
+
+  const prev = await prisma.appVersionChannel.findUnique({
+    where: { product_channel: { product, channel } },
+  })
+  if (prev && versions.compareCore(latest, prev.latest) < 0) {
+    return res.status(409).json({ error: 'version_not_newer', current: prev.latest })
+  }
+
+  if (url) {
+    const v = await versions.verifyDownload(url, latest, channel)
+    if (!v.ok) return res.status(409).json({ error: 'download_unverified', reason: v.reason })
+  }
+
+  const now = new Date()
+  const row = await prisma.appVersionChannel.upsert({
+    where: { product_channel: { product, channel } },
+    create: { product, channel, latest, url: url || null, verifiedAt: now, raisedBy: actor.name },
+    update: { latest, url: url || null, verifiedAt: now, raisedBy: actor.name },
+  })
+  await prisma.trustAuditLog.create({
+    data: {
+      actorId: actor.id,
+      actorName: actor.name,
+      action: 'versions.raise',
+      targetType: 'AppVersionChannel',
+      targetId: `${product}/${channel}`,
+      targetLabel: `${product}/${channel}`,
+      note: `${prev?.latest ?? 'chưa có'} -> ${latest} | url: ${url || '-'} | ip: ${peerIp(req)}`,
+    },
+  })
+  versions.invalidate()
+  return res.json({ data: row })
+}
+
 app.post(
   '/api/admin/versions/:product/:channel',
   versionsLimit,
   asyncHandler(async (req, res) => {
-    let actor: { id: string; name: string }
-    // Token sai/thiếu KHÔNG rẽ nhánh riêng: rơi xuống requireAdmin (không có danh tính ⇒ 401).
-    if (versionsTokenMatches(req)) {
-      actor = { id: 'pipeline', name: 'pipeline' }
-    } else {
-      const admin = await requireAdmin(req, res)
-      if (!admin) return
-      actor = { id: admin.id, name: admin.username }
-    }
+    const admin = await requireAdmin(req, res)
+    if (!admin) return
+    return nangPhienBan(req, res, { id: admin.id, name: admin.username })
+  })
+)
 
-    const { product, channel } = req.params
-    const latest = typeof req.body?.latest === 'string' ? req.body.latest.trim() : ''
-    const url = typeof req.body?.url === 'string' ? req.body.url.trim() : ''
-    if (!product || !versions.PRODUCT_RE.test(product)) {
-      return res.status(400).json({ error: 'invalid_product' })
+app.post(
+  '/api/internal/versions/:product/:channel',
+  versionsLimit,
+  asyncHandler(async (req, res) => {
+    if (!VERSIONS_RAISE_TOKEN) {
+      return res.status(503).json({ error: 'VERSIONS_RAISE_TOKEN chưa cấu hình' })
     }
-    if (!channel || !versions.CHANNEL_RE.test(channel)) {
-      return res.status(400).json({ error: 'invalid_channel' })
+    if (!khopTokenPhienBan(req.get('x-versions-token'))) {
+      return res.status(401).json({ error: 'invalid_versions_token' })
     }
-    if (!versions.VERSION_RE.test(latest)) return res.status(400).json({ error: 'invalid_latest' })
-    if (!url && channel !== 'web') return res.status(400).json({ error: 'url_required' })
-    if (url.length > 500) return res.status(400).json({ error: 'invalid_url' })
-
-    const prev = await prisma.appVersionChannel.findUnique({
-      where: { product_channel: { product, channel } },
-    })
-    if (prev && versions.compareCore(latest, prev.latest) < 0) {
-      return res.status(409).json({ error: 'version_not_newer', current: prev.latest })
-    }
-
-    if (url) {
-      const v = await versions.verifyDownload(url, latest, channel)
-      if (!v.ok) return res.status(409).json({ error: 'download_unverified', reason: v.reason })
-    }
-
-    const now = new Date()
-    const row = await prisma.appVersionChannel.upsert({
-      where: { product_channel: { product, channel } },
-      create: { product, channel, latest, url: url || null, verifiedAt: now, raisedBy: actor.name },
-      update: { latest, url: url || null, verifiedAt: now, raisedBy: actor.name },
-    })
-    await prisma.trustAuditLog.create({
-      data: {
-        actorId: actor.id,
-        actorName: actor.name,
-        action: 'versions.raise',
-        targetType: 'AppVersionChannel',
-        targetId: `${product}/${channel}`,
-        targetLabel: `${product}/${channel}`,
-        note: `${prev?.latest ?? 'chưa có'} -> ${latest} | url: ${url || '-'} | ip: ${peerIp(req)}`,
-      },
-    })
-    versions.invalidate()
-    return res.json({ data: row })
+    return nangPhienBan(req, res, { id: 'pipeline', name: 'pipeline' })
   })
 )
 
