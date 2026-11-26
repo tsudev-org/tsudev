@@ -3516,10 +3516,10 @@ async function nangPhienBan(
     return res.status(409).json({ error: 'version_not_newer', current: prev.latest })
   }
 
-  if (url) {
-    const v = await versions.verifyDownload(url, latest, channel)
-    if (!v.ok) return res.status(409).json({ error: 'download_unverified', reason: v.reason })
-  }
+  // Luôn chạy (kênh `web` không có url thì verifyDownload tự trả đạt) - không có nhánh nào
+  // của dữ liệu người gọi bỏ qua được chốt chặn.
+  const v = await versions.verifyDownload(url, latest, channel)
+  if (!v.ok) return res.status(409).json({ error: 'download_unverified', reason: v.reason })
 
   const now = new Date()
   const row = await prisma.appVersionChannel.upsert({

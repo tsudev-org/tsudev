@@ -275,6 +275,10 @@ export async function verifyDownload(
   channel: string,
   fetchImpl: typeof fetch = fetch
 ): Promise<VerifyOutcome> {
+  // Kênh `web` được phép không có url (bản web cập nhật tại chỗ) - không có gì để đo.
+  if (!url) {
+    return channel === 'web' ? { ok: true, finalUrl: '' } : { ok: false, reason: 'Thiếu url' }
+  }
   let cur = url
   let sawVersion = urlHasVersion(cur, latest)
   for (let hop = 0; hop <= MAX_HOPS; hop++) {
