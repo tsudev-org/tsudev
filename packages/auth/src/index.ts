@@ -47,8 +47,18 @@ declare global {
  * chính sự khác biệt giữa hai môi trường mới là thứ đã giấu lỗi đó suốt.
  *
  * `service` chỉ dùng cho tiền tố log.
+ *
+ * TẠM KHOÁ (LG3, AUTH_AND_ACCOUNT 9.2 + 10): người gọi có `User.suspendedAt` thì mọi
+ * request KHÔNG thuộc `opts.suspendedMayUse` bị 403 `account_suspended`. Mặc định chỉ
+ * GET/HEAD/OPTIONS đi qua (xem hồ sơ, đọc nội dung, xuất dữ liệu). Chặn ở ĐÂY chứ không
+ * ở từng route: một route ghi mới quên kiểm là lỗ hổng im lặng, còn chặn nhầm thì ồn ào.
+ * Chỉ tra DB khi request bị coi là ghi - đường đọc không tốn thêm truy vấn nào.
  */
-export function createAuthMiddleware(service: string): RequestHandler {
+export function createAuthMiddleware(
+  service: string,
+  opts: { suspendedMayUse?: (req: Request) => boolean } = {}
+): RequestHandler {
+  const mayUse = opts.suspendedMayUse ?? isReadMethod;
   return async function authenticate(req: Request, res: Response, next: NextFunction) {
     const secret = readSecret(process.env);
     if (!secret) {
@@ -76,8 +86,37 @@ export function createAuthMiddleware(service: string): RequestHandler {
       role: claims.role,
       sv: claims.sv,
     };
+    if (mayUse(req)) return next();
+    try {
+      if (await isSuspended(claims.sub)) {
+        return res.status(403).json({
+          error: ACCOUNT_SUSPENDED,
+          code: ACCOUNT_SUSPENDED,
+          message: ACCOUNT_SUSPENDED_MESSAGE,
+        });
+      }
+    } catch (e) {
+      // Lỗi DB không được biến thành "cho qua".
+      console.error(`[${service}] kiểm tạm khoá lỗi:`, e instanceof Error ? e.message : e);
+      return res.status(503).json({ error: 'Không kiểm tra được trạng thái tài khoản' });
+    }
     return next();
   };
+}
+
+/** Mã lý do máy đọc được (AUTH_AND_ACCOUNT mục 10) - cùng mã với `status_reason` của IdP. */
+export const ACCOUNT_SUSPENDED = 'account_suspended';
+export const ACCOUNT_SUSPENDED_MESSAGE =
+  'Tài khoản đang bị tạm khoá nên không thực hiện được thao tác này. Bạn vẫn xem được nội dung và hồ sơ của mình.';
+
+/** GET/HEAD/OPTIONS - nhóm mặc định vẫn dùng được khi bị tạm khoá. */
+export const isReadMethod = (req: Request): boolean =>
+  req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS';
+
+/** `username` (= `sub` của khẳng định) có đang bị tạm khoá không. NÉM khi lỗi DB. */
+async function isSuspended(username: string): Promise<boolean> {
+  const u = await prisma.user.findUnique({ where: { username }, select: { suspendedAt: true } });
+  return Boolean(u?.suspendedAt);
 }
 
 /**

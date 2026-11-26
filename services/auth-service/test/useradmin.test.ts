@@ -405,3 +405,94 @@ describe('ép 2FA cho OWNER', () => {
     expect(res.body.challengeId).toBeTruthy()
   }, 20000)
 })
+
+// LG3 / AUTH_AND_ACCOUNT 9.2 + 10: tạm khoá do quản trị. Ba bất biến hỏng im lặng nếu mất:
+//  1. Chỉ OWNER, có step-up, có lý do; không tự khoá mình, không khoá OWNER khác.
+//  2. Mỗi lần đặt/gỡ ghi TrustAuditLog đủ "từ gì sang gì, lý do, IP" (thời điểm = createdAt).
+//  3. Tài khoản bị tạm khoá: đường ghi đã xác thực ⇒ 403 `account_suspended`; đường đọc vẫn
+//     chạy (xem hồ sơ của mình), và gỡ khoá là chạy lại ngay - không cần đăng nhập lại.
+describe('tạm khoá tài khoản (useradmin/suspend)', () => {
+  const memberId = async () => (await prisma.user.findUnique({ where: { username: MEMBER } }))!.id
+
+  test('OWNER tạm khoá + gỡ khoá MEMBER, nhật ký ghi đủ từ-sang, lý do, IP', async () => {
+    const id = await memberId()
+    const res = await request(app)
+      .post('/api/identity/useradmin/suspend')
+      .set(await asUser(OWNER))
+      .set('CF-Connecting-IP', '203.0.113.7')
+      .send({ id, suspended: true, reason: 'Spam bình luận', stepUp: await stepUpFor(OWNER) })
+    expect(res.status).toBe(200)
+    expect(res.body.suspendedAt).toBeTruthy()
+    expect(res.body.suspendedReason).toBe('Spam bình luận')
+    expect(res.body).not.toHaveProperty('passwordHash')
+
+    const un = await post('suspend', OWNER, {
+      id,
+      suspended: false,
+      reason: 'Đã xác minh',
+      stepUp: await stepUpFor(OWNER),
+    })
+    expect(un.status).toBe(200)
+    expect(un.body.suspendedAt).toBeNull()
+
+    const logs = await prisma.trustAuditLog.findMany({
+      where: { targetId: id, action: { in: ['user.suspend', 'user.unsuspend'] } },
+      orderBy: { createdAt: 'asc' },
+    })
+    expect(logs.map((l: { action: string }) => l.action)).toEqual([
+      'user.suspend',
+      'user.unsuspend',
+    ])
+    expect(logs[0].note).toMatch(/-> suspended \| lý do: Spam bình luận \| ip: /)
+    expect(logs[1].note).toMatch(/^suspended -> \w+ \| lý do: Đã xác minh \| ip: /)
+  }, 20000)
+
+  test('thiếu lý do 400, thiếu step-up 401, khoá lại khi đang khoá 409, ADMIN 403', async () => {
+    const id = await memberId()
+    expect((await post('suspend', OWNER, { id, suspended: true })).body.error).toBe(
+      'reason_required'
+    )
+    const noStep = await post('suspend', OWNER, { id, suspended: true, reason: 'x' })
+    expect(noStep.status).toBe(401)
+    expect(noStep.body.code).toBe('STEP_UP_REQUIRED')
+    expect((await prisma.user.findUnique({ where: { id } }))!.suspendedAt).toBeNull()
+
+    expect((await post('suspend', OWNER, { id, suspended: false, reason: 'x' })).status).toBe(409)
+    expect((await post('suspend', ADMIN, { id, suspended: true, reason: 'x' })).status).toBe(403)
+  }, 20000)
+
+  test('không tự khoá mình, không khoá OWNER khác', async () => {
+    const ownerId = (await prisma.user.findUnique({ where: { username: OWNER } }))!.id
+    const self = await post('suspend', OWNER, { id: ownerId, suspended: true, reason: 'x' })
+    expect(self.body.error).toBe('cannot_change_self')
+    const owner2 = await prisma.user.create({
+      data: { username: 'test-ua-owner3', email: 'test-ua-owner3@tsudev.local', role: 'OWNER' },
+    })
+    const other = await post('suspend', OWNER, { id: owner2.id, suspended: true, reason: 'x' })
+    expect(other.body.error).toBe('cannot_target_owner')
+  }, 20000)
+
+  test('bị tạm khoá: ghi ⇒ 403 account_suspended, đọc hồ sơ vẫn 200; gỡ khoá là chạy lại', async () => {
+    const id = await memberId()
+    await prisma.user.update({ where: { id }, data: { suspendedAt: new Date() } })
+    const blocked = await request(app)
+      .post('/api/identity/profile/update')
+      .set(await asUser(MEMBER))
+      .send({ displayName: 'Tên mới' })
+    expect(blocked.status).toBe(403)
+    expect(blocked.body.code).toBe('account_suspended')
+
+    const read = await request(app)
+      .post('/api/identity/profile/get')
+      .set(await asUser(MEMBER))
+      .send({})
+    expect(read.status).toBe(200)
+
+    await prisma.user.update({ where: { id }, data: { suspendedAt: null } })
+    const after = await request(app)
+      .post('/api/identity/profile/update')
+      .set(await asUser(MEMBER))
+      .send({ displayName: 'Tên mới' })
+    expect(after.body.code).not.toBe('account_suspended')
+  }, 20000)
+})

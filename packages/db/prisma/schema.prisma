@@ -92,6 +92,15 @@ model User {
   /// `OAuthAccount.provider` là chuỗi.
   lastLoginMethod  String?
 
+  /// LG3 / AUTH_AND_ACCOUNT 9.2: TẠM KHOÁ do vi phạm hoặc dấu hiệu bất thường. CHỈ quản
+  /// trị (OWNER ở /admin/accounts) đặt và gỡ - không tự hết hạn, khác `lockedUntil`.
+  /// NULL = không bị tạm khoá. Khác NULL ⇒ `status = suspended`, mọi đường ghi đã xác thực
+  /// trả 403 `account_suspended` (mục 10); đăng nhập, xem nội dung, đọc hồ sơ vẫn chạy.
+  /// Mỗi lần đặt/gỡ ghi TrustAuditLog (ai, từ gì sang gì, lý do, IP).
+  suspendedAt     DateTime?
+  /// Lý do tạm khoá (do quản trị nhập, tối đa 500 ký tự). Chỉ trả cho chính chủ và OWNER.
+  suspendedReason String?
+
   posts Post[]
   files FileObject[]
 
@@ -968,4 +977,34 @@ model DeletedSubject {
   deletedAt DateTime @default(now())
 
   @@index([deletedAt])
+}
+
+// ---------------------------------------------------------------------------
+// INT1-a: bản kê phiên bản có chữ ký (tsudev-standards APP_INTEGRITY 2.1)
+//
+// Mỗi dòng là `latest` của MỘT kênh phát hành của MỘT sản phẩm. Bản kê
+// `/.well-known/tsudev/versions.json` dựng từ bảng này rồi ký bằng khoá riêng
+// `tsu-versions-<năm>`. App có phiên bản < `latest` của KÊNH mình ⇒ modal khoá.
+//
+// Chốt chặn theo kênh: `latest` chỉ được nâng sau khi máy chủ GET thật `url` tải
+// được (`POST /api/admin/versions/:product/:channel`). Nâng sớm là khoá người dùng
+// mà không có bản để cập nhật. Ai nâng lúc nào ghi ở TrustAuditLog (bất biến).
+// ---------------------------------------------------------------------------
+model AppVersionChannel {
+  /// Mã sản phẩm (`qulythuchi`, `tsucwico`...) - khớp phần đầu của `X-Tsu-App`.
+  product    String
+  /// Kênh: `github`, `play`, `msstore`, `web`... - khớp phần cuối của `X-Tsu-App`.
+  channel    String
+  /// `YY.M.DDNN` (VERSIONING 2.1), không tiền tố `v`, không hậu tố bản thử.
+  latest     String
+  /// Trang tải/cập nhật của kênh; NULL chỉ hợp lệ với kênh `web`.
+  url        String?
+  /// Lúc máy chủ đo được `url` trả 200 đúng phiên bản.
+  verifiedAt DateTime
+  /// `pipeline` hoặc username ADMIN đã nâng.
+  raisedBy   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@id([product, channel])
 }

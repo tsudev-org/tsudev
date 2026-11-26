@@ -2,11 +2,12 @@
  * Trạng thái tài khoản cho app (LG3-a, tsudev-standards AUTH_AND_ACCOUNT 9.2 + 14.4.4).
  *
  * App đọc `status` + `status_reason` từ userinfo (OIDC) và từ JWS quyền lợi; app KHÔNG tự
- * suy luận vi phạm ở máy khách. Hàm này là nguồn DUY NHẤT của phép suy ra - đọc từ các cột
- * sẵn có của `User`, không thêm cột.
+ * suy luận vi phạm ở máy khách. Hàm này là nguồn DUY NHẤT của phép suy ra.
  *
- * `suspended` (khoá do vi phạm, chỉ quản trị gỡ) CHƯA có cột trong DB: giá trị nằm trong
- * kiểu để hợp đồng ổn định, và sẽ được suy ra khi có cột riêng (cần migration).
+ * `suspended` (tạm khoá do vi phạm, chỉ quản trị gỡ) đọc từ `User.suspendedAt` (migration
+ * 20261126120000). Nó đứng NGAY SAU `pending_deletion`: tài khoản đã hẹn xoá thì việc xoá
+ * quan trọng hơn với app, còn mọi trạng thái khác (vô hiệu hoá, khoá do sai mật khẩu, chưa
+ * xác minh) đều nhẹ hơn một quyết định của quản trị.
  */
 
 export const ACCOUNT_STATUSES = [
@@ -37,6 +38,7 @@ export type StatusInput = {
   lockedUntil: Date | null
   deactivatedAt: Date | null
   deletionScheduledAt: Date | null
+  suspendedAt: Date | null
 }
 
 export type StatusResult = { status: AccountStatus; status_reason: StatusReason | null }
@@ -47,6 +49,7 @@ export function accountStatus(u: StatusInput, now: Date): StatusResult {
   }
   // Vô hiệu hoá mềm do chính chủ: đăng nhập lại là khôi phục ⇒ gần nhất với `pending_deletion`
   // về hành vi app (không dùng được cho tới khi chủ tài khoản quay lại), nhưng giữ mã riêng.
+  if (u.suspendedAt) return { status: 'suspended', status_reason: 'account_suspended' }
   if (u.deactivatedAt) return { status: 'restricted', status_reason: 'account_deactivated' }
   if (u.lockedUntil && u.lockedUntil.getTime() > now.getTime()) {
     return { status: 'locked', status_reason: 'account_locked' }
@@ -66,4 +69,5 @@ export const STATUS_SELECT = {
   lockedUntil: true,
   deactivatedAt: true,
   deletionScheduledAt: true,
+  suspendedAt: true,
 } as const

@@ -293,6 +293,20 @@ describe('sổ cái + JWS phản ánh Pro', () => {
     expect(p).toMatchObject({ status: 'active', status_reason: 'account_unverified' })
     expect(p.pro_until).toBe(Math.floor(until.getTime() / 1000))
   })
+
+  it('tài khoản bị tạm khoá ⇒ JWS mang status suspended + account_suspended', async () => {
+    await prisma.user.update({ where: { id: userId }, data: { suspendedAt: new Date() } })
+    try {
+      const r = await request(app)
+        .get(`/ent/rp/${userId}`)
+        .set('Authorization', `Bearer ${assertion()}`)
+      expect(r.status).toBe(200)
+      const p = ent.verifyEs256(r.body.jws, signerPub()).payload
+      expect(p).toMatchObject({ status: 'suspended', status_reason: 'account_suspended' })
+    } finally {
+      await prisma.user.update({ where: { id: userId }, data: { suspendedAt: null } })
+    }
+  })
 })
 
 describe('GET /ent/rp/:sub (private_key_jwt)', () => {

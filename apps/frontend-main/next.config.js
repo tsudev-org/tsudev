@@ -67,6 +67,12 @@ const nextConfig = {
       ],
       afterFiles: [
         { source: '/.well-known/tsudev-release-jwks.json', destination: '/api/releases/jwks' },
+        // INT1-a: bản kê phiên bản có chữ ký + khoá công khai (pipeline nâng qua /api/versions/raise/*).
+        {
+          source:
+            '/.well-known/tsudev/:file(versions\\.json|versions\\.json\\.sig|versions-jwks\\.json)',
+          destination: '/api/versions/:file',
+        },
         // issuer https://tsudev.com/oidc → route proxy (đọc địa chỉ service lúc chạy).
         // 🔴 afterFiles được xét TRƯỚC trang có tham số động (`[uid]`) - chỉ sau trang TĨNH.
         // Bản `/oidc/:path*` trần nuốt luôn `/oidc/interaction/<uid>` sang provider ⇒ 404

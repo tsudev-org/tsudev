@@ -90,6 +90,16 @@ services:
         sync: false
       - key: RELEASE_SIGNING_KEY_ID
         sync: false
+      # INT1-a: khoá RIÊNG ký bản kê /.well-known/tsudev/versions.json (APP_INTEGRITY 2.1),
+      # kid tsu-versions-2026. Thiếu ⇒ ba đường bản kê trả 503, service VẪN khởi động (app giữ
+      # bản đệm). VERSIONS_RAISE_TOKEN: token của pipeline phát hành các repo (nâng `latest`,
+      # vẫn qua chốt chặn đo URL). Tệp gốc: ~/.config/tsudev/keys/tsu-versions-2026.env.
+      - key: VERSIONS_SIGNING_KEY
+        sync: false
+      - key: VERSIONS_SIGNING_KEY_ID
+        sync: false
+      - key: VERSIONS_RAISE_TOKEN
+        sync: false
       # Trung tâm an ninh phát hành (docs/security-plan.md §3, 06/11/2026).
       # RELEASE_INTEGRITY_TOKEN gác POST /api/internal/releases/integrity - PHẢI
       # GIỐNG secret cùng tên ở Worker cron (`npm run cron:secret-integrity`).

@@ -169,3 +169,47 @@ sha256sum app-1.0.0.apk                     # Windows: certutil -hashfile app-1.
 Chữ ký là JWS compact (`alg: EdDSA`, header có `kid`) - mục "Xem chữ ký" trong
 modal tải về. Kiểm bằng bất kỳ thư viện JOSE nào với khoá cùng `kid` trong JWKS,
 rồi so `payload.sha256` với kết quả `sha256sum`.
+
+## Bản kê phiên bản có chữ ký (INT1-a, 26/11/2026)
+
+Chuẩn: `.standards/docs/APP_INTEGRITY.md` mục 2.1. Mã: `services/content-service/src/versionsManifest.ts`,
+proxy `apps/frontend-main/pages/api/versions/[...path].ts`, bảng `AppVersionChannel`.
+
+| Đường                                                          | Việc                                                                  |
+| -------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `GET https://tsudev.com/.well-known/tsudev/versions.json`      | bản kê (byte đã ký, cache 300 s)                                      |
+| `GET https://tsudev.com/.well-known/tsudev/versions.json.sig`  | chữ ký tách của đúng các byte trên                                    |
+| `GET https://tsudev.com/.well-known/tsudev/versions-jwks.json` | khoá công khai `tsu-versions-2026` (app ghim lúc dựng)                |
+| `POST https://tsudev.com/api/versions/raise/<sản phẩm>/<kênh>` | pipeline nâng `latest` - header `x-versions-token`                    |
+| `GET/POST /api/admin/versions[/<sản phẩm>/<kênh>]` (backend)   | ADMIN (vai trò từ DB + 2FA) xem/nâng                                  |
+| `POST /api/internal/versions/<sản phẩm>/<kênh>` (backend)      | đích của proxy pipeline; chỉ `x-versions-token`, thiếu cấu hình ⇒ 503 |
+
+**Định dạng `.sig`**: JWS compact tách nội dung (RFC 7515 phụ lục F) `<b64url(header)>..<b64url(chữ ký)>`, header
+`{"alg":"EdDSA","kid":"tsu-versions-2026"}`. App kiểm Ed25519 trên `b64url(header) + "." + b64url(byte versions.json)`
+
+- trên byte TẢI VỀ, không parse rồi serialize lại. `expires_at` = `issued_at` + 7 ngày; bản kê dựng lại khi có lượt
+  nâng hoặc sau 1 ngày, nên bản đang phát còn ≥ 6 ngày và `issued_at` chỉ tăng.
+
+**Nâng `latest`** (body `{"latest":"26.11.2601","url":"https://github.com/tsudev-org/<repo>/releases/latest"}`):
+
+1. `latest` phải là bản chính thức `YY.M.DDNN`; không hạ phiên bản (409 `version_not_newer`).
+2. Chốt chặn theo kênh: máy chủ GET thật `url` (chỉ https, chỉ host phát hành: GitHub, Play, Microsoft Store, App
+   Store, `tsudev.com` - khớp chính xác, dựng lại URL từ host hằng số; chuyển hướng theo tay, tối đa 5 chặng). Chặng cuối phải 200; kênh không phải cửa hàng
+   (`github`, `winget`, `scoop`...) thì phiên bản phải có trong URL ở một chặng (thẻ `v26.11.2601` hay tên tệp).
+   Không đạt ⇒ 409 `download_unverified`, KHÔNG nâng. Kênh cửa hàng (`play`, `msstore`, `appstore`, `web`) chỉ đo
+   được "trang còn sống" - pipeline của kênh đó PHẢI tự xác nhận bản đã qua duyệt (API cửa hàng) trước khi gọi.
+3. Mỗi lượt nâng ghi `TrustAuditLog` (`versions.raise`, từ đâu lên đâu, url, IP) - bất biến.
+
+Ví dụ bước cuối của workflow phát hành (secret `TSU_VERSIONS_TOKEN` = `VERSIONS_RAISE_TOKEN`):
+
+```bash
+curl -fsS -X POST "https://tsudev.com/api/versions/raise/<ma-san-pham>/github" \
+  -H "x-versions-token: $TSU_VERSIONS_TOKEN" -H 'content-type: application/json' \
+  -d "{\"latest\":\"$VERSION\",\"url\":\"https://github.com/tsudev-org/<repo>/releases/tag/v$VERSION\"}"
+```
+
+**Khoá**: `VERSIONS_SIGNING_KEY` (PEM PKCS#8 base64) + `VERSIONS_SIGNING_KEY_ID` + `VERSIONS_SIGNING_KEYS_RETIRED`, KHÔNG
+dùng chung `RELEASE_SIGNING_KEY` (lộ một khoá không được cho phép giả cả bản cài lẫn lệnh khoá app). Thiếu ở production
+⇒ ba đường bản kê trả 503 nhưng backend VẪN khởi động (khác khoá bản phát hành: thiếu bản kê thì app giữ bản đệm,
+không ai bị chặn). Bản gốc: `~/.config/tsudev/keys/tsu-versions-2026.env` (quyền 600) - sao lưu cùng chỗ với
+`RELEASE_SIGNING_KEY`. Xoay khoá: phát bản app ghim CẢ khoá mới, chuyển khoá cũ vào `..._RETIRED`, rồi mới thay.

@@ -63,6 +63,8 @@ const ALLOWED = new Set([
   'useradmin/update',
   'useradmin/role',
   'useradmin/revoke',
+  // LG3: tạm khoá/gỡ tạm khoá (AUTH_AND_ACCOUNT 9.2) - OWNER + step-up ở auth-service.
+  'useradmin/suspend',
   'useradmin/delete',
   // Bí danh thư nội bộ. Giữ tên HAI đoạn cho nhất quán với phần còn lại của
   // nhóm này; `useradmin/alias/create` từng 404 vì trần độ dài, và cái 404 đó
