@@ -89,6 +89,9 @@ interface AccountRow {
   twoFactorEnabled: boolean;
   deactivatedAt: string | null;
   deletionScheduledAt: string | null;
+  /** LG3: tạm khoá do quản trị (AUTH_AND_ACCOUNT 9.2). */
+  suspendedAt?: string | null;
+  suspendedReason?: string | null;
 }
 
 /**
@@ -116,6 +119,10 @@ const ERR: Record<string, string> = {
   has_linked_records: 'Tài khoản có dữ liệu liên kết - hãy thu hồi vai trò và phiên thay vì xoá.',
   not_found: 'Không tìm thấy tài khoản.',
   forbidden: 'Chỉ tài khoản chủ sở hữu mới vào được trang này.',
+  reason_required: 'Cần nhập lý do.',
+  reason_too_long: 'Lý do dài quá 500 ký tự.',
+  already_suspended: 'Tài khoản đã đang bị tạm khoá.',
+  not_suspended: 'Tài khoản không bị tạm khoá.',
 };
 
 async function call(action: string, body: Record<string, unknown>) {
@@ -347,7 +354,7 @@ export default function AdminAccounts() {
    * đó sau khi có token mới.
    */
   async function guarded(
-    action: 'useradmin/role' | 'useradmin/delete',
+    action: 'useradmin/role' | 'useradmin/delete' | 'useradmin/suspend',
     body: Record<string, unknown>,
     label: string,
     onOk: () => void
@@ -451,6 +458,34 @@ export default function AdminAccounts() {
     setSelected(new Set());
     if (failed === 0) flash('success', `Đã thu hồi phiên của ${done} tài khoản.`);
     else flash('warning', `Đã thu hồi ${done} tài khoản, ${failed} tài khoản thất bại.`);
+  }
+
+  /**
+   * LG3: tạm khoá / gỡ tạm khoá. Lý do BẮT BUỘC (vào nhật ký kiểm toán và thư báo cho chủ
+   * tài khoản). Không thu hồi phiên: họ vẫn đăng nhập, xem và xuất dữ liệu được; mọi đường
+   * ghi trả 403 `account_suspended`.
+   */
+  async function toggleSuspend(u: AccountRow) {
+    const suspend = !u.suspendedAt;
+    const reason = prompt(
+      suspend
+        ? `Lý do tạm khoá "${u.username}" (gửi kèm thư báo cho chủ tài khoản, ghi nhật ký):`
+        : `Lý do gỡ tạm khoá "${u.username}" (ghi nhật ký):`
+    );
+    if (reason === null) return;
+    if (!reason.trim()) return flash('warning', 'Cần nhập lý do.');
+    await guarded(
+      'useradmin/suspend',
+      { id: u.id, suspended: suspend, reason: reason.trim() },
+      suspend ? `Tạm khoá "${u.username}"` : `Gỡ tạm khoá "${u.username}"`,
+      () => {
+        flash(
+          'success',
+          suspend ? `Đã tạm khoá "${u.username}".` : `Đã gỡ tạm khoá "${u.username}".`
+        );
+        load();
+      }
+    );
   }
 
   async function remove(u: AccountRow) {
@@ -667,6 +702,12 @@ export default function AdminAccounts() {
                             (emailGraceRemainingMs(null, u.createdAt) > 0
                               ? ' · chưa xác minh (còn ân hạn)'
                               : ' · chưa xác minh (quá hạn)')}
+                          {u.suspendedAt && (
+                            <span className="text-danger" title={u.suspendedReason ?? undefined}>
+                              {' '}
+                              · tạm khoá
+                            </span>
+                          )}
                           {u.deletionScheduledAt ? (
                             <span className="text-danger"> · hẹn xoá</span>
                           ) : u.deactivatedAt ? (
@@ -737,6 +778,9 @@ export default function AdminAccounts() {
                           <div className="flex gap-2 whitespace-nowrap">
                             <Button variant="secondary" size="sm" onClick={() => revoke(u)}>
                               Thu hồi phiên
+                            </Button>
+                            <Button variant="secondary" size="sm" onClick={() => toggleSuspend(u)}>
+                              {u.suspendedAt ? 'Gỡ tạm khoá' : 'Tạm khoá'}
                             </Button>
                             <Button variant="danger" size="sm" onClick={() => remove(u)}>
                               Xoá

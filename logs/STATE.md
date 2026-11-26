@@ -1,5 +1,55 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-INT1a, 26/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **INT1-b** (phiếu [`20261125-INT1`](handover/20261125-INT1_toan-ven-ung-dung-bat-buoc-cap-nhat.md) mục 6): cổng
+>    `X-Tsu-App` (400/426) cho `/api/me/entitlements`, `/api/rp/*`, `userinfo` đọc `AppVersionChannel`; bảng
+>    `SecurityAuditLog` + dọn > 12 tháng. ⛔ 👤 migrate Neon trước khi gộp. Prompt chuẩn ở cuối khối này.
+> 3. LG3 còn lại: gắn `<tsu-signin-reminder>` khi có trang cần.
+> 4. PRO3 còn: (e) logo BCT chờ DK2; khung ảnh Pro trên Avatar. 👤 xem lại `/pro`, `/terms`, `/privacy`,
+>    `/chinh-sach-thanh-toan` trước khi nộp BCT.
+>
+> Đã xong 26/11 (tsudev-INT1a): **INT1-a** - bản kê `/.well-known/tsudev/versions.json` + `.sig` (Ed25519 detached,
+> kid `tsu-versions-2026`) + JWKS, `POST /api/versions/raise/<sp>/<kênh>` (token riêng `VERSIONS_RAISE_TOKEN`, chốt
+> chặn đo URL); **`suspended` của LG3** - cột `User.suspendedAt`/`suspendedReason`, OWNER đặt/gỡ ở `/admin/accounts`,
+> 403 `account_suspended` ở cổng chung `@tsudev/auth`. Migration `20261126120000_ban_ke_phien_ban_tam_khoa` (thuần
+> thêm). Khoá + token ở `~/.config/tsudev/keys/tsu-versions-2026.env` (600) - 👤 đặt 3 biến lên Render.
+
+**Prompt chuẩn cho phiên kế tiếp** (từ 28/11 thêm câu đầu "Làm phiếu 20261128-NH1 trước."):
+
+```text
+Đọc AGENTS.md, rồi CHỈ khối 🔔 đầu tiên của logs/STATE.md và các phiếu nó trỏ tới
+(không đọc các khối 🔔 cũ hơn). Chạy akb start + akb search trước khi làm.
+
+Làm phase INT1-b (phiếu logs/handover/20261125-INT1 mục 6): cổng header
+X-Tsu-App: <sp>/<phiên bản>/<kênh> cho API mà app gọi (/api/me/entitlements,
+/api/rp/*, /ent/*, OIDC userinfo): thiếu/sai ⇒ 400; phiên bản < latest của kênh
+trong AppVersionChannel ⇒ 426 {"error":"update_required","latest","url"}; kênh
+khác/sản phẩm chưa có dòng ⇒ cho qua; BFF trình duyệt không bị cổng chặn. Bảng
+SecurityAuditLog (loại, client_id, jkt băm, IP rút gọn /24 hoặc /48) + dọn > 12
+tháng (PRODUCT_POLICY 7.7). Test 400/426/kênh khác; quét nguồn: mọi route app
+nằm sau cổng. Đổi schema.prisma ⇒ npm run db:generate.
+
+Quyền: tự chọn phương án kỹ thuật, tự commit/push/mở PR/gộp khi CI xanh,
+tự deploy frontend và đo production. Migration: URL Neon ở
+~/.config/tsudev/neon.env (không in nội dung) - pg_dump 18 sao lưu vào
+~/tsudev-backups, kiểm tệp dump tồn tại, migrate lên Neon TRƯỚC rồi mới gộp,
+xác nhận bằng prisma migrate status. Chỉ dừng hỏi khi gặp việc 👤 hoặc cổng
+Bảo vệ bản quyền.
+
+Tiết kiệm: định vị bằng grep rồi đọc đúng đoạn; chạy test theo workspace bị
+ảnh hưởng; gộp cổng (lint/typecheck/format) một lần cuối cụm; dồn sửa
+tài liệu/STATE/CHANGELOG vào cùng PR với code; chờ CI bằng tác vụ nền.
+
+Cuối phiên: cập nhật phiếu INT1 (mục kết quả), khối 🔔 mới ở đầu STATE,
+CHANGELOG nếu có deploy, akb close + akb sync, báo điều phối qua SendMessage.
+Trả lời tôi bằng tiếng Việt, ngắn gọn.
+```
+
+Chủ dự án muốn tự migrate ⇒ thay câu "Migration: ..." bằng: "Migration: KHÔNG tự chạy - khi PR sẵn sàng thì DỪNG, đưa
+tôi tên nhánh để tôi tự sao lưu + migrate theo docs/deployment.md, chờ tôi báo "đã migrate" rồi mới gộp."
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-LG3a, 26/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).

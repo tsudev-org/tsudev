@@ -12,6 +12,7 @@ const base = {
   lockedUntil: null,
   deactivatedAt: null,
   deletionScheduledAt: null,
+  suspendedAt: null,
 }
 
 describe('accountStatus', () => {
@@ -57,5 +58,24 @@ describe('accountStatus', () => {
       status: 'restricted',
       status_reason: 'account_deactivated',
     })
+  })
+  it('tạm khoá (suspendedAt) ⇒ suspended + account_suspended, thắng vô hiệu hoá/khoá/chưa xác minh', () => {
+    const u = {
+      ...base,
+      suspendedAt: now,
+      deactivatedAt: now,
+      lockedUntil: new Date(now.getTime() + 1),
+      emailVerifiedAt: null,
+      createdAt: new Date(now.getTime() - VERIFY_GRACE_MS - 1),
+    }
+    expect(accountStatus(u, now)).toEqual({
+      status: 'suspended',
+      status_reason: 'account_suspended',
+    })
+  })
+  it('đã hẹn xoá thì pending_deletion vẫn thắng tạm khoá', () => {
+    expect(accountStatus({ ...base, suspendedAt: now, deletionScheduledAt: now }, now).status).toBe(
+      'pending_deletion'
+    )
   })
 })

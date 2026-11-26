@@ -17,6 +17,7 @@ import { prisma } from '@tsudev/db'
 import type { Prisma } from '@prisma/client'
 import {
   createAuthMiddleware,
+  isReadMethod,
   hasConfirmedTotp,
   internalTokenMatches,
   issueStepUp,
@@ -36,6 +37,7 @@ import {
   interactionHint,
   oidcHandler,
 } from './oidc'
+import { accountStatus, STATUS_SELECT } from './accountStatus'
 import {
   assertTurnstileConfig,
   LOGIN_TURNSTILE_AFTER,
@@ -800,7 +802,29 @@ app.post(
 // tính của BFF. Các route phía trên (đăng ký, quên mật khẩu) cố ý công khai vì
 // người gọi chúng chưa có danh tính nào.
 // ---------------------------------------------------------------------------
-const auth = createAuthMiddleware('auth')
+// Tạm khoá (LG3, AUTH_AND_ACCOUNT 9.2 + 10): service này dùng POST cho cả việc ĐỌC (hộp
+// thư danh tính không đặt dữ liệu vào URL), nên nhóm "vẫn dùng được khi bị tạm khoá" phải
+// liệt kê tường minh. Ngoài danh sách = 403 `account_suspended`. Gồm: xem hồ sơ/thiết bị/
+// nhật ký của mình, làm mới phiên, đăng xuất mọi thiết bị (tự bảo vệ tài khoản), và đăng
+// nhập vào app qua OIDC (đăng nhập vẫn được - app nhận `status: suspended` từ IdP).
+// CỐ Ý chặn vô hiệu hoá/xoá tài khoản khi đang bị tạm khoá: giữ hiện trạng cho tới khi quản
+// trị xử lý xong vi phạm (dữ liệu vẫn xuất được).
+const SUSPENDED_MAY_POST = new Set([
+  '/api/identity/profile/get',
+  '/api/identity/passkey/list',
+  '/api/identity/oauth/list',
+  '/api/identity/security/posture',
+  '/api/identity/security/events',
+  '/api/identity/security/revoke-all',
+  '/api/identity/session-state',
+  '/api/identity/alias/list',
+])
+export const suspendedMayUse = (req: Request): boolean => {
+  if (isReadMethod(req)) return true
+  const path = req.originalUrl.split('?')[0] ?? ''
+  return SUSPENDED_MAY_POST.has(path) || path.startsWith('/api/identity/oidc/')
+}
+const auth = createAuthMiddleware('auth', { suspendedMayUse })
 app.use('/api/identity/totp', auth)
 // Xác thực lại cho thao tác nguy hiểm (G7).
 app.use('/api/identity/step-up', auth)
@@ -2229,6 +2253,8 @@ const publicUser = (u: {
   totp?: { confirmedAt: Date | null } | null
   deactivatedAt: Date | null
   deletionScheduledAt: Date | null
+  suspendedAt?: Date | null
+  suspendedReason?: string | null
 }) => ({
   id: u.id,
   username: u.username,
@@ -2254,6 +2280,8 @@ const publicUser = (u: {
   twoFactorEnabled: u.totp?.confirmedAt != null,
   deactivatedAt: u.deactivatedAt,
   deletionScheduledAt: u.deletionScheduledAt,
+  suspendedAt: u.suspendedAt ?? null,
+  suspendedReason: u.suspendedReason ?? null,
 })
 
 const USER_SELECT = {
@@ -2272,6 +2300,8 @@ const USER_SELECT = {
   passwordHash: true,
   deactivatedAt: true,
   deletionScheduledAt: true,
+  suspendedAt: true,
+  suspendedReason: true,
   oauthAccounts: { select: { provider: true } },
   _count: { select: { passkeys: true } },
   totp: { select: { confirmedAt: true } },
@@ -2613,6 +2643,88 @@ app.post(
     await auditUser(actor, 'user.revoke_sessions', id, target.username)
     logSecurity(id, 'sessions_revoked', req, { actor })
     return res.json({ ok: true })
+  })
+)
+
+/** Trần độ dài lý do tạm khoá (hiển thị cho chính chủ + ghi nhật ký). */
+const SUSPEND_REASON_MAX = 500
+
+/**
+ * OWNER: TẠM KHOÁ / GỠ tạm khoá (LG3, AUTH_AND_ACCOUNT 9.2 - "Quản trị viên" vào, "Quản trị
+ * viên gỡ" ra). Body `{ id, suspended: boolean, reason }`; lý do BẮT BUỘC cả khi đặt lẫn gỡ -
+ * nhật ký kiểm toán phải trả lời được "vì sao".
+ *
+ * KHÔNG thu hồi phiên: tài khoản bị tạm khoá vẫn đăng nhập, xem nội dung và xuất dữ liệu được
+ * (mục 10); cổng ở `@tsudev/auth` chặn mọi đường ghi bằng 403 `account_suspended`. App nhận
+ * `status: suspended` từ userinfo/JWS quyền lợi.
+ *
+ * Nhật ký: TrustAuditLog (bất biến, chuỗi băm, không bị dọn ⇒ giữ quá 12 tháng) ghi ai, từ
+ * trạng thái nào sang trạng thái nào, lý do, IP; thời điểm là `createdAt` do trigger đặt.
+ * Đòi step-up: cookie bị đánh cắp không được đủ để khoá hàng loạt tài khoản người khác.
+ */
+app.post(
+  '/api/identity/useradmin/suspend',
+  asyncHandler(async (req, res) => {
+    const actor = await requireOwner(req, res)
+    if (!actor) return
+
+    const id = str(req.body?.id, 60)
+    const suspended = req.body?.suspended
+    const reason = str(req.body?.reason, SUSPEND_REASON_MAX + 1).trim()
+    if (typeof suspended !== 'boolean') return res.status(400).json({ error: 'invalid_suspended' })
+    if (!reason) return res.status(400).json({ error: 'reason_required' })
+    if (reason.length > SUSPEND_REASON_MAX)
+      return res.status(400).json({ error: 'reason_too_long' })
+
+    const target = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        role: true,
+        username: true,
+        email: true,
+        displayName: true,
+        ...STATUS_SELECT,
+      },
+    })
+    if (!target) return res.status(404).json({ error: 'not_found' })
+    if (target.id === actor.id) return res.status(400).json({ error: 'cannot_change_self' })
+    if (target.role === 'OWNER') return res.status(403).json({ error: 'cannot_target_owner' })
+    if (Boolean(target.suspendedAt) === suspended) {
+      return res.status(409).json({ error: suspended ? 'already_suspended' : 'not_suspended' })
+    }
+    if (!requireStepUp(req, res, actor)) return
+
+    const now = new Date()
+    const before = accountStatus(target, now).status
+    const user = await prisma.user.update({
+      where: { id },
+      data: suspended
+        ? { suspendedAt: now, suspendedReason: reason }
+        : { suspendedAt: null, suspendedReason: null },
+      select: USER_SELECT,
+    })
+    const after = accountStatus({ ...target, suspendedAt: user.suspendedAt }, now).status
+    const ip = callerIp(req.headers as Record<string, unknown>, req.ip || '') || 'không rõ'
+    await auditUser(
+      actor,
+      suspended ? 'user.suspend' : 'user.unsuspend',
+      id,
+      target.username,
+      `${before} -> ${after} | lý do: ${reason} | ip: ${ip}`
+    )
+    logSecurity(id, suspended ? 'account_suspended' : 'account_unsuspended', req, {
+      actor,
+      note: reason,
+    })
+    sendAlert(
+      target,
+      suspended ? 'Tài khoản của bạn đang bị tạm khoá' : 'Tài khoản của bạn đã được gỡ tạm khoá',
+      suspended
+        ? `Lý do: ${reason}. Bạn vẫn đăng nhập, xem nội dung và xuất dữ liệu được; các thao tác ghi bị chặn cho tới khi quản trị gỡ khoá.`
+        : `Lý do: ${reason}.`
+    )
+    return res.json(publicUser(user))
   })
 )
 

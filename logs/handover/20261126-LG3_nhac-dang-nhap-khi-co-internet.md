@@ -64,3 +64,15 @@ một app Flutter (Android) + một app desktop Windows.
     đặt/gỡ + nhật ký kiểm toán 9.2; (2) chưa gắn `<tsu-signin-reminder>` vào trang nào của tsudev.com (web đăng nhập
     thẳng ở `/login`; gắn khi có PWA/site sản phẩm cần); (3) ca 14.4.7 cần trình duyệt thật (focus, Esc) - đo bằng
     Playwright khi gắn vào trang.
+- 26/11/2026 - tsudev: **`suspended` XONG** (cùng PR INT1-a, migration `20261126120000_ban_ke_phien_ban_tam_khoa`).
+  - Cột `User.suspendedAt` + `suspendedReason`; `accountStatus.ts` suy ra `suspended`/`account_suspended` (đứng sau
+    `pending_deletion`, trước mọi trạng thái khác) ⇒ có mặt ở userinfo/ID token và JWS quyền lợi.
+  - OWNER đặt/gỡ ở `/admin/accounts` (`POST /api/identity/useradmin/suspend`, step-up, lý do bắt buộc ≤ 500 ký tự), khớp
+    đủ bốn chỗ: route + test `useradmin` + proxy `ALLOWED` + trang. Nhật ký `TrustAuditLog` `user.suspend`/`user.unsuspend`
+    ghi "trạng thái cũ -> mới | lý do | ip" (thời điểm = `createdAt`; bảng bất biến, không dọn ⇒ ≥ 12 tháng) + sự kiện
+    bảo mật + thư báo cho chủ tài khoản. KHÔNG thu hồi phiên.
+  - Chặn: cổng chung trong `createAuthMiddleware` (`@tsudev/auth`) - người bị tạm khoá gọi đường ghi ⇒ 403
+    `account_suspended`; mặc định chỉ GET/HEAD/OPTIONS đi qua; auth-service liệt kê thêm các POST chỉ-đọc + đăng xuất mọi
+    thiết bị + OIDC (`SUSPENDED_MAY_POST`). Cố ý chặn vô hiệu hoá/xoá tài khoản khi đang bị tạm khoá. tsudev.com chưa
+    có endpoint Xuất dữ liệu riêng - mọi đường đọc (GET) vẫn chạy.
+  - Còn lại của hàng tsudev: gắn `<tsu-signin-reminder>` khi có trang cần (+ ca 14.4.7 trình duyệt thật).
