@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { MAIN_URL } from '@tsudev/ui';
 
-import { IDENTITY } from '../../../lib/services';
+import { IDENTITY, edgeHeaders } from '../../../lib/services';
 import { upstreamPath } from '../../../lib/identity';
 import {
   CACHEABLE_PATHS,
@@ -95,9 +95,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   };
   if (hit?.fresh) return sendCached(hit.doc);
   try {
-    const up = await fetch(`${IDENTITY}/oidc/${path}${qs}`, {
+    const url = `${IDENTITY}/oidc/${path}${qs}`;
+    const up = await fetch(url, {
       method: req.method,
-      headers,
+      // CP1: chữ ký biên, KHÔNG kèm INTERNAL_API_TOKEN (người gọi là RP/app, không phải BFF).
+      headers: { ...headers, ...edgeHeaders(req.method || 'GET', url) },
       body: body ? new Uint8Array(body) : undefined,
       redirect: 'manual',
     });

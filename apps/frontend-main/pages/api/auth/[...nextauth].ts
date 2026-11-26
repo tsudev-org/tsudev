@@ -76,7 +76,7 @@ async function verifyWithIdentityService(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...internalHeaders(),
+      ...internalHeaders('POST', `${IDENTITY}/api/identity/verify-credentials`),
       // Giới hạn tần suất theo IP nằm ở auth-service; nó cần IP THẬT của người
       // dùng, không phải IP của tiến trình Next. Quốc gia đi cùng đường.
       ...fwd,
@@ -135,7 +135,10 @@ const passkeyProvider = CredentialsProvider({
     }
     const res = await fetch(`${IDENTITY}/api/identity/passkey/login-verify`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...internalHeaders() },
+      headers: {
+        'Content-Type': 'application/json',
+        ...internalHeaders('POST', `${IDENTITY}/api/identity/passkey/login-verify`),
+      },
       body: JSON.stringify({ challengeId: credentials.challengeId, response: parsed }),
     });
     if (!res.ok) return null;
@@ -172,7 +175,7 @@ const qrProvider = CredentialsProvider({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...internalHeaders(),
+        ...internalHeaders('POST', `${IDENTITY}/api/identity/xd/redeem`),
         ...callerHeaders(req as unknown as NextApiRequest),
       },
       body: JSON.stringify({ ticket }),
@@ -272,7 +275,7 @@ async function freshSessionState(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...internalHeaders(),
+        ...internalHeaders('POST', `${IDENTITY}/api/identity/session-state`),
         ...(await identityHeaders(token)),
       },
       body: '{}',
@@ -310,7 +313,11 @@ async function upsertOAuthUser(
       method: 'POST',
       // `fwd` là BẮT BUỘC, không phải trang trí: endpoint này ghi dấu vết đăng
       // nhập, nên thiếu header ở đây là ghi IP của Render vào hồ sơ người dùng.
-      headers: { 'Content-Type': 'application/json', ...internalHeaders(), ...fwd },
+      headers: {
+        'Content-Type': 'application/json',
+        ...internalHeaders('POST', `${IDENTITY}/api/identity/oauth/upsert`),
+        ...fwd,
+      },
       body: JSON.stringify({
         provider,
         providerAccountId,
@@ -523,7 +530,7 @@ async function linkOAuthAccount(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...internalHeaders(),
+        ...internalHeaders('POST', `${IDENTITY}/api/identity/oauth/link`),
         ...(await identityHeaders(token)),
       },
       body: JSON.stringify({ provider, providerAccountId }),

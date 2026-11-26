@@ -9,7 +9,8 @@
     "secret-telegram": "wrangler secret put TELEGRAM_BOT_TOKEN && wrangler secret put TELEGRAM_CHAT_ID",
     "secret-neon": "wrangler secret put NEON_API_KEY && wrangler secret put NEON_PROJECT_ID",
     "secret-integrity": "wrangler secret put RELEASE_INTEGRITY_TOKEN && wrangler secret put INTERNAL_API_TOKEN",
-    "secret-views": "wrangler secret put POST_VIEWS_TOKEN"
+    "secret-views": "wrangler secret put POST_VIEWS_TOKEN",
+    "secret-edge": "wrangler secret put EDGE_SIGNING_KEY"
   },
   "devDependencies": {
     "wrangler": "^3.114.14"

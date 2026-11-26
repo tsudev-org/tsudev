@@ -77,7 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...internalHeaders(),
+        ...internalHeaders('POST', `${IDENTITY}/api/identity/${action}`),
         ...fwd,
       },
       body: JSON.stringify(req.body || {}),

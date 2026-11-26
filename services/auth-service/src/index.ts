@@ -18,6 +18,7 @@ import { prisma } from '@tsudev/db'
 import type { Prisma } from '@prisma/client'
 import {
   createAuthMiddleware,
+  edgeGuard,
   isReadMethod,
   hasConfirmedTotp,
   internalTokenMatches,
@@ -102,6 +103,8 @@ import {
 } from './throttle'
 
 export const app = express()
+// CP1: khoá origin `X-Tsu-Edge` - ĐẦU TIÊN, trước cổng phiên bản và OIDC (xem @tsudev/auth edge.ts).
+app.use(edgeGuard())
 // P4 OIDC: gắn TRƯỚC bộ parse body - provider (Koa) tự đọc thân request ở token
 // endpoint; express.json đọc trước là provider nhận luồng rỗng. Ngoài `/api` nên
 // không qua cổng INTERNAL_API_TOKEN: đây là giao thức công khai cho site con.

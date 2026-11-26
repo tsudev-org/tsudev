@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { CONTENT, internalHeaders } from '../../../lib/services';
+import { CONTENT, edgeHeaders, internalHeaders } from '../../../lib/services';
 
 /**
  * INT1-a - bản kê phiên bản có chữ ký (tsudev-standards APP_INTEGRITY 2.1).
@@ -25,7 +25,8 @@ let pair: Pair | null = null;
 let jwks: { body: Buffer; at: number } | null = null;
 
 async function fetchBytes(file: string): Promise<Buffer> {
-  const r = await fetch(`${CONTENT}/.well-known/tsudev/${file}`);
+  const url = `${CONTENT}/.well-known/tsudev/${file}`;
+  const r = await fetch(url, { headers: edgeHeaders('GET', url) });
   if (r.status !== 200) throw new Error(`upstream ${r.status}`);
   return Buffer.from(await r.arrayBuffer());
 }
@@ -96,7 +97,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const r = await fetch(`${CONTENT}/api/internal/versions/${product}/${channel}`, {
         method: 'POST',
         headers: {
-          ...internalHeaders(),
+          ...internalHeaders('POST', `${CONTENT}/api/internal/versions/${product}/${channel}`),
           'Content-Type': 'application/json',
           'x-versions-token': token,
         },

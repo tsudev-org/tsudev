@@ -31,7 +31,7 @@ async function fetchIdpHint(cookie: string | undefined): Promise<string | null> 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...internalHeaders(),
+        ...internalHeaders('POST', `${IDENTITY}/api/identity/oidc-hint`),
         'x-oidc-cookie': oidcCookies(cookie),
       },
       body: '{}',
@@ -60,7 +60,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, param
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...internalHeaders(),
+        ...internalHeaders('POST', `${IDENTITY}/api/identity/oidc/interaction`),
         ...(await identityHeaders(token)),
         'x-oidc-cookie': oidcCookies(req.headers.cookie),
       },

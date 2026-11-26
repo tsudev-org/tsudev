@@ -390,3 +390,6 @@ export function requireStepUp(
   });
   return false;
 }
+
+// CP1: khoá origin `X-Tsu-Edge` - xem edge.ts.
+export * from './edge';

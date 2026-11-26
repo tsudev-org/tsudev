@@ -17,6 +17,8 @@ import type { ErrorRequestHandler, NextFunction, Request, RequestHandler, Respon
 import { prisma } from '@tsudev/db'
 import {
   createAuthMiddleware,
+  edgeGuard,
+  edgeStats,
   internalTokenMatches,
   lookupUser,
   requireSecondFactor,
@@ -69,6 +71,8 @@ try {
   /* observability không bắt buộc */
 }
 const app = express()
+// CP1: khoá origin `X-Tsu-Edge` - ĐẦU TIÊN, trước mọi thứ (xem @tsudev/auth edge.ts).
+app.use(edgeGuard())
 app.use(express.json({ limit: '1mb' }))
 
 // Header bảo mật cho mọi phản hồi của service. Ba service đều phục vụ cho bên
@@ -1653,6 +1657,17 @@ app.post(
     const scan = await anNinh.traVirusTotal(doc.sha256)
     await anNinh.apDungKetQuaQuet({ ...r, project }, scan, actor)
     res.json(await prisma.projectRelease.findUnique({ where: { id: r.id } }))
+  })
+)
+
+/// CP1: bộ đếm khoá origin `X-Tsu-Edge` (lượt không qua biên theo lý do/tiền tố/loại UA) - bằng chứng để chuyển
+/// `EDGE_MODE=chan`. Bộ đếm nằm trong bộ nhớ tiến trình (`since` = lần khởi động); log Render giữ dòng đầu mỗi khoá.
+app.get(
+  '/api/admin/edge-stats',
+  asyncHandler(async (req, res) => {
+    if (!(await requireAdmin(req, res))) return
+    res.setHeader('Cache-Control', 'no-store')
+    res.json(edgeStats())
   })
 )
 

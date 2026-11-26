@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...internalHeaders(),
+        ...internalHeaders('POST', `${IDENTITY}/api/identity/oidc/interaction/finish`),
         ...(await identityHeaders(token)),
         'x-oidc-cookie': oidcCookies(req.headers.cookie),
       },

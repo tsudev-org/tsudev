@@ -3,11 +3,12 @@
 // chữ ký offline mà không cần tin API của tsudev. Nguồn: content-service.
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { CONTENT } from '../../../lib/services';
+import { CONTENT, edgeHeaders } from '../../../lib/services';
 
 export default async function handler(_req: NextApiRequest, res: NextApiResponse) {
   try {
-    const upstream = await fetch(`${CONTENT}/.well-known/tsudev-release-jwks.json`);
+    const url = `${CONTENT}/.well-known/tsudev-release-jwks.json`;
+    const upstream = await fetch(url, { headers: edgeHeaders('GET', url) });
     const data = await upstream.json();
     res.setHeader('Cache-Control', 'public, max-age=3600');
     return res.status(upstream.status).json(data);
