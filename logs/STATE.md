@@ -9,6 +9,10 @@
 > 3. **CP1 - khoá origin `X-Tsu-Edge`** (phiếu [`20261126-CP1`](handover/20261126-CP1_tram-dieu-hanh-va-cong-xac-thuc-tap-trung.md)
 >    mục 1; ADR-0005; chuẩn `.standards` v7.2.0 `CONTROL_PLANE.md` - đồng bộ `.standards` trước nếu còn v7.1.0).
 >    Các phase sau CP2-CP7 mỗi phiên một phase.
+>    3b. **Cloudflare Access cho `console.`** (chủ dự án uỷ quyền agent tự làm 26/11): có `~/.config/tsudev/cloudflare-access.env`
+>    - `console-access-emails.txt` ⇒ chạy `./scripts/cloudflare-access-console.sh --ap-dung`, kiểm ẩn danh ⇒ màn Access.
+>      `EDGE_SIGNING_KEY` đã sinh ở `~/.config/tsudev/keys/edge.env` (👤 đặt lên Render).
+>      3c. **Phiếu SEC3** toàn hệ (`logs/handover/20261126-SEC3_*`): phần của repo tsudev - kiểm kê, dọn PR, cổng mã sạch.
 > 4. **INT1-c** (Key Attestation) chỉ khi 👤 đã đưa SHA-256 chứng thư ký từng app; nếu chưa ⇒ để sau CP1.
 > 5. LG3: gắn `<tsu-signin-reminder>` khi có trang cần. PRO3: (e) logo BCT chờ DK2; khung ảnh Pro trên Avatar.
 >
