@@ -74,3 +74,5 @@
   `tsudev-console`, đặt secret + xoay `NEXTAUTH_SECRET`; đo ẩn danh `console.` ⇒ 302 Access, `tsudev.com` không hồi quy.
   Lượt deploy console đầu treo ở bước đẩy, chạy lại `CI=true < /dev/null` đạt (nguyên nhân chưa xác định).
   Còn 👤: 4 biến Render + đăng nhập mở `console./accounts`; rồi đo `edge-stats.hasConsoleKey`, log `[access]`.
+- 26/11/2026 - tsudev-CP2 (chốt): 👤 đã đặt 4 biến Render, deploy `live`. Backend nhận chữ ký biên khoá console (đo GET).
+  Còn một phép đo cần 👤: OWNER mở `console./accounts`, rồi đọc log Render `[access]`/`[console]`. Đạt mới làm **CP3**.

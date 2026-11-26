@@ -39,6 +39,9 @@ Từ lúc bước 4 có hiệu lực, `/admin/accounts` trên `tsudev.com` trả
 - Đăng nhập qua Access rồi mở `/accounts` ⇒ danh sách tài khoản.
 - Log Worker/Render: dòng `[access] JWT Access không đạt` phải trống trước khi đặt `CF_ACCESS_MODE=chan` (CP7).
 - `GET /api/admin/edge-stats` có `hasConsoleKey: true`.
+- Không cần phiên ADMIN: GET `<backend>/api/posts` ký `X-Tsu-Edge` bằng khoá console ⇒ 200; không ký hoặc ký sai ⇒ 401
+  (đúng khi cổng `INTERNAL_API_TOKEN` bật). Đo này chỉ chứng minh `EDGE_SIGNING_KEY_CONSOLE`; ba biến còn lại chứng
+  minh bằng việc mở `/accounts` và log không có `[access]` / `[console] chưa có`.
 
 ## 4. Sự cố và cửa khẩn cấp
 
