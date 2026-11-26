@@ -48,6 +48,7 @@
     "typecheck:ts7": "node scripts/typecheck-ts7.js",
     "knip": "knip --no-progress",
     "budget:js": "node scripts/ngan-sach-js.js",
+    "check:public-bundle": "node scripts/check-public-bundle.js",
     "build:ts": "tsc -b",
     "build:services": "tsc -b tsconfig.services.json",
     "db:backup": "bash scripts/sao-luu-db.sh",

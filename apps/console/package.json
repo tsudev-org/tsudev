@@ -12,8 +12,19 @@
     "test": "NODE_ENV=test jest --runInBand"
   },
   "dependencies": {
+    "@tiptap/extension-image": "3.33.1",
+    "@tiptap/extension-list": "3.33.1",
+    "@tiptap/extension-table": "3.33.1",
+    "@tiptap/markdown": "3.33.1",
+    "@tiptap/pm": "3.33.1",
+    "@tiptap/react": "3.33.1",
+    "@tiptap/starter-kit": "3.33.1",
     "@tsudev/identity-token": "*",
+    "@tsudev/search": "*",
     "@tsudev/types": "*",
+    "@tsudev/ui": "*",
+    "dompurify": "3.5.0",
+    "marked": "17.0.6",
     "next": "16.4.6",
     "next-auth": "^4.24.15",
     "react": "^19.3.1",
@@ -35,6 +46,9 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/.next/",
       "<rootDir>/.open-next/"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^marked$": "<rootDir>/../../node_modules/marked/lib/marked.umd.js"
+    }
   }
 }

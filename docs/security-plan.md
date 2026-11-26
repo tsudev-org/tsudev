@@ -99,7 +99,7 @@ Kết quả: `npm audit --omit=dev` = **0 lỗ hổng** (trước: 7, gồm 2 cr
 | G11 | ĐÓNG 15/11/2026: 6 khoá production (ký phát hành, TOTP, OIDC, identity, integrity) mã hoá `age` từ Render API thẳng vào tệp, 2 nơi (máy dev + ổ `E:`); giải mã thử đủ 6 khoá | `infrastructure/sao-luu/README.md`; khoá riêng ở điện thoại + ổ `E:` của chủ dự án        |
 | G12 | ĐÓNG 15/11/2026: 2 bản dump mã hoá, giải mã thử KHỚP từng byte + `pg_restore --list` đọc được; bản dạng rõ đã `shred`                                                        | `npm run db:backup`, `scripts/sao-luu-db.sh --kiem`                                       |
 
-## 3. Trung tâm an ninh phát hành - `/admin/release-security`
+## 3. Trung tâm an ninh phát hành - `console.tsudev.com/release-security`
 
 > **Đã dựng 06/11/2026** (B1-B7). Phần dưới là thiết kế; chỗ hiện trạng khác thiết
 > kế được ghi ở §3.5.

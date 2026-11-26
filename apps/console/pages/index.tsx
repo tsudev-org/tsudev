@@ -1,64 +1,50 @@
-import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
-import { Card } from '@tsudev/ui';
+import { Card, Container } from '@tsudev/ui';
 
 import { ConsoleLayout } from '../components/ConsoleLayout';
-import { readSessionToken, viewerFrom, type Viewer } from '../lib/server';
+import Seo from '../components/Seo';
+import { areasFor } from '../lib/areas';
+import { useViewer } from '../lib/session';
 
-/**
- * Tổng quan trạm điều hành (CP2). Trang này KHÔNG gọi backend: chỉ cho biết ai đang xem và dẫn tới các khu đã dời
- * sang. Bảng An ninh (bộ đếm biên, SecurityAuditLog) đến ở CP5; các khu `/admin/*` còn lại dời ở CP3.
- */
-const AREAS = [
-  {
-    href: '/accounts',
-    title: 'Tài khoản & phân quyền',
-    desc: 'Tạo tài khoản, đổi vai trò, thu hồi phiên, tạm khoá, bí danh thư. Chỉ chủ sở hữu, cần 2FA.',
-    ready: true,
-  },
-  {
-    href: null,
-    title: 'Nội dung, dự án, bản phát hành, thanh toán',
-    desc: 'Vẫn ở tsudev.com/admin - dời sang đây ở phase CP3 (sau đó /admin trả 308).',
-    ready: false,
-  },
-  {
-    href: null,
-    title: 'An ninh & cảnh báo',
-    desc: 'Nhật ký an ninh, bộ đếm lượt không qua biên, cảnh báo gom thư - phase CP5.',
-    ready: false,
-  },
-];
+export { getServerSideProps } from '../lib/ssr';
 
-export default function ConsoleHome({ viewer }: { viewer: Viewer }) {
+/** Tổng quan trạm điều hành: ai đang xem và các khu họ dùng được. Bảng An ninh đến ở CP5. */
+export default function ConsoleHome() {
+  const viewer = useViewer();
+  const areas = areasFor(viewer?.role);
   return (
-    <ConsoleLayout title="Tổng quan" viewer={viewer}>
-      <h1 className="mb-2 text-2xl font-semibold">Trạm điều hành</h1>
-      <p className="mb-8 text-fg-secondary">
-        Mọi thao tác ghi lên dữ liệu dùng chung của hệ TsuDEV đi qua đây, sau Cloudflare Access và
-        tài khoản có 2FA.
-      </p>
-      <div className="grid gap-4 md:grid-cols-3">
-        {AREAS.map((a) => (
-          <Card key={a.title} className="p-5">
-            <h2 className="mb-1 font-semibold">
-              {a.href ? (
+    <ConsoleLayout>
+      <Seo title="Tổng quan" />
+      <Container className="py-8">
+        <h1 className="mb-2 text-2xl font-semibold">Trạm điều hành</h1>
+        <p className="mb-8 text-fg-secondary">
+          Mọi thao tác ghi lên dữ liệu dùng chung của hệ TsuDEV đi qua đây, sau Cloudflare Access và
+          tài khoản có 2FA.
+        </p>
+        {!viewer && (
+          <p className="text-fg-secondary">
+            <a href="/login" className="text-link hover:underline">
+              Đăng nhập ở tsudev.com
+            </a>{' '}
+            rồi quay lại đây.
+          </p>
+        )}
+        {viewer && areas.length === 0 && (
+          <p className="text-fg-secondary">Tài khoản của bạn chưa có quyền vận hành khu nào.</p>
+        )}
+        <div className="grid gap-4 md:grid-cols-3">
+          {areas.map((a) => (
+            <Card key={a.href} className="p-5">
+              <h2 className="mb-1 font-semibold">
                 <Link href={a.href} className="hover:underline">
-                  {a.title}
+                  {a.label}
                 </Link>
-              ) : (
-                a.title
-              )}
-            </h2>
-            <p className="text-sm text-fg-secondary">{a.desc}</p>
-            {!a.ready && <p className="mt-3 text-xs text-fg-muted">Chưa dời</p>}
-          </Card>
-        ))}
-      </div>
+              </h2>
+              <p className="text-sm text-fg-secondary">{a.desc}</p>
+            </Card>
+          ))}
+        </div>
+      </Container>
     </ConsoleLayout>
   );
 }
-
-export const getServerSideProps: GetServerSideProps = async ({ req }) => ({
-  props: { viewer: viewerFrom(await readSessionToken(req)) },
-});

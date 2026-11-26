@@ -136,11 +136,15 @@ một đường đăng nhập đang chờ tới lượt hỏng.
 
 Tài khoản đã seed:
 
-| Username | Vai trò | Dùng để thử                                 |
-| -------- | ------- | ------------------------------------------- |
-| `tsudev` | OWNER   | `/admin`, `/admin/projects` (bản phát hành) |
-| `alice`  | MEMBER  | luồng người dùng thường                     |
-| `bob`    | AUTHOR  | `/studio` - đăng bài và tài liệu            |
+| Username | Vai trò | Dùng để thử                               |
+| -------- | ------- | ----------------------------------------- |
+| `tsudev` | OWNER   | console: `/`, `/projects` (bản phát hành) |
+| `alice`  | MEMBER  | luồng người dùng thường                   |
+| `bob`    | AUTHOR  | console: `/studio` - đăng bài và tài liệu |
+
+Trang điều hành (CP3) ở `http://console.tsudev.localhost:8080` - đăng nhập ở `tsudev.localhost:8080` trước, cookie
+phiên dùng chung miền. Console ký khẳng định bằng `INTERNAL_IDENTITY_SECRET_CONSOLE` (giá trị dev trong
+`.env.example`); thiếu biến này thì mọi lời gọi điều hành ở console lỗi.
 
 Gọi API trực tiếp (không qua trình duyệt) thì tự ký một khẳng định danh tính bằng `@tsudev/identity-token` - xem
 [auth.md](auth.md).

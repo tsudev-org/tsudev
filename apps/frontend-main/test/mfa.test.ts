@@ -66,7 +66,10 @@ describe('hợp đồng với backend', () => {
   });
 
   test('trang tài khoản xử lý step-up cho đổi vai trò và xoá (G7)', () => {
-    const src = readFileSync(join(__dirname, '../components/admin/AccountsAdmin.tsx'), 'utf8');
+    const src = readFileSync(
+      join(__dirname, '../../console/components/admin/AccountsAdmin.tsx'),
+      'utf8'
+    );
     expect(src).toContain('isStepUpRequired(');
     expect(src).toMatch(/guarded\(\s*'useradmin\/role'/);
     expect(src).toMatch(/guarded\(\s*'useradmin\/delete'/);
@@ -86,12 +89,12 @@ describe('hợp đồng với backend', () => {
 
   test('mọi chỗ gọi API quản trị đều nhận diện MFA_REQUIRED', () => {
     for (const f of [
-      'pages/admin/projects.tsx',
-      'pages/admin/content.tsx',
-      'components/admin/AccountsAdmin.tsx',
-      'pages/admin/security.tsx',
-      'components/ReleaseManager.tsx',
-      'components/EmailAliases.tsx',
+      '../console/pages/projects.tsx',
+      '../console/pages/content.tsx',
+      '../console/components/admin/AccountsAdmin.tsx',
+      '../console/pages/security.tsx',
+      '../console/components/ReleaseManager.tsx',
+      '../console/components/EmailAliases.tsx',
     ]) {
       const src = readFileSync(join(__dirname, '..', f), 'utf8');
       expect({ f, ok: src.includes('isMfaRequired(') }).toEqual({ f, ok: true });

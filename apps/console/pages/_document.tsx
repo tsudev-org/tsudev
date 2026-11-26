@@ -11,12 +11,14 @@ import type { DocumentContext, DocumentInitialProps } from 'next/document';
 const THEME_SCRIPT = `(function(){var m=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';try{var s=localStorage.getItem('tsudev-theme');if(s==='dark'||s==='light'){m=s}else if(s==='warm'){m='light'}}catch(e){}document.documentElement.setAttribute('data-theme',m)})();`;
 
 /**
- * Trusted Types: bộ nạp trang của Next (pages router, `route-loader.js`) nối chuỗi vào TrustedScriptURL (`+ asset
- * token query`) nên giá trị thành chuỗi thường và bị chặn - đo 26/11/2026 bằng Chromium: trang không chuyển được.
- * Chính sách `default` dưới đây CHỈ có `createScriptURL` và chỉ nhận URL CÙNG ORIGIN dưới `/_next/static/`; mọi sink
- * HTML/script (innerHTML, eval...) vẫn bị chặn vì chính sách không khai `createHTML`/`createScript`.
+ * Trusted Types - chính sách `default`, định nghĩa TRƯỚC mọi script khác:
+ *  - `createScriptURL`: bộ nạp trang của Next (pages router, `route-loader.js`) nối chuỗi vào TrustedScriptURL nên
+ *    giá trị thành chuỗi thường (đo 26/11/2026: trang không chuyển được). Chỉ nhận URL CÙNG ORIGIN dưới
+ *    `/_next/static/`;
+ *  - `createHTML`: chuyển cho DOMPurify (`lib/sanitize.ts`, gắn ở `_app`). Bộ lọc chưa gắn ⇒ NÉM, không thả qua.
+ * Không khai `createScript` ⇒ eval và script nội tuyến dạng chuỗi vẫn bị chặn.
  */
-const TT_SCRIPT = `(function(){var t=window.trustedTypes;if(!t||!t.createPolicy)return;try{t.createPolicy('default',{createScriptURL:function(u){var x=new URL(u,location.href);if(x.origin===location.origin&&x.pathname.indexOf('/_next/static/')===0)return x.href;throw new TypeError('Trusted Types: chặn script '+x.origin+x.pathname)}})}catch(e){}})();`;
+const TT_SCRIPT = `(function(){var t=window.trustedTypes;if(!t||!t.createPolicy)return;try{t.createPolicy('default',{createScriptURL:function(u){var x=new URL(u,location.href);if(x.origin===location.origin&&x.pathname.indexOf('/_next/static/')===0)return x.href;throw new TypeError('Trusted Types: chặn script '+x.origin+x.pathname)},createHTML:function(h){var f=window.tsuSanitizeHtml;if(typeof f==='function')return f(h);throw new TypeError('Trusted Types: bộ lọc HTML chưa sẵn sàng')}})}catch(e){}})();`;
 
 type Props = DocumentInitialProps & { nonce?: string };
 

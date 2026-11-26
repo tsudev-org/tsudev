@@ -19,7 +19,25 @@ import { roleFromToken, usernameFromToken } from '../../frontend-main/lib/identi
 
 export { IDENTITY, internalHeaders } from '../../frontend-main/lib/services';
 export { readSessionToken } from '../../frontend-main/lib/sessionCookie';
-export { catchAllSegments } from '../../frontend-main/lib/identity';
+export { catchAllSegments, queryStringOf, upstreamPath } from '../../frontend-main/lib/identity';
+export { CONTENT } from '../../frontend-main/lib/services';
+
+/**
+ * Lượt GHI phải đến từ chính trang console. Cookie phiên mang `Domain=.tsudev.com` và `SameSite=Lax`, nên một trang
+ * ở tên miền con khác vẫn là "same-site" - chặn ở đây, không dựa vào cookie. Không có cả `Sec-Fetch-Site` lẫn
+ * `Origin` ⇒ từ chối (trình duyệt luôn gửi `Origin` cho POST/PUT/PATCH/DELETE).
+ */
+export function isSameOrigin(h: Record<string, string | string[] | undefined>): boolean {
+  const site = h['sec-fetch-site'];
+  if (typeof site === 'string') return site === 'same-origin';
+  const origin = h.origin;
+  if (typeof origin !== 'string' || typeof h.host !== 'string') return false;
+  try {
+    return new URL(origin).host === h.host;
+  } catch {
+    return false;
+  }
+}
 
 export async function consoleIdentityHeaders(token: JWT): Promise<Record<string, string>> {
   const secret = readSecret(process.env, 'console');

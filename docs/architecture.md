@@ -68,11 +68,16 @@ Prisma → PostgreSQL (Neon)   ·   S3/R2 (storage + bản phát hành)
 
 | Proxy                                                          | Đích            |
 | -------------------------------------------------------------- | --------------- |
-| `/api/content/[...path]` - nhánh `admin`, `author`             | content-service |
-| `/api/storage/[...path]`                                       | storage-service |
-| `/api/identity/*`, `/api/account/*`                            | auth-service    |
+| `/api/identity/*`, `/api/account/*` (tự phục vụ + step-up)     | auth-service    |
 | `/api/releases/<slug>/<id>` (tải về, công khai)                | content-service |
 | `/api/releases/jwks` ← `/.well-known/tsudev-release-jwks.json` | content-service |
+
+**Từ CP3 (27/11/2026) mọi thao tác điều hành nằm ở `console.tsudev.com`** (`apps/console`, sau Cloudflare
+Access - [console-access.md](console-access.md)): quản trị, Studio, duyệt bài, bản phát hành, quản lý tài khoản,
+đối soát thanh toán. Proxy `/api/content/*` (nhánh `admin`, `author`) và `/api/account/*` điều hành
+(`useradmin`, `payadmin`, `alias`) chỉ có ở console và ký khẳng định vùng `console`; backend từ chối vùng main ở
+các route đó (`requireConsole()`). `tsudev.com/admin*`, `/studio*`, `/author*` chuyển 308 sang console.
+`npm run check:public-bundle` (CI) quét bản dựng công khai để không đường điều hành nào quay lại.
 
 Proxy dùng **danh sách trắng tiền tố**: nhánh chưa khai thì 404. Bỏ sót một nhánh
 là nó không chạy - an toàn hơn lỡ mở cả `/api`.

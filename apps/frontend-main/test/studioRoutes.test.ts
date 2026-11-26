@@ -17,21 +17,23 @@ function files(dir: string): string[] {
 }
 
 describe('UX1-a - /author → /studio', () => {
-  test('/author* chuyển hướng permanent (308), ?tab=docs đứng trước luật chung', () => {
+  test('/studio* và /author* chuyển hướng permanent (308) sang console, ?tab=docs đứng trước luật chung', () => {
     const cfg = read('next.config.js');
-    const docs = cfg.indexOf("destination: '/studio/docs'");
-    const base = cfg.indexOf("{ source: '/author', destination: '/studio', permanent: true }");
-    const deep = cfg.indexOf(
-      "{ source: '/author/:path*', destination: '/studio/:path*', permanent: true }"
+    const docs = cfg.indexOf('destination: `${CONSOLE_URL}/studio/docs`');
+    const base = cfg.indexOf(
+      "{ source: '/author', destination: `${CONSOLE_URL}/studio`, permanent: true }"
     );
     expect(docs).toBeGreaterThan(-1);
     expect(base).toBeGreaterThan(docs);
-    expect(deep).toBeGreaterThan(-1);
+    for (const src of ['/author/:path*', '/studio/:path*'])
+      expect(cfg).toContain(
+        `{ source: '${src}', destination: \`\${CONSOLE_URL}/studio/:path*\`, permanent: true }`
+      );
   });
 
-  test('trang cũ đã gỡ, trang Studio có đủ', () => {
-    expect(existsSync(join(root, 'pages/author.tsx'))).toBe(false);
-    expect(existsSync(join(root, 'pages/author'))).toBe(false);
+  test('trang cũ đã gỡ, trang Studio có đủ ở console', () => {
+    for (const gone of ['pages/author.tsx', 'pages/author', 'pages/studio', 'pages/admin'])
+      expect(existsSync(join(root, gone))).toBe(false);
     for (const p of [
       'pages/studio/index.tsx',
       'pages/studio/posts/index.tsx',
@@ -39,12 +41,13 @@ describe('UX1-a - /author → /studio', () => {
       'pages/studio/posts/[slug]/history.tsx',
       'pages/studio/docs/index.tsx',
     ])
-      expect(existsSync(join(root, p))).toBe(true);
+      expect(existsSync(join(root, '..', 'console', p))).toBe(true);
   });
 
   test('không còn liên kết tới /author (ngoài bảng chuyển hướng và đường API)', () => {
     const dirs = [join(root, 'pages'), join(root, 'components'), join(root, 'lib')];
     dirs.push(join(root, '..', '..', 'packages', 'ui', 'src'));
+    for (const d of ['pages', 'components', 'lib']) dirs.push(join(root, '..', 'console', d));
     const sai: string[] = [];
     for (const f of dirs.flatMap(files)) {
       // Bỏ chú thích: lịch sử đổi tên được phép nhắc tới đường cũ.
@@ -65,6 +68,6 @@ describe('UX1-a - /author → /studio', () => {
     );
     expect(nav).not.toMatch(/path: '\/(author|studio)'/);
     const menu = header.slice(header.indexOf('const UserMenu'));
-    expect(menu).toMatch(/canAuthor && \(\s*<a href="\/studio"/);
+    expect(menu).toMatch(/canAuthor && \(\s*<a href=\{`\$\{CONSOLE_URL\}\/studio`\}/);
   });
 });

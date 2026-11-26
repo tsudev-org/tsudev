@@ -2,7 +2,7 @@
   "rules": [
     {
       "allowed": {
-        "origins": ["https://tsudev.com", "https://www.tsudev.com"],
+        "origins": ["https://console.tsudev.com"],
         "methods": ["PUT", "GET", "HEAD"],
         "headers": ["Content-Type"]
       },

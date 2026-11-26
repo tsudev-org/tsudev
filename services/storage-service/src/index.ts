@@ -98,7 +98,13 @@ const {
 } = require('@aws-sdk/client-s3')
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { prisma } from '@tsudev/db'
-import { createAuthMiddleware, edgeGuard, internalTokenMatches, requireRole } from '@tsudev/auth'
+import {
+  createAuthMiddleware,
+  edgeGuard,
+  internalTokenMatches,
+  requireConsole,
+  requireRole,
+} from '@tsudev/auth'
 import { pageMeta, parsePaging } from '@tsudev/types'
 import { createRateLimit, identityKey, largePageRateLimit, peerIp } from '@tsudev/ratelimit'
 
@@ -208,6 +214,8 @@ async function generatePresign(cmd: Parameters<typeof getSignedUrl>[1]) {
 // Xác thực dùng chung. Trước đây mỗi service giữ một bản authMiddleware gần
 // trùng nhau, và CLAUDE.md phải cảnh báo "đổi hành vi xác thực phải sửa cả ba".
 const auth = createAuthMiddleware('storage')
+// CP3 (ADR-0005 L5): xin URL tải lên / tải tệp là đường GHI vào kho dùng chung ⇒ chỉ nhận vùng `console`.
+const consoleOnly = requireConsole('storage-service')
 
 async function ensureBucket() {
   try {
@@ -323,6 +331,7 @@ app.get(
 app.get(
   '/api/presign',
   auth,
+  consoleOnly,
   requireRole('MEMBER'),
   asyncHandler(async (req, res) => {
     const contentType = qStr(req.query.contentType) || 'application/octet-stream'
@@ -343,6 +352,7 @@ app.get(
 app.post(
   '/api/presign',
   auth,
+  consoleOnly,
   requireRole('MEMBER'),
   asyncHandler(async (req, res) => {
     const { fileName, contentType } = req.body || {}
@@ -365,6 +375,7 @@ app.post(
 app.post(
   '/api/upload',
   auth,
+  consoleOnly,
   requireRole('MEMBER'),
   express.raw({ type: '*/*', limit: '100mb' }),
   asyncHandler(async (req, res) => {

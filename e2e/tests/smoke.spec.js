@@ -13,6 +13,7 @@ const { signIn: signInAs, submitPassword, TOTP_INPUT } = require('./helpers/logi
 // "trang trả về 200" - trang rỗng vẫn trả 200.
 
 const MAIN = process.env.E2E_MAIN_URL || publicUrl(loadTopology(), 'main');
+const CONSOLE = process.env.E2E_CONSOLE_URL || publicUrl(loadTopology(), 'console');
 
 // Đăng nhập bằng ĐÚNG luồng của người dùng thật - mật khẩu Argon2id trong DB,
 // kiểm bởi auth-service, rồi mã TOTP cho tài khoản đã bật 2FA. Helper dùng
@@ -50,7 +51,7 @@ test('tài liệu: danh sách có mục thật và mở được trang chi tiế
 // cũng là đổi bề mặt: trang cũ phải 404 thật, không phải còn sót một trang mồ côi
 // gọi tới backend đã không còn.
 test('con dấu đã gỡ: /trust/* trả 404 và không còn trong điều hướng', async ({ page }) => {
-  for (const path of ['/trust', '/trust/verify', '/trust/directory', '/admin/trust']) {
+  for (const path of ['/trust', '/trust/verify', '/trust/directory']) {
     const res = await page.request.get(`${MAIN}${path}`);
     expect(res.status(), `${path} lẽ ra phải 404`).toBe(404);
   }
@@ -116,7 +117,7 @@ test('tsudev: mật khẩu đúng mà thiếu mã TOTP thì không có phiên', 
 
 test('khu vực quản trị mở được sau khi đăng nhập bằng tsudev', async ({ page }) => {
   await signIn(page);
-  await page.goto(`${MAIN}/admin`, { waitUntil: 'networkidle' });
+  await page.goto(`${CONSOLE}/`, { waitUntil: 'networkidle' });
   // Chưa đăng nhập thì trang hiện lời mời đăng nhập - thấy nút đó nghĩa là hỏng.
   await expect(page.locator('button:has-text("Đăng nhập")')).toHaveCount(0);
 });
@@ -144,18 +145,36 @@ test('dự án: danh sách có dự án thật và mở được trang chi tiế
 });
 
 test('đường ghi dự án từ chối người chưa đăng nhập', async ({ page }) => {
-  // BFF không được để lọt request ghi nào ra content-service khi không có phiên.
-  // Hỏng chỗ này là bất kỳ ai cũng sửa được danh mục dự án.
-  const res = await page.request.post(`${MAIN}/api/content/admin/projects`, {
+  // CP3: tsudev.com không còn proxy /api/content - đường ghi chỉ ở console, và ở đó cũng phải từ chối khi không
+  // có phiên (hay không cùng origin). Hỏng chỗ này là bất kỳ ai cũng sửa được danh mục dự án.
+  const pub = await page.request.post(`${MAIN}/api/content/admin/projects`, {
     data: { slug: 'ke-gian', name: 'x', summary: 'x' },
     failOnStatusCode: false,
   });
-  expect(res.status()).toBe(401);
+  expect(pub.status()).toBe(404);
+  const con = await page.request.post(`${CONSOLE}/api/content/admin/projects`, {
+    data: { slug: 'ke-gian', name: 'x', summary: 'x' },
+    failOnStatusCode: false,
+  });
+  expect([401, 403]).toContain(con.status());
+});
+
+test('CP3: đường điều hành cũ ở tsudev.com chuyển 308 sang console', async ({ page }) => {
+  for (const [from, to] of [
+    ['/admin', '/'],
+    ['/admin/projects', '/projects'],
+    ['/studio', '/studio'],
+    ['/studio/posts/new', '/studio/posts/new'],
+  ]) {
+    const res = await page.request.get(`${MAIN}${from}`, { maxRedirects: 0 });
+    expect(res.status(), from).toBe(308);
+    expect(res.headers()['location'], from).toBe(`${CONSOLE}${to}`);
+  }
 });
 
 test('quản trị dự án mở được và thấy danh sách', async ({ page }) => {
   await signIn(page);
-  await page.goto(`${MAIN}/admin/projects`, { waitUntil: 'networkidle' });
+  await page.goto(`${CONSOLE}/projects`, { waitUntil: 'networkidle' });
   await expect(page.getByRole('heading', { name: 'Dự án & bản quyền' })).toBeVisible();
   await expect(page.getByText('tsudev-platform')).toBeVisible({ timeout: 10000 });
 });

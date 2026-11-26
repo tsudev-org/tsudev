@@ -30,8 +30,13 @@ Giao diện: CSP nonce + `strict-dynamic`, Trusted Types, `no-store`, `noindex`,
    (từ `~/.config/tsudev/keys/console.env`), `CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD_CONSOLE`
    (từ `keys/console-access.env`).
 
-Từ lúc bước 4 có hiệu lực, `/admin/accounts` trên `tsudev.com` trả 403 `console_required` - dùng
-`console.tsudev.com/accounts`. Làm bước 4 **sau** khi bước 1-3 đã đo đạt.
+Từ lúc bước 4 có hiệu lực, mọi route điều hành của backend (content `/api/admin` + `/api/author`, useradmin,
+payadmin, alias, presign/upload) trả 403 `console_required` với khẳng định vùng main. Từ CP3 (27/11/2026)
+`tsudev.com` không còn trang hay proxy điều hành nào: `/admin*`, `/studio*`, `/author*` chuyển 308 sang console.
+Làm bước 4 **sau** khi bước 1-3 đã đo đạt.
+
+⚠️ Tác giả (AUTHOR) khác chủ dự án vào Studio qua console ⇒ email của họ phải nằm trong policy Access, nếu không
+308 đưa họ tới màn chặn của Access.
 
 ## 3. Đo
 
@@ -45,12 +50,12 @@ Từ lúc bước 4 có hiệu lực, `/admin/accounts` trên `tsudev.com` trả
 
 ## 4. Sự cố và cửa khẩn cấp
 
-| Hỏng gì                                  | Cách vào / lùi                                                                                                                                   |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Access chặn nhầm (mất email OTP)         | chủ dự án sửa policy ở dashboard Zero Trust, hoặc sửa tệp email rồi chạy lại script                                                              |
-| L2 `chan` chặn nhầm                      | đặt `CF_ACCESS_MODE=ghi` ở Worker console và Render                                                                                              |
-| Console không ghi được (lệch khoá)       | **gỡ** `INTERNAL_IDENTITY_SECRET_CONSOLE` trên Render ⇒ backend nhận lại khẳng định vùng main, dùng `/admin/accounts` cũ (đường này còn tới CP3) |
-| Cần cấp/thu quyền khi mọi giao diện hỏng | sửa `User.role` trực tiếp trên Neon từ máy chủ dự án (sao lưu trước)                                                                             |
+| Hỏng gì                                  | Cách vào / lùi                                                                                                                                                                                                             |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Access chặn nhầm (mất email OTP)         | chủ dự án sửa policy ở dashboard Zero Trust, hoặc sửa tệp email rồi chạy lại script                                                                                                                                        |
+| L2 `chan` chặn nhầm                      | đặt `CF_ACCESS_MODE=ghi` ở Worker console và Render                                                                                                                                                                        |
+| Console không ghi được (lệch khoá)       | **gỡ** `INTERNAL_IDENTITY_SECRET_CONSOLE` trên Render ⇒ backend nhận lại khẳng định vùng main, nhưng từ CP3 không còn trang điều hành ở `tsudev.com` - lùi đúng nghĩa là `wrangler rollback` cả hai Worker + revert PR CP3 |
+| Cần cấp/thu quyền khi mọi giao diện hỏng | sửa `User.role` trực tiếp trên Neon từ máy chủ dự án (sao lưu trước)                                                                                                                                                       |
 
 Không có tài khoản hay mật khẩu "cửa sau" trong mã. Xoay `INTERNAL_IDENTITY_SECRET_CONSOLE`: xoá dòng trong
 `console.env`, chạy script, cập nhật Render.

@@ -1,3 +1,12 @@
+// Trạm điều hành (config/topology.json). Biến được nội suy LÚC BUILD; thiếu nó ở bản dựng production thì dùng tên
+// miền thật chứ không rơi về URL dev. Không `require` script topology: image Docker của app không có `scripts/`.
+const CONSOLE_URL = (
+  process.env.NEXT_PUBLIC_CONSOLE_URL ||
+  (process.env.NODE_ENV === 'production'
+    ? 'https://console.tsudev.com'
+    : 'http://console.tsudev.localhost:8080')
+).replace(/\/+$/, '');
+
 /** @type {import('next').NextConfig} */
 
 // CSP KHÔNG đặt ở đây. Nó cần NONCE mỗi request (để Cloudflare Bot Fight Mode gắn
@@ -43,17 +52,21 @@ const nextConfig = {
       { source: '/dieu-khoan', destination: '/terms', permanent: true },
       { source: '/quyen-rieng-tu', destination: '/privacy', permanent: true },
       { source: '/noi-quy', destination: '/rules', permanent: true },
-      // IA-02 (UX1-a): khu soạn bài đổi tên /author → /studio. 308 (permanent) giữ
-      // query; GIỮ VÔ THỜI HẠN - bookmark và liên kết trong thư cũ trỏ vào đây.
-      // Thẻ Tài liệu cũ (`?tab=docs`) nay là trang riêng - phải đứng TRƯỚC luật chung.
+      // CP3 (ADR-0005): điều hành và Studio chỉ còn ở trạm điều hành - Worker này không giữ mã của chúng. 308
+      // (permanent) giữ query; GIỮ VÔ THỜI HẠN - bookmark và liên kết trong thư cũ trỏ vào đây.
+      { source: '/admin', destination: `${CONSOLE_URL}/`, permanent: true },
+      { source: '/admin/:path*', destination: `${CONSOLE_URL}/:path*`, permanent: true },
+      { source: '/studio', destination: `${CONSOLE_URL}/studio`, permanent: true },
+      { source: '/studio/:path*', destination: `${CONSOLE_URL}/studio/:path*`, permanent: true },
+      // IA-02 (UX1-a): đường cũ /author. Thẻ Tài liệu cũ (`?tab=docs`) là trang riêng - phải đứng TRƯỚC luật chung.
       {
         source: '/author',
         has: [{ type: 'query', key: 'tab', value: 'docs' }],
-        destination: '/studio/docs',
+        destination: `${CONSOLE_URL}/studio/docs`,
         permanent: true,
       },
-      { source: '/author', destination: '/studio', permanent: true },
-      { source: '/author/:path*', destination: '/studio/:path*', permanent: true },
+      { source: '/author', destination: `${CONSOLE_URL}/studio`, permanent: true },
+      { source: '/author/:path*', destination: `${CONSOLE_URL}/studio/:path*`, permanent: true },
     ];
   },
 

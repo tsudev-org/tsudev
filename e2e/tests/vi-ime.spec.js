@@ -14,12 +14,13 @@ const { signIn } = require('./helpers/login');
 //      chữ nằm ở vùng soạn tạm, chỉ được "chốt" khi kết thúc âm tiết.
 // Kiểm bằng bộ gõ thật trên máy người vẫn là việc của người (ghi ở ADR-0001).
 const MAIN = process.env.E2E_MAIN_URL || publicUrl(loadTopology(), 'main');
+const CONSOLE = process.env.E2E_CONSOLE_URL || publicUrl(loadTopology(), 'console');
 
 async function moTrinhSoan(browser) {
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await ctx.newPage();
   await signIn(page, MAIN, 'bob');
-  await page.goto(`${MAIN}/studio/posts/new`, { waitUntil: 'networkidle' });
+  await page.goto(`${CONSOLE}/studio/posts/new`, { waitUntil: 'networkidle' });
   const editor = page.getByRole('textbox', { name: 'Nội dung' });
   await editor.click();
   return { ctx, page, editor };

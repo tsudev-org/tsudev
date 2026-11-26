@@ -48,6 +48,8 @@ const SERVICES = [
       '/api/admin',
       // Lượt kiểm toàn vẹn của Worker cron (06/11/2026) - gác bằng token riêng.
       '/api/internal',
+      // INT1-a: pipeline phát hành các repo nâng bản kê phiên bản (token riêng).
+      '/api/pipeline',
       '/api/author',
       '/.well-known',
       '/debug',

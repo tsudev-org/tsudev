@@ -404,3 +404,6 @@ jobs:
       # đầu mỗi trang ≤ 170 KB gzip, đọc từ build-manifest của bản vừa dựng.
       - name: Ngân sách JS tải ban đầu
         run: npm run budget:js
+      # CP3 (ADR-0005): bundle công khai không mang đường điều hành (/api/admin, useradmin, payadmin...).
+      - name: Bundle công khai không có mã điều hành
+        run: npm run check:public-bundle

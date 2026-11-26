@@ -8,6 +8,7 @@ import { TsuBadge } from './TsuBadge';
 import type { TsuBadgeValue } from './TsuBadge';
 import { fetchOwnStatus, readBadgeCache, writeBadgeCache } from '../lib/badgeCache';
 import { setProEntitled } from '../lib/proTheme';
+import { CONSOLE_URL } from '../lib/siteUrls';
 // tsudev là MỘT site nên href tương đối. Trước đây có hai origin (trang chính và
 // diễn đàn) nên mọi link điều hướng buộc phải là URL tuyệt đối.
 type NavItem = {
@@ -240,7 +241,7 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
                   requireAuthor của content-service, đọc DB fail closed). */}
               {(canAuthor || pending) && (
                 <a
-                  href="/studio"
+                  href={`${CONSOLE_URL}/studio`}
                   className={`block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle${
                     pending ? ' tsu-auth-author' : ''
                   }`}
@@ -384,7 +385,7 @@ const UserMenu = ({ pending, name, email, image, badge, canAuthor, onLogout }: U
             </div>
           </div>
           {canAuthor && (
-            <a href="/studio" className={item}>
+            <a href={`${CONSOLE_URL}/studio`} className={item}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path
                   d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16v4zM13.5 6.5l4 4"
