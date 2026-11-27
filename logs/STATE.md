@@ -1,5 +1,35 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP4 nhịp CP4a, 27/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **Hoàn tất CP4a** (PR #426, nhánh `feat/cp4-id`): mã xong, `tsudev-id` đã lên (`id.tsudev.com`, version
+>    `cf9e0046`); `tsudev.com` CHƯA deploy, PR CHƯA gộp. Thứ tự (phiếu
+>    [`20261126-CP1`](handover/20261126-CP1_tram-dieu-hanh-va-cong-xac-thuc-tap-trung.md) mục 3 dòng tsudev-CP4):
+>    (a) 👤 đặt biến Render `INTERNAL_IDENTITY_SECRET_ID` cho `tsudev-backend` (giá trị ở
+>    `~/.config/tsudev/keys/id.env`, KHÔNG in); (b) 👤 `nguyentrangtinhsu` Approve #426 + Re-run "Bảo vệ bản quyền";
+>    👤 dismiss 12 cảnh báo CodeQL "Missing rate limiting" của #426 (false positive - bộ phân loại chặn agent);
+>    (c) agent: CI xanh -> gộp -> Render `live` -> deploy `tsudev` (main) + cron `tsudev-newsroom-cron` -> đo issuer
+>    `https://tsudev.com/oidc` không đổi, `tsudev.com/login` 308 sang `id.`, `/api/auth/providers` chỉ google/github,
+>    `versions.json` 200, trang tài khoản ở `id.` hết 401; (d) 👤 thử passkey cũ đăng nhập ở `id.`.
+> 3. Sau đó **CP4b**: cookie `__Host-` ở `id.`, main + console thành RP OIDC (PKCE), Google/GitHub callback sang `id.`
+>    (👤 console OAuth), bỏ cầu `tsudev.com/oauth-start`, Observatory A+ cho `id.`.
+> 4. 👤 còn từ CP3: dismiss 12 cảnh báo CodeQL của #424 + GitGuardian 41140300; xoá ba tài khoản ACC1 mục 2a; phiếu
+>    **XK1/XK2 (xoay khoá) còn MỞ**. Phiếu mới MỞ: [`20261127-LOGIN1`](handover/20261127-LOGIN1_ra-soat-mot-cong-dang-nhap.md).
+> 5. Còn nợ: DPoP `cnf.jkt` cho INT1-c; đo lại `app_header_missing` sau 03/12; SEC3, LG4, CTX1, PRO3.
+>
+> Prompt phiên sau:
+>
+> ```text
+> Đọc AGENTS.md, rồi CHỈ khối 🔔 đầu tiên của logs/STATE.md và các phiếu nó trỏ tới (không đọc khối 🔔 cũ hơn).
+> Chạy akb start + akb search "CP4 id.tsudev.com" trước khi làm. Nhắc chủ dự án XK1/XK2 đầu phiên. Hoàn tất CP4a
+> (PR #426): kiểm 👤 đã đặt biến Render INTERNAL_IDENTITY_SECRET_ID và Approve chưa; check bắt buộc xanh thì gộp,
+> chờ Render live, deploy tsudev (scripts/deploy-frontend.js, XDG_CONFIG_HOME=~/.config/wrangler-tsudev) + cron
+> canh-site-cron, đo production theo phiếu CP1 mục 3 dòng tsudev-CP4. Xong CP4a mới lập phương án CP4b ở Plan Mode.
+> Quyền: tự commit/push/PR/gộp khi check bắt buộc xanh, tự deploy Worker và đo production. Biến Render, dashboard
+> Cloudflare, console OAuth là việc 👤. Cuối phiên: phiếu CP1, khối 🔔 mới, CHANGELOG + thẻ deploy, LOCKS, akb close + sync.
+> ```
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP3, 27/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).

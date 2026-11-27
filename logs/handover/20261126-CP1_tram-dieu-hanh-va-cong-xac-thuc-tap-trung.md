@@ -98,7 +98,7 @@
   `f2c63fa`). CP4 chia hai nhịp: **CP4a** (cổng chạy thật, giữ cookie phiên chung `.tsudev.com` làm cầu - không đăng
   xuất ai) và **CP4b** (cookie `__Host-` ở `id.`, main + console thành RP OIDC, Google/GitHub callback sang `id.`,
   Observatory A+). Đã làm: `.standards` -> v9.0.0; `apps/id` (Worker `tsudev-id`, `id.tsudev.com`, version
-  `24c1f1ff`) giữ provider credentials/passkey/qr (`NEXTAUTH_ZONE=id`), các trang login, signup, quên/đặt lại mật khẩu,
+  `cf9e0046`) giữ provider credentials/passkey/qr (`NEXTAUTH_ZONE=id`), các trang login, signup, quên/đặt lại mật khẩu,
   xác minh email, đổi email, thu hồi phiên, settings/security + profile, trang đồng ý OIDC (form POST về
   `tsudev.com/oidc/interaction/<uid>/confirm` - giữ cookie `_interaction`), trang QR `/x/<id>`; CSP nonce +
   Trusted Types, Turnstile là ngoại lệ ngoài duy nhất, mọi trang SSR (`_app.getInitialProps` - trang tĩnh không mang
@@ -108,7 +108,7 @@
   tài khoản + `/oidc/interaction/:uid` + `/x/:id` sang `id.`; mã QR vẫn in `tsudev.com/x/` (T9); NextAuth main chỉ
   Google/GitHub; cầu `tsudev.com/oauth-start` cho nút Google/GitHub ở cổng tới CP4b. Kèm: gỡ `/api/internal/versions`;
   bộ đệm bền cặp `versions.json` trong R2 `NEXT_INC_CACHE_R2_BUCKET`; cron `canh-site-cron` báo động khi bản kê khác 200. Rà "một cổng đăng nhập": `.central-login-allow` + phiếu `20261127-LOGIN1` (MỞ). Số đo production `id.` (sau
-  `24c1f1ff`): `/login` 200 + CSP nonce/strict-dynamic, HSTS preload, COOP/CORP, `no-store`; providers = credentials,
+  `cf9e0046`): `/login` 200 + CSP nonce/strict-dynamic, HSTS preload, COOP/CORP, `no-store`; providers = credentials,
   passkey, qr; trình duyệt headless không còn lỗi CSP, `/settings/profile` vẽ xong. **Thứ tự còn lại (đừng đảo)**:
   (1) 👤 đặt biến Render `INTERNAL_IDENTITY_SECRET_ID` cho `tsudev-backend` (giá trị ở
   `~/.config/tsudev/keys/id.env`, 600) - thiếu thì trang tài khoản ở `id.` 401, đăng nhập vẫn chạy; (2) 👤
