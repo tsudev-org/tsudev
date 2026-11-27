@@ -30,8 +30,9 @@ email, đổi email, thu hồi phiên, `/settings/security`, `/settings/profile`
 - Đích quay về sau đăng nhập: chỉ đường tương đối hoặc ba origin của hệ (`safeReturn`, callback `redirect` của NextAuth).
 - Link trong thư tài khoản trỏ cổng (`services/auth-service/src/siteUrls.ts` `idUrl()`, suy `id.<host main>` nếu không
   đặt `ID_URL` - production không cần biến Render mới).
-- Khẳng định danh tính của cổng CP4a ký bằng khoá vùng main (cùng secret với Worker `tsudev`); vùng `id` riêng làm ở CP4b
-  cùng lúc đổi cookie, khi 👤 đặt được biến Render.
+- Khẳng định danh tính của cổng ký bằng vùng RIÊNG `id` (`INTERNAL_IDENTITY_SECRET_ID`, `aud` `tsudev-services:id`):
+  quyền ngang main, không qua route điều hành (`requireConsoleZone`), Worker cổng không giữ khoá vùng main. Backend
+  thiếu biến đó ⇒ khẳng định vùng id 401 (test `services/auth-service/test/idZone.test.ts`).
 
 ## 1. Phiên trình duyệt - NextAuth
 

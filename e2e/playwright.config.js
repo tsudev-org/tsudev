@@ -24,11 +24,15 @@ const IDENTITY_SECRET =
 // production, trang quản trị đi qua console.
 const CONSOLE_SECRET =
   process.env.INTERNAL_IDENTITY_SECRET_CONSOLE || 'e2e-console-identity-secret-du-dai-cho-hmac!!';
+// Vùng ký của cổng xác thực id. (CP4): Worker cổng không giữ khoá vùng main.
+const ID_SECRET =
+  process.env.INTERNAL_IDENTITY_SECRET_ID || 'e2e-id-gateway-identity-secret-du-dai-cho-hmac!';
 
 const webServerEnv = {
   ...process.env,
   INTERNAL_IDENTITY_SECRET: IDENTITY_SECRET,
   INTERNAL_IDENTITY_SECRET_CONSOLE: CONSOLE_SECRET,
+  INTERNAL_IDENTITY_SECRET_ID: ID_SECRET,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'e2e-placeholder-secret',
   // Thứ đang được kiểm chính là nó: thiếu biến này thì cookie phiên bó vào
   // tsudev.localhost và forum.tsudev.localhost sẽ không thấy.
@@ -88,6 +92,7 @@ const backend = (id) => ({
     BIND_HOST: '127.0.0.1',
     INTERNAL_IDENTITY_SECRET: IDENTITY_SECRET,
     INTERNAL_IDENTITY_SECRET_CONSOLE: CONSOLE_SECRET,
+    INTERNAL_IDENTITY_SECRET_ID: ID_SECRET,
   },
   reuseExistingServer: reuseServers,
   timeout: 60 * 1000,

@@ -12,9 +12,10 @@
   "workers_dev": false,
   "preview_urls": false,
   "observability": { "enabled": true },
-  // Biến LÚC CHẠY, chỉ giá trị KHÔNG bí mật. Secret (`wrangler secret put`, CÙNG giá trị Worker `tsudev` ở CP4a):
-  // NEXTAUTH_SECRET, INTERNAL_IDENTITY_SECRET, EDGE_SIGNING_KEY, INTERNAL_API_TOKEN (nếu backend bật), TURNSTILE_*
-  // (nếu dùng). CP4b chuyển sang khoá vùng `id` riêng (INTERNAL_IDENTITY_SECRET_ID, EDGE_SIGNING_KEY_ID ở Render).
+  // Biến LÚC CHẠY, chỉ giá trị KHÔNG bí mật. Secret (`wrangler secret put`): NEXTAUTH_SECRET (CÙNG Worker `tsudev` -
+  // cookie phiên chung ở CP4a), EDGE_SIGNING_KEY (CÙNG Worker `tsudev`), INTERNAL_IDENTITY_SECRET_ID (vùng ký RIÊNG
+  // của cổng, cùng giá trị biến Render; bản gốc ~/.config/tsudev/keys/id.env), TURNSTILE_SITE_KEY. Worker cổng KHÔNG
+  // giữ INTERNAL_IDENTITY_SECRET (vùng main).
   //
   // NEXTAUTH_ZONE=id: NextAuth ở đây giữ provider mật khẩu, passkey, QR; Google/GitHub tạm ở tsudev.com tới khi
   // callback của hai nhà cung cấp trỏ về cổng. Cookie phiên CP4a vẫn `.tsudev.com` (chung) - CP4b đổi `__Host-`.

@@ -40,6 +40,10 @@ services:
       # EDGE_MODE: tat | ghi (mặc định khi có khoá) | chan. Chuyển `chan` chỉ khi bộ đếm sạch.
       - key: EDGE_SIGNING_KEY
         sync: false
+      # CP4: vùng ký của cổng id.tsudev.com - CÙNG giá trị với secret của Worker `tsudev-id`. Thiếu ⇒ trang tài khoản ở
+      # cổng trả 401 (đăng nhập vẫn chạy). Bản gốc ~/.config/tsudev/keys/id.env.
+      - key: INTERNAL_IDENTITY_SECRET_ID
+        sync: false
       - key: DATABASE_URL
         sync: false
       # S3_ENDPOINT (nội bộ) và S3_PUBLIC_ENDPOINT (qua CDN) là HAI biến khác
