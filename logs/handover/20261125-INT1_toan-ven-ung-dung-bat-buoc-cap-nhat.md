@@ -38,14 +38,15 @@
 
 ## 3. Bảng theo dõi
 
-| Repo                                                              | Cổng phiên bản                                   | Chứng thực / `426`-`403`            | Gia cố / làm rối | PR / ghi chú |
-| ----------------------------------------------------------------- | ------------------------------------------------ | ----------------------------------- | ---------------- | ------------ |
-| tsudev-standards                                                  | ✅ APP_INTEGRITY v1.0.0 (PR #85, Release v7.0.0) | -                                   | -                |              |
-| tsudev                                                            | ✅ bản kê (INT1-a)                               | 🟡 426/400 (INT1-b); 403 chờ INT1-c | ⬜               | đợt 1        |
-| tsudev-ui-flutter                                                 | ⬜                                               | ⬜                                  | -                | đợt 1        |
-| qulythuchi / tsuscan / sound-db / lotus-share / app-la-ban        | ⬜                                               | ⬜                                  | ⬜               | đợt 2        |
-| tsufiles / tsuswico / tsudisk / tsutramon / tsucwico / tsucontact | ⬜                                               | ⬜ (máy chủ quyết)                  | ⬜               | đợt 2        |
-| TsuGameLabs (game-kit + 6 game)                                   | ⬜                                               | ⬜                                  | ⬜ làm rối mạnh  | đợt 2        |
+| Repo                                                       | Cổng phiên bản                                       | Chứng thực / `426`-`403`                     | Gia cố / làm rối                                                          | PR / ghi chú            |
+| ---------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------- | ----------------------- |
+| tsudev-standards                                           | ✅ APP_INTEGRITY v1.0.0 (PR #85, Release v7.0.0)     | -                                            | -                                                                         |                         |
+| tsudev                                                     | ✅ bản kê (INT1-a)                                   | 🟡 426/400 (INT1-b); 403 chờ INT1-c          | ⬜                                                                        | đợt 1                   |
+| tsudev-ui-flutter                                          | ⬜                                                   | ⬜                                           | -                                                                         | đợt 1                   |
+| qulythuchi / tsuscan / sound-db / lotus-share / app-la-ban | ⬜                                                   | ⬜                                           | ⬜                                                                        | đợt 2                   |
+| tsufiles / tsuswico / tsutramon / tsucwico / tsucontact    | ⬜                                                   | ⬜ (máy chủ quyết)                           | ⬜                                                                        | đợt 2                   |
+| tsudisk                                                    | ✅ CLI + GUI (ADR-0012, #86-#88); thử thật 27/11 ĐẠT | ✅ nhận 426 ⇒ khoá (#88); DPoP cnf.jkt (#93) | ✅ OPEN 5.2: DebugType=none (#95); không trim/AOT (lệch chuẩn AGENTS B.4) | 26.11.2701 / 26.11.2702 |
+| TsuGameLabs (game-kit + 6 game)                            | ⬜                                                   | ⬜                                           | ⬜ làm rối mạnh                                                           | đợt 2                   |
 
 ## 4. Điều kiện đóng
 
@@ -106,3 +107,8 @@ ký ai nâng lúc nào).
     trùng 60 s; dọn > 12 tháng mỗi giờ. Test `test/appVersionGate.test.ts` (14).
   - Kế tiếp: **INT1-c** (Key Attestation + `403 untrusted_client`, cần SHA-256 chứng thư ký từng app). Repo app đợt 2
     gửi `X-Tsu-App` ở mọi lượt gọi `/api/me/entitlements`, `/api/rp/*`, `/api/xd/*`, userinfo.
+- 27/11/2026 - agent-tsudisk (Phase INT7, chép vào đây bởi phiên tsudev CP3): phát hành 26.11.2701 (bản đầu có cổng;
+  VT 0/74, SHA256SUMS + attestation đã kiểm) rồi 26.11.2702 (N+1, `nang-latest` nâng kênh github). Thử thật trên
+  Windows, 26.11.2701 đã đăng nhập: lệnh bị chặn thoát mã 6 (cả `--json`), `phien-ban` và `xuat-du-lieu` vẫn chạy; GUI
+  hiện modal "Update required" toàn màn, đúng hai nút, WM_CLOSE không đóng. Điều kiện đóng (1) ĐẠT cho tsudisk. Lưu ý
+  phía máy chủ (phiếu DP1): `/api/me/entitlements` chưa kiểm `cnf.jkt` của access token gắn DPoP - làm cùng INT1-c.
