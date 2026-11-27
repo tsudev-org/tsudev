@@ -26,12 +26,12 @@
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.20.17",
+    "@opennextjs/cloudflare": "^1.20.18",
     "@tailwindcss/postcss": "^4.3.5",
-    "fast-check": "^4.10.2",
-    "postcss": "^8.5.32",
+    "fast-check": "^4.11.0",
+    "postcss": "^8.5.33",
     "tailwindcss": "^4.3.5",
-    "wrangler": "^4.161.0"
+    "wrangler": "^4.167.0"
   },
   "jest": {
     "preset": "ts-jest",
