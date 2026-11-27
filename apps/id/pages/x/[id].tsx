@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { signIn, useSession } from 'next-auth/react';
-import { Button, Input } from '@tsudev/ui';
+import { Button, Input, MAIN_URL } from '@tsudev/ui';
 
 import { AuthShell, Notice } from '../../../frontend-main/components/AuthShell';
 import { QrApproveCard, QrCodeShow } from '../../../frontend-main/components/QrApprove';
@@ -128,7 +128,8 @@ export default function QrLanding() {
       setBusy(false);
       return setMsg('Không đăng nhập được bằng mã QR. Thử lại.');
     }
-    window.location.assign('/');
+    // Trang nằm ở cổng `id.` (không có trang `/`): đăng nhập xong về trang chủ tsudev.com, phiên dùng chung cookie.
+    window.location.assign(`${MAIN_URL}/`);
   };
 
   return (
@@ -141,7 +142,7 @@ export default function QrLanding() {
       {view.kind === 'info' && (
         <div className="flex flex-col gap-4">
           <p className="text-sm text-fg">{view.text}</p>
-          <Button variant="secondary" onClick={() => router.push('/')}>
+          <Button variant="secondary" onClick={() => window.location.assign(`${MAIN_URL}/`)}>
             Về trang chủ
           </Button>
         </div>
@@ -163,7 +164,7 @@ export default function QrLanding() {
           <Button onClick={() => setView({ kind: 'enter-code', email: view.email })}>
             Đúng tài khoản của tôi
           </Button>
-          <Button variant="secondary" onClick={() => router.push('/')}>
+          <Button variant="secondary" onClick={() => window.location.assign(`${MAIN_URL}/`)}>
             Không phải tôi
           </Button>
         </div>

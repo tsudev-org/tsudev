@@ -9,3 +9,7 @@
 .dev.vars
 cloudflare-env.d.ts
 *.tsbuildinfo
+
+# `next dev` tự sinh (generate-agent-files.js) - bản sao hướng dẫn của Next, không commit (như apps/frontend-main).
+AGENTS.md
+CLAUDE.md
