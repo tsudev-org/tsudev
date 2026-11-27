@@ -97,6 +97,13 @@ const nextConfig = {
         destination: `${ID_URL}/oidc/interaction/:uid`,
         permanent: true,
       },
+      // QR đăng nhập (CROSS_DEVICE_LOGIN T9): mã QR VẪN in `https://tsudev.com/x/<id>` - bộ quét trong app ghim tiền tố
+      // đó. Trang + provider `qr` ở cổng; trình duyệt giữ `#<k>` qua 308 nên bí mật không vào log máy chủ.
+      {
+        source: '/x/:id([A-Za-z0-9_-]{1,64})',
+        destination: `${ID_URL}/x/:id`,
+        permanent: true,
+      },
     ];
   },
 

@@ -22,6 +22,7 @@ export const GATE_PATHS: RegExp[] = [
   /^\/(login|signup|forgot-password|reset-password|verify-email|confirm-email-change|revoke-sessions)\/?$/,
   /^\/settings\/(security|profile)\/?$/,
   /^\/oidc\/interaction\/[A-Za-z0-9_-]{1,64}\/?$/,
+  /^\/x\/[A-Za-z0-9_-]{1,64}\/?$/,
   /^\/api\/(auth|identity|account|xd)\/.+$/,
   /^\/api\/(account-link|turnstile-site-key|healthz)\/?$/,
   /^\/(robots\.txt|favicon\.ico|favicon-16x16\.png|favicon-32x32\.png|apple-touch-icon\.png)$/,

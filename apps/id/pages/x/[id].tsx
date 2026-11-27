@@ -3,10 +3,10 @@ import { useRouter } from 'next/router';
 import { signIn, useSession } from 'next-auth/react';
 import { Button, Input } from '@tsudev/ui';
 
-import { AuthShell, Notice } from '../../components/AuthShell';
-import { QrApproveCard, QrCodeShow } from '../../components/QrApprove';
-import type { XdRequester } from '../../components/QrApprove';
-import { xdMessage } from '../../components/QrLogin';
+import { AuthShell, Notice } from '../../../frontend-main/components/AuthShell';
+import { QrApproveCard, QrCodeShow } from '../../../frontend-main/components/QrApprove';
+import type { XdRequester } from '../../../frontend-main/components/QrApprove';
+import { xdMessage } from '../../../frontend-main/components/QrLogin';
 
 /**
  * Đích của MỌI mã QR đăng nhập (CROSS_DEVICE_LOGIN): `/x/<id>?f=k#<bí mật>` (Đ2 kéo) hoặc `?f=d` (Đ1 đẩy). Quét bằng

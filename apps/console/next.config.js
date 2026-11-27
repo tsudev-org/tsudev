@@ -12,11 +12,16 @@
  */
 // Dev đọc từ `.env.local`, deploy truyền qua shell; thiếu cả hai thì là production thật.
 const MAIN = (process.env.NEXT_PUBLIC_MAIN_URL || 'https://tsudev.com').replace(/\/+$/, '');
-const ID = (process.env.NEXT_PUBLIC_ID_URL || 'https://id.tsudev.com').replace(/\/+$/, '');
-const SELF = (process.env.NEXT_PUBLIC_CONSOLE_URL || 'https://console.tsudev.com').replace(
-  /\/+$/,
-  ''
-);
+// Thiếu biến ở dev/E2E mà rơi về tên miền thật thì E2E bị đẩy sang cổng PRODUCTION (đã xảy ra 27/11/2026).
+const PROD = process.env.NODE_ENV === 'production';
+const ID = (
+  process.env.NEXT_PUBLIC_ID_URL ||
+  (PROD ? 'https://id.tsudev.com' : 'http://id.tsudev.localhost:8080')
+).replace(/\/+$/, '');
+const SELF = (
+  process.env.NEXT_PUBLIC_CONSOLE_URL ||
+  (PROD ? 'https://console.tsudev.com' : 'http://console.tsudev.localhost:8080')
+).replace(/\/+$/, '');
 
 const nextConfig = {
   reactStrictMode: true,

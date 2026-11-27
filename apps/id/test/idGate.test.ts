@@ -73,6 +73,15 @@ describe('CSP', () => {
   });
 });
 
+describe('nonce tới được mọi trang', () => {
+  test('_app có getInitialProps (không trang nào dựng tĩnh - trang tĩnh không mang nonce, CSP chặn hết script)', () => {
+    expect(read('pages/_app.tsx')).toMatch(/App\.getInitialProps\s*=/);
+    const pages = walk('pages').filter((f) => !f.startsWith('pages/api/'));
+    for (const f of pages)
+      expect({ f, staticProps: /getStaticProps/.test(read(f)) }).toEqual({ f, staticProps: false });
+  });
+});
+
 describe('cấu hình phát hành', () => {
   const w = read('wrangler.jsonc').replace(/^\s*\/\/.*$/gm, '');
   test('chỉ id.tsudev.com; workers.dev và preview tắt', () => {

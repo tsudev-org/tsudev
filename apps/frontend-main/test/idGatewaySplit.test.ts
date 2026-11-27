@@ -42,6 +42,17 @@ test('không trang đăng nhập/tài khoản nào còn trong bundle công khai;
   expect(m('/oidc/interaction/AbC_123-x')).toBeTruthy();
   // `/confirm` KHÔNG bị chuyển: nó cần cookie `_interaction` của host tsudev.com.
   expect(m('/oidc/interaction/AbC_123-x/confirm')).toBeFalsy();
+  // QR: trang ở cổng; tsudev.com/x/<id> (tiền tố ghim trong app, T9) chuyển 308.
+  expect(existsSync(join(__dirname, '../pages/x/[id].tsx'))).toBe(false);
+  expect(existsSync(join(__dirname, '../../id/pages/x/[id].tsx'))).toBe(true);
+  expect(redirects.find((x) => x.source.startsWith('/x/'))).toMatchObject({
+    destination: `${ID}/x/:id`,
+    permanent: true,
+  });
+  for (const f of ['QrLogin', 'QrPush'])
+    expect(readFileSync(join(__dirname, `../components/${f}.tsx`), 'utf8')).toContain(
+      '${MAIN_URL}/x/'
+    );
 });
 
 test('NextAuth của tsudev.com không có provider mật khẩu/passkey/QR', () => {

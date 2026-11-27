@@ -38,6 +38,8 @@ apps/frontend-main/lib/services.ts
 # Địa chỉ dev dự phòng của trạm điều hành cho bảng chuyển hướng /admin, /studio: image Docker của app không có
 # scripts/topology để đọc lúc nạp cấu hình. Giá trị thật đến từ NEXT_PUBLIC_CONSOLE_URL.
 apps/frontend-main/next.config.js
+# Cùng lý do (CP4): mặc định dev của ID/console khi thiếu biến, để E2E không bị đẩy sang production.
+apps/console/next.config.js
 
 # Tài liệu quy ước URL: nói VỀ địa chỉ chính tắc, nên buộc phải in nó ra. Đây là
 # nơi con số được giải thích, không phải nơi nó bị hardcode lén.
