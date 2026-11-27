@@ -3,6 +3,7 @@ import { useSession } from 'next-auth/react';
 import { Logo } from './Logo';
 import { ECOSYSTEM_APPS } from '../lib/ecosystem';
 import { ThemeToggle } from './ThemeToggle';
+import { ID_URL } from '../lib/siteUrls';
 
 // Riêng đăng nhập giữ đường dẫn tương đối: phiên next-auth thuộc về chính app
 // đang mở, đẩy sang origin khác sẽ đăng nhập nhầm chỗ.
@@ -99,13 +100,13 @@ const FooterCol = ({ col }: { col: Col }) => (
 // Khách: lối vào tài khoản. Đã đăng nhập: "Đăng nhập" là lời mời vô nghĩa (chủ dự án
 // báo 13/11/2026) - thay bằng hai trang của chính tài khoản, đứng đầu là Bảo mật.
 const GUEST_LINKS: FooterLink[] = [
-  // Trang /login của site, không phải trang mặc định của next-auth.
-  ['Đăng nhập', '/login'],
-  ['Tạo tài khoản', '/signup'],
+  // Cổng `id.` (CP4) - nơi DUY NHẤT có đăng nhập/đăng ký và trang tài khoản (chuẩn "một cổng đăng nhập").
+  ['Đăng nhập', `${ID_URL}/login`],
+  ['Tạo tài khoản', `${ID_URL}/signup`],
 ];
 const MEMBER_LINKS: FooterLink[] = [
-  ['Bảo mật tài khoản', '/settings/security'],
-  ['Hồ sơ tài khoản', '/settings/profile'],
+  ['Bảo mật tài khoản', `${ID_URL}/settings/security`],
+  ['Hồ sơ tài khoản', `${ID_URL}/settings/profile`],
 ];
 
 /**

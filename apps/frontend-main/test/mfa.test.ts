@@ -83,7 +83,8 @@ describe('hợp đồng với backend', () => {
   test('đường dẫn bật 2FA là TƯƠNG ĐỐI và trang đó tồn tại', () => {
     expect(MFA_SETUP_PATH.startsWith('/')).toBe(true);
     expect(MFA_SETUP_PATH.startsWith('//')).toBe(false);
-    const page = join(__dirname, '../pages', `${MFA_SETUP_PATH}.tsx`);
+    // CP4: trang cài 2FA ở cổng `id.` (tsudev.com/settings/security chuyển 308 sang đó).
+    const page = join(__dirname, '../../id/pages', `${MFA_SETUP_PATH}.tsx`);
     expect(() => readFileSync(page)).not.toThrow();
   });
 

@@ -12,6 +12,16 @@
  */
 // Dev đọc từ `.env.local`, deploy truyền qua shell; thiếu cả hai thì là production thật.
 const MAIN = (process.env.NEXT_PUBLIC_MAIN_URL || 'https://tsudev.com').replace(/\/+$/, '');
+// Thiếu biến ở dev/E2E mà rơi về tên miền thật thì E2E bị đẩy sang cổng PRODUCTION (đã xảy ra 27/11/2026).
+const PROD = process.env.NODE_ENV === 'production';
+const ID = (
+  process.env.NEXT_PUBLIC_ID_URL ||
+  (PROD ? 'https://id.tsudev.com' : 'http://id.tsudev.localhost:8080')
+).replace(/\/+$/, '');
+const SELF = (
+  process.env.NEXT_PUBLIC_CONSOLE_URL ||
+  (PROD ? 'https://console.tsudev.com' : 'http://console.tsudev.localhost:8080')
+).replace(/\/+$/, '');
 
 const nextConfig = {
   reactStrictMode: true,
@@ -22,12 +32,21 @@ const nextConfig = {
     '**': ['../../node_modules/jose/dist/browser/**', '../../node_modules/@panva/hkdf/dist/web/**'],
   },
 
-  // Đường dẫn tương đối kế thừa từ thành phần của tsudev.com (cài 2FA, đăng nhập) ⇒ về đúng chỗ ở vùng công khai.
-  // Tài khoản/2FA là việc của CHÍNH người dùng, ở `tsudev.com` (CP4 chuyển sang `id.`).
+  // Đường dẫn tương đối kế thừa từ thành phần của tsudev.com (cài 2FA, đăng nhập) ⇒ về đúng chỗ. Đăng nhập và
+  // trang tài khoản ở cổng `id.` (CP4); quay về console sau khi đăng nhập.
   async redirects() {
     return [
+      {
+        source: '/settings/:path(security|profile)',
+        destination: `${ID}/settings/:path`,
+        permanent: false,
+      },
       { source: '/settings/:path*', destination: `${MAIN}/settings/:path*`, permanent: false },
-      { source: '/login', destination: `${MAIN}/login`, permanent: false },
+      {
+        source: '/login',
+        destination: `${ID}/login?callbackUrl=${encodeURIComponent(`${SELF}/`)}`,
+        permanent: false,
+      },
     ];
   },
 

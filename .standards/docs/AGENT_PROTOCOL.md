@@ -1,4 +1,4 @@
-# GIAO THỨC LÀM VIỆC CỦA AGENT (v2.2.0)
+# GIAO THỨC LÀM VIỆC CỦA AGENT (v2.4.0)
 
 > Tài liệu này mô tả **cách vận hành một phiên làm việc** cho cả lập trình viên
 > và agent AI: mở phiên, khóa file, bàn giao, đóng phiên. Quy ước nội dung nằm ở
@@ -28,6 +28,9 @@ tiết kiệm token, không lặp lại nội dung đã có trong file quy ướ
 
 Agent `MUST` thực hiện đúng thứ tự: đọc quy ước -> đọc trạng thái -> đọc phiếu
 bàn giao -> nhận việc -> khóa file -> mới bắt đầu sửa.
+
+Repo sản phẩm chưa có phiếu `RA_SOAT_DANG_NHAP` cho bộ quy ước MAJOR hiện hành: `MUST` làm bước tự kiểm một cổng đăng
+nhập ở [`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) mục 2.1.
 
 Trên máy phát triển có kho tri thức AKB ([`KNOWLEDGE_BASE.md`](KNOWLEDGE_BASE.md)), ngay sau khi nhận việc agent
 `MUST` chạy `akb start "<mục tiêu phiên>"` (đọc phần liên quan trong danh sách in ra) và, với việc cụ thể (lỗi, thư
@@ -63,6 +66,64 @@ hiện hoặc từ chối có lý do, và ghi kết quả vào chính phiếu đ
   đường dẫn.
 - Task lớn `MUST` chia nhỏ. Làm xong phần nào chốt phần đó vào log ngay, để mất
   phiên không mất công.
+
+### 4.1. Chọn mô hình theo độ khó (MUST - chủ dự án 26/11/2026)
+
+Máy phát triển chạy Claude Code với `opusplan`: **Plan Mode dùng Opus, thực thi dùng Sonnet**; subagent mặc định
+Sonnet. Mục tiêu: chi phí thấp nhất mà **không hạ chất lượng** - đúng mô hình cho đúng việc.
+
+| Việc | Mô hình |
+| --- | --- |
+| Thực thi Phase đã có kế hoạch, lỗi rõ nguyên nhân, test, tài liệu | Sonnet (mặc định) |
+| Kiến trúc, ADR, lập hoặc sửa `docs/PLAN.md` | **Opus** |
+| Lỗi sửa 2 lần chưa được, hoặc chưa rõ nguyên nhân | **Opus** |
+| Xung đột merge, race, đồng thời; bảo mật, mật mã, xác thực, phân quyền | **Opus** |
+| Migration hay thao tác dữ liệu production; thay đổi chạm nhiều module; rà soát trước phát hành | **Opus** |
+| Tìm kiếm rộng trong mã | subagent `Explore` (Sonnet) |
+| Việc máy móc: đổi tên hàng loạt, định dạng, sinh dữ liệu mẫu | subagent `haiku` |
+
+Agent **không tự gõ được** `/model`, `/clear`, `/compact`. Cách lên Opus (chủ dự án đã ủy quyền chung):
+
+1. Gọi công cụ `EnterPlanMode` - phiên chuyển sang Opus để điều tra và lập phương án; `ExitPlanMode` xin duyệt, sau
+   đó Sonnet thực thi.
+2. Giao subagent `model: "opus"` phần phân tích hoặc rà soát cụ thể; nhận kết luận rồi thực thi bằng Sonnet.
+3. Cả phiên cần Opus: đề nghị chủ dự án gõ `/model opus`.
+
+Nghi ngờ thì lên Opus. `MUST NOT` hạ mô hình hay bỏ bước kiểm chứng để tiết kiệm.
+
+### 4.2. Chu trình Phase (MUST)
+
+Nguồn sự thật của tiến độ là **tệp**, không phải lịch sử hội thoại. Nhờ đó `/clear` lúc nào cũng an toàn.
+
+1. Kế hoạch nhiều bước nằm ở `docs/PLAN.md` theo mẫu [`templates/PLAN.md`](templates/PLAN.md): mỗi Phase là
+   `## Phase <id> - <tên>` + checklist `- [ ]` + tiêu chí nghiệm thu đo được. Kế hoạch do Opus lập (mục 4.1).
+2. Một ngữ cảnh làm **một** Phase. Xong Phase = đạt tiêu chí nghiệm thu (build, test, cổng kiểm) -> đánh `[x]` ->
+   cập nhật `logs/STATE.md` kèm bước tiếp -> commit -> AKB nếu có -> **dừng** và báo đúng một dòng:
+   `✅ Phase <id> xong. Gõ /clear rồi "tiếp" để sang Phase <id kế>.`
+   `MUST NOT` tự bắt đầu Phase kế trong cùng ngữ cảnh.
+3. Phase dài: mỗi mốc nhỏ xong ghi tiến độ vào PLAN/STATE ngay, để nén ngữ cảnh lúc nào cũng không mất gì.
+4. Sau `/clear` hoặc nén: đọc khối ngữ cảnh do hook `SessionStart` chèn (Phase đang mở, STATE, phiếu mới nhất), đọc lại
+   phần liên quan của PLAN/STATE, làm tiếp - không hỏi lại điều đã ghi.
+
+Kế hoạch cũ dạng bảng hoặc emoji vẫn dùng được; khi sửa kế hoạch `SHOULD` chuyển sang mẫu checklist.
+
+### 4.3. Quản lý ngữ cảnh (MUST)
+
+- Ngưỡng tự nén của máy là **300K token** (`autoCompactWindow`), không phải cửa sổ 1M của mô hình: mỗi lượt gửi lại
+  toàn bộ ngữ cảnh, ngữ cảnh lớn nhân chi phí của mọi lượt sau và làm giảm mức tuân thủ quy ước. 300K = chi phí cố
+  định của phiên (prompt hệ thống, công cụ, `CLAUDE.md`/`AGENTS.md`, khoảng 30-60K) + đủ chỗ cho một Phase lớn.
+- Status line hiện `ctx %` theo ngưỡng tự nén: **vàng >= 70%**, **đỏ >= 90%**, trên 100% = phiên mở trước khi đổi cấu hình. Vàng/đỏ giữa Phase: chốt tiến độ vào tệp
+  rồi đề nghị `/compact giữ Phase <id>, tệp đang sửa, lỗi chưa xử lý`. Xong Phase: `/clear` (không tốn token).
+- Việc không liên quan tới việc đang làm: `/clear` trước.
+- Đọc tệp theo đoạn cần thiết; lọc output dài (`tail`, `grep`); tìm kiếm rộng giao subagent để chỉ kết luận vào ngữ
+  cảnh chính.
+- `CLAUDE.md`/`AGENTS.md` của repo nạp vào **mọi** lượt của **mọi** phiên: `SHOULD` dưới 200 dòng; phần chỉ cần cho
+  một vùng mã chuyển sang `.claude/rules/*.md` có `paths:`, quy trình dùng thỉnh thoảng chuyển thành skill, ghi chú
+  cho người bảo trì đặt trong `<!-- -->` (không tốn token).
+- `CLAUDE.md` có mục `# Compact instructions` nói rõ cần giữ gì khi nén.
+- **Tiết kiệm chỉ cắt lãng phí, không cắt mục tiêu**: `MUST NOT` bỏ bớt phạm vi, mục checklist, tiêu chí nghiệm thu,
+  test, cổng kiểm hay bước bảo mật của task/Phase để đỡ token. Ngữ cảnh sắp đầy thì chốt tiến độ vào tệp và đề nghị
+  `/compact`, không vội kết thúc Phase.
 
 ## 5. Đóng phiên và bàn giao
 

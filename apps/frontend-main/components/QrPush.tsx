@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Button } from '@tsudev/ui';
+import { Button, MAIN_URL } from '@tsudev/ui';
 
 import { Notice } from './AuthShell';
 import { QrApproveCard, QrCodeShow } from './QrApprove';
@@ -37,7 +37,7 @@ export function QrPush() {
     if (!r.ok) return setMsg(xdMessage(String(r.data.error || '')));
     const id = String(r.data.id);
     session.current = { id, at: Date.now() };
-    setQr(`${window.location.origin}/x/${id}?f=d#${String(r.data.k)}`);
+    setQr(`${MAIN_URL}/x/${id}?f=d#${String(r.data.k)}`);
     setPhase('qr');
   }, []);
 

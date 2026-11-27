@@ -1,0 +1,422 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
+import { signIn, useSession } from 'next-auth/react';
+import type { GetServerSideProps } from 'next';
+import { startAuthentication } from '@simplewebauthn/browser';
+import { Button, Input, Icon } from '@tsudev/ui';
+
+import { AuthShell, Notice } from '../../frontend-main/components/AuthShell';
+import { QrLogin } from '../../frontend-main/components/QrLogin';
+import { Turnstile } from '../../frontend-main/components/Turnstile';
+import { safeReturn } from '../../frontend-main/lib/safeNext';
+import { BRIDGE_NAMES, OAUTH_VIA_MAIN, startOAuth } from '../../frontend-main/lib/oauthBridge';
+import { authOptions } from '../../frontend-main/pages/api/auth/[...nextauth]';
+import { CONSOLE_URL, ID_URL, MAIN_URL } from '@tsudev/ui';
+
+/**
+ * Đăng nhập.
+ *
+ * Thay trang mặc định của next-auth (`/api/auth/signin`), thứ vốn liệt kê mọi
+ * provider đang bật dưới dạng một danh sách nút không có nhãn tiếng Việt.
+ *
+ * KHÔNG có "đăng nhập bằng bất kỳ username nào với devpass" ở đây, kể cả ở dev.
+ * Tài khoản dev do `npm run db:seed:dev` đặt và đi qua đúng đường này.
+ */
+
+type OAuthProvider = { id: string; name: string };
+
+type LoginProps = {
+  /** Chỉ các provider OAuth ĐÃ cấu hình đủ biến môi trường. */
+  oauth: OAuthProvider[];
+};
+
+/**
+ * Thông điệp lỗi.
+ *
+ * next-auth trả về mã lỗi qua query `?error=`. Mọi mã liên quan tới thông tin
+ * đăng nhập đều gộp về MỘT câu - không phân biệt "không có tài khoản" với "sai
+ * mật khẩu", vì phân biệt được nghĩa là dò được ai có tài khoản ở đây.
+ */
+const ERROR_TEXT: Record<string, string> = {
+  turnstile_required:
+    'Chưa qua được bước kiểm tra chống bot. Hãy đợi ô kiểm tra hiện dấu xác nhận rồi thử lại.',
+  CredentialsSignin: 'Tên đăng nhập hoặc mật khẩu không đúng.',
+  totp_invalid: 'Mã xác thực không đúng hoặc đã hết hạn. Hãy thử mã mới nhất.',
+  OAuthAccountNotLinked:
+    'Địa chỉ email này đã có tài khoản đăng nhập bằng cách khác. Hãy đăng nhập theo cách đó rồi liên kết trong phần cài đặt.',
+  SessionRequired: 'Bạn cần đăng nhập để mở trang đó.',
+};
+
+const GITHUB_ICON = (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 1.5a10.5 10.5 0 0 0-3.32 20.47c.52.1.71-.23.71-.5v-1.76c-2.92.64-3.54-1.4-3.54-1.4-.48-1.22-1.17-1.55-1.17-1.55-.95-.65.07-.64.07-.64 1.06.08 1.61 1.09 1.61 1.09.94 1.6 2.46 1.14 3.06.87.1-.68.37-1.14.67-1.4-2.33-.27-4.78-1.17-4.78-5.19 0-1.15.41-2.09 1.08-2.83-.11-.27-.47-1.34.1-2.79 0 0 .88-.28 2.88 1.08a10 10 0 0 1 5.24 0c2-1.36 2.88-1.08 2.88-1.08.57 1.45.21 2.52.1 2.79.67.74 1.08 1.68 1.08 2.83 0 4.03-2.46 4.92-4.8 5.18.38.33.72.97.72 1.96v2.9c0 .28.19.61.72.5A10.5 10.5 0 0 0 12 1.5Z" />
+  </svg>
+);
+
+// Bốn mã hex dưới đây là NGOẠI LỆ có chủ đích với luật "chỉ dùng token": đó là
+// màu thương hiệu của Google trong logo chính thức của họ, và điều kiện sử dụng
+// nhãn hiệu không cho phép tô lại. Chúng cố định ở cả ba chế độ - đúng như logo
+// Google xuất hiện ở mọi nơi khác. Đừng thay bằng token.
+const GOOGLE_ICON = (
+  <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      fill="#4285F4"
+      d="M21.6 12.23c0-.71-.06-1.4-.18-2.05H12v3.88h5.38a4.6 4.6 0 0 1-2 3.02v2.5h3.24c1.89-1.74 2.98-4.3 2.98-7.35Z"
+    />
+    <path
+      fill="#34A853"
+      d="M12 22c2.7 0 4.96-.9 6.62-2.42l-3.24-2.5c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.76-5.59-4.12H3.06v2.59A10 10 0 0 0 12 22Z"
+    />
+    <path fill="#FBBC05" d="M6.41 13.92a6 6 0 0 1 0-3.84V7.49H3.06a10 10 0 0 0 0 9.02l3.35-2.59Z" />
+    <path
+      fill="#EA4335"
+      d="M12 5.96c1.47 0 2.79.5 3.83 1.5l2.87-2.87A10 10 0 0 0 3.06 7.49l3.35 2.59C7.2 7.72 9.4 5.96 12 5.96Z"
+    />
+  </svg>
+);
+
+const ICONS: Record<string, React.ReactNode> = { github: GITHUB_ICON, google: GOOGLE_ICON };
+
+export default function LoginPage({ oauth }: LoginProps) {
+  const router = useRouter();
+  const { status } = useSession();
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [totp, setTotp] = useState('');
+  // P1.7: hiện widget chống bot khi máy chủ đòi (sau 3 lần sai).
+  const [needTurnstile, setNeedTurnstile] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState('');
+  // Ô nhập mã 2FA chỉ hiện SAU khi mật khẩu đã đúng. Hỏi trước là tiết lộ tài
+  // khoản nào có bật 2FA cho bất kỳ ai gõ tên đăng nhập vào.
+  const [needTotp, setNeedTotp] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const totpRef = useRef<HTMLInputElement>(null);
+  // AUTH_AND_ACCOUNT 13.4: ô đồng ý KHÔNG tích sẵn (Nghị định 13/2023); bấm lối vào khi chưa tích ⇒ bảng
+  // "Đồng ý và tiếp tục" chạy tiếp đúng lối vào đã bấm.
+  const [agreed, setAgreed] = useState(false);
+  const [pending, setPending] = useState<null | (() => void)>(null);
+  const [showQr, setShowQr] = useState(false);
+  const guard = (run: () => void) => (agreed ? run() : setPending(() => run));
+
+  // Chuyển tiêu điểm sang ô mã KHI VÀ CHỈ KHI bước hai vừa xuất hiện. Dùng
+  // `autoFocus` sẽ giành tiêu điểm ở mọi lần vẽ lại - kể cả khi người dùng đang
+  // gõ ở ô khác - và quy tắc a11y chặn nó vì đúng lý do đó.
+  useEffect(() => {
+    if (needTotp) totpRef.current?.focus();
+  }, [needTotp]);
+
+  // CHỈ chấp nhận đường dẫn trong cổng hoặc URL tuyệt đối của ba origin của hệ (CP4: tsudev.com, console.,
+  // id.). `callbackUrl` đến từ URL, nên một giá trị như `https://ke-tan-cong.example` (hay
+  // `/\ke-tan-cong.example`) biến trang đăng nhập thành bàn đạp chuyển hướng mở. Xem lib/safeNext.ts.
+  // Không có đích ⇒ về trang chủ tsudev.com (người dùng bấm "Đăng nhập" từ đó).
+  const next = safeReturn(
+    router.query.callbackUrl,
+    [MAIN_URL, CONSOLE_URL, ID_URL],
+    `${MAIN_URL}/`
+  );
+  const go = (to: string) => {
+    if (to.startsWith('/')) void router.push(to);
+    else window.location.assign(to);
+  };
+
+  const queryError = typeof router.query.error === 'string' ? router.query.error : '';
+
+  // `?idp=google|github` (đặt bởi /oidc/interaction khi RP gửi `idp_hint`, phiếu QT4): mở
+  // thẳng provider đó MỘT lần. Chỉ provider đã cấu hình thật; có lỗi trả về thì KHÔNG tự mở
+  // lại (tránh vòng lặp) - người dùng thấy trang đăng nhập đầy đủ.
+  const idp = typeof router.query.idp === 'string' ? router.query.idp : '';
+  const autoIdp = useRef(false);
+  useEffect(() => {
+    if (autoIdp.current || status !== 'unauthenticated' || queryError) return;
+    if (!oauth.some((p) => p.id === idp)) return;
+    autoIdp.current = true;
+    void startOAuth(idp, next);
+  }, [idp, next, oauth, queryError, status]);
+  const shown =
+    error || (queryError ? (ERROR_TEXT[queryError] ?? 'Đăng nhập không thành công.') : '');
+
+  if (status === 'authenticated') {
+    // Đã đăng nhập rồi thì trang này không còn việc gì.
+    if (typeof window !== 'undefined') {
+      if (next.startsWith('/')) void router.replace(next);
+      else window.location.replace(next);
+    }
+    return null;
+  }
+
+  /**
+   * Đăng nhập bằng passkey.
+   *
+   * Không hỏi tên đăng nhập trước: khoá khám phá được (`residentKey`) cho phép
+   * trình duyệt tự chọn danh tính. Một bước bấm, không có gì để gõ, và không có
+   * gì để gõ nhầm vào trang giả mạo.
+   */
+  const onPasskey = async () => {
+    setBusy(true);
+    setError('');
+    try {
+      const optRes = await fetch('/api/identity/passkey/login-options', { method: 'POST' });
+      if (!optRes.ok) throw new Error('options');
+      const { options, challengeId } = await optRes.json();
+      const assertion = await startAuthentication({ optionsJSON: options });
+      const res = await signIn('passkey', {
+        challengeId,
+        response: JSON.stringify(assertion),
+        redirect: false,
+      });
+      if (res?.error) {
+        setError('Passkey không được chấp nhận. Hãy thử lại hoặc dùng mật khẩu.');
+        return;
+      }
+      go(next);
+    } catch (err) {
+      // Người dùng bấm huỷ trên hộp thoại của hệ điều hành cũng rơi vào đây.
+      // Đó KHÔNG phải lỗi, nên không hiện thông báo đỏ cho nó.
+      const name = (err as { name?: string })?.name;
+      if (name !== 'NotAllowedError' && name !== 'AbortError') {
+        setError('Không dùng được passkey trên thiết bị này.');
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    guard(() => void submitPassword());
+  };
+
+  const submitPassword = async () => {
+    setBusy(true);
+    setError('');
+    const res = await signIn('credentials', {
+      identifier,
+      password,
+      totp,
+      turnstileToken,
+      redirect: false,
+    });
+    setBusy(false);
+
+    if (res?.error) {
+      // next-auth gói thông điệp của authorize() vào chuỗi lỗi; tìm mã trong đó
+      // thay vì so khớp nguyên văn, vì phần bao quanh khác nhau giữa các bản.
+      if (res.error.includes('totp_required')) {
+        setNeedTotp(true);
+        setError('');
+        return;
+      }
+      if (res.error.includes('turnstile_required')) {
+        setNeedTurnstile(true);
+        setError(ERROR_TEXT.turnstile_required as string);
+        return;
+      }
+      if (res.error.includes('totp_invalid')) {
+        setNeedTotp(true);
+        setError(ERROR_TEXT.totp_invalid as string);
+        return;
+      }
+      setError(ERROR_TEXT.CredentialsSignin as string);
+      return;
+    }
+    go(next);
+  };
+
+  return (
+    <AuthShell
+      title="Đăng nhập"
+      description="Dùng tài khoản TsuDEV của bạn."
+      footer={
+        <>
+          Chưa có tài khoản?{' '}
+          <a className="text-link hover:underline" href="/signup">
+            Đăng ký
+          </a>
+        </>
+      }
+    >
+      {shown && <Notice kind="error">{shown}</Notice>}
+
+      {oauth.length > 0 && (
+        <>
+          <div className="flex flex-col gap-2">
+            {oauth.map((p) => (
+              <Button
+                key={p.id}
+                variant="secondary"
+                className="w-full"
+                onClick={() => guard(() => void startOAuth(p.id, next))}
+              >
+                {ICONS[p.id]}
+                Tiếp tục với {p.name}
+              </Button>
+            ))}
+          </div>
+          <div className="my-5 flex items-center gap-3 text-xs text-fg-muted">
+            <span className="h-px flex-1 bg-line" />
+            hoặc
+            <span className="h-px flex-1 bg-line" />
+          </div>
+        </>
+      )}
+
+      <form onSubmit={onSubmit} className="flex flex-col gap-4">
+        <Input
+          id="identifier"
+          name="identifier"
+          label="Tên đăng nhập hoặc email"
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
+          autoComplete="username"
+          required
+        />
+        <div>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            label="Mật khẩu"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+            required
+          />
+          <div className="mt-1.5 text-right">
+            <a className="text-sm text-fg-muted hover:text-link" href="/forgot-password">
+              Quên mật khẩu?
+            </a>
+          </div>
+        </div>
+        {needTotp && (
+          <Input
+            id="totp"
+            name="totp"
+            label="Mã xác thực hai bước"
+            value={totp}
+            onChange={(e) => setTotp(e.target.value)}
+            // one-time-code để trình duyệt và iOS tự điền mã từ tin nhắn/ứng dụng.
+            autoComplete="one-time-code"
+            inputMode="numeric"
+            placeholder="6 chữ số, hoặc một mã dự phòng"
+            inputRef={totpRef}
+            required
+          />
+        )}
+        {needTurnstile && <Turnstile onToken={setTurnstileToken} />}
+        <Button type="submit" disabled={busy} className="w-full">
+          {busy ? 'Đang kiểm tra…' : needTotp ? 'Xác nhận' : 'Đăng nhập'}
+        </Button>
+      </form>
+
+      <label className="mt-4 flex items-start gap-2 text-sm text-fg-muted">
+        <input
+          type="checkbox"
+          name="consent"
+          className="mt-0.5 h-4 w-4 shrink-0 accent-(--primary)"
+          checked={agreed}
+          onChange={(e) => setAgreed(e.target.checked)}
+        />
+        <span>
+          Tôi đã đọc và chấp nhận{' '}
+          <a className="text-link hover:underline" href="/terms" target="_blank" rel="noopener">
+            Điều khoản dịch vụ
+          </a>{' '}
+          và{' '}
+          <a className="text-link hover:underline" href="/privacy" target="_blank" rel="noopener">
+            Chính sách quyền riêng tư
+          </a>
+          .
+        </span>
+      </label>
+
+      {pending && (
+        <div
+          role="dialog"
+          aria-modal="false"
+          aria-labelledby="dong-y-tieu-de"
+          className="mt-4 rounded-lg border border-line bg-subtle p-4"
+        >
+          <p id="dong-y-tieu-de" className="text-sm font-medium text-fg">
+            Đồng ý Điều khoản để tiếp tục
+          </p>
+          <p className="mt-1 text-sm text-fg-muted">
+            TsuDEV chỉ dùng tài khoản của bạn để đăng nhập các sản phẩm của hệ sinh thái, không bán
+            dữ liệu, không quảng cáo.
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <Button variant="secondary" onClick={() => setPending(null)}>
+              Huỷ
+            </Button>
+            <Button
+              onClick={() => {
+                setAgreed(true);
+                const run = pending;
+                setPending(null);
+                run();
+              }}
+            >
+              Đồng ý và tiếp tục
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <div className="my-5 flex items-center gap-3 text-xs text-fg-muted">
+        <span className="h-px flex-1 bg-line" />
+        Thêm tuỳ chọn đăng nhập
+        <span className="h-px flex-1 bg-line" />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Button
+          variant="secondary"
+          className="w-full"
+          onClick={() => guard(() => void onPasskey())}
+          disabled={busy}
+        >
+          {/* Icon passkey nằm TRONG hệ thống (`@tsudev/ui`); logo GitHub/Google ở trên CỐ Ý inline vì là nhãn hiệu
+              bên thứ ba và logo Google nhiều màu. */}
+          <Icon name="passkey" size={16} />
+          Tiếp tục với khoá truy cập (passkey)
+        </Button>
+        <Button
+          variant="ghost"
+          className="w-full"
+          aria-expanded={showQr}
+          onClick={() => (showQr ? setShowQr(false) : guard(() => setShowQr(true)))}
+        >
+          {showQr ? 'Ẩn mã QR' : 'Đăng nhập bằng mã QR'}
+        </Button>
+        {showQr && <QrLogin callbackUrl={next} />}
+      </div>
+    </AuthShell>
+  );
+}
+
+/**
+ * Danh sách provider lấy phía SERVER.
+ *
+ * Đọc ở client cũng làm được, nhưng khi đó nút OAuth xuất hiện trễ
+ * một nhịp sau khi form đã hiện - người dùng bấm "Đăng nhập" trước khi thấy nút
+ * "Tiếp tục với GitHub" mà họ vẫn dùng.
+ */
+export const getServerSideProps: GetServerSideProps<LoginProps> = async () => {
+  // CP4: đọc thẳng mảng provider của NextAuth ở chính Worker này (không tự gọi HTTP vào mình), cộng provider đi qua
+  // cầu OAuth ở tsudev.com (lib/oauthBridge.ts) tới khi callback của Google/GitHub trỏ về cổng.
+  const own = authOptions.providers.map((p) => ({ id: p.id, name: p.name, type: p.type }));
+  const bridged = OAUTH_VIA_MAIN.filter((id) => !own.some((p) => p.id === id)).map((id) => ({
+    id,
+    name: BRIDGE_NAMES[id] ?? id,
+    type: 'oauth',
+  }));
+  const providers = [...own, ...bridged];
+  // Thứ tự BẮT BUỘC của AUTH_AND_ACCOUNT mục 3: Google, (Apple), GitHub - không theo thứ tự khai provider.
+  const ORDER = ['google', 'apple', 'github'];
+  const rank = (id: string) => (ORDER.includes(id) ? ORDER.indexOf(id) : ORDER.length);
+  const oauth = providers
+    .filter((p) => p.type === 'oauth')
+    .map((p) => ({ id: p.id, name: p.name }))
+    .sort((a, b) => rank(a.id) - rank(b.id));
+  return { props: { oauth } };
+};

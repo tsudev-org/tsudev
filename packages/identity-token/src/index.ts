@@ -42,16 +42,21 @@ export const AUDIENCE = 'tsudev-services';
  * hành, vì nó không có `INTERNAL_IDENTITY_SECRET_CONSOLE`. Hai lớp độc lập: khoá khác nhau VÀ `aud` khác nhau - lộ nhầm
  * cùng một khoá cho hai vùng vẫn không đổi được `aud`.
  */
-export type Zone = 'main' | 'console';
-export const ZONES: readonly Zone[] = ['main', 'console'];
+//
+// Vùng `id` (CP4, cổng id.tsudev.com): quyền ngang `main` (không qua được route điều hành), nhưng khoá riêng - lộ
+// secret của Worker cổng không ký được cho Worker công khai và ngược lại, xoay được độc lập.
+export type Zone = 'main' | 'console' | 'id';
+export const ZONES: readonly Zone[] = ['main', 'console', 'id'];
 export const ZONE_AUDIENCE: Record<Zone, string> = {
   main: AUDIENCE,
   console: 'tsudev-services:console',
+  id: 'tsudev-services:id',
 };
 /** Biến môi trường mang khoá của từng vùng. */
 export const ZONE_SECRET_ENV: Record<Zone, string> = {
   main: 'INTERNAL_IDENTITY_SECRET',
   console: 'INTERNAL_IDENTITY_SECRET_CONSOLE',
+  id: 'INTERNAL_IDENTITY_SECRET_ID',
 };
 
 /**

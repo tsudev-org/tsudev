@@ -32,7 +32,7 @@ declare global {
     /** Xem `IdentityClaims.sv` - đối chiếu với User.sessionVersion. */
     sv?: number;
     /** Vùng đã ký khẳng định (`main` = tsudev.com, `console` = console.tsudev.com). Xem `requireConsole()`. */
-    zone?: 'main' | 'console';
+    zone?: 'main' | 'console' | 'id';
   };
 }
 
@@ -78,12 +78,14 @@ export function createAuthMiddleware(
       return res.status(401).json({ error: 'Missing or invalid Authorization header' });
     }
 
-    // Vùng `main` trước (đa số lượt), rồi `console` nếu có khoá riêng. Khoá + `aud` khác nhau nên một khẳng định
-    // không bao giờ khớp cả hai; `zone` lấy từ VÙNG KIỂM ĐƯỢC, không từ payload.
+    // Vùng `main` trước (đa số lượt), rồi `id` (cổng, CP4) và `console` nếu có khoá riêng. Khoá + `aud` khác nhau nên
+    // một khẳng định không bao giờ khớp hai vùng; `zone` lấy từ VÙNG KIỂM ĐƯỢC, không từ payload.
     const raw = authHeader.slice(7);
+    const idSecret = readSecret(process.env, 'id');
     const consoleSecret = readSecret(process.env, 'console');
     const claims =
       (await verifyIdentity(raw, secret, 'main')) ??
+      (idSecret ? await verifyIdentity(raw, idSecret, 'id') : null) ??
       (consoleSecret ? await verifyIdentity(raw, consoleSecret, 'console') : null);
     if (!claims) {
       return res.status(401).json({ error: 'Invalid token' });

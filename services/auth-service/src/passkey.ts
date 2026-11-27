@@ -7,6 +7,7 @@ import {
 import type { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/server'
 
 import { prisma } from '@tsudev/db'
+import { idUrl, mainUrl } from './siteUrls'
 
 /**
  * Passkey (WebAuthn).
@@ -21,12 +22,21 @@ import { prisma } from '@tsudev/db'
  * bị mà không còn đường nào khác là mất tài khoản.
  */
 
-/** Tên miền mà passkey được buộc vào. Suy từ URL công khai, không cắm cứng. */
-function rp(): { id: string; name: string; origin: string } {
-  const raw = process.env.NEXT_PUBLIC_MAIN_URL || ''
+/**
+ * Tên miền mà passkey được buộc vào. Suy từ URL công khai, không cắm cứng.
+ *
+ * CP4: `rpID` GIỮ host của `tsudev.com` (CONTROL_PLANE mục 2.2) - passkey đã đăng ký vẫn dùng được ở cổng
+ * `id.tsudev.com` vì đó là tên miền con của rpID. Chỉ danh sách ORIGIN được mở thêm cổng; đổi rpID thành
+ * `id.tsudev.com` là mọi passkey cũ thành vô dụng (có test canh).
+ */
+export function rp(): { id: string; name: string; origins: string[] } {
+  const raw = mainUrl()
   if (!raw) throw new Error('[auth] NEXT_PUBLIC_MAIN_URL bắt buộc để dùng passkey')
   const url = new URL(raw)
-  return { id: url.hostname, name: 'tsudev', origin: url.origin }
+  const origins = [url.origin]
+  const gate = idUrl()
+  if (gate && gate !== url.origin) origins.push(gate)
+  return { id: url.hostname, name: 'tsudev', origins }
 }
 
 /** Challenge sống ngắn: nó chỉ cần tồn tại đủ cho một lần bấm. */
@@ -104,12 +114,12 @@ export async function registerVerify(
 ): Promise<boolean> {
   const stored = await takeChallenge(challengeId, 'register')
   if (!stored || stored.userId !== userId) return false
-  const { id, origin } = rp()
+  const { id, origins } = rp()
 
   const result = await verifyRegistrationResponse({
     response,
     expectedChallenge: stored.challenge,
-    expectedOrigin: origin,
+    expectedOrigin: origins,
     expectedRPID: id,
   }).catch(() => null)
 
@@ -155,11 +165,11 @@ export async function loginVerify(
   })
   if (!cred) return null
 
-  const { id, origin } = rp()
+  const { id, origins } = rp()
   const result = await verifyAuthenticationResponse({
     response,
     expectedChallenge: stored.challenge,
-    expectedOrigin: origin,
+    expectedOrigin: origins,
     expectedRPID: id,
     credential: {
       id: cred.credentialId,

@@ -26,3 +26,22 @@ export function safeNext(raw: unknown, fallback = '/'): string {
   if (u.origin !== GOC) return fallback;
   return `${u.pathname}${u.search}${u.hash}`;
 }
+
+/**
+ * CP4: đích quay về sau đăng nhập ở cổng `id.` - đường tương đối (qua `safeNext`) HOẶC URL tuyệt đối thuộc đúng
+ * một trong ba origin của hệ (tsudev.com, console., id.). Origin khác ⇒ `fallback` (chống open redirect).
+ */
+export function safeReturn(raw: unknown, origins: readonly string[], fallback = '/'): string {
+  if (typeof raw === 'string' && raw.startsWith('/')) return safeNext(raw, fallback);
+  if (typeof raw !== 'string') return fallback;
+  // eslint-disable-next-line no-control-regex -- CỐ Ý: chặn ký tự điều khiển (CR/LF, tab…)
+  if (/[\u0000-\u001f\u007f\\]/.test(raw)) return fallback;
+  let u: URL;
+  try {
+    u = new URL(raw);
+  } catch {
+    return fallback;
+  }
+  if (u.username || u.password) return fallback;
+  return origins.includes(u.origin) ? u.href : fallback;
+}

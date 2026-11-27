@@ -32,6 +32,16 @@
       "note": "Trạm điều hành (CP2, ADR-0005): Worker riêng `tsudev-console`, sau Cloudflare Access. Mã điều hành KHÔNG nằm trong bundle của main."
     },
     {
+      "id": "id",
+      "label": "id",
+      "workspace": "apps/id",
+      "port": 3002,
+      "sub": "id",
+      "public": true,
+      "publicEnv": "NEXT_PUBLIC_ID_URL",
+      "note": "Cổng xác thực (CP4, ADR-0005): Worker riêng `tsudev-id`. Nơi DUY NHẤT có đăng nhập/đăng ký/khôi phục/bảo mật tài khoản; issuer OIDC vẫn ở main (`/oidc`)."
+    },
+    {
       "id": "content",
       "label": "content-service",
       "workspace": "services/content-service",

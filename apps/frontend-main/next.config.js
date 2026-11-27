@@ -7,6 +7,27 @@ const CONSOLE_URL = (
     : 'http://console.tsudev.localhost:8080')
 ).replace(/\/+$/, '');
 
+// Cổng xác thực (CP4) - cùng cách suy như trên.
+const ID_URL = (
+  process.env.NEXT_PUBLIC_ID_URL ||
+  (process.env.NODE_ENV === 'production'
+    ? 'https://id.tsudev.com'
+    : 'http://id.tsudev.localhost:8080')
+).replace(/\/+$/, '');
+
+/** Trang đã dời sang cổng `id.` (CP4). Test `idGatewaySplit.test.ts` canh: không trang nào ở đây còn tồn tại. */
+const ID_PAGES = [
+  '/login',
+  '/signup',
+  '/forgot-password',
+  '/reset-password',
+  '/verify-email',
+  '/confirm-email-change',
+  '/revoke-sessions',
+  '/settings/security',
+  '/settings/profile',
+];
+
 /** @type {import('next').NextConfig} */
 
 // CSP KHÔNG đặt ở đây. Nó cần NONCE mỗi request (để Cloudflare Bot Fight Mode gắn
@@ -67,6 +88,22 @@ const nextConfig = {
       },
       { source: '/author', destination: `${CONSOLE_URL}/studio`, permanent: true },
       { source: '/author/:path*', destination: `${CONSOLE_URL}/studio/:path*`, permanent: true },
+      // CP4 (ADR-0005, chuẩn "một cổng đăng nhập"): mọi trang đăng nhập/đăng ký/khôi phục/tài khoản chỉ còn ở cổng
+      // `id.`. 308 giữ query (`callbackUrl`, `token` trong link thư cũ); GIỮ VÔ THỜI HẠN. `/oidc/interaction/<uid>`
+      // cũng sang cổng (luồng đang dở lúc deploy); `/confirm` của nó vẫn ở đây (rewrite bên dưới, cần cookie).
+      ...ID_PAGES.map((p) => ({ source: p, destination: `${ID_URL}${p}`, permanent: true })),
+      {
+        source: '/oidc/interaction/:uid([A-Za-z0-9_-]{1,64})',
+        destination: `${ID_URL}/oidc/interaction/:uid`,
+        permanent: true,
+      },
+      // QR đăng nhập (CROSS_DEVICE_LOGIN T9): mã QR VẪN in `https://tsudev.com/x/<id>` - bộ quét trong app ghim tiền tố
+      // đó. Trang + provider `qr` ở cổng; trình duyệt giữ `#<k>` qua 308 nên bí mật không vào log máy chủ.
+      {
+        source: '/x/:id([A-Za-z0-9_-]{1,64})',
+        destination: `${ID_URL}/x/:id`,
+        permanent: true,
+      },
     ];
   },
 
@@ -160,6 +197,7 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
+module.exports.ID_PAGES = ID_PAGES;
 
 // Không gọi initOpenNextCloudflareForDev() ở đây - nó dựng proxy wrangler
 // dev cho Cloudflare bindings (R2/KV) mà app này chưa dùng trực tiếp, và

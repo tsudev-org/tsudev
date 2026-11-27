@@ -1,0 +1,7 @@
+/* Cổng `id.tsudev.com` dùng CHUNG hệ token + phông của tsudev.com: nhập nguyên globals.css rồi khai thêm nguồn quét
+   lớp cho mã của cổng và thành phần mượn từ frontend-main. Đừng chép lại khối token ở đây (CLAUDE.md, QU-STD-1). */
+@import '../../frontend-main/styles/globals.css';
+
+@source '../pages/**/*.{ts,tsx}';
+@source '../../frontend-main/components/**/*.{ts,tsx}';
+@source '../../frontend-main/pages/**/*.{ts,tsx}';

@@ -6,7 +6,13 @@
 // gần trùng nhau. Một bản duy nhất thì không có bản nào lệch đi trong im lặng.
 import type { JWT } from 'next-auth/jwt';
 
-import { MIN_SECRET_LEN, SECRET_ENV, readSecret, signIdentity } from '@tsudev/identity-token';
+import { MIN_SECRET_LEN, ZONE_SECRET_ENV, readSecret, signIdentity } from '@tsudev/identity-token';
+import type { Zone } from '@tsudev/identity-token';
+
+/** Vùng ký của Worker đang chạy: `id` ở cổng (NEXTAUTH_ZONE=id), còn lại `main`. Console có lib/server.ts riêng. */
+export function identityZone(): Zone {
+  return process.env.NEXTAUTH_ZONE === 'id' ? 'id' : 'main';
+}
 
 /**
  * Tên đăng nhập gửi xuống service qua header `x-dev-user`.
@@ -45,10 +51,12 @@ export function roleFromToken(token: JWT): string {
  * một phiên để chẩn đoán - lần này nó phải nói ra lý do.
  */
 export async function identityHeaders(token: JWT): Promise<Record<string, string>> {
-  const secret = readSecret(process.env);
+  // Cổng `id.` (CP4) ký bằng vùng riêng `id` (INTERNAL_IDENTITY_SECRET_ID) - Worker cổng KHÔNG giữ khoá vùng main.
+  const zone = identityZone();
+  const secret = readSecret(process.env, zone);
   if (!secret) {
     throw new Error(
-      `${SECRET_ENV} thiếu hoặc ngắn hơn ${MIN_SECRET_LEN} ký tự - không ký được khẳng định danh tính`
+      `${ZONE_SECRET_ENV[zone]} thiếu hoặc ngắn hơn ${MIN_SECRET_LEN} ký tự - không ký được khẳng định danh tính`
     );
   }
   const assertion = await signIdentity(
@@ -57,7 +65,8 @@ export async function identityHeaders(token: JWT): Promise<Record<string, string
       role: roleFromToken(token),
       sv: typeof token.sessionVersion === 'number' ? token.sessionVersion : undefined,
     },
-    secret
+    secret,
+    zone
   );
   return { Authorization: `Bearer ${assertion}` };
 }

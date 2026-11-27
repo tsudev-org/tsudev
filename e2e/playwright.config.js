@@ -24,11 +24,15 @@ const IDENTITY_SECRET =
 // production, trang quản trị đi qua console.
 const CONSOLE_SECRET =
   process.env.INTERNAL_IDENTITY_SECRET_CONSOLE || 'e2e-console-identity-secret-du-dai-cho-hmac!!';
+// Vùng ký của cổng xác thực id. (CP4): Worker cổng không giữ khoá vùng main.
+const ID_SECRET =
+  process.env.INTERNAL_IDENTITY_SECRET_ID || 'e2e-id-gateway-identity-secret-du-dai-cho-hmac!';
 
 const webServerEnv = {
   ...process.env,
   INTERNAL_IDENTITY_SECRET: IDENTITY_SECRET,
   INTERNAL_IDENTITY_SECRET_CONSOLE: CONSOLE_SECRET,
+  INTERNAL_IDENTITY_SECRET_ID: ID_SECRET,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'e2e-placeholder-secret',
   // Thứ đang được kiểm chính là nó: thiếu biến này thì cookie phiên bó vào
   // tsudev.localhost và forum.tsudev.localhost sẽ không thấy.
@@ -56,7 +60,12 @@ const server = (id) => ({
   command: `npm --workspace ${node(topo, id).workspace} run dev`,
   url: useProxy ? internalUrl(topo, id) : publicUrl(topo, id),
   cwd: ROOT,
-  env: { ...webServerEnv, NEXTAUTH_URL: publicUrl(topo, id) },
+  // CP4: cổng `id.` giữ provider mật khẩu/passkey/QR (NEXTAUTH_ZONE=id); tsudev.com/login chuyển 308 sang đó.
+  env: {
+    ...webServerEnv,
+    NEXTAUTH_URL: publicUrl(topo, id),
+    ...(id === 'id' ? { NEXTAUTH_ZONE: 'id' } : {}),
+  },
   reuseExistingServer: reuseServers,
   timeout: 120 * 1000,
 });
@@ -83,12 +92,19 @@ const backend = (id) => ({
     BIND_HOST: '127.0.0.1',
     INTERNAL_IDENTITY_SECRET: IDENTITY_SECRET,
     INTERNAL_IDENTITY_SECRET_CONSOLE: CONSOLE_SECRET,
+    INTERNAL_IDENTITY_SECRET_ID: ID_SECRET,
   },
   reuseExistingServer: reuseServers,
   timeout: 60 * 1000,
 });
 
-const servers = [backend('content'), backend('identity'), server('main'), server('console')];
+const servers = [
+  backend('content'),
+  backend('identity'),
+  server('main'),
+  server('console'),
+  server('id'),
+];
 if (useProxy) servers.push(proxyServer());
 
 module.exports = defineConfig({

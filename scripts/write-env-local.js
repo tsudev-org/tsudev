@@ -47,6 +47,14 @@ const APPS = [
     urlKey: 'NEXT_PUBLIC_MAIN_URL',
     fallback: publicUrl(TOPO, 'main'),
   },
+  {
+    // Cổng xác thực (CP4): NextAuth chạy Ở ĐÂY với provider mật khẩu/passkey/QR (NEXTAUTH_ZONE=id), cấp cùng cookie
+    // phiên Domain=.tsudev.localhost cho main và console.
+    dir: 'apps/id',
+    urlKey: 'NEXT_PUBLIC_ID_URL',
+    fallback: publicUrl(TOPO, 'id'),
+    extra: 'NEXTAUTH_ZONE=id\n',
+  },
 ];
 
 function writeEnvLocal() {
@@ -57,12 +65,12 @@ function writeEnvLocal() {
   const content = fs.readFileSync(ROOT_ENV, 'utf8');
   const vars = parseEnv(content);
 
-  APPS.forEach(({ dir, urlKey, fallback }) => {
+  APPS.forEach(({ dir, urlKey, fallback, extra = '' }) => {
     const appUrl = (vars[urlKey] || fallback).replace(/\/+$/, '');
     // Bỏ NEXTAUTH_URL của .env gốc rồi ghi lại giá trị riêng của app này.
     const body = content
       .split(/\r?\n/)
-      .filter((line) => !/^\s*NEXTAUTH_URL\s*=/.test(line))
+      .filter((line) => !/^\s*(NEXTAUTH_URL|NEXTAUTH_ZONE)\s*=/.test(line))
       .join('\n')
       .replace(/\n+$/, '\n');
 
@@ -70,7 +78,7 @@ function writeEnvLocal() {
 # --- Sinh tự động bởi scripts/write-env-local.js - đừng sửa tay ---
 # NEXTAUTH_URL riêng cho ${dir}, lấy từ ${urlKey}.
 NEXTAUTH_URL=${appUrl}
-`;
+${extra}`;
 
     const dest = path.join(ROOT, dir, '.env.local');
     try {

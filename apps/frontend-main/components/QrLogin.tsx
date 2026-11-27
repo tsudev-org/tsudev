@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { Button, Input } from '@tsudev/ui';
+import { Button, Input, MAIN_URL } from '@tsudev/ui';
 
 import { Notice } from './AuthShell';
 import { QrSvg } from './QrSvg';
@@ -62,7 +62,7 @@ export function QrLogin({ callbackUrl }: { callbackUrl: string }) {
     }
     const id = String(r.data.id);
     session.current = { id, at: Date.now() };
-    setQr(`${window.location.origin}/x/${id}?f=k#${String(r.data.k)}`);
+    setQr(`${MAIN_URL}/x/${id}?f=k#${String(r.data.k)}`);
     setCode('');
     setPhase('qr');
   }, []);

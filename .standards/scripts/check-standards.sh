@@ -325,6 +325,18 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
 fi
 
 # ------------------------------------------------------------------
+# 5a. Một cổng đăng nhập (AUTH_AND_ACCOUNT.md mục 2.1) - chỉ repo con; cảnh báo, repo bật chặn bằng --strict ở CI.
+if [[ $IS_CENTRAL == 0 && -f .standards/scripts/check-central-login.sh ]]; then
+  echo
+  echo "5a. Một cổng đăng nhập (AUTH_AND_ACCOUNT.md mục 2.1)"
+  if login_out="$(bash .standards/scripts/check-central-login.sh --strict 2>&1)"; then
+    pass "không thấy trang/ô đăng nhập ngoài cổng"
+  else
+    printf '%s\n' "$login_out" | head -20 >&2
+    warn "nghi vi phạm một cổng đăng nhập - lập phiếu RA_SOAT_DANG_NHAP"
+  fi
+fi
+
 # 5b. Thẻ phát hành sản phẩm (VERSIONING.md mục 2.2) - chỉ repo có packaging/package.json.
 # Mức LƯU Ý: thẻ cũ đã phát hành là bất biến (mục 2.4), khuôn chỉ áp cho bản kế tiếp.
 if [[ $IS_CENTRAL == 0 && -f packaging/package.json ]] && git rev-parse --git-dir >/dev/null 2>&1; then

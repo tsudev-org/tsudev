@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { signIn } from 'next-auth/react';
+import { startOAuth } from '../lib/oauthBridge';
 import { Badge, Button } from '@tsudev/ui';
 
 import { formatDateVN } from '../lib/format';
@@ -11,7 +11,7 @@ import { useLoader } from '../lib/useLoader';
  * gỡ Google/GitHub. Danh sách nhà cung cấp lấy từ CHÍNH `GET /api/v1/auth/providers` -
  * nguồn mà RP cũng dùng - nên chỉ nhà cung cấp IdP đang bật mới có nút.
  *
- * Liên kết: POST /api/account-link (cookie ý định ký, 10 phút) rồi `signIn(provider)`; callback
+ * Liên kết: POST /api/account-link (cookie ý định ký, 10 phút) rồi `startOAuth(provider)`; callback
  * gắn tài khoản vào phiên HIỆN TẠI và quay về đây với `?linked=` hoặc `?link_error=`.
  */
 
@@ -110,7 +110,7 @@ export function LinkedAccounts({
       setMsg({ kind: 'error', text: 'Không bắt đầu liên kết được. Hãy thử lại.' });
       return;
     }
-    await signIn(id, { callbackUrl: '/settings/security#lien-ket' });
+    await startOAuth(id, '/settings/security#lien-ket');
   };
 
   const unlink = async (id: string, name: string) => {

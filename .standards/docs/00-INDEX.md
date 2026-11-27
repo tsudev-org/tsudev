@@ -24,7 +24,7 @@
 5. [`BRAND_ASSETS.md`](BRAND_ASSETS.md) - khi đụng logo, favicon, icon ứng dụng
 
 **Bạn đang làm chức năng đăng nhập, đăng ký, tài khoản:**
-1. [`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) - kiến trúc, ba lối vào, xác minh, ma trận quyền, nhắc đăng nhập (14.4)
+1. [`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) - kiến trúc, ba lối vào, xác minh, ma trận quyền, lối đăng nhập chủ động - không nhắc tự động (14.4)
 2. [`CROSS_DEVICE_LOGIN.md`](CROSS_DEVICE_LOGIN.md) - "Quét để đăng nhập" bằng QR + mã khớp
 3. [`SECURITY_BASELINE.md`](SECURITY_BASELINE.md) mục 6 - ngưỡng mật khẩu, phiên, phân quyền
 4. [`ECOSYSTEM_IDENTITY.md`](ECOSYSTEM_IDENTITY.md) mục 6 và 7 - ảnh đại diện, trang hồ sơ
@@ -97,6 +97,7 @@
 | [`APPLE_CICD.md`](APPLE_CICD.md) | Apple iOS/iPadOS/macOS: CI/CD từ Ubuntu, ký, TestFlight, bí mật `APPLE_*`, script `scripts/apple/` | Bất khả xâm phạm |
 | [`RICH_TEXT_EDITOR.md`](RICH_TEXT_EDITOR.md) | Trình soạn thảo nội dung | Bất khả xâm phạm |
 | [`SEARCH_AND_FILTER.md`](SEARCH_AND_FILTER.md) | Tìm kiếm và lọc tiếng Việt | Bất khả xâm phạm |
+| [`templates/RA_SOAT_DANG_NHAP.md`](templates/RA_SOAT_DANG_NHAP.md) | Phiếu rà soát một cổng đăng nhập ở repo sản phẩm | Mẫu |
 | [`ONBOARDING.md`](ONBOARDING.md) | Triển khai và bộ câu lệnh agent | Hướng dẫn |
 | [`templates/HANDOVER.md`](templates/HANDOVER.md) | Mẫu phiếu bàn giao | Mẫu |
 | [`templates/ADR.md`](templates/ADR.md) | Mẫu ghi quyết định kiến trúc | Mẫu |

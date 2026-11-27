@@ -1,3 +1,4 @@
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { CONTENT, edgeHeaders, internalHeaders } from '../../../lib/services';
@@ -14,6 +15,11 @@ import { CONTENT, edgeHeaders, internalHeaders } from '../../../lib/services';
  * parse/serialize lại. `.json` và `.sig` được lấy THEO CẶP và đệm cùng nhau trong isolate:
  * phục vụ hai nửa từ hai lần dựng khác nhau là app thấy "chữ ký sai" và bỏ bản kê.
  * Upstream hỏng ⇒ phục vụ cặp cũ (app tự bỏ khi quá `expires_at`), giống lib/oidcPublicCache.
+ *
+ * VS1 mục 4 (CP4): bộ nhớ isolate mất khi isolate mới khởi động đúng lúc backend ngủ ⇒ 503. Cặp tốt gần nhất
+ * nay được ghi BỀN vào R2 (`NEXT_INC_CACHE_R2_BUCKET`, khoá riêng ngoài tiền tố của OpenNext) MỖI KHI cặp đổi,
+ * và đọc lại từ đó khi upstream hỏng mà isolate còn rỗng. Cặp được ghi thành MỘT đối tượng để hai nửa không
+ * bao giờ lệch nhau.
  */
 const FRESH_MS = 5 * 60_000;
 const FILES = new Set(['versions.json', 'versions.json.sig', 'versions-jwks.json']);
@@ -23,6 +29,60 @@ const CHANNEL_RE = /^[a-z][a-z0-9-]{1,23}$/;
 type Pair = { body: Buffer; sig: Buffer; at: number };
 let pair: Pair | null = null;
 let jwks: { body: Buffer; at: number } | null = null;
+
+export const DURABLE_KEY = 'tsudev-durable/versions-pair.json';
+
+type R2Like = {
+  get(key: string): Promise<{ text(): Promise<string> } | null>;
+  put(key: string, value: string, opts?: unknown): Promise<unknown>;
+};
+
+function durableBucket(): R2Like | null {
+  try {
+    return (
+      (getCloudflareContext().env as { NEXT_INC_CACHE_R2_BUCKET?: R2Like })
+        .NEXT_INC_CACHE_R2_BUCKET ?? null
+    );
+  } catch {
+    return null; // next dev / test không có binding
+  }
+}
+
+/** Chữ ký của cặp đã ghi bền gần nhất trong isolate này - chỉ ghi lại khi cặp đổi. */
+let persistedSig: string | null = null;
+
+async function persistPair(p: Pair): Promise<void> {
+  const sig = p.sig.toString('base64');
+  if (sig === persistedSig) return;
+  const bucket = durableBucket();
+  if (!bucket) return;
+  try {
+    await bucket.put(
+      DURABLE_KEY,
+      JSON.stringify({ body: p.body.toString('base64'), sig, at: p.at }),
+      { httpMetadata: { contentType: 'application/json' } }
+    );
+    persistedSig = sig;
+  } catch {
+    // ghi bền hỏng không được làm hỏng lượt phục vụ
+  }
+}
+
+async function loadDurablePair(): Promise<Pair | null> {
+  const bucket = durableBucket();
+  if (!bucket) return null;
+  try {
+    const obj = await bucket.get(DURABLE_KEY);
+    if (!obj) return null;
+    const d = JSON.parse(await obj.text()) as { body?: string; sig?: string; at?: number };
+    if (typeof d.body !== 'string' || typeof d.sig !== 'string' || typeof d.at !== 'number')
+      return null;
+    persistedSig = d.sig;
+    return { body: Buffer.from(d.body, 'base64'), sig: Buffer.from(d.sig, 'base64'), at: d.at };
+  } catch {
+    return null;
+  }
+}
 
 async function fetchBytes(file: string): Promise<Buffer> {
   const url = `${CONTENT}/.well-known/tsudev/${file}`;
@@ -41,12 +101,16 @@ async function getPair(now: number): Promise<Pair | null> {
       const again = await fetchBytes('versions.json');
       if (again.equals(body)) {
         pair = { body, sig, at: now };
+        await persistPair(pair);
         return pair;
       }
     }
   } catch {
     // rơi xuống bản cũ
   }
+  if (pair) return pair;
+  // Isolate mới + upstream hỏng: lấy cặp bền. Giữ `at` cũ để lượt sau vẫn thử upstream trước.
+  pair = await loadDurablePair();
   return pair;
 }
 
@@ -54,6 +118,7 @@ async function getPair(now: number): Promise<Pair | null> {
 export function _clearVersionsCache() {
   pair = null;
   jwks = null;
+  persistedSig = null;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

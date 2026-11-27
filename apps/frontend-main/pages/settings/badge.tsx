@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { Badge, Button, Layout, TsuBadge, writeBadgeCache } from '@tsudev/ui';
+import { Badge, Button, ID_URL, Layout, MAIN_URL, TsuBadge, writeBadgeCache } from '@tsudev/ui';
 import type { BadgeTone } from '@tsudev/ui';
 import Seo from '../../components/Seo';
 import { Notice } from '../../components/AuthShell';
@@ -71,7 +71,11 @@ export default function BadgeSettings() {
         <div className="mx-auto max-w-md">
           <h1 className="mb-4 text-xl font-semibold text-fg">Huy hiệu và Pro</h1>
           <Notice kind="error">Bạn cần đăng nhập để mở trang này.</Notice>
-          <Button as="a" href="/login?callbackUrl=/settings/badge" className="mt-4 w-full">
+          <Button
+            as="a"
+            href={`${ID_URL}/login?callbackUrl=${encodeURIComponent(`${MAIN_URL}/settings/badge`)}`}
+            className="mt-4 w-full"
+          >
             Đăng nhập
           </Button>
         </div>

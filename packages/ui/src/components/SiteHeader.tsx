@@ -8,7 +8,7 @@ import { TsuBadge } from './TsuBadge';
 import type { TsuBadgeValue } from './TsuBadge';
 import { fetchOwnStatus, readBadgeCache, writeBadgeCache } from '../lib/badgeCache';
 import { setProEntitled } from '../lib/proTheme';
-import { CONSOLE_URL } from '../lib/siteUrls';
+import { CONSOLE_URL, ID_URL } from '../lib/siteUrls';
 // tsudev là MỘT site nên href tương đối. Trước đây có hai origin (trang chính và
 // diễn đàn) nên mọi link điều hướng buộc phải là URL tuyệt đối.
 type NavItem = {
@@ -171,11 +171,11 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
             />
           )}
           {(!session || pending) && (
-            // Link chứ không phải nút gọi signIn(): /login là trang thật của site,
+            // Link chứ không phải nút gọi signIn(): /login là trang thật của cổng `id.` (CP4),
             // mở được bằng chuột giữa và chạy cả khi JavaScript chưa tải.
             <div className={`flex items-center gap-2${pending ? ' tsu-auth-out' : ''}`}>
               <a
-                href="/login"
+                href={`${ID_URL}/login`}
                 className="inline-flex items-center h-8 px-3 rounded-md border border-line-strong bg-surface text-sm font-medium text-fg transition-colors hover:border-line-control hover:bg-hovered"
               >
                 Đăng nhập
@@ -250,13 +250,13 @@ export const SiteHeader = ({ active = '/' }: SiteHeaderProps) => {
                 </a>
               )}
               <a
-                href="/settings/profile"
+                href={`${ID_URL}/settings/profile`}
                 className="block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle"
               >
                 Hồ sơ tài khoản
               </a>
               <a
-                href="/settings/security"
+                href={`${ID_URL}/settings/security`}
                 className="block px-2 py-2.5 rounded-md text-sm text-fg-secondary hover:bg-subtle"
               >
                 Bảo mật tài khoản
@@ -398,7 +398,7 @@ const UserMenu = ({ pending, name, email, image, badge, canAuthor, onLogout }: U
               Studio - viết bài
             </a>
           )}
-          <a href="/settings/profile" className={item}>
+          <a href={`${ID_URL}/settings/profile`} className={item}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.7" />
               <path

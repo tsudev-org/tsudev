@@ -38,7 +38,7 @@ export function useSession(): {
   }, [name, role]);
 }
 
-/** Đăng nhập chỉ ở cổng công khai (next.config.js chuyển `/login` sang tsudev.com). */
+/** Đăng nhập chỉ ở cổng `id.` (CP4): next.config.js chuyển `/login` sang đó kèm đích quay về console. */
 export function signIn() {
   window.location.assign('/login');
 }

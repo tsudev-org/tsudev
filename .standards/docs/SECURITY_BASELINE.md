@@ -1,4 +1,4 @@
-# CHUẨN BẢO MẬT BẮT BUỘC - mọi project/tool/phần mềm tsudev (v3.1.0)
+# CHUẨN BẢO MẬT BẮT BUỘC - mọi project/tool/phần mềm tsudev (v3.3.0)
 
 > **Bất khả xâm phạm.** File này là chuẩn tối thiểu, không phải danh sách gợi ý.
 >
@@ -216,7 +216,7 @@ Phần lớn mã chạy trong sản phẩm là mã của người khác. Đối 
 ## 6. Xác thực, phiên và phân quyền
 
 > Mục này là **ngưỡng kỹ thuật tối thiểu**. Kiến trúc tài khoản của hệ sinh thái
-> (ba lối vào Google/GitHub/tsudev, gộp danh tính, cơ chế Xác minh tài khoản,
+> (một cổng đăng nhập duy nhất, ba lối vào, gộp danh tính, cơ chế Xác minh tài khoản,
 > trạng thái và ma trận quyền) nằm ở
 > [`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md). Làm chức năng đăng nhập thì
 > `MUST` đọc cả hai: tài liệu này cho ngưỡng, tài liệu kia cho kiến trúc.
@@ -458,6 +458,80 @@ kỳ repo tsudev nào `MUST`:
    phạm vi tính năng, không rút gọn cổng kiểm.
 7. **Khi phát hiện lỗ hổng trong mã có sẵn**, báo cáo ngay cho chủ project kèm
    đánh giá mức độ theo `SECURITY.md` mục 5, kể cả khi nó nằm ngoài task đang làm.
+
+### 12.1. Zero Secret Exposure - HARD STOP (MUST - chủ dự án 26/11/2026)
+
+Áp dụng cho mọi agent: phiên chính, subagent, phiên `claude -p`, workflow tự động; với mọi tệp, **kể cả tệp nằm ngoài
+thư mục dự án** (`~/.config/**`, `~/.ssh/**`, tệp token ở thư mục nhà...).
+
+1. `MUST NOT` xuất giá trị token, secret, API key, private key, mật khẩu ra stdout, terminal, log, tệp được git theo
+   dõi, commit, PR, issue, release, báo cáo, AKB, phiếu bàn giao, tin nhắn giữa các phiên - kể cả một phần (vài ký tự
+   đầu/cuối) hay đã mã hoá base64/hex.
+2. `MUST NOT` dùng lệnh đọc/xử lý chuỗi trên tệp hoặc biến bí mật: `cat`, `head`, `tail`, `less`, `grep` (trừ `-q`,
+   `-c`, `-l`), `sed`, `awk`, `cut`, `sort`, `xxd`, `base64`, `jq`, công cụ đọc tệp của agent, tìm kiếm chế độ in nội
+   dung; `printenv`, `env`, `set`, `export -p`, `echo`/`printf` biến bí mật; `gh auth token` đứng riêng,
+   `gh auth status -t`, `git credential fill`, `curl -v` kèm header xác thực. Ví dụ điển hình gây lộ: `cut -d= -f1`
+   trên tệp chỉ chứa chuỗi token thô (không có `=`) in nguyên token.
+3. Được phép: xem **tên khoá + siêu dữ liệu** bằng `scripts/agent-hooks/noleak-inspect.py <tệp>` (tên khoá, độ dài giá
+   trị, quyền tệp, định dạng); kiểm tra biến bằng `[ -n "$X" ] && echo "co, dai ${#X}"`; dùng giá trị bằng cách nạp vào
+   môi trường (`set -a; . <tệp>; set +a`) hoặc thay thế lệnh (`GH_TOKEN=$(gh auth token) <lệnh>`), không in.
+4. **HARD STOP - dừng ngay và báo chủ dự án** (đường dẫn + tình trạng, không kèm giá trị), không thử cách đọc khác:
+
+   | # | Tình huống | Báo gì |
+   | --- | --- | --- |
+   | a | Tệp bí mật **không theo `KEY=VALUE`** - chỉ chứa chuỗi token thô, không có `=` (`noleak-inspect` báo `RAW_TOKEN`/`MIXED_RAW`, mã thoát 3), trong hay ngoài dự án | Đường dẫn + "thiếu định dạng `KEY=VALUE`" + số dòng; chờ chủ dự án tự sửa thành `TEN_BIEN=gia_tri`, hoặc - khi chủ dự án ủy quyền rõ - đổi bằng `noleak-inspect.py --to-env TEN_BIEN <tệp>` (tự kiểm chứng không mất dữ liệu, không in giá trị) sau khi đã tìm và sửa mọi nơi đọc tệp đó. Tệp do công cụ tự quản (vd. `~/.supabase/access-token`): không đọc, để công cụ tự dùng |
+   | b | Output công cụ có chuỗi giống bí mật (hook báo `[Zero Secret Exposure]`) | Loại bí mật + lệnh/tệp nguồn; đề nghị thu hồi/xoay khoá nếu là khoá thật |
+   | c | Bí mật đã nằm trong git, log, tệp công khai | Coi là đã lộ, xử lý theo mục 9.2 (thu hồi trước), không tự viết lại lịch sử |
+   | d | Task chỉ làm được nếu xem giá trị bí mật | Hỏi chủ dự án cách làm khác |
+
+5. Ghi bí mật mới chỉ vào tệp đã gitignore (`.env`, `.dev.vars`) đúng định dạng `KEY=VALUE`, quyền `600`; hoặc kho bí
+   mật của nền tảng (`wrangler secret put`, GitHub Secrets) nhập qua stdin. Dữ liệu test dùng giá trị rõ là giả.
+6. **Thi hành bằng máy, không chỉ bằng chữ**: máy phát triển chạy Claude Code `MUST` cài bộ hook
+   `scripts/agent-hooks/` (cách cài: [`scripts/agent-hooks/README.md`](../scripts/agent-hooks/README.md)) - `PreToolUse`
+   chặn các lệnh mục 2 và tệp mục 4a trước khi chạy, `PostToolUse` phát hiện chuỗi dạng khoá thật trong output.
+   Hook chặn thì agent `MUST NOT` lách (đổi lệnh, đổi công cụ, dùng python/node, giao subagent); làm theo chỉ dẫn
+   trong lý do chặn. Kiểm thử: `python3 scripts/agent-hooks/test-noleak-guard.py`.
+
+### 12.2. Bảo vệ bí mật lúc lưu trữ (MUST - chủ dự án 26/11/2026)
+
+| Hạng mục | Yêu cầu |
+| --- | --- |
+| Quyền | Tệp bí mật `600`, thư mục chứa bí mật `700`, chủ sở hữu là tài khoản người dùng. `MUST NOT` nới quyền (`644`, `755`, `777`) |
+| Vị trí | Ngoài repo: `~/.config/tsudev/<tên>.env`. Trong repo chỉ `.env*`, `.dev.vars*` đã gitignore. `MUST NOT` nằm trong mã nguồn, test, tài liệu, log, ảnh chụp màn hình, `artifacts` CI |
+| Hệ tệp | Bí mật dạng rõ chỉ trên hệ tệp Linux. `MUST NOT` lưu bản rõ trên `/mnt/<ổ Windows>` (NTFS bỏ qua `chmod`, mọi tiến trình Windows đọc được), thư mục đồng bộ đám mây, ổ USB |
+| Định dạng | `KEY=VALUE`, một tệp một mục đích, tên biến nói rõ phạm vi (`CLOUDFLARE_DNS_TOKEN`, không `TOKEN`) |
+| Sao lưu | Ra ngoài máy `MUST` mã hoá trước (`age -p` -> `.age`; hoặc kho mật khẩu). Khoá ký phát hành (updater, keystore, code signing) `MUST` có ít nhất 1 bản sao lưu mã hoá ngoài máy |
+| Phạm vi | Token tối thiểu quyền (một zone, một repo, một quyền), có hạn khi nền tảng cho phép; token tạm (sửa DNS một lần...) thu hồi ngay khi xong |
+| Production/CI | Kho bí mật nền tảng (`wrangler secret`, GitHub Actions secrets, Render/Vercel env); CI ưu tiên OIDC/thông tin xác thực ngắn hạn thay token dài hạn |
+
+**Thi hành bằng máy** (bộ hook `scripts/agent-hooks/`): `PostToolUse` tự `chmod 600` tệp bí mật vừa được ghi (công cụ
+Write/Edit, `>`/`>>`/`tee`); `SessionStart` rà repo - tự `chmod 600` tệp bí mật đã gitignore đang mở quyền, cảnh báo tệp
+không theo `KEY=VALUE`, cảnh báo tệp mang tên bí mật đang bị git theo dõi (trừ chứng chỉ/khoá công khai).
+
+### 12.3. Phát hiện - báo - xoay bí mật (MUST)
+
+1. Agent phát hiện bí mật **có nguy cơ lộ hoặc bị lạm dụng** - lộ trong output/chat/log/git/tin nhắn, quyền tệp mở, bản rõ
+   trên ổ Windows/đám mây, token phạm vi quá rộng hoặc không hạn, khoá dùng chung nhiều dịch vụ - `MUST` báo **ngay** chủ
+   dự án: tên bí mật (không giá trị), nơi lưu, nơi lộ, thời điểm, mức độ, đề xuất xoay.
+2. Cùng lúc `MUST` tạo phiếu `logs/handover/YYYYMMDD-XK<n>_xoay-<tên>.md` theo mẫu
+   [`templates/XOAY_KHOA.md`](templates/XOAY_KHOA.md) ở repo sở hữu bí mật. Phiếu `XK` còn `MỞ` thì hook `SessionStart`
+   nhắc **mọi** phiên của repo đó; agent `MUST` nhắc chủ dự án trước khi làm task, cho tới khi chủ dự án xác nhận đã xoay
+   (`ĐÓNG`).
+3. Agent **chỉ tự xoay** khi chủ dự án ủy quyền rõ cho đúng bí mật đó **và** việc xoay không gián đoạn dịch vụ, không hạ
+   tư thế bảo mật. Trình tự: tạo bí mật mới (phạm vi không rộng hơn bí mật cũ) -> cập nhật mọi nơi dùng (kho bí mật nền
+   tảng, tệp cục bộ) không in giá trị -> kiểm chứng dịch vụ chạy -> thu hồi bí mật cũ -> ghi phiếu `ĐÓNG`.
+4. `MUST NOT` tự xoay khoá ký phát hành (updater, keystore APK, chứng chỉ ký mã): đổi khoá làm mọi bản đã cài không nhận
+   cập nhật - chỉ chủ dự án quyết theo kế hoạch riêng.
+
+### 12.4. Kiến trúc bảo mật là ràng buộc của mọi task/phase (MUST)
+
+Mọi task/phase `MUST` giữ nguyên hoặc nâng tư thế bảo mật của hệ thống, theo các nguyên tắc: phòng thủ nhiều lớp; tối
+thiểu quyền (người dùng, token, dịch vụ, CI); máy chủ là nơi quyết định cuối (`APP_INTEGRITY.md`); không bí mật dài hạn
+trong client (app, web, bản build); thông tin xác thực ngắn hạn/OIDC thay token dài hạn; ghim phiên bản phụ thuộc và
+action (mục 5); ký và kiểm chữ ký bản phát hành (`DISTRIBUTION_TRUST.md`); log kiểm toán không chứa bí mật; giới hạn tần
+suất và chống lạm dụng mọi API công khai; mã hoá khi truyền và khi lưu. Thay đổi làm **yếu** một lớp bảo vệ - kể cả tạm
+thời - `MUST` dừng, viết ADR nêu rủi ro và chờ chủ dự án duyệt. Phát hiện điểm yếu kiến trúc ngoài task: báo theo mục 12
+ý 7, không tự sửa ngoài phạm vi.
 
 ---
 

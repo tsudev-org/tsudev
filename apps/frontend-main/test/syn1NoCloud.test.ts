@@ -70,6 +70,6 @@ describe('PRODUCT_POLICY 7.7 - phạm vi đăng nhập bên thứ ba', () => {
     expect(p).toContain('Xoá sau 90 ngày không hoạt động');
     expect(p).toContain('Tối đa 12 tháng');
     expect(p).toContain('/settings/security#xoa-tai-khoan');
-    expect(read('apps/frontend-main/pages/settings/security.tsx')).toContain('id="xoa-tai-khoan"');
+    expect(read('apps/id/pages/settings/security.tsx')).toContain('id="xoa-tai-khoan"');
   });
 });

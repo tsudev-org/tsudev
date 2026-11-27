@@ -41,7 +41,8 @@ describe('tập idp_hint khớp ba nơi', () => {
   });
 
   test('trang /oidc/interaction', () => {
-    const src = read('pages', 'oidc', 'interaction', '[uid].tsx');
+    // CP4: trang đồng ý ở cổng `id.`.
+    const src = read('..', 'id', 'pages', 'oidc', 'interaction', '[uid].tsx');
     const m = src.match(/const IDP_HINTS = new Set\(\[([^\]]*)\]\)/);
     const ids = (m?.[1] ?? '').match(/'([a-z]+)'/g)?.map((s) => s.slice(1, -1));
     expect(ids).toEqual([...IDP_HINT_IDS]);

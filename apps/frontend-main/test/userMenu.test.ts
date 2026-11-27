@@ -22,7 +22,7 @@ describe('menu tài khoản ở header', () => {
   });
 
   test('menu có đúng hai đích: Hồ sơ tài khoản và Đăng xuất', () => {
-    expect(menu).toContain('href="/settings/profile"');
+    expect(menu).toContain('href={`${ID_URL}/settings/profile`}');
     expect(menu).toContain('Hồ sơ tài khoản');
     expect(menu).toMatch(/onClick=\{onLogout\}/);
   });

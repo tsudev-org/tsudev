@@ -34,11 +34,13 @@ import { findEmailOwnerId } from './emailCanon'
 import type { Role } from '@tsudev/types'
 import { createRateLimit, identityKey, largePageRateLimit } from '@tsudev/ratelimit'
 import { postgresRateLimitStore } from './rateLimitStore'
+import { idUrl } from './siteUrls'
 import {
   initOidc,
   interactionDetails,
   interactionFinish,
   interactionHint,
+  interactionSummary,
   oidcHandler,
 } from './oidc'
 import { accountStatus, STATUS_SELECT } from './accountStatus'
@@ -311,7 +313,7 @@ app.post(
     // hộp thư. Thư vẫn gửi tới đúng địa chỉ người vừa nhập (chính hộp thư đó).
     const existing = await findEmailOwnerId(email)
     if (existing) {
-      const link = `${siteUrl()}/login`
+      const link = `${idUrl()}/login`
       await sendMail(
         email,
         'Có người thử đăng ký bằng email của bạn',
@@ -337,7 +339,7 @@ app.post(
     await sendMail(
       email,
       'Xác minh email cho tài khoản TsuDEV',
-      verifyEmailHtml(user.displayName || username, `${siteUrl()}/verify-email?token=${token.raw}`),
+      verifyEmailHtml(user.displayName || username, `${idUrl()}/verify-email?token=${token.raw}`),
       'verify_email'
     )
     logSecurity(user.id, 'account_created', req)
@@ -720,7 +722,7 @@ app.post(
       'Đặt lại mật khẩu TsuDEV',
       resetPasswordHtml(
         user.displayName || user.username,
-        `${siteUrl()}/reset-password?token=${token.raw}`
+        `${idUrl()}/reset-password?token=${token.raw}`
       ),
       'password_reset'
     )
@@ -980,7 +982,7 @@ app.post(
       'Xác minh email cho tài khoản TsuDEV',
       verifyEmailHtml(
         user.displayName || user.username,
-        `${siteUrl()}/verify-email?token=${token.raw}`
+        `${idUrl()}/verify-email?token=${token.raw}`
       ),
       'verify_email_resend'
     )
@@ -1148,7 +1150,7 @@ app.post(
       changeEmailHtml(
         user.displayName || user.username,
         newEmail,
-        `${siteUrl()}/confirm-email-change?token=${token.raw}`
+        `${idUrl()}/confirm-email-change?token=${token.raw}`
       ),
       'email_change_confirm'
     )
@@ -1185,6 +1187,23 @@ app.post(
       return res.json({ hint: await interactionHint(req, res) })
     } catch {
       return res.json({ hint: null })
+    }
+  })
+)
+
+// CP4: trang đồng ý ở cổng `id.` đọc tóm tắt THEO UID (cookie `_interaction` ở host tsudev.com không tới được
+// `id.`). Không cần đăng nhập - trang gọi cả lúc chưa có phiên để biết gợi ý lối đăng nhập. Nằm ngoài tiền tố
+// `/api/identity/oidc` (gác `auth`). Hoàn tất vẫn đi `finish` bên dưới, có cookie + phiên.
+app.get(
+  '/api/identity/oidc-summary/:uid',
+  asyncHandler(async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store')
+    try {
+      const d = await interactionSummary(String(req.params.uid || ''))
+      if (!d) return res.status(404).json({ error: 'interaction_invalid' })
+      return res.json(d)
+    } catch {
+      return res.status(404).json({ error: 'interaction_invalid' })
     }
   })
 )
@@ -2091,7 +2110,7 @@ async function alertIfNewDevice(
       user,
       'Có đăng nhập mới từ thiết bị hoặc vị trí chưa từng thấy',
       [deviceLabel(cur.userAgent), where].filter(Boolean).join(' · '),
-      `${siteUrl()}/revoke-sessions?token=${revoke.raw}`
+      `${idUrl()}/revoke-sessions?token=${revoke.raw}`
     )
     // Ghi lại chính lượt cảnh báo này. Hai công dụng, và cái thứ hai mới là lý do
     // chính: nó đưa thiết bị vừa báo vào tập "đã thấy", nên một thiết bị mới chỉ
