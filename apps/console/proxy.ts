@@ -31,15 +31,24 @@ function newNonce(): string {
   return btoa(s);
 }
 
+// Tải tệp phát hành đi THẲNG từ trình duyệt lên R2 bằng URL presign (`ReleaseManager`) - đúng endpoint S3 của tài
+// khoản Cloudflare tsudev (không phải bí mật; trùng `CF_ACCOUNT` của scripts/deploy-frontend.js).
+const R2_HOST = '9541f44e84433a32b013ec31bae14848.r2.cloudflarestorage.com';
+const UPLOAD_SRC = `https://${R2_HOST} https://*.${R2_HOST}`;
+// Ảnh trong bản xem trước bài viết; và hai nguồn nhúng video mà `lib/md.ts` sinh ra.
+const CDN_SRC = 'https://cdn.tsudev.com';
+const VIDEO_FRAMES = 'https://www.youtube-nocookie.com https://player.vimeo.com';
+
 export function buildConsoleCsp(nonce: string, dev = DEV): string {
   return [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${dev ? " 'unsafe-eval'" : ''}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    `img-src 'self' data: blob: ${CDN_SRC}${dev ? ' http:' : ''}`,
     "font-src 'self'",
-    `connect-src 'self'${dev ? ' ws:' : ''}`,
-    "frame-src 'none'",
+    // Dev: MinIO cục bộ và websocket nạp nóng.
+    `connect-src 'self' ${UPLOAD_SRC}${dev ? ' ws: http:' : ''}`,
+    `frame-src ${VIDEO_FRAMES}`,
     "frame-ancestors 'none'",
     "base-uri 'none'",
     "form-action 'self'",
@@ -49,7 +58,7 @@ export function buildConsoleCsp(nonce: string, dev = DEV): string {
       ? []
       : [
           "require-trusted-types-for 'script'",
-          "trusted-types default nextjs#bundler nextjs 'allow-duplicates'",
+          "trusted-types default nextjs#bundler nextjs dompurify 'allow-duplicates'",
         ]),
   ].join('; ');
 }

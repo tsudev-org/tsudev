@@ -30,13 +30,11 @@ const ALLOWED = new Set([
   'verify/code/send',
   'verify/code/confirm',
   'email/change',
-  // Nhật ký bảo mật: của chính mình, và console OWNER xuyên tài khoản
-  // (useradmin/security tự kiểm OWNER ở auth-service).
+  // Nhật ký bảo mật của CHÍNH MÌNH (bản xuyên tài khoản chỉ có ở proxy của trạm điều hành).
   'security/events',
   'security/revoke-all',
   // P1.1 thẻ "Mức an toàn" của /settings/security.
   'security/posture',
-  'useradmin/security',
   // Vòng đời tài khoản tự phục vụ (đòi mật khẩu).
   'account/deactivate',
   'account/delete',
@@ -46,7 +44,7 @@ const ALLOWED = new Set([
   // P1.3: tạo lại mã dự phòng (đòi step-up ở auth-service).
   'totp/backup-codes',
   // Xác thực lại (step-up, G7): đổi mã TOTP lấy token 5 phút cho thao tác nguy
-  // hiểm ở /admin/release-security. Token đi tiếp trong THÂN request tới content.
+  // hiểm của chính tài khoản mình (trạm điều hành có đường step-up riêng).
   'step-up',
   'passkey/register-options',
   'passkey/register-verify',
@@ -58,31 +56,12 @@ const ALLOWED = new Set([
   'oauth/unlink',
   // ACC1: kiểm step-up trước khi rời trang sang nhà cung cấp để liên kết.
   'oauth/link-check',
-  // Quản lý tài khoản & phân quyền - auth-service tự kiểm OWNER (đọc User.role
-  // từ DB, không từ claim). Tên hai đoạn vì proxy chặn path quá 2 đoạn.
-  'useradmin/list',
-  'useradmin/create',
-  'useradmin/update',
-  'useradmin/role',
-  'useradmin/revoke',
-  // LG3: tạm khoá/gỡ tạm khoá (AUTH_AND_ACCOUNT 9.2) - OWNER + step-up ở auth-service.
-  'useradmin/suspend',
-  'useradmin/delete',
-  // Bí danh thư nội bộ. Giữ tên HAI đoạn cho nhất quán với phần còn lại của
-  // nhóm này; `useradmin/alias/create` từng 404 vì trần độ dài, và cái 404 đó
-  // trông y hệt "chưa làm xong".
-  'alias/list',
-  'alias/create',
-  'alias/delete',
-  'alias/sync',
   // PRO-B bước B3: mua Pro / ủng hộ bằng VietQR (của chính mình) + Tài khoản → Huy hiệu.
   'pay/status',
   'pay/create',
   'pay/badge',
-  // Đối soát chuyển khoản - auth-service tự kiểm OWNER + TOTP (đọc vai trò từ DB).
-  'payadmin/list',
-  'payadmin/confirm',
-  'payadmin/reject',
+  // KHÔNG có `useradmin/*`, `alias/*`, `payadmin/*` (CP3): thao tác điều hành chỉ đi qua proxy của
+  // `apps/console`; backend cũng từ chối khẳng định vùng công khai ở các route đó.
 ]);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

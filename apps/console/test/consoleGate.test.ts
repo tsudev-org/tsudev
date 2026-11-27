@@ -5,6 +5,7 @@
 import { readFileSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 
+import { isSameOrigin } from '../lib/server';
 import { buildConsoleCsp } from '../proxy';
 
 const APP = join(__dirname, '..');
@@ -21,19 +22,30 @@ describe('CSP', () => {
   test('nonce + strict-dynamic, không unsafe-inline/eval cho script, không nguồn bên thứ ba', () => {
     const script = csp.split('; ').find((d) => d.startsWith('script-src ')) as string;
     expect(script).toBe("script-src 'self' 'nonce-abc' 'strict-dynamic'");
-    expect(csp).not.toMatch(/https?:/);
+    // Nguồn ngoài DUY NHẤT: R2 (tải tệp phát hành), CDN ảnh và hai khung nhúng video của lib/md.ts.
+    const external = new Set(csp.match(/https?:[^ ;]*/g));
+    for (const u of external) {
+      expect(u).toMatch(
+        /^https:\/\/((\*\.)?[0-9a-f]{32}\.r2\.cloudflarestorage\.com|cdn\.tsudev\.com|www\.youtube-nocookie\.com|player\.vimeo\.com)$/
+      );
+    }
   });
   test('Trusted Types bắt buộc + khung bị cấm', () => {
     expect(csp).toContain("require-trusted-types-for 'script'");
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain("base-uri 'none'");
   });
-  test('chính sách TT mặc định chỉ tạo URL script cùng origin - không createHTML/createScript', () => {
+  test('chính sách TT mặc định: URL script cùng origin, HTML qua bộ lọc (thiếu thì ném), không createScript', () => {
     const doc = read('pages/_document.tsx');
     const tt = doc.slice(doc.indexOf('const TT_SCRIPT'), doc.indexOf('type Props'));
     expect(tt).toContain('createScriptURL');
     expect(tt).toContain("'/_next/static/'");
-    expect(tt).not.toMatch(/createHTML\s*:|createScript\s*:/);
+    expect(tt).not.toMatch(/createScript\s*:/);
+    expect(tt).toContain('window.tsuSanitizeHtml');
+    expect(tt).toMatch(/createHTML:function[^}]*throw new TypeError/);
+    expect(read('pages/_app.tsx')).toMatch(/^installSanitizer\(\);/m);
+    expect(read('lib/sanitize.ts')).toContain('DOMPurify.sanitize');
+    expect(read('components/MarkdownEditor.tsx')).toContain('injectCSS: false');
   });
 });
 
@@ -68,10 +80,47 @@ describe('khẳng định danh tính', () => {
     const block = s.slice(s.indexOf('new Set(['), s.indexOf(']);'));
     const actions = [...block.matchAll(/'([a-z-]+(?:\/[a-z-]+)?)'/g)].map((m) => m[1] as string);
     expect(actions.length).toBeGreaterThan(5);
-    for (const a of actions) expect(a).toMatch(/^(useradmin\/|alias\/|step-up$)/);
+    for (const a of actions) expect(a).toMatch(/^(useradmin\/|alias\/|payadmin\/|step-up$)/);
     expect(s).toContain('accessForwardHeaders(req.headers)');
   });
   test('proxy.ts xoá header chuyển tiếp do client tự đặt', () => {
     expect(read('proxy.ts')).toContain("headers.delete('x-tsu-access-jwt')");
+  });
+});
+
+describe('proxy điều hành (CP3)', () => {
+  const proxies = code.filter((f) => /^pages\/api\/(content|account)\//.test(f));
+  test('cả hai proxy: chặn lượt ghi khác origin, ký vùng console, chuyển tiếp JWT Access', () => {
+    expect(proxies).toHaveLength(2);
+    for (const f of proxies) {
+      const s = read(f);
+      for (const need of ['isSameOrigin(req.headers)', 'consoleIdentityHeaders(token)'])
+        expect({ f, need, ok: s.includes(need) }).toEqual({ f, need, ok: true });
+      expect(s).toContain('accessForwardHeaders(req.headers)');
+    }
+  });
+  test('proxy nội dung: chỉ nhánh admin và author, đường dẫn qua upstreamPath', () => {
+    const s = read('pages/api/content/[...path].ts');
+    expect(s).toContain("new Set(['admin', 'author'])");
+    expect(s).toContain('upstreamPath(parts)');
+  });
+  test('isSameOrigin: Sec-Fetch-Site thắng, thiếu cả hai thì từ chối', () => {
+    const host = 'console.tsudev.com';
+    expect(isSameOrigin({ host, 'sec-fetch-site': 'same-origin' })).toBe(true);
+    expect(isSameOrigin({ host, 'sec-fetch-site': 'same-site' })).toBe(false);
+    expect(isSameOrigin({ host, origin: `https://${host}` })).toBe(true);
+    expect(isSameOrigin({ host, origin: 'https://blog.tsudev.com' })).toBe(false);
+    expect(isSameOrigin({ host, origin: 'null' })).toBe(false);
+    expect(isSameOrigin({ host })).toBe(false);
+  });
+  test('mọi lời gọi /api/<miền>/ của trang điều hành có route proxy ở console', () => {
+    const used = new Set<string>();
+    for (const f of code.concat('../frontend-main/lib/pay.ts', '../frontend-main/lib/mfa.ts'))
+      for (const m of read(f)
+        .replace(/\/\*[\s\S]*?\*\/|^\s*\/\/.*$/gm, '')
+        .matchAll(/['`]\/api\/([a-z]+)\//g))
+        used.add(m[1] as string);
+    expect([...used].sort()).toEqual(['account', 'content']);
+    expect(read('pages/studio/posts/[slug]/history.tsx')).not.toContain('/api/content/studio/');
   });
 });

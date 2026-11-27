@@ -82,6 +82,8 @@ try {
   const env = {
     ...process.env,
     NEXT_PUBLIC_MAIN_URL: mainUrl,
+    // CP3: site công khai chuyển /admin, /studio sang đây và menu trỏ thẳng tới đây - cùng lý do phải đặt ở shell.
+    NEXT_PUBLIC_CONSOLE_URL: prodUrl(loadTopology(), 'console'),
     // Bản dựng KHÔNG được nói chuyện với backend nào. Không đặt thì getStaticProps
     // rơi về địa chỉ mặc định (localhost) của lib/services.ts - và nếu máy dev
     // đang chạy dev stack, dữ liệu DEV đi vào bản dựng + cache ISR đẩy lên R2, hoặc

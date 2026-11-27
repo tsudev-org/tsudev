@@ -10,7 +10,8 @@
  *
  * @type {import('next').NextConfig}
  */
-const MAIN = 'https://tsudev.com';
+// Dev đọc từ `.env.local`, deploy truyền qua shell; thiếu cả hai thì là production thật.
+const MAIN = (process.env.NEXT_PUBLIC_MAIN_URL || 'https://tsudev.com').replace(/\/+$/, '');
 
 const nextConfig = {
   reactStrictMode: true,

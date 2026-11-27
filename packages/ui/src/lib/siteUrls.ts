@@ -13,3 +13,8 @@ const stripSlash = (u: unknown): string => String(u || '').replace(/\/+$/, '');
 export const MAIN_URL = stripSlash(
   process.env.NEXT_PUBLIC_MAIN_URL || 'http://tsudev.localhost:8080'
 );
+
+/** Trạm điều hành (CP3, ADR-0005): Studio và mọi trang quản trị ở đó, khác origin với site công khai. */
+export const CONSOLE_URL = stripSlash(
+  process.env.NEXT_PUBLIC_CONSOLE_URL || 'http://console.tsudev.localhost:8080'
+);

@@ -141,7 +141,10 @@ function managedEnv(topo, env = 'dev') {
  * http://tsudev.localhost:8080 - sai mà không có gì báo lỗi.
  */
 function managedProdEnv(topo) {
-  return { NEXT_PUBLIC_MAIN_URL: prodUrl(topo, 'main') };
+  return {
+    NEXT_PUBLIC_MAIN_URL: prodUrl(topo, 'main'),
+    NEXT_PUBLIC_CONSOLE_URL: prodUrl(topo, 'console'),
+  };
 }
 
 /** Mọi cổng hợp lệ ở mọi môi trường - check.js dùng để bắt số lạ. */

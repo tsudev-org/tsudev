@@ -19,6 +19,8 @@ const { loadTopology, publicUrl } = require('../scripts/topology/load');
 // Webserver của Playwright đã lên trước globalSetup, nên URL đã sống. Một trang
 // làm ấm hỏng KHÔNG làm đỏ cả lượt - test thật sẽ nói lỗi rõ hơn; chỉ ghi log.
 const MAIN = process.env.E2E_MAIN_URL || publicUrl(loadTopology(), 'main');
+// CP3: trang điều hành (quản trị, Studio, duyệt bài) nằm ở trạm console - một app Next riêng, biên dịch riêng.
+const CONSOLE = process.env.E2E_CONSOLE_URL || publicUrl(loadTopology(), 'console');
 
 const PATHS = [
   '/',
@@ -27,20 +29,23 @@ const PATHS = [
   '/docs',
   '/projects',
   '/apps',
-  '/admin',
-  '/admin/accounts',
-  '/admin/release-security',
-  '/admin/security',
-  '/admin/content',
-  '/admin/projects',
   '/settings/profile',
   '/settings/security',
+].map((p) => `${MAIN}${p}`);
+
+const CONSOLE_PATHS = [
+  '/',
+  '/accounts',
+  '/release-security',
+  '/security',
+  '/content',
+  '/projects',
+  '/review',
   '/studio',
   '/studio/posts',
   '/studio/docs',
   '/studio/posts/new',
-  '/admin/review',
-];
+].map((p) => `${CONSOLE}${p}`);
 
 // Route proxy BFF mà trang gọi SAU khi đăng nhập - mỗi tệp `pages/api/*` cũng
 // biên dịch nguội ở lần gọi đầu. Gọi trần (chưa đăng nhập) chỉ cần nó dựng
@@ -50,9 +55,7 @@ const API = [
   '/api/auth/providers',
   '/api/auth/csrf',
   '/api/account/session',
-  '/api/content/projects',
   '/api/identity/health',
-  '/api/storage/health',
   '/api/search?q=a',
   '/api/releases/jwks',
 ];
@@ -60,7 +63,7 @@ const API = [
 const warm = async (page, path) => {
   const started = Date.now();
   try {
-    const res = await page.goto(`${MAIN}${path}`, { waitUntil: 'load', timeout: 120 * 1000 });
+    const res = await page.goto(path, { waitUntil: 'load', timeout: 120 * 1000 });
     return `${path} ${res ? res.status() : '-'} ${Date.now() - started}ms`;
   } catch (err) {
     return `${path} LỖI ${err.message.split('\n')[0]}`;
@@ -75,7 +78,7 @@ module.exports = async () => {
   const browser = await chromium.launch();
   const page = await browser.newPage({ ignoreHTTPSErrors: true });
   const lines = [];
-  for (const path of PATHS) lines.push(await warm(page, path));
+  for (const path of [...PATHS, ...CONSOLE_PATHS]) lines.push(await warm(page, path));
   for (const path of API) {
     const started = Date.now();
     const res = await page.request.get(`${MAIN}${path}`, { timeout: 120 * 1000 }).catch((e) => e);

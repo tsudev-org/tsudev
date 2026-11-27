@@ -9,6 +9,7 @@ const { signIn } = require('./helpers/login');
 // Lưu) → gửi duyệt. Khẳng định trên Markdown máy chủ đã lưu, không chỉ trên DOM:
 // trình soạn hiện bảng mà Markdown mất bảng thì bài công khai vẫn hỏng.
 const MAIN = process.env.E2E_MAIN_URL || publicUrl(loadTopology(), 'main');
+const CONSOLE = process.env.E2E_CONSOLE_URL || publicUrl(loadTopology(), 'console');
 
 // axe-core nạp từ node_modules và tiêm vào trang - không qua CDN (CSP của site
 // chặn script ngoài, và CI không nên phụ thuộc mạng ngoài cho một phép đo).
@@ -106,7 +107,7 @@ test('Studio: viết → menu / chèn hộp ghi chú + bảng → tự lưu → 
   const ctx = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await ctx.newPage();
   await signIn(page, MAIN, 'bob');
-  await page.goto(`${MAIN}/studio/posts/new`, { waitUntil: 'networkidle' });
+  await page.goto(`${CONSOLE}/studio/posts/new`, { waitUntil: 'networkidle' });
 
   await page.fill('#title', title);
   const editor = page.getByRole('textbox', { name: 'Nội dung' });
@@ -122,7 +123,7 @@ test('Studio: viết → menu / chèn hộp ghi chú + bảng → tự lưu → 
   // Mở lại bài vừa tạo: lần lưu đầu đổi URL rồi trình soạn nạp lại nội dung từ máy
   // chủ - phím gõ trong khoảnh khắc đó bị nuốt (đo ở máy dev: "E2E.g"). Người thật
   // không gõ trong 100 ms đó; test thì có.
-  await page.goto(`${MAIN}/studio/posts/${slug}`, { waitUntil: 'networkidle' });
+  await page.goto(`${CONSOLE}/studio/posts/${slug}`, { waitUntil: 'networkidle' });
   await expect(page.locator('#title')).toHaveValue(title, { timeout: 20000 });
   await expect(editor.getByText('Đoạn mở đầu E2E.')).toBeVisible();
 
@@ -187,7 +188,7 @@ for (const theme of THEMES) {
     await signIn(page, MAIN, 'bob');
 
     for (const path of ['/studio', '/studio/posts', '/studio/docs', '/studio/posts/new']) {
-      await page.goto(`${MAIN}${path}`, { waitUntil: 'networkidle' });
+      await page.goto(`${CONSOLE}${path}`, { waitUntil: 'networkidle' });
       await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
       // Trang đã vẽ nội dung đăng nhập (không phải khung chờ phiên).
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();

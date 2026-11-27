@@ -20,10 +20,15 @@ const reuseExisting = process.env.E2E_NO_WEBSERVER === '1';
 // sau chạy được, không chứng minh cửa trước chạy được.
 const IDENTITY_SECRET =
   process.env.INTERNAL_IDENTITY_SECRET || 'e2e-identity-secret-du-dai-cho-hmac-256!!';
+// Vùng ký của trạm điều hành (CP3): backend chỉ nhận route điều hành ký bằng khoá này - E2E chạy đúng hình trạng
+// production, trang quản trị đi qua console.
+const CONSOLE_SECRET =
+  process.env.INTERNAL_IDENTITY_SECRET_CONSOLE || 'e2e-console-identity-secret-du-dai-cho-hmac!!';
 
 const webServerEnv = {
   ...process.env,
   INTERNAL_IDENTITY_SECRET: IDENTITY_SECRET,
+  INTERNAL_IDENTITY_SECRET_CONSOLE: CONSOLE_SECRET,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'e2e-placeholder-secret',
   // Thứ đang được kiểm chính là nó: thiếu biến này thì cookie phiên bó vào
   // tsudev.localhost và forum.tsudev.localhost sẽ không thấy.
@@ -73,12 +78,17 @@ const backend = (id) => ({
   cwd: ROOT,
   // KHÔNG còn AUTH_DEV_BYPASS: service kiểm khẳng định có chữ ký của BFF, và
   // hai bên phải dùng CÙNG một khoá.
-  env: { ...process.env, BIND_HOST: '127.0.0.1', INTERNAL_IDENTITY_SECRET: IDENTITY_SECRET },
+  env: {
+    ...process.env,
+    BIND_HOST: '127.0.0.1',
+    INTERNAL_IDENTITY_SECRET: IDENTITY_SECRET,
+    INTERNAL_IDENTITY_SECRET_CONSOLE: CONSOLE_SECRET,
+  },
   reuseExistingServer: reuseServers,
   timeout: 60 * 1000,
 });
 
-const servers = [backend('content'), backend('identity'), server('main')];
+const servers = [backend('content'), backend('identity'), server('main'), server('console')];
 if (useProxy) servers.push(proxyServer());
 
 module.exports = defineConfig({

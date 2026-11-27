@@ -6,9 +6,9 @@ import { createHmac } from 'node:crypto';
 // Không đọc thẳng config/topology.json ở đây: app này build cho Cloudflare
 // Workers, nơi không có filesystem của repo. Giá trị dự phòng vì thế vẫn là
 // literal - nhưng chỉ còn MỘT bản, và `npm run topology:check` vẫn kiểm số cổng.
-// Ở production ba biến môi trường dưới đây là bắt buộc.
+// Ở production các biến môi trường dưới đây là bắt buộc. (Từ CP3 trang công khai không còn gọi storage-service;
+// tải tệp lên chỉ ở apps/console.)
 export const CONTENT = process.env.CONTENT_SERVICE_URL || 'http://localhost:4001';
-export const STORAGE = process.env.STORAGE_SERVICE_URL || 'http://localhost:4002';
 export const IDENTITY = process.env.AUTH_SERVICE_URL || 'http://localhost:4004';
 
 // Ba service trên Render nằm ở URL công khai; khi INTERNAL_API_TOKEN được đặt

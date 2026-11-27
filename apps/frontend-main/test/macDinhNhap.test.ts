@@ -16,7 +16,7 @@ const emptyBlock = (file: string): string => {
 };
 
 describe('ED-01 / AD-03 - form tạo mới mặc định là Nháp', () => {
-  test.each(['pages/admin/projects.tsx'])('%s: published khởi tạo = false', (file) => {
+  test.each(['../console/pages/projects.tsx'])('%s: published khởi tạo = false', (file) => {
     const block = emptyBlock(file);
     expect(block).toMatch(/\bpublished:\s*false\b/);
     expect(block).not.toMatch(/\bpublished:\s*true\b/);
@@ -25,7 +25,10 @@ describe('ED-01 / AD-03 - form tạo mới mặc định là Nháp', () => {
   // ED-02 (UX1-a): form tạo nhanh 13 ô của /author đã gỡ hẳn - MỘT lối tạo bài là
   // trình soạn /studio/posts/new, luôn tạo với `status: 'DRAFT'`.
   test('trình soạn Studio tạo bài mới là DRAFT', () => {
-    const src = readFileSync(join(__dirname, '..', 'pages/studio/posts/[slug].tsx'), 'utf8');
+    const src = readFileSync(
+      join(__dirname, '..', '../console/pages/studio/posts/[slug].tsx'),
+      'utf8'
+    );
     expect(src).toMatch(/status: 'DRAFT'/);
     expect(src).not.toMatch(/\bpublished:\s*true\b/);
   });

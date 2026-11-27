@@ -81,12 +81,21 @@ describe('route useradmin chỉ nhận vùng console', () => {
     expect(r.body.error).toBe('forbidden')
   })
 
-  test('useradmin/security còn ở tsudev.com tới CP3 - không bị cổng vùng chặn', async () => {
-    const r = await request(app)
-      .post('/api/identity/useradmin/security')
+  // CP3: mọi route điều hành của auth-service chỉ nhận vùng console - kể cả useradmin/security (trước CP3 còn
+  // miễn), payadmin và alias.
+  test.each([
+    ['post', '/api/identity/useradmin/security'],
+    ['post', '/api/identity/payadmin/list'],
+    ['post', '/api/identity/payadmin/confirm'],
+    ['post', '/api/identity/alias/list'],
+    ['post', '/api/identity/alias/create'],
+  ])('CP3: %s %s với vùng main ⇒ 403 console_required', async (method, url) => {
+    const call = request(app)[method]
+    const r = await call(url)
       .set(await bearer(MAIN, 'main'))
       .send({})
-    expect(r.body.code).not.toBe('console_required')
+    expect(r.status).toBe(403)
+    expect(r.body.code).toBe('console_required')
   })
 
   test('CF_ACCESS_MODE=chan + thiếu JWT Access ⇒ 403/503, không bao giờ cho qua', async () => {

@@ -18,8 +18,9 @@ configuration does not exist`). `ensureBucket()` của storage-service có gọi
   `PutBucketCors` lúc khởi động, nhưng khoá S3 của R2 không có quyền quản trị
   bucket nên lệnh đó thất bại và chỉ để lại một dòng `console.warn` - không gì
   đỏ lên. Đừng dựa vào nó cho production.
-- Origin khai HẸP (`tsudev.com`, `www.tsudev.com`), không phải `*`: URL presign
-  vốn đã là quyền ghi, nhưng không có lý do gì cho trang khác đọc được phản hồi.
+- Origin khai HẸP - CHỈ `https://console.tsudev.com` (từ CP3, 27/11/2026), không phải `*`: tải tệp lên chỉ còn ở
+  trạm điều hành; `tsudev.com` không còn gọi R2 từ trình duyệt (tải về là điều hướng tới URL presign GET, không
+  cần CORS). URL presign vốn đã là quyền ghi, nhưng không có lý do gì cho trang khác đọc được phản hồi.
 
 Triệu chứng khi thiếu: nút "Tải lên và tạo" báo _"Không gửi được tệp tới kho
 lưu trữ (mạng hoặc CORS của bucket)"_, tab Network thấy preflight `OPTIONS` bị

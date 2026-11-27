@@ -6,6 +6,7 @@ const { signIn } = require('./helpers/login');
 // soạn Tiptap → gửi duyệt → người kiểm duyệt duyệt ở /admin/review → bài hiện ở
 // /blog. Khẳng định NỘI DUNG trên trang công khai, không chỉ mã 200.
 const MAIN = process.env.E2E_MAIN_URL || publicUrl(loadTopology(), 'main');
+const CONSOLE = process.env.E2E_CONSOLE_URL || publicUrl(loadTopology(), 'console');
 
 test('AUTHOR viết → gửi duyệt → duyệt → bài hiện ở /blog', async ({ browser }) => {
   const stamp = Date.now();
@@ -14,7 +15,7 @@ test('AUTHOR viết → gửi duyệt → duyệt → bài hiện ở /blog', as
   const authorCtx = await browser.newContext({ ignoreHTTPSErrors: true });
   const author = await authorCtx.newPage();
   await signIn(author, MAIN, 'bob');
-  await author.goto(`${MAIN}/studio/posts/new`, { waitUntil: 'networkidle' });
+  await author.goto(`${CONSOLE}/studio/posts/new`, { waitUntil: 'networkidle' });
   await author.fill('#title', title);
   const editor = author.getByRole('textbox', { name: 'Nội dung' });
   await editor.click();
@@ -33,7 +34,7 @@ test('AUTHOR viết → gửi duyệt → duyệt → bài hiện ở /blog', as
   const modCtx = await browser.newContext({ ignoreHTTPSErrors: true });
   const mod = await modCtx.newPage();
   await signIn(mod, MAIN, 'tsudev');
-  await mod.goto(`${MAIN}/admin/review`, { waitUntil: 'networkidle' });
+  await mod.goto(`${CONSOLE}/review`, { waitUntil: 'networkidle' });
   const row = mod.locator('li', { hasText: title });
   await expect(row).toBeVisible();
   await row.getByRole('button', { name: 'Duyệt' }).click();

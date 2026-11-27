@@ -16,6 +16,7 @@ import express from 'express'
 import type { ErrorRequestHandler, NextFunction, Request, RequestHandler, Response } from 'express'
 import { prisma } from '@tsudev/db'
 import {
+  requireConsole,
   createAuthMiddleware,
   edgeGuard,
   edgeStats,
@@ -227,6 +228,19 @@ const optionalAuth: RequestHandler = (req, res, next) => {
   return auth(req, res, next)
 }
 app.use('/api', optionalAuth)
+
+// CỔNG VÙNG ĐIỀU HÀNH (CP3, ADR-0005 L5): đường ghi của Studio và quản trị chỉ nhận khẳng định danh tính do Worker
+// `console.` ký - Worker công khai bị chiếm không đăng, duyệt hay phát hành được gì. Gắn theo TIỀN TỐ để route mới
+// tự nằm sau cổng; cổng quyền (vai trò từ DB + 2FA) vẫn nằm trong từng route.
+// Giới hạn tần suất cho bề mặt điều hành (CP3), đặt TRƯỚC cổng xác thực/vùng: đếm theo tài khoản (`sub` của khẳng
+// định), không có thì theo IP. Ngưỡng rộng cho người điều hành thật, đủ chặn dội request.
+const consoleRateLimit = createRateLimit({
+  name: 'content-console',
+  windowMs: 60_000,
+  max: Number(process.env.RATE_LIMIT_CONSOLE_MAX) || 300,
+  keyOf: identityKey,
+})
+app.use(['/api/admin', '/api/author'], consoleRateLimit, requireConsole('content-service'))
 
 // ---------------- Blog ----------------
 //
@@ -3469,7 +3483,7 @@ app.post(
 // ---------------- INT1-a: nâng `latest` của một kênh ----------------
 //
 // HAI route, mỗi route MỘT cổng (khuôn của /api/internal/releases/integrity - không rẽ nhánh
-// xác thực theo header): pipeline phát hành các repo gọi `/api/internal/versions/...` với
+// xác thực theo header): pipeline phát hành các repo gọi `/api/pipeline/versions/...` với
 // `x-versions-token` = `VERSIONS_RAISE_TOKEN` (token RIÊNG: lộ nó chỉ nâng được phiên bản mà
 // vẫn phải qua chốt chặn đo URL; thiếu cấu hình ⇒ 503); ADMIN gọi `/api/admin/versions/...`
 // qua BFF (requireAdmin: vai trò từ DB + 2FA). Chốt chặn theo kênh
@@ -3568,7 +3582,9 @@ app.post(
 )
 
 app.post(
-  '/api/internal/versions/:product/:channel',
+  // Tiền tố RIÊNG của pipeline (CP3) để bản dựng công khai không phải biết đường `/api/internal`. Đường cũ giữ song
+  // song MỘT nhịp phát hành (Worker cũ còn gọi trong lúc Render đã lên bản mới) - gỡ ở CP kế tiếp.
+  ['/api/pipeline/versions/:product/:channel', '/api/internal/versions/:product/:channel'],
   versionsLimit,
   asyncHandler(async (req, res) => {
     if (!VERSIONS_RAISE_TOKEN) {

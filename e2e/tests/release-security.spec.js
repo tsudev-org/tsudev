@@ -11,11 +11,12 @@ const { signIn } = require('./helpers/login');
 // thân request hay header - test service không thấy được điều đó).
 
 const MAIN = process.env.E2E_MAIN_URL || publicUrl(loadTopology(), 'main');
+const CONSOLE = process.env.E2E_CONSOLE_URL || publicUrl(loadTopology(), 'console');
 const THEMES = ['light', 'dark'];
 
 test('OWNER có TOTP mở được trang, thấy bảng kê và kiểm được chuỗi nhật ký', async ({ page }) => {
   await signIn(page, MAIN);
-  await page.goto(`${MAIN}/admin/release-security`, { waitUntil: 'networkidle' });
+  await page.goto(`${CONSOLE}/release-security`, { waitUntil: 'networkidle' });
   await expect(page.getByRole('heading', { name: 'An ninh phát hành' })).toBeVisible();
   await expect(page.locator('button:has-text("Đăng nhập")')).toHaveCount(0);
   await page.click('button:has-text("Kiểm chuỗi")');
@@ -52,7 +53,7 @@ const goi = (page, method, path, body) =>
 
 test('thu hồi qua BFF mà thiếu step-up ⇒ 401 STEP_UP_REQUIRED', async ({ page }) => {
   await signIn(page, MAIN);
-  await page.goto(`${MAIN}/admin/release-security`, { waitUntil: 'networkidle' });
+  await page.goto(`${CONSOLE}/release-security`, { waitUntil: 'networkidle' });
   const res = await goi(page, 'POST', '/api/content/admin/releases/khong-ton-tai/revoke', {
     reason: 'thử cổng step-up từ E2E',
   });
@@ -62,7 +63,7 @@ test('thu hồi qua BFF mà thiếu step-up ⇒ 401 STEP_UP_REQUIRED', async ({ 
 
 test('mã TOTP sai không đổi được token step-up', async ({ page }) => {
   await signIn(page, MAIN);
-  await page.goto(`${MAIN}/admin/release-security`, { waitUntil: 'networkidle' });
+  await page.goto(`${CONSOLE}/release-security`, { waitUntil: 'networkidle' });
   const res = await goi(page, 'POST', '/api/account/step-up', { code: '000000' });
   // 000000 trùng mã thật một lần trên một triệu - chấp nhận.
   expect(res.status).toBe(401);
@@ -71,7 +72,7 @@ test('mã TOTP sai không đổi được token step-up', async ({ page }) => {
 
 test('route cron nội bộ KHÔNG mở qua proxy BFF', async ({ page }) => {
   await signIn(page, MAIN);
-  await page.goto(`${MAIN}/admin/release-security`, { waitUntil: 'networkidle' });
+  await page.goto(`${CONSOLE}/release-security`, { waitUntil: 'networkidle' });
   const res = await goi(page, 'POST', '/api/content/internal/releases/integrity');
   expect(res.status).toBe(404);
 });

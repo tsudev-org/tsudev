@@ -5,7 +5,7 @@ tsudev.com phát hành file cài đặt của các app tự phát triển. Mỗi
 Ed25519 mà người tải tự kiểm được offline. Kế hoạch gốc: `refactor-tsudev-2026-q4.md`
 §4, §6.6, §7.3.
 
-## Luồng của trang quản trị (`/admin/projects` → "Bản phát hành")
+## Luồng của trang quản trị (`console.tsudev.com/projects` → "Bản phát hành")
 
 ```
 chọn tệp ─► POST /api/admin/projects/:slug/releases/upload-url   (URL presign PUT, 30 phút)
@@ -78,7 +78,7 @@ nền tảng mới ⇒ 422, không ghi gì; hợp lệ ⇒ xoá sha256/dung lư�
 niêm phong lại (chữ ký phủ cả nền tảng). Trước khi vá, một "bản WINDOWS" trỏ vào
 tệp `.apk` công bố được với chữ ký hợp lệ.
 
-## Trung tâm an ninh (`/admin/release-security`, 06/11/2026)
+## Trung tâm an ninh (`console.tsudev.com/release-security`, 06/11/2026)
 
 Trạng thái an ninh của mỗi bản do máy chủ tính (`src/releaseSecurity.ts`). Điều
 kiện CÔNG KHAI duy nhất (`CONG_KHAI`): chưa xoá, đã công bố, **chưa thu hồi**,
@@ -182,7 +182,7 @@ proxy `apps/frontend-main/pages/api/versions/[...path].ts`, bảng `AppVersionCh
 | `GET https://tsudev.com/.well-known/tsudev/versions-jwks.json` | khoá công khai `tsu-versions-2026` (app ghim lúc dựng)                |
 | `POST https://tsudev.com/api/versions/raise/<sản phẩm>/<kênh>` | pipeline nâng `latest` - header `x-versions-token`                    |
 | `GET/POST /api/admin/versions[/<sản phẩm>/<kênh>]` (backend)   | ADMIN (vai trò từ DB + 2FA) xem/nâng                                  |
-| `POST /api/internal/versions/<sản phẩm>/<kênh>` (backend)      | đích của proxy pipeline; chỉ `x-versions-token`, thiếu cấu hình ⇒ 503 |
+| `POST /api/pipeline/versions/<sản phẩm>/<kênh>` (backend)      | đích của proxy pipeline; chỉ `x-versions-token`, thiếu cấu hình ⇒ 503 |
 
 **Định dạng `.sig`**: JWS compact tách nội dung (RFC 7515 phụ lục F) `<b64url(header)>..<b64url(chữ ký)>`, header
 `{"alg":"EdDSA","kid":"tsu-versions-2026"}`. App kiểm Ed25519 trên `b64url(header) + "." + b64url(byte versions.json)`

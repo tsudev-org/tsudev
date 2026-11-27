@@ -8,7 +8,7 @@ import { CONTENT, edgeHeaders, internalHeaders } from '../../../lib/services';
  * `next.config.js` rewrite `/.well-known/tsudev/<tệp>` về đây:
  *   GET  versions.json | versions.json.sig | versions-jwks.json  → content-service
  *   POST raise/<sản phẩm>/<kênh>  (pipeline, header `x-versions-token`)
- *        → content-service `POST /api/internal/versions/<sản phẩm>/<kênh>`
+ *        → content-service `POST /api/pipeline/versions/<sản phẩm>/<kênh>`
  *
  * Chữ ký phủ ĐÚNG các byte của versions.json, nên ở đây chuyển BYTE NGUYÊN VĂN - không
  * parse/serialize lại. `.json` và `.sig` được lấy THEO CẶP và đệm cùng nhau trong isolate:
@@ -94,10 +94,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ error: 'invalid_versions_token' });
     }
     try {
-      const r = await fetch(`${CONTENT}/api/internal/versions/${product}/${channel}`, {
+      const r = await fetch(`${CONTENT}/api/pipeline/versions/${product}/${channel}`, {
         method: 'POST',
         headers: {
-          ...internalHeaders('POST', `${CONTENT}/api/internal/versions/${product}/${channel}`),
+          ...internalHeaders('POST', `${CONTENT}/api/pipeline/versions/${product}/${channel}`),
           'Content-Type': 'application/json',
           'x-versions-token': token,
         },

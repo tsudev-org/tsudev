@@ -877,9 +877,20 @@ app.use('/api/identity/security', auth)
 // Vòng đời tài khoản (vô hiệu hoá / hẹn xoá).
 app.use('/api/identity/account', auth)
 app.use('/api/identity/oidc', auth)
+// CỔNG VÙNG ĐIỀU HÀNH (ADR-0005 L5): `useradmin/*`, `payadmin/*`, `alias/*` chỉ nhận khẳng định danh tính do Worker
+// `console.` ký. Cổng quyền (OWNER đọc từ DB + TOTP) vẫn nằm trong từng route.
+const consoleGate = requireConsole('auth-service')
+// Giới hạn tần suất cho bề mặt điều hành (CP3), đặt TRƯỚC cổng xác thực/vùng: đếm theo tài khoản (`sub` của khẳng
+// định), không có thì theo IP. Ngưỡng rộng cho người điều hành thật, đủ chặn dội request.
+const consoleRateLimit = createRateLimit({
+  name: 'auth-console',
+  windowMs: 60_000,
+  max: Number(process.env.RATE_LIMIT_CONSOLE_MAX) || 300,
+  keyOf: identityKey,
+})
 // PRO-B bước B3: mua Pro / ủng hộ bằng VietQR + OWNER xác nhận (paymentRoutes.ts).
 app.use('/api/identity/pay', auth, payRouter)
-app.use('/api/identity/payadmin', auth, payAdminRouter)
+app.use('/api/identity/payadmin', consoleRateLimit, auth, consoleGate, payAdminRouter)
 
 /** Số ngày ân hạn trước khi tài khoản hẹn-xoá bị purge vĩnh viễn. */
 const ACCOUNT_DELETION_GRACE_MS = 30 * 24 * 60 * 60 * 1000
@@ -1915,16 +1926,11 @@ app.post(
 //  3. Không thao tác được lên một tài khoản OWNER khác, và không tự hạ/tự xoá
 //     chính mình - tránh khoá cứng và tránh owner bị chính công cụ này lật.
 //
-// Đi qua proxy CÓ PHIÊN pages/api/account/[...path].ts (không phải proxy công
-// khai /api/identity). Tên action 2 đoạn vì proxy chặn path quá 2 đoạn.
+// Đi qua proxy CÓ PHIÊN của trạm điều hành, apps/console/pages/api/account/[...path].ts.
+// Tên action 2 đoạn vì proxy chặn path quá 2 đoạn.
 // ---------------------------------------------------------------------------
-app.use('/api/identity/useradmin', auth)
-// CP2 (ADR-0005 L5): quản lý tài khoản là thao tác ĐIỀU HÀNH ⇒ chỉ nhận khẳng định do Worker console. ký.
-// `useradmin/security` (nhật ký bảo mật xuyên tài khoản, chỉ đọc) còn ở /admin/security của tsudev.com tới CP3.
-const consoleGate = requireConsole('auth-service')
-const consoleGateUseradmin: RequestHandler = (req, res, next) =>
-  req.path === '/security' ? next() : consoleGate(req, res, next)
-app.use('/api/identity/useradmin', consoleGateUseradmin)
+app.use('/api/identity/useradmin', consoleRateLimit, auth)
+app.use('/api/identity/useradmin', consoleGate)
 
 /** Vai trò cấp được qua công cụ. OWNER và GUEST cố ý vắng mặt. */
 // VIP gỡ khỏi danh sách 04/11/2026 cùng Con dấu tín nhiệm (nó là vé vào Con dấu).
@@ -2838,13 +2844,13 @@ app.post(
 // KHÔNG có `req.user` và mọi lời gọi trả 401 - kể cả của OWNER. Bản đầu của đợt
 // này đã quên đúng dòng này. May là nó hỏng ĐÓNG chứ không mở, nhưng triệu
 // chứng ("OWNER cũng bị 401") trông y hệt hỏng cấu hình danh tính.
-app.use('/api/identity/alias', auth)
+app.use('/api/identity/alias', consoleRateLimit, auth, consoleGate)
 
 // ---------------------------------------------------------------------------
 // Bí danh thư nội bộ `*@tsudev.com` (Cloudflare Email Routing).
 //
 // ⚠️ Tên route CỐ Ý chỉ có HAI đoạn (`alias/list`, không phải
-// `useradmin/alias/list`): proxy `apps/frontend-main/pages/api/account/[...path].ts`
+// `useradmin/alias/list`): proxy `apps/console/pages/api/account/[...path].ts`
 // từ chối mọi đường dẫn quá hai đoạn (`parts.length > 2`). Đặt tên ba đoạn thì
 // route sống ở đây mà trang nhận 404, và 404 đó trông y hệt "chưa làm xong".
 //

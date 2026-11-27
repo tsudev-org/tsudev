@@ -1,5 +1,5 @@
-// Proxy CÓ PHIÊN của trạm điều hành tới auth-service (CP2). Bề mặt QUẢN LÝ TÀI KHOẢN đã dời khỏi tsudev.com:
-// `useradmin/*` (trừ `useradmin/security` - còn ở /admin/security tới CP3) và bí danh thư nội bộ chỉ đi qua đây.
+// Proxy CÓ PHIÊN của trạm điều hành tới auth-service (CP2, CP3). `useradmin/*`, `payadmin/*` và bí danh thư nội bộ
+// chỉ đi qua đây - proxy công khai của tsudev.com không còn chuyển chúng.
 //
 // Khác proxy của tsudev.com ở ba điểm, mỗi điểm là một lớp của CONTROL_PLANE.md mục 3:
 //  - khẳng định danh tính ký ở VÙNG `console` (L5) - backend từ chối khẳng định vùng main cho useradmin;
@@ -7,7 +7,8 @@
 //  - danh sách trắng CHỈ gồm thao tác điều hành + step-up, không có route tự phục vụ của người dùng.
 //
 // Bề mặt useradmin khớp BỐN chỗ trong một commit (CLAUDE.md): route auth-service + ASSIGNABLE_ROLES, ALLOWED ở đây,
-// `services/auth-service/test/useradmin.test.ts` + `consoleZone.test.ts`, và `pages/accounts.tsx`.
+// `services/auth-service/test/useradmin.test.ts` + `consoleZone.test.ts`, và `pages/accounts.tsx` (nhật ký bảo mật:
+// `pages/security.tsx`; thanh toán: `pages/thanh-toan.tsx`).
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import {
@@ -16,6 +17,7 @@ import {
   catchAllSegments,
   consoleIdentityHeaders,
   internalHeaders,
+  isSameOrigin,
   readSessionToken,
 } from '../../../lib/server';
 
@@ -27,6 +29,10 @@ export const CONSOLE_ACCOUNT_ALLOWED = new Set([
   'useradmin/revoke',
   'useradmin/suspend',
   'useradmin/delete',
+  'useradmin/security',
+  'payadmin/list',
+  'payadmin/confirm',
+  'payadmin/reject',
   'alias/list',
   'alias/create',
   'alias/delete',
@@ -40,6 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Chỉ hỗ trợ POST' });
   }
+  if (!isSameOrigin(req.headers)) return res.status(403).json({ error: 'Sai nguồn gốc yêu cầu' });
   const parts = catchAllSegments(req.query.path);
   const action = parts.join('/');
   if (parts.length > 2 || !CONSOLE_ACCOUNT_ALLOWED.has(action)) {
