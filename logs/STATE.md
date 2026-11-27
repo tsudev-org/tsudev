@@ -1,5 +1,33 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP4a lên production, 27/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **CP4b** (phiếu [`20261126-CP1`](handover/20261126-CP1_tram-dieu-hanh-va-cong-xac-thuc-tap-trung.md) hàng CP4),
+>    Plan Mode trước: cookie `__Host-` ở `id.`, main + console thành RP OIDC (PKCE), Google/GitHub callback sang `id.`
+>    (👤 console OAuth), bỏ cầu `tsudev.com/oauth-start`, Observatory A+ cho `id.`. Không đổi issuer, rpID passkey.
+> 3. 👤 còn của CP4a: thử passkey cũ + mở trang tài khoản ở `id.tsudev.com` khi đã đăng nhập (agent chưa đo được);
+>    dismiss GitGuardian 41140300 (máy không có token); xoá ba tài khoản ACC1 mục 2a; phiếu **XK1/XK2 còn MỞ**.
+> 4. Phiếu toàn hệ mới [`20261127-GH1`](handover/20261127-GH1_ra-quet-khac-phuc-moi-van-de-repo-github-toan-he.md):
+>    phần của tsudev còn #139 `js/log-injection` (`packages/auth/src/edge.ts:138`), #107 BranchProtection, 6 PR mở -
+>    làm gộp với SEC3 + LG4 sau CP4b (hoặc chen trước nếu chủ dự án muốn). Phiếu MỞ khác: `20261127-LOGIN1`.
+> 5. Còn nợ: DPoP `cnf.jkt` cho INT1-c; đo lại `app_header_missing` sau 03/12; SEC3, LG4, CTX1, PRO3.
+>
+> Đã xong CP4a (27/11): #426 squash `61afefc`, Render `live`, `tsudev` `deploy-2026.11.27.3`, cron `35313e29`; 19 cảnh
+> báo CodeQL missing-rate-limiting dismiss có kiểm chứng. Số đo: phiếu CP1 mục 3 (dòng "tsudev-CP4 (phiên 2)").
+>
+> Prompt phiên sau:
+>
+> ```text
+> Đọc AGENTS.md, rồi CHỈ khối 🔔 đầu tiên của logs/STATE.md và các phiếu nó trỏ tới (không đọc khối 🔔 cũ hơn).
+> Chạy akb start + akb search "CP4b oidc rp pkce __Host" trước khi làm. Nhắc chủ dự án XK1/XK2 đầu phiên (và NH1 nếu
+> đã tới 28/11). CP4a đã lên production. Lập phương án CP4b ở Plan Mode (phiếu CP1 hàng CP4, ADR-0005, chuẩn một cổng
+> đăng nhập v9.0.0), rồi thực thi. Không đổi issuer OIDC, rpID passkey, URL app đã ghim; không đăng xuất hàng loạt.
+> Quyền: tự commit/push/PR/gộp khi check bắt buộc xanh, tự deploy Worker (scripts/deploy-frontend.js,
+> XDG_CONFIG_HOME=~/.config/wrangler-tsudev) và đo production. Biến Render, dashboard Cloudflare, console OAuth là
+> việc 👤. Cuối phiên: phiếu CP1, khối 🔔 mới, CHANGELOG + thẻ deploy, LOCKS, akb close + sync. Xong một phase thì dừng.
+> ```
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP4 nhịp CP4a, 27/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
