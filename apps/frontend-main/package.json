@@ -18,7 +18,7 @@
     "@tsudev/search": "*",
     "@tsudev/types": "*",
     "dotenv": "^18.0.10",
-    "marked": "17.0.6",
+    "marked": "18.3.0",
     "next": "16.4.6",
     "next-auth": "^4.24.15",
     "qrcode-generator": "^2.0.4",
