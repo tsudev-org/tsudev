@@ -13,7 +13,9 @@ export async function kiemPhienBan(
   fetchFn: typeof fetch = fetch
 ): Promise<KetQuaPhienBan> {
   if (!siteUrl) return { chay: false, lyDo: 'thiếu SITE_URL' };
-  const base = siteUrl.replace(/\/+$/, '');
+  // Không regex `/\/+$/` (CodeQL js/polynomial-redos trên chuỗi nhiều '/'): cắt tay.
+  let base = siteUrl;
+  while (base.endsWith('/')) base = base.slice(0, -1);
   const loi: string[] = [];
   for (const tep of ['versions.json', 'versions.json.sig']) {
     try {
