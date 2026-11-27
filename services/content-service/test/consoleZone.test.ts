@@ -81,9 +81,9 @@ describe('content-service: route điều hành chỉ nhận vùng console', () =
     expect(r.body.code).not.toBe('console_required')
   })
 
-  test('pipeline bản kê ở tiền tố riêng (đường cũ còn song song một nhịp)', () => {
+  test('pipeline bản kê ở tiền tố riêng; đường cũ /api/internal/versions đã gỡ (CP4)', () => {
     const paths = routes().map(([m, p]) => `${m} ${p}`)
     expect(paths).toContain('POST /api/pipeline/versions/:product/:channel')
-    expect(paths).toContain('POST /api/internal/versions/:product/:channel')
+    expect(paths).not.toContain('POST /api/internal/versions/:product/:channel')
   })
 })

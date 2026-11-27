@@ -1,8 +1,10 @@
-# CHÍNH SÁCH SẢN PHẨM TOÀN HỆ TSUDEV (v2.1.0)
+# CHÍNH SÁCH SẢN PHẨM TOÀN HỆ TSUDEV (v3.0.0)
 
 > Áp dụng cho MỌI phần mềm / tool / app / trò chơi / website sản phẩm của hệ sinh thái TsuDEV, ở mọi giai đoạn xây
 > dựng và phát triển. Quyết định của chủ dự án ngày **19/11/2026**. Tài liệu này nói **sản phẩm phải như thế nào**;
-> **v2.1.0 (26/11/2026, phiếu `20261126-LG3`)**: mục 7.7 - nhắc đăng nhập khi có internet (`AUTH_AND_ACCOUNT.md` 14.4).
+> **v3.0.0 (26/11/2026, phiếu `20261126-LG4`)**: mục 3.8 MỚI - không thông báo làm phiền; mục 7.7 bỏ nhắc đăng nhập
+> tự động (`AUTH_AND_ACCOUNT.md` v4.0.0 mục 14.4). Thay v2.1.0.
+> **v2.1.0 (26/11/2026, phiếu `20261126-LG3`, ĐÃ THAY)**: mục 7.7 - nhắc đăng nhập khi có internet.
 > **v2.0.0 (25/11/2026, phiếu `20261125-SYN1`, `20261125-INT1`)**: bỏ Pro Q3 và mọi đồng bộ/sao lưu đám mây - dữ
 > liệu chỉ ở thiết bị, đồng bộ trực tiếp qua Wi-Fi/Bluetooth/QR ([`LOCAL_SYNC.md`](LOCAL_SYNC.md)); bắt buộc cập nhật +
 > chống can thiệp ([`APP_INTEGRITY.md`](APP_INTEGRITY.md)); mục đích đăng nhập 7.7; điều khoản 7.5 và nhắc 7.6 đổi nguyên văn.
@@ -16,7 +18,7 @@
 
 1. Mặc định khi cài lần đầu: ngôn ngữ và giao diện theo hệ thống
 2. Nền tảng: thứ tự ưu tiên và kế hoạch iOS
-3. Không quảng cáo - chỉ gói Pro và Ủng hộ (3.7: Pro là gói tự nguyện ủng hộ tác giả)
+3. Không quảng cáo - chỉ gói Pro và Ủng hộ (3.7: Pro là gói tự nguyện ủng hộ tác giả; 3.8: không thông báo làm phiền)
 4. Huy hiệu Pro / Ủng hộ
 5. Website của từng sản phẩm: hình ảnh và video
 6. Kiến trúc và bảo mật - mức tối thiểu cho mọi sản phẩm
@@ -223,6 +225,25 @@ nhãn theo **trạng thái hiển thị thật của repo GitHub** chứa mã ng
   kính), ở cả Sáng/Tối; hiệu ứng kính/bóng/chuyển động tắt khi `prefers-reduced-transparency`, `prefers-reduced-motion`,
   `prefers-contrast: more` (`ACCESSIBILITY.md`).
 - Câu định vị mục 3.7.3 và mọi câu "miễn phí, mã nguồn mở" chỉ được nói về dự án mang nhãn **OPEN**.
+
+### 3.8. Không thông báo làm phiền (v3.0.0 - chủ dự án 26/11/2026, phiếu `20261126-LG4`)
+
+**Định hướng:** mọi sản phẩm TsuDEV không quảng cáo (mục 3) **và không làm phiền**: người dùng mở app là để làm việc của
+họ, sản phẩm không tự chen vào để xin gì.
+
+1. `MUST NOT` tự hiển thị (modal, toast, biểu ngữ, thông báo hệ điều hành, email, chấm đỏ) để: mời đăng nhập/liên kết
+   tài khoản ([`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) 14.4), mời mua/nâng cấp Pro, xin Ủng hộ, xin đánh giá app
+   (kể cả In-App Review API của Play/App Store), giới thiệu tính năng mới bằng hộp thoại tự bật, mời theo dõi mạng xã
+   hội/bản tin, khảo sát.
+2. Lối vào cho các việc trên chỉ ở **chỗ cố định, thụ động** (Cài đặt, trang Giới thiệu, menu) hoặc **phản hồi cú bấm**
+   của người dùng. "Có gì mới" chỉ ở ghi chú phát hành và mục Giới thiệu.
+3. Thông báo hệ điều hành chỉ cho việc **người dùng đã tự bật** và gắn với dữ liệu của chính họ (vd. nhắc lịch họ tự đặt,
+   tiến độ truyền tệp họ vừa bấm gửi); `MUST NOT` xin quyền thông báo ngay lần mở đầu - chỉ xin khi người dùng bật tính
+   năng cần nó.
+4. **Ngoại lệ có chủ đích** (giữ vì an toàn/pháp lý, không phải tiếp thị): modal khoá cập nhật bắt buộc và cảnh báo bản
+   không chính thức ([`APP_INTEGRITY.md`](APP_INTEGRITY.md)); thông báo tài khoản `suspended` khi người dùng mở mục Tài
+   khoản; nhắc gia hạn/hết kỳ Pro mục 7.6 (chỉ với người đã mua Pro, chủ dự án duyệt 20/11/2026).
+5. Kiểm thử: dùng app ≥ 5 phiên (đồng hồ giả lập qua 30 ngày) ở trạng thái chưa đăng nhập, chưa Pro ⇒ 0 bề mặt ở điểm 1.
 
 ## 4. Huy hiệu Pro / Ủng hộ
 
@@ -454,8 +475,9 @@ còn hạn (mục 7.4); app không có JWS còn hạn ⇒ không hiện gì ở 
 Đăng nhập tsudev.com (trực tiếp hoặc qua Google/GitHub/Apple) chỉ phục vụ: (1) **định danh** người dùng; (2) ghi nhận
 **đóng góp, ủng hộ, quyền lợi Pro**; (3) ghi nhận **sản phẩm TsuDEV người dùng đã dùng**; (4) **chống lạm dụng, tấn
 công, truy cập trái phép**. Đăng nhập vẫn là tuỳ chọn ở sản phẩm hạng C (`AUTH_AND_ACCOUNT.md`).
-Khi thiết bị có internet mà người dùng chưa đăng nhập, sản phẩm `MUST` nhắc bằng modal nổi bỏ qua được theo
-`AUTH_AND_ACCOUNT.md` mục 14.4 (v3.5.0) - nhắc, không ép; trang `/privacy` có mục neo `#dang-nhap` giải thích lý do.
+Sản phẩm `MUST NOT` tự nhắc/mời đăng nhập dưới bất kỳ hình thức nào (mục 3.8); lối vào cố định ở Cài đặt › Tài khoản
+và đăng nhập theo ngữ cảnh chỉ khi người dùng bấm - `AUTH_AND_ACCOUNT.md` v4.0.0 mục 14.4. Trang `/privacy` có mục neo
+`#dang-nhap` giải thích lý do cho người tự tìm hiểu.
 
 | Dữ liệu | Mục đích | Hạn lưu |
 | --- | --- | --- |
@@ -476,6 +498,7 @@ Khi thiết bị có internet mà người dùng chưa đăng nhập, sản ph�
 - [ ] Lần chạy đầu: ngôn ngữ = ngôn ngữ hệ thống (dự phòng EN rồi VI), giao diện = Hệ thống; có test (mục 1.4).
 - [ ] Có tiếng Việt + tiếng Anh, không chuỗi viết cứng.
 - [ ] Không SDK quảng cáo, không quyền `AD_ID`; tờ khai cửa hàng "không quảng cáo".
+- [ ] Không thông báo làm phiền (mục 3.8): 0 lời mời đăng nhập/Pro/Ủng hộ/đánh giá tự hiện; không xin quyền thông báo lúc mở đầu.
 - [ ] Pro kỳ 1 năm, không tự gia hạn, qua đúng kênh (mục 3.3, 7.4); không còn mã `thang`; quyền lợi xác minh phía
   máy chủ; hết hạn ⇒ về bản miễn phí, không mất dữ liệu.
 - [ ] Huy hiệu Pro/Ủng hộ đúng bảng 4.1, có lựa chọn hiển thị, tôn trọng giảm chuyển động.

@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { Layout, ProThemePicker, ThemeToggle, setProEntitled } from '@tsudev/ui';
+import { ID_URL, Layout, MAIN_URL, ProThemePicker, ThemeToggle, setProEntitled } from '@tsudev/ui';
 import Seo from '../../components/Seo';
 import { Notice } from '../../components/AuthShell';
 import { useLoader } from '../../lib/useLoader';
@@ -80,7 +80,7 @@ export default function AppearanceSettings() {
               <ProThemePicker pro={false} className="mt-4" />
               <p className="mt-3 text-sm text-fg-secondary">
                 <a
-                  href="/login?callbackUrl=/settings/appearance"
+                  href={`${ID_URL}/login?callbackUrl=${encodeURIComponent(`${MAIN_URL}/settings/appearance`)}`}
                   className="text-link hover:underline"
                 >
                   Đăng nhập

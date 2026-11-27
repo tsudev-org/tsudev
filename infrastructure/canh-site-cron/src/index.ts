@@ -67,6 +67,7 @@ import { doNoiDung, thanhDong } from './demNoiDung';
 import { fetchCoKy } from './edge';
 import { danhGiaNeon, type NeonProject } from './hanMuc';
 import { dienGiai, goiKiemToanVen } from './kiemToanVen';
+import { kiemPhienBan } from './kiemPhienBan';
 import { gopLuotXem, type D1Like } from './luotXem';
 import { GIO_NHAC_UTC, goiNhacPro } from './nhacPro';
 
@@ -284,6 +285,21 @@ async function kiemToanVenPhatHanh(env: Env): Promise<void> {
   if (noiDung) await baoDong(env, 'Toàn vẹn bản phát hành', noiDung);
 }
 
+/** Bản kê phiên bản app đã cài ghim phải 200 (VS1 mục 4). */
+async function canhPhienBan(env: Env): Promise<void> {
+  const kq = await kiemPhienBan(env.SITE_URL);
+  if (!kq.chay) console.error(`[cron] bản kê phiên bản: BỎ QUA - ${kq.lyDo}`);
+  else if (kq.ok) console.log('[cron] bản kê phiên bản: 200');
+  else {
+    console.error(`[cron] bản kê phiên bản: HỎNG - ${kq.lyDo}`);
+    await baoDong(
+      env,
+      'Bản kê phiên bản',
+      `/.well-known/tsudev/versions.json khác 200: ${kq.lyDo}`
+    );
+  }
+}
+
 /** Thư nhắc gia hạn Pro (PRO2 2.4) - chỉ lượt sáng của nhịp thưa. */
 async function nhacGiaHanPro(env: Env, luc: number): Promise<void> {
   if (new Date(luc).getUTCHours() !== GIO_NHAC_UTC) return;
@@ -320,6 +336,7 @@ export default {
             kiemToanVenPhatHanh(env),
             gopLuotXemBai(env),
             nhacGiaHanPro(env, event.scheduledTime),
+            canhPhienBan(env),
           ])
         : keepWarm(env)
     );

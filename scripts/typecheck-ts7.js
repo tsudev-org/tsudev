@@ -48,6 +48,7 @@ const PROJECTS = [
   ...rootCfg.references.map((r) => r.path.replace(/^\.\//, '').replace(/\/tsconfig\.json$/, '')),
   'apps/frontend-main',
   'apps/console',
+  'apps/id',
   'infrastructure/canh-site-cron',
 ];
 

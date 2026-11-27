@@ -12,6 +12,10 @@ import { createRequire } from 'node:module';
 
 process.env.NODE_ENV = 'test';
 process.env.INTERNAL_IDENTITY_SECRET = 'khoa-test-du-dai-cho-hmac-256-bit!!';
+// CP4: cổng `id.` suy từ main (siteUrls.ts) - CI không có .env nên đặt rõ.
+process.env.NEXT_PUBLIC_MAIN_URL = 'https://tsudev.test';
+delete process.env.ID_URL;
+delete process.env.NEXT_PUBLIC_ID_URL;
 delete process.env.INTERNAL_API_TOKEN;
 delete process.env.OIDC_SIGNING_JWK;
 
@@ -122,8 +126,19 @@ async function authorize(scope = 'openid profile email offline_access') {
   const start = await get(`/oidc/auth?${q}`);
   assert.equal(start.status, 303);
   const interaction = start.headers.get('location');
-  assert.match(interaction, /^\/oidc\/interaction\/[\w-]+$/);
+  // CP4: provider chuyển tới trang đồng ý ở CỔNG `id.` (URL tuyệt đối); issuer vẫn ở main.
+  assert.match(interaction, /^https?:\/\/id\.[^/]+\/oidc\/interaction\/[\w-]+$/);
   let jar = cookiesOf(start);
+
+  // CP4: cổng `id.` đọc tóm tắt THEO UID, không cookie; uid lạ ⇒ 404.
+  const uid = interaction.split('/').pop();
+  const sum = await get(`/api/identity/oidc-summary/${uid}`);
+  assert.equal(sum.status, 200);
+  const sd = await sum.json();
+  assert.equal(sd.uid, uid);
+  assert.ok(sd.scopes.includes('openid'));
+  assert.equal(sum.headers.get('cache-control'), 'no-store');
+  assert.equal((await get('/api/identity/oidc-summary/khong-ton-tai-uid-nao')).status, 404);
 
   const auth = `Bearer ${await signIdentity({ sub: USER }, process.env.INTERNAL_IDENTITY_SECRET)}`;
   const fin = await fetch(`${base}/api/identity/oidc/interaction/finish`, {

@@ -90,10 +90,17 @@ export async function verifyLinkIntent(
 }
 
 /** Chuỗi Set-Cookie. `secure` theo NEXTAUTH_URL (https ở production, http ở dev). */
-export function linkIntentCookie(value: string, secure: boolean, maxAge = LINK_INTENT_TTL_S) {
+export function linkIntentCookie(
+  value: string,
+  secure: boolean,
+  maxAge = LINK_INTENT_TTL_S,
+  // CP4a: cổng `id.` đặt cookie, chặng callback OAuth chạy ở tsudev.com (cầu OAuth) ⇒ cùng Domain với cookie phiên.
+  domain?: string
+) {
   return [
     `${LINK_INTENT_COOKIE}=${encodeURIComponent(value)}`,
     'Path=/api/auth',
+    ...(domain ? [`Domain=${domain}`] : []),
     `Max-Age=${maxAge}`,
     'HttpOnly',
     'SameSite=Lax',

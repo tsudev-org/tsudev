@@ -22,7 +22,7 @@ import { Icon, PLATFORM_CHIP_CLASS, platformChipClass, platformInkClass } from '
 import { TableOfContents } from './components/TableOfContents';
 import { RecordFooter } from './components/RecordFooter';
 import { usePageSize, pageAfterResize } from './lib/usePageSize';
-import { MAIN_URL } from './lib/siteUrls';
+import { CONSOLE_URL, ID_URL, MAIN_URL } from './lib/siteUrls';
 import {
   ECOSYSTEM_APPS,
   ECO_GAMES,
@@ -37,6 +37,8 @@ import {
 } from './lib/ecosystem';
 
 export {
+  CONSOLE_URL,
+  ID_URL,
   MAIN_URL,
   ECOSYSTEM_APPS,
   ECO_GAMES,
@@ -101,34 +103,6 @@ export { AppGateModal } from './components/AppGateModal';
 export type { AppGateModalProps } from './components/AppGateModal';
 export { GATE_TEXT, gateCopy, compareVersions, xTsuApp, gateFromResponse } from './lib/appGate';
 export type { GateKind, GateLang, GateCopy, GateVerdict } from './lib/appGate';
-export {
-  defineSignInReminder,
-  reminderMarkup,
-  SIGNIN_REMINDER_TAG,
-} from './elements/signinReminder';
-export {
-  SIGNIN_REMINDER_CADENCE,
-  SIGNIN_REMINDER_TEXT,
-  WHY_SIGN_IN_URL,
-  shouldShowReminder,
-  nextEligibleAt,
-  loadReminderState,
-  saveReminderState,
-  clearReminderState,
-  markShown,
-  markDismissed,
-  markSnoozed,
-  markSignedOut,
-  orderProviders,
-} from './lib/signinReminder';
-export type {
-  ReminderState,
-  ReminderContext,
-  ReminderVerdict,
-  ReminderLang,
-  ReminderProvider,
-} from './lib/signinReminder';
-
 export default Layout;
 
 // Kiểu của prop cũng là một phần hợp đồng công khai của design system. Không

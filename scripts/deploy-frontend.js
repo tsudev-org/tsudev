@@ -31,7 +31,8 @@ const { loadTopology, prodUrl } = require('./topology/load');
 
 const ROOT = path.resolve(__dirname, '..');
 // `--app console` (CP2): cùng một đường phát hành an toàn (dời .env.local, kiểm tài khoản) cho Worker thứ hai.
-const APPS = ['frontend-main', 'console'];
+// `--app id` (CP4): cổng xác thực `id.tsudev.com`.
+const APPS = ['frontend-main', 'console', 'id'];
 const appFlag = process.argv.indexOf('--app');
 const APP_NAME = appFlag > 0 ? process.argv[appFlag + 1] : 'frontend-main';
 if (!APPS.includes(APP_NAME)) {
@@ -84,6 +85,8 @@ try {
     NEXT_PUBLIC_MAIN_URL: mainUrl,
     // CP3: site công khai chuyển /admin, /studio sang đây và menu trỏ thẳng tới đây - cùng lý do phải đặt ở shell.
     NEXT_PUBLIC_CONSOLE_URL: prodUrl(loadTopology(), 'console'),
+    // CP4: liên kết đăng nhập/tài khoản trỏ thẳng cổng `id.`; tsudev.com chuyển 308 các trang cũ.
+    NEXT_PUBLIC_ID_URL: prodUrl(loadTopology(), 'id'),
     // Bản dựng KHÔNG được nói chuyện với backend nào. Không đặt thì getStaticProps
     // rơi về địa chỉ mặc định (localhost) của lib/services.ts - và nếu máy dev
     // đang chạy dev stack, dữ liệu DEV đi vào bản dựng + cache ISR đẩy lên R2, hoặc
@@ -136,8 +139,12 @@ try {
 
   // Cổng chống tráo QR / số tài khoản của /ung-ho (phiếu 20261112-01 mục 3.4): ảnh QR
   // phải khớp SHA-256 đã ghim và VietQR phải trỏ đúng tài khoản - lệch thì KHÔNG dựng.
-  const isMain = APP_NAME === 'frontend-main';
-  execFileSync('npx', ['jest', isMain ? 'test/ungHo.test.ts' : 'test/consoleGate.test.ts'], {
+  const GATE_TEST = {
+    'frontend-main': 'test/ungHo.test.ts',
+    console: 'test/consoleGate.test.ts',
+    id: 'test/idGate.test.ts',
+  };
+  execFileSync('npx', ['jest', GATE_TEST[APP_NAME]], {
     ...opts,
     env: { ...env, NODE_ENV: 'test' },
   });

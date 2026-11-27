@@ -45,7 +45,7 @@ VERSION_FILE=".standards-version"
 # hai bước không bao giờ lệch nhau - lệch một lần là đẻ ra đúng loại lỗ hổng mà
 # v3.1.0 đang vá.
 SYNC_DIRS=(AGENTS.md VERSION SECURITY.md docs tokens templates)
-SYNC_SCRIPTS=(check-standards.sh sync-standards.sh)
+SYNC_SCRIPTS=(check-standards.sh sync-standards.sh check-central-login.sh)
 
 while [[ $# -gt 0 ]]; do
   case "$1" in

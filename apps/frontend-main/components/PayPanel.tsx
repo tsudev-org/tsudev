@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Icon } from '@tsudev/ui';
+import { ID_URL, Icon, MAIN_URL } from '@tsudev/ui';
 import { QrSvg } from './QrSvg';
 import { KENH_THANH_TOAN, noiDungTsu, vietQrDong } from '../lib/ungHo';
 import { formatDateTimeVN } from '../lib/format';
@@ -145,7 +145,10 @@ export function PaymentInstructions({ intent, onClose }: { intent: Intent; onClo
   );
 }
 
-/** Nút "Đăng nhập để tiếp tục" - quyền lợi gắn với tài khoản (PRODUCT_POLICY 3.4). */
+/**
+ * Nút "Đăng nhập để tiếp tục" - quyền lợi gắn với tài khoản (PRODUCT_POLICY 3.4). Đăng nhập ở cổng `id.` (CP4) nên
+ * đích quay về phải là URL TUYỆT ĐỐI của tsudev.com - tương đối thì cổng hiểu là đường của chính nó.
+ */
 export function loginHref(path: string) {
-  return `/login?callbackUrl=${encodeURIComponent(path)}`;
+  return `${ID_URL}/login?callbackUrl=${encodeURIComponent(`${MAIN_URL}${path}`)}`;
 }

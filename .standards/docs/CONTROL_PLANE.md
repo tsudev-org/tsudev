@@ -1,4 +1,4 @@
-# TRẠM ĐIỀU HÀNH VÀ CỔNG XÁC THỰC TẬP TRUNG (v1.0.0)
+# TRẠM ĐIỀU HÀNH VÀ CỔNG XÁC THỰC TẬP TRUNG (v2.0.0)
 
 > **Bắt buộc cho mọi website, dịch vụ, API của hệ TsuDEV** (chủ dự án 26/11/2026, bộ quy ước v7.2.0). Mục tiêu: mọi
 > thao tác quản trị trên thông tin, dữ liệu, tài nguyên của hệ sinh thái đi qua **một** trạm điều hành nằm sau nhiều
@@ -56,8 +56,9 @@
    Giới hạn tần suất theo tài khoản + IP (`CF-Connecting-IP`), lưu bền; Turnstile khi có dấu hiệu dò; thông báo đăng
    nhập lạ (thiết bị/quốc gia mới) theo `AUTH_AND_ACCOUNT.md`.
 5. **Mật khẩu chỉ ở máy chủ có Argon2id** (dịch vụ danh tính); Worker của `id.` chỉ là BFF, không đọc băm mật khẩu.
-6. Mọi sản phẩm đăng nhập bằng OIDC + PKCE qua trình duyệt hệ thống; `MUST NOT` tự dựng ô mật khẩu tài khoản TsuDEV
-   trong app hay website sản phẩm.
+6. **Một cổng cho cả hệ** ([`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) mục 2.1): website `*.tsudev.com` không có trang
+   đăng nhập riêng, app cài đặt không có ô nhập tài khoản hay nút/SDK nhà cung cấp; mọi sản phẩm dùng OIDC + PKCE qua
+   trình duyệt hệ thống. Giao diện đăng nhập chỉ sửa ở một nơi.
 
 ## 3. Trạm điều hành `console.tsudev.com` - bảy lớp khoá
 
@@ -138,6 +139,7 @@ Website sản phẩm (trang giới thiệu, tài liệu, máy chủ API riêng) 
 - [ ] Route điều hành từ chối khẳng định danh tính `aud` khác `console` (test).
 - [ ] Thao tác nguy hiểm không step-up ⇒ 401/403; có step-up ⇒ ghi nhật ký kèm lý do.
 - [ ] Chuỗi băm nhật ký kiểm toán: sửa/xoá một dòng ⇒ trigger chặn; kiểm toàn vẹn chạy theo lịch.
+- [ ] Không sản phẩm nào ngoài cổng có trang/ô đăng nhập (phiếu `RA_SOAT_DANG_NHAP` mỗi repo đã đóng).
 - [ ] `id.`: issuer vẫn `https://tsudev.com/oidc`; passkey cũ đăng nhập được; cookie `__Host-`; CSP + Trusted Types; Observatory A+.
 - [ ] Backend gọi thẳng (không qua Worker) ⇒ bị đếm (`ghi`) / 403 (`chan`).
 - [ ] Website sản phẩm: có `site.json`, không có trang quản trị, nhận lệnh ký đúng và từ chối lệnh ký sai/hết hạn/phát lại.

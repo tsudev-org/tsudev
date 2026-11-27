@@ -1,0 +1,9 @@
+# Ngoại lệ của cổng kiểm "một cổng đăng nhập" (tsudev-standards v9 AUTH_AND_ACCOUNT mục 2.1,
+# scripts/check-central-login.sh). Repo này CÀI ĐẶT CỔNG: apps/id là id.tsudev.com.
+# Mỗi dòng: <LUẬT> <đường dẫn hoặc glob>  # lý do. Rà soát: logs/handover/20261127-LOGIN1_ra-soat-mot-cong-dang-nhap.md
+L1-o-mat-khau apps/id/pages/*  # trang của chính cổng id.tsudev.com (đăng nhập, đăng ký, đặt lại mật khẩu)
+L1-o-mat-khau apps/id/pages/settings/*  # bảo mật/hồ sơ tài khoản ở cổng: đổi mật khẩu, xác nhận lại trước thao tác nhạy cảm
+L5-trang-dang-nhap apps/id/pages/*  # trang đăng nhập/đăng ký/khôi phục của chính cổng
+L1-o-mat-khau apps/frontend-main/pages/api/auth/[[]...nextauth[]].ts  # NextAuth dùng chung, cổng re-export; provider mật khẩu chỉ bật khi NEXTAUTH_ZONE=id (test idGatewaySplit)
+L2-sdk-nha-cung-cap apps/frontend-main/pages/api/auth/[[]...nextauth[]].ts  # Google/GitHub OAuth phía máy chủ của IdP (chuyển hướng trình duyệt), không phải SDK nhúng trong app
+L1-o-mat-khau apps/console/components/admin/AccountsAdmin.tsx  # OWNER tạo tài khoản kèm mật khẩu ban đầu (không phải màn đăng nhập), sau Cloudflare Access; theo dõi ở phiếu LOGIN1 mục 3

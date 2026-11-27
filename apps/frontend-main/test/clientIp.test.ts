@@ -29,7 +29,7 @@ describe('clientIp', () => {
 
 describe('BFF không tự đọc X-Forwarded-For', () => {
   const ROOT = join(__dirname, '..');
-  test.each(['pages/api/identity/[...path].ts', 'pages/api/auth/[...nextauth].ts'])(
+  test.each(['../id/pages/api/identity/[...path].ts', 'pages/api/auth/[...nextauth].ts'])(
     '%s đi qua clientIp()',
     (p) => {
       const src = readFileSync(join(ROOT, p), 'utf8');

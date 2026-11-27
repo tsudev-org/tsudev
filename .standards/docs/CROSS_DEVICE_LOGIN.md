@@ -1,4 +1,4 @@
-# ĐĂNG NHẬP CHÉO THIẾT BỊ BẰNG MÃ QR - mọi sản phẩm tsudev hạng A, B (v1.1.0)
+# ĐĂNG NHẬP CHÉO THIẾT BỊ BẰNG MÃ QR - mọi sản phẩm tsudev hạng A, B (v1.2.0)
 
 > Chuẩn bắt buộc cho tính năng "Quét để đăng nhập": dùng một thiết bị **đã đăng nhập** để đăng nhập thiết bị **mới**,
 > bằng mã QR cộng một **mã khớp** gõ tay. Áp dụng cho web, desktop và app di động có tài khoản tsudev
@@ -135,7 +135,8 @@ cùng quét một QR ⇒ chỉ thiết bị đầu thắng, thiết bị sau nh�
 
 ### 6.1. Thiết bị mới - app điện thoại (Đ1)
 
-- Màn đăng nhập ([`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) mục 13.2) có liên kết **"Quét để đăng nhập"** ở cuối.
+- Mục Tài khoản của app ([`AUTH_AND_ACCOUNT.md`](AUTH_AND_ACCOUNT.md) mục 2.1) có nút **"Quét để đăng nhập"**. Quét
+  xong app mở URL trong trình duyệt hệ thống; mã khớp `MUST` chỉ gõ trên trang của cổng, không gõ trong app.
 - Mở camera kèm dòng hướng dẫn: *"Trên máy tính đã đăng nhập, mở tsudev.com ⇒ Tài khoản ⇒ Đăng nhập trên điện thoại."*
 - Xin quyền camera **lúc bấm**, không lúc mở app; từ chối quyền ⇒ hướng dẫn mở Cài đặt, không chặn lối vào khác.
 
@@ -196,7 +197,7 @@ mới: công khai; thiết bị xác nhận: bắt buộc phiên). `redeem` CH�
 ## 9. Checklist nghiệm thu
 
 - [ ] IdP có bảng `xd_sessions` chỉ lưu băm, cron dọn, API mục 7, công bố trong discovery.
-- [ ] Mã khớp hiện trên thiết bị đã đăng nhập, gõ trên thiết bị mới - ở cả Đ1 và Đ2.
+- [ ] Mã khớp hiện trên thiết bị đã đăng nhập, gõ trên thiết bị mới **tại trang của cổng** - ở cả Đ1 và Đ2.
 - [ ] Màn Cho phép có đủ thông tin + câu cảnh báo mục 6.3; Từ chối là nút mặc định.
 - [ ] Thiết bị mới thấy tài khoản sắp vào (email che) trước khi nhận phiên (T3).
 - [ ] Bí mật thiết bị mới chỉ ở cookie HttpOnly; nhật ký đăng nhập ghi phương thức `qr` + cảnh báo thiết bị lạ.

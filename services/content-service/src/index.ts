@@ -3582,9 +3582,9 @@ app.post(
 )
 
 app.post(
-  // Tiền tố RIÊNG của pipeline (CP3) để bản dựng công khai không phải biết đường `/api/internal`. Đường cũ giữ song
-  // song MỘT nhịp phát hành (Worker cũ còn gọi trong lúc Render đã lên bản mới) - gỡ ở CP kế tiếp.
-  ['/api/pipeline/versions/:product/:channel', '/api/internal/versions/:product/:channel'],
+  // Tiền tố RIÊNG của pipeline (CP3) để bản dựng công khai không phải biết đường `/api/internal`. Đường cũ
+  // `/api/internal/versions` đã gỡ ở CP4 sau một nhịp chạy song song.
+  '/api/pipeline/versions/:product/:channel',
   versionsLimit,
   asyncHandler(async (req, res) => {
     if (!VERSIONS_RAISE_TOKEN) {

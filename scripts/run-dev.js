@@ -78,6 +78,14 @@ const processes = [
     url: USE_PROXY ? publicUrl(TOPO, 'main') : `http://localhost:${portOf(TOPO, 'main')}`,
     cwd: path.join(ROOT, 'apps/frontend-main'),
   },
+  {
+    // CP4: cổng xác thực - tsudev.localhost/login chuyển 308 sang đây, nên không có nó thì dev không đăng nhập được.
+    name: 'id',
+    type: 'next',
+    port: portOf(TOPO, 'id'),
+    url: USE_PROXY ? publicUrl(TOPO, 'id') : `http://localhost:${portOf(TOPO, 'id')}`,
+    cwd: path.join(ROOT, 'apps/id'),
+  },
 ];
 
 // Proxy phải lên TRƯỚC hai app Next: nó là thứ người dùng gõ vào trình duyệt,

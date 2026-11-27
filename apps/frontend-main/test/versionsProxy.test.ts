@@ -9,7 +9,20 @@ const { getPathMatch } = require('next/dist/shared/lib/router/utils/path-match')
 const { prepareDestination } = require('next/dist/shared/lib/router/utils/prepare-destination');
 /* eslint-enable @typescript-eslint/no-require-imports */
 
-import handler, { _clearVersionsCache } from '../pages/api/versions/[...path]';
+import handler, { _clearVersionsCache, DURABLE_KEY } from '../pages/api/versions/[...path]';
+
+// VS1 mục 4: R2 giả cho bộ đệm bền. `env.NEXT_INC_CACHE_R2_BUCKET` undefined ⇒ như next dev (không binding).
+const store = new Map<string, string>();
+const puts: string[] = [];
+const ctx: { env: Record<string, unknown> } = { env: {} };
+const fakeBucket = {
+  get: async (k: string) => (store.has(k) ? { text: async () => store.get(k)! } : null),
+  put: async (k: string, v: string) => {
+    puts.push(k);
+    store.set(k, v);
+  },
+};
+jest.mock('@opennextjs/cloudflare', () => ({ getCloudflareContext: () => ctx }));
 
 type Rule = { source: string; destination: string };
 
@@ -54,6 +67,53 @@ const realFetch = global.fetch;
 afterEach(() => {
   global.fetch = realFetch;
   _clearVersionsCache();
+  ctx.env = {};
+  store.clear();
+  puts.length = 0;
+});
+
+test('VS1-4: cặp tốt ghi bền vào R2 một lần mỗi khi đổi; isolate mới + upstream hỏng ⇒ phục vụ cặp bền', async () => {
+  ctx.env = { NEXT_INC_CACHE_R2_BUCKET: fakeBucket };
+  global.fetch = jest.fn(
+    async (u: string) => new Response(u.endsWith('.sig') ? 'c2lnLWJlbg' : BODY, { status: 200 })
+  ) as never;
+  expect((await call('GET', ['versions.json'])).status).toBe(200);
+  expect(puts).toEqual([DURABLE_KEY]);
+  // làm mới cùng cặp: không ghi lại
+  jest.spyOn(Date, 'now').mockReturnValue(Date.now() + 10 * 60_000);
+  await call('GET', ['versions.json']);
+  expect(puts).toHaveLength(1);
+  jest.restoreAllMocks();
+
+  // isolate mới (mất bộ nhớ), backend ngủ
+  _clearVersionsCache();
+  global.fetch = jest.fn(async () => new Response('down', { status: 503 })) as never;
+  const j = await call('GET', ['versions.json']);
+  const sig = await call('GET', ['versions.json.sig']);
+  expect(j.status).toBe(200);
+  expect((j.body as Buffer).toString()).toBe(BODY);
+  expect((sig.body as Buffer).toString()).toBe('c2lnLWJlbg');
+  expect(puts).toHaveLength(1); // đọc bền không ghi lại
+});
+
+test('VS1-4: R2 hỏng không làm hỏng lượt phục vụ', async () => {
+  ctx.env = {
+    NEXT_INC_CACHE_R2_BUCKET: {
+      get: async () => {
+        throw new Error('r2 down');
+      },
+      put: async () => {
+        throw new Error('r2 down');
+      },
+    },
+  };
+  global.fetch = jest.fn(
+    async (u: string) => new Response(u.endsWith('.sig') ? 'c2ln' : BODY, { status: 200 })
+  ) as never;
+  expect((await call('GET', ['versions.json'])).status).toBe(200);
+  _clearVersionsCache();
+  global.fetch = jest.fn(async () => new Response('x', { status: 503 })) as never;
+  expect((await call('GET', ['versions.json'])).status).toBe(503);
 });
 
 test('trả byte nguyên văn + lấy theo cặp + phục vụ cặp cũ khi upstream hỏng', async () => {

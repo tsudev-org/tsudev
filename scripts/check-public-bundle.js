@@ -63,6 +63,31 @@ for (const f of files) {
   }
 }
 
+// CP4 (chuẩn "một cổng đăng nhập"): trang nhận thông tin đăng nhập chỉ ở cổng `id.` - bản dựng của tsudev.com không
+// được có trang nào trong số đó (next.config.js chỉ chuyển 308).
+const ID_ONLY_PAGES = [
+  'login',
+  'signup',
+  'forgot-password',
+  'reset-password',
+  'verify-email',
+  'confirm-email-change',
+  'revoke-sessions',
+  'settings/security',
+  'settings/profile',
+  'oidc/interaction/[uid]',
+  'api/identity/[...path]',
+  'api/account-link',
+  'api/turnstile-site-key',
+];
+for (const p of ID_ONLY_PAGES) {
+  for (const ext of ['.js', '.html']) {
+    const f = path.join(NEXT_DIR, 'server', 'pages', `${p}${ext}`);
+    if (fs.existsSync(f))
+      hits.push(`server/pages/${p}${ext}: trang đăng nhập/tài khoản phải ở cổng id. (CP4)`);
+  }
+}
+
 console.log(`[check-public-bundle] đã quét ${files.length} tệp JS của bản dựng công khai`);
 if (files.length === 0) {
   console.error(

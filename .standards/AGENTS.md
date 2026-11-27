@@ -1,4 +1,4 @@
-# AGENTS.md - Bộ quy ước dùng chung tsudev (v3.2.0)
+# AGENTS.md - Bộ quy ước dùng chung tsudev (v4.0.0)
 
 > **ĐÂY LÀ NGUỒN CHÂN LÝ.** Bộ quy ước được biên tập tại repo
 > `tsudev-org/tsudev-standards`. Repo con mang một BẢN SAO CHỈ-ĐỌC tại
@@ -77,6 +77,10 @@ chuyên đề. Bản đồ đầy đủ: [`docs/00-INDEX.md`](docs/00-INDEX.md).
   đường dẫn.
 - Task lớn phải chia nhỏ; làm xong phần nào chốt phần đó vào log ngay, để mất
   phiên không mất công.
+- **Mô hình + Phase + ngữ cảnh** (từ `v8.1.0`): Sonnet thực thi, lên Opus khi việc khó
+  (`EnterPlanMode` hoặc subagent `model: "opus"`); một ngữ cảnh một Phase của
+  `docs/PLAN.md`, xong Phase thì đánh `[x]`, cập nhật STATE, commit rồi dừng chờ `/clear`.
+  Chi tiết: [`docs/AGENT_PROTOCOL.md`](docs/AGENT_PROTOCOL.md) mục 4.1-4.3.
 
 ## 3. Đội ngũ agent và chống giẫm chân
 
@@ -117,6 +121,13 @@ Chi tiết: [`docs/AGENT_PROTOCOL.md`](docs/AGENT_PROTOCOL.md).
 - Không tắt kiểm tra HTTPS/SSL, không hạ cấp thuật toán mã hóa, không mở cổng
   hay quyền rộng hơn mức task cần.
 - Không nới lỏng bảo mật để cho mã chạy được. Gặp bế tắc thì báo cáo, không tự quyết.
+- **Zero Secret Exposure** (từ `v8.2.0`): `MUST NOT` in giá trị bí mật ở bất kỳ đâu, `MUST NOT`
+  `cat`/`grep`/`cut`/`printenv`... trên tệp hay biến bí mật (kể cả ngoài dự án); chỉ xem tên khoá bằng
+  `noleak-inspect.py`. Tệp bí mật không theo `KEY=VALUE` = **HARD STOP, báo chủ dự án**. Chi tiết:
+  [`docs/SECURITY_BASELINE.md`](docs/SECURITY_BASELINE.md) mục 12.1.
+- **Bí mật lúc lưu trữ + xoay khoá** (từ `v8.3.0`): tệp bí mật `600`, thư mục `700`, không bản rõ trên ổ
+  Windows/đám mây, sao lưu mã hoá `age`; thấy nguy cơ lộ -> báo ngay chủ dự án + phiếu `XK` (hook nhắc mọi phiên
+  tới khi xoay); mọi task giữ hoặc nâng tư thế bảo mật. Chi tiết: `SECURITY_BASELINE.md` mục 12.2-12.4.
 - **Tên repo GitHub cũ là bất khả xâm phạm.** Repo hệ tsudev nằm trong Organization
   `tsudev-org` (chuyển từ tài khoản `tsudev-tsudev` ngày 09/11/2026). `MUST NOT` tạo,
   fork hay đổi tên một repo thành tên repo cũ dưới `tsudev-tsudev` - GitHub bỏ chuyển
@@ -223,13 +234,15 @@ git grep -lP '\x{2014}' -- . | grep -v '^migrations/'
 - Mọi vùng hiển thị danh sách bản ghi phải có bộ chọn số bản ghi đúng vị trí và
   đúng các mốc `10/20/50/100/200`, mặc định `10`. Chi tiết:
   [`docs/DATA_TABLE.md`](docs/DATA_TABLE.md).
-- Mọi sản phẩm có tài khoản phải đủ ba lối vào (Google, GitHub, tài khoản tsudev)
-  và cơ chế Xác minh tài khoản. Chi tiết:
-  [`docs/AUTH_AND_ACCOUNT.md`](docs/AUTH_AND_ACCOUNT.md).
-- Mọi sản phẩm có giao diện người dùng phải **nhắc đăng nhập** bằng modal nổi bỏ qua được
-  khi thiết bị có internet mà chưa đăng nhập (không chặn chức năng lõi, không gọi
-  mạng ngầm, dùng thành phần chung `TsuSignInReminder` / `<tsu-signin-reminder>`).
-  Chi tiết: [`docs/AUTH_AND_ACCOUNT.md`](docs/AUTH_AND_ACCOUNT.md) mục 14.4.
+- **Một cổng đăng nhập duy nhất** của `tsudev.com` (từ `v9.0.0`): website sản phẩm không có trang đăng nhập; app cài
+  đặt không có ô nhập tài khoản hay nút/SDK Google, Apple, GitHub - chỉ có nút mở trình duyệt. Ba lối vào và Xác minh
+  tài khoản nằm ở cổng. Agent ở repo sản phẩm `MUST` tự rà (`.standards/scripts/check-central-login.sh`), lập phiếu
+  `RA_SOAT_DANG_NHAP` và sửa vi phạm. Chi tiết: [`docs/AUTH_AND_ACCOUNT.md`](docs/AUTH_AND_ACCOUNT.md) mục 2.1.
+- Mọi sản phẩm **không quảng cáo, không thông báo làm phiền**: `MUST NOT` tự hiện modal,
+  thông báo, biểu ngữ hay chấm đỏ mời đăng nhập (TsuDEV/Google/GitHub/Apple), mời Pro,
+  xin Ủng hộ hay xin đánh giá. Đăng nhập chỉ mở khi người dùng bấm (Cài đặt › Tài khoản
+  hoặc chức năng cần tài khoản). Chi tiết: [`docs/AUTH_AND_ACCOUNT.md`](docs/AUTH_AND_ACCOUNT.md)
+  mục 14.4, [`docs/PRODUCT_POLICY.md`](docs/PRODUCT_POLICY.md) mục 3.8.
 - Mọi sản phẩm phải đủ bộ logo/favicon/icon và siêu dữ liệu nối về `tsudev.com`.
   Chi tiết: [`docs/BRAND_ASSETS.md`](docs/BRAND_ASSETS.md) mục 12 và
   [`docs/ECOSYSTEM_IDENTITY.md`](docs/ECOSYSTEM_IDENTITY.md).

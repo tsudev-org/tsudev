@@ -12,15 +12,15 @@ const footer = readFileSync(
 );
 
 describe('cột Tài khoản ở chân trang', () => {
-  test('đã đăng nhập: Bảo mật tài khoản → /settings/security', () => {
-    expect(footer).toMatch(/\['Bảo mật tài khoản', '\/settings\/security'\]/);
+  test('đã đăng nhập: Bảo mật tài khoản → cổng id./settings/security', () => {
+    expect(footer).toContain("['Bảo mật tài khoản', `${ID_URL}/settings/security`]");
     expect(footer).toMatch(/status === 'authenticated'/);
   });
 
   test('"Đăng nhập" chỉ còn trong danh sách của khách', () => {
     const guest = footer.slice(footer.indexOf('GUEST_LINKS'), footer.indexOf('MEMBER_LINKS'));
-    expect(guest).toContain("'/login'");
-    expect(footer.split("'/login'").length - 1).toBe(1);
+    expect(guest).toContain('`${ID_URL}/login`');
+    expect(footer.split('`${ID_URL}/login`').length - 1).toBe(1);
   });
 
   test('lúc phiên đang tải dùng cùng class chống nháy với header', () => {

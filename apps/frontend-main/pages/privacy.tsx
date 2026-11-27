@@ -1,5 +1,6 @@
 import React from 'react';
 import { LegalDoc } from '../components/LegalDoc';
+import { ID_URL } from '@tsudev/ui';
 import { OPERATOR, PRIVACY_DOC_DATES, LEGAL_BASIS } from '../lib/legal';
 
 const SECTIONS = [
@@ -150,9 +151,11 @@ const SECTIONS = [
         </div>
         <p>
           Bạn tự xoá tài khoản bất cứ lúc nào ở{' '}
-          <a href="/settings/security#xoa-tai-khoan">Cài đặt → Bảo mật → Xoá tài khoản</a>: tài
-          khoản được hẹn xoá sau 30 ngày (đăng nhập lại trước hạn để huỷ), quá hạn thì xoá vĩnh
-          viễn.
+          <a href={`${ID_URL}/settings/security#xoa-tai-khoan`}>
+            Cài đặt → Bảo mật → Xoá tài khoản
+          </a>
+          : tài khoản được hẹn xoá sau 30 ngày (đăng nhập lại trước hạn để huỷ), quá hạn thì xoá
+          vĩnh viễn.
         </p>
       </>
     ),

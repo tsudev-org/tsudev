@@ -18,3 +18,11 @@ export const MAIN_URL = stripSlash(
 export const CONSOLE_URL = stripSlash(
   process.env.NEXT_PUBLIC_CONSOLE_URL || 'http://console.tsudev.localhost:8080'
 );
+
+/**
+ * Cổng xác thực (CP4, ADR-0005): đăng nhập, đăng ký, khôi phục, bảo mật tài khoản. Liên kết tới các trang đó PHẢI
+ * dùng URL tuyệt đối dựng từ đây - tsudev.com chỉ còn chuyển hướng 308 (chuẩn "một cổng đăng nhập").
+ */
+export const ID_URL = stripSlash(
+  process.env.NEXT_PUBLIC_ID_URL || 'http://id.tsudev.localhost:8080'
+);

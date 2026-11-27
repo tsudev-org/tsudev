@@ -9,6 +9,30 @@ Ba lớp riêng biệt, hay bị lẫn:
 Xác thực do **codebase tự quản lý**: không có nhà cung cấp danh tính ngoài, không
 có origin `auth.*`, không có biến issuer/client-id/client-secret nào cần đặt.
 
+## 0. Cổng xác thực `id.tsudev.com` (CP4a, 27/11/2026)
+
+Chuẩn tsudev-standards v9 `AUTH_AND_ACCOUNT` mục 2.1 "một cổng đăng nhập" + ADR-0005. Mọi trang nhận thông tin đăng
+nhập hoặc quản lý tài khoản nằm ở Worker `tsudev-id` (`apps/id`): `/login`, `/signup`, quên/đặt lại mật khẩu, xác minh
+email, đổi email, thu hồi phiên, `/settings/security`, `/settings/profile`, trang đồng ý OIDC `/oidc/interaction/<uid>`.
+
+- tsudev.com chuyển 308 các đường đó sang cổng (`apps/frontend-main/next.config.js` `ID_PAGES`, giữ vô thời hạn);
+  `npm run check:public-bundle` chặn bản dựng của main có lại trang nào trong số đó.
+- **Bất biến**: issuer `https://tsudev.com/oidc`, rpID passkey `tsudev.com` (passkey cũ chạy ở `id.` vì `expectedOrigin`
+  là danh sách main + id - `services/auth-service/src/passkey.ts`), URL app đã ghim.
+- NextAuth dùng CHUNG một module, tách theo `NEXTAUTH_ZONE`: `id` có mật khẩu, passkey, QR; main chỉ còn Google/GitHub.
+  CP4a giữ cookie phiên `next-auth.session-token` Domain `.tsudev.com` (cùng `NEXTAUTH_SECRET`) để main và console đọc
+  được phiên - không ai bị đăng xuất. CP4b đổi sang cookie `__Host-` của cổng + main/console thành RP OIDC.
+- **Cầu OAuth** `tsudev.com/oauth-start` (không ô nhập): callback Google/GitHub còn đăng ký ở tsudev.com, nên nút ở cổng
+  đi qua NextAuth của main. Gỡ ở CP4b khi 👤 đổi callback sang `id.`.
+- **Đồng ý OIDC**: cổng đọc tóm tắt THEO UID (`GET /api/identity/oidc-summary/:uid`); Cho phép/Từ chối là FORM POST về
+  `tsudev.com/oidc/interaction/<uid>/confirm` để cookie `_interaction` (host tsudev.com) đi kèm - biết uid thôi không
+  hoàn tất được luồng của trình duyệt khác. `pages/api/oidc-consent.ts` kiểm Origin (main/id), trả 303.
+- Đích quay về sau đăng nhập: chỉ đường tương đối hoặc ba origin của hệ (`safeReturn`, callback `redirect` của NextAuth).
+- Link trong thư tài khoản trỏ cổng (`services/auth-service/src/siteUrls.ts` `idUrl()`, suy `id.<host main>` nếu không
+  đặt `ID_URL` - production không cần biến Render mới).
+- Khẳng định danh tính của cổng CP4a ký bằng khoá vùng main (cùng secret với Worker `tsudev`); vùng `id` riêng làm ở CP4b
+  cùng lúc đổi cookie, khi 👤 đặt được biến Render.
+
 ## 1. Phiên trình duyệt - NextAuth
 
 `apps/frontend-main/pages/api/auth/[...nextauth].ts`.

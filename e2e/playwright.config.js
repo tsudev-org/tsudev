@@ -56,7 +56,12 @@ const server = (id) => ({
   command: `npm --workspace ${node(topo, id).workspace} run dev`,
   url: useProxy ? internalUrl(topo, id) : publicUrl(topo, id),
   cwd: ROOT,
-  env: { ...webServerEnv, NEXTAUTH_URL: publicUrl(topo, id) },
+  // CP4: cổng `id.` giữ provider mật khẩu/passkey/QR (NEXTAUTH_ZONE=id); tsudev.com/login chuyển 308 sang đó.
+  env: {
+    ...webServerEnv,
+    NEXTAUTH_URL: publicUrl(topo, id),
+    ...(id === 'id' ? { NEXTAUTH_ZONE: 'id' } : {}),
+  },
   reuseExistingServer: reuseServers,
   timeout: 120 * 1000,
 });
@@ -88,7 +93,13 @@ const backend = (id) => ({
   timeout: 60 * 1000,
 });
 
-const servers = [backend('content'), backend('identity'), server('main'), server('console')];
+const servers = [
+  backend('content'),
+  backend('identity'),
+  server('main'),
+  server('console'),
+  server('id'),
+];
 if (useProxy) servers.push(proxyServer());
 
 module.exports = defineConfig({

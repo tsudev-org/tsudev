@@ -19,6 +19,7 @@ import { usernameFromToken } from '../../../lib/identity';
 import { LINK_INTENT_COOKIE, verifyLinkIntent } from '../../../lib/linkIntent';
 import { XD_TICKET_COOKIE, readCookie } from '../../../lib/crossDevice';
 import type { JWT } from 'next-auth/jwt';
+import { CONSOLE_URL, ID_URL, MAIN_URL } from '@tsudev/ui';
 
 /**
  * Xác thực do codebase tự quản lý.
@@ -198,7 +199,35 @@ const qrProvider = CredentialsProvider({
   },
 });
 
-const providers: Provider[] = [
+/**
+ * CP4 - một nguồn, hai bản dựng: tệp này chạy ở Worker `tsudev` (tsudev.com) VÀ Worker cổng `tsudev-id`
+ * (`apps/id` tái xuất nguyên văn), phân biệt bằng `NEXTAUTH_ZONE`.
+ *
+ * - `id`: giữ mọi lối nhập thông tin đăng nhập - mật khẩu, passkey, QR. Chuẩn "một cổng đăng nhập"
+ *   (AUTH_AND_ACCOUNT mục 2.1): đây là nơi DUY NHẤT nhận chúng.
+ * - còn lại (tsudev.com): KHÔNG còn provider nhận mật khẩu/passkey/QR. Chỉ giữ Google/GitHub vì callback đã đăng ký
+ *   ở hai nhà cung cấp vẫn là tsudev.com (cầu `oauth-start`, lib/oauthBridge.ts) - chuyển sang cổng ở CP4b (👤).
+ *
+ * Cả hai cấp CÙNG cookie phiên (`.tsudev.com`, cùng NEXTAUTH_SECRET) ở CP4a nên đăng nhập ở cổng là đăng nhập
+ * tsudev.com + console; `test/idGatewaySplit.test.ts` canh sự phân chia này.
+ */
+export const NEXTAUTH_ZONE: 'id' | 'main' = process.env.NEXTAUTH_ZONE === 'id' ? 'id' : 'main';
+
+/** Origin được phép làm đích quay về sau đăng nhập/đăng xuất (chống open redirect). */
+export const RETURN_ORIGINS: readonly string[] = [MAIN_URL, CONSOLE_URL, ID_URL];
+
+export function safeRedirect(url: string, baseUrl: string): string {
+  if (url.startsWith('/')) return `${baseUrl}${url}`;
+  try {
+    const u = new URL(url);
+    if (u.origin === new URL(baseUrl).origin || RETURN_ORIGINS.includes(u.origin)) return u.href;
+  } catch {
+    // rơi xuống mặc định
+  }
+  return baseUrl;
+}
+
+const localProviders: Provider[] = [
   CredentialsProvider({
     id: 'credentials',
     name: 'Mật khẩu',
@@ -230,6 +259,8 @@ const providers: Provider[] = [
   passkeyProvider,
   qrProvider,
 ];
+
+const providers: Provider[] = NEXTAUTH_ZONE === 'id' ? [...localProviders] : [];
 
 // Nhà cung cấp bên thứ ba: chỉ thêm khi ĐÃ cấu hình đủ. next-auth vẫn dựng ra
 // một provider khi thiếu biến - chỉ là nó không bao giờ đăng nhập được, và
@@ -389,7 +420,7 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: { strategy: 'jwt' },
   pages: {
-    // Trang đăng nhập của chính site, không phải trang mặc định của next-auth.
+    // Trang đăng nhập của cổng (tsudev.com/login chuyển 308 sang `id.`), không phải trang mặc định của next-auth.
     signIn: '/login',
     error: '/login',
   },
@@ -399,6 +430,7 @@ export const authOptions: NextAuthOptions = {
     // HTTP (hiện chưa ai). Đường thật đi qua `export default` bên dưới, nơi có
     // `req` để lấy IP + quốc gia.
     signIn: (params) => oauthSignIn(params, {}),
+    redirect: async ({ url, baseUrl }) => safeRedirect(url, baseUrl),
     async jwt({ token, user, trigger }) {
       // `user` chỉ có mặt ở lần đăng nhập đầu; các lần sau token đã mang sẵn.
       if (user) {

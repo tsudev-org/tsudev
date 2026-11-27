@@ -48,6 +48,10 @@
     "apps/console": {
       "entry": ["open-next.config.ts", "scripts/**/*.js", "test/**/*.ts"],
       "ignoreDependencies": ["tailwindcss"]
+    },
+    "apps/id": {
+      "entry": ["open-next.config.ts", "scripts/**/*.js", "test/**/*.ts"],
+      "ignoreDependencies": ["tailwindcss"]
     }
   },
   "ignoreBinaries": ["jest"],

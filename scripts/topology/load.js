@@ -144,6 +144,7 @@ function managedProdEnv(topo) {
   return {
     NEXT_PUBLIC_MAIN_URL: prodUrl(topo, 'main'),
     NEXT_PUBLIC_CONSOLE_URL: prodUrl(topo, 'console'),
+    NEXT_PUBLIC_ID_URL: prodUrl(topo, 'id'),
   };
 }
 

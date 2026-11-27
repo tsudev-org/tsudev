@@ -4,6 +4,7 @@ import type { Request, Response, RequestHandler } from 'express'
 import { prisma } from '@tsudev/db'
 import type { Prisma } from '@prisma/client'
 import { accountStatus } from './accountStatus'
+import { idUrl } from './siteUrls'
 
 /**
  * P4 - tsudev.com làm nhà cung cấp OpenID Connect cho các site `*.tsudev.com`
@@ -41,6 +42,7 @@ type OidcProvider = {
   ) => Promise<string>
   Grant: new (args: { accountId: string; clientId: string }) => GrantInstance
   Client: { find: (id: string) => Promise<{ clientName?: string; clientId: string } | undefined> }
+  Interaction: { find: (uid: string) => Promise<Interaction | undefined> }
   AccessToken: {
     find: (
       value: string
@@ -301,9 +303,13 @@ export async function initOidc(): Promise<void> {
       introspection: { enabled: false },
       rpInitiatedLogout: { enabled: true },
     },
-    // Đường tương đối: trình duyệt giải theo origin của issuer (tsudev.com) - trang Next
-    // `/oidc/interaction/[uid]` (KHÔNG bị rewrite về backend) đọc phiên NextAuth sẵn có.
-    interactions: { url: (_ctx: unknown, i: { uid: string }) => `/oidc/interaction/${i.uid}` },
+    // CP4: giao diện tương tác nằm ở cổng `id.tsudev.com` (ADR-0005 mục 2) - issuer vẫn là tsudev.com/oidc.
+    // Cổng đọc tóm tắt theo uid (`interactionSummary`), còn nút Cho phép/Từ chối POST về
+    // `tsudev.com/oidc/interaction/<uid>/confirm` để cookie `_interaction` (host tsudev.com) đi kèm - ràng buộc
+    // luồng vào ĐÚNG trình duyệt đã mở nó. Không suy được cổng ⇒ đường tương đối như trước.
+    interactions: {
+      url: (_ctx: unknown, i: { uid: string }) => `${idUrl()}/oidc/interaction/${i.uid}`,
+    },
     rotateRefreshToken: true,
     ttl: {
       AccessToken: 15 * 60,
@@ -373,6 +379,38 @@ export async function interactionDetails(req: Request, res: Response) {
     scopes: String(i.params.scope || '')
       .split(' ')
       .filter(Boolean),
+  }
+}
+
+const UID_RE = /^[A-Za-z0-9_-]{10,64}$/
+
+/**
+ * Tóm tắt interaction cho trang đồng ý ở cổng `id.` - tra THEO UID, không cần cookie `_interaction` (cookie đó
+ * thuộc host tsudev.com, trình duyệt không gửi sang `id.`). Chỉ trả thứ hiển thị: tên client, scope, gợi ý lối
+ * đăng nhập (trong `IDP_HINTS`). uid là chuỗi ngẫu nhiên khó đoán và biết nó KHÔNG đủ để hoàn tất: bước
+ * finish vẫn đòi cookie do provider ký ở trình duyệt đã mở luồng.
+ */
+export async function interactionSummary(uid: string): Promise<{
+  uid: string
+  prompt: string
+  clientName: string
+  scopes: string[]
+  hint: IdpHint | null
+} | null> {
+  if (!provider || !UID_RE.test(uid)) return null
+  const i = await provider.Interaction.find(uid)
+  if (!i) return null
+  const clientId = String(i.params.client_id || '')
+  const client = await provider.Client.find(clientId)
+  const hint = String(i.params.idp_hint || '')
+  return {
+    uid: i.uid,
+    prompt: i.prompt.name,
+    clientName: client?.clientName || clientId,
+    scopes: String(i.params.scope || '')
+      .split(' ')
+      .filter(Boolean),
+    hint: (IDP_HINTS as readonly string[]).includes(hint) ? (hint as IdpHint) : null,
   }
 }
 
