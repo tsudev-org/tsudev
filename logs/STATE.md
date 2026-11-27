@@ -1,5 +1,40 @@
 # STATE.md - Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
+> 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-CP3, 27/11/2026)** - làm theo thứ tự:
+>
+> 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
+> 2. **CP4** - cổng `id.tsudev.com` (phiếu [`20261126-CP1`](handover/20261126-CP1_tram-dieu-hanh-va-cong-xac-thuc-tap-trung.md)
+>    mục 1 hàng CP4), Plan Mode trước, đúng ADR-0005 + `.standards/docs/CONTROL_PLANE.md` + chuẩn "một cổng đăng nhập"
+>    (tsudev-standards **v9.0.0** `AUTH_AND_ACCOUNT.md`; `.standards` của repo còn v7.2.0 - đồng bộ lên v9 là bước đầu
+>    CP4, khi đó cần `.central-login-allow` cho chính cổng `id.`). Không đổi issuer OIDC (`https://tsudev.com/oidc`),
+>    rpID passkey, URL app đã ghim. App cài đặt nhận phiên qua trình duyệt (PKCE, loopback/deep link) - chủ dự án chốt 27/11.
+> 3. Kèm trong CP4 (nhỏ): gỡ đường cũ `/api/internal/versions` (CP3 giữ một nhịp, nay đã có `/api/pipeline/versions`);
+>    VS1 mục 4 - bộ đệm bền cho cặp `versions.json`/`.sig` ở Worker (Cache API hoặc R2) + giám sát mã khác 200.
+> 4. 👤 chủ dự án: dismiss 12 cảnh báo CodeQL "Missing rate limiting" của #424 + #141/#142/#143 + GitGuardian 41140300
+>    (false positive); xoá ba tài khoản ở phiếu ACC1 mục 2a qua `console.tsudev.com/accounts`; thêm email tác giả khác vào
+>    policy Access (nếu có); mở thử `console.` một lượt (duyệt, soạn bài, tải tệp); phiếu **XK1/XK2 (xoay khoá) còn MỞ**.
+> 5. Còn nợ: DPoP `cnf.jkt` cho INT1-c; đo lại `app_header_missing` sau 03/12 trước khi bật `X_TSU_APP_REQUIRED`;
+>    SEC3, LG4, CTX1, PRO3.
+>
+> Đã xong CP3 (27/11): PR #424, Render `live` `2ef7635`, `tsudev-console` + `tsudev` `deploy-2026.11.27.2`, R2 CORS chỉ
+> `console.`. Số đo + chi tiết: phiếu CP1 mục 3 (dòng 27/11 tsudev-CP3).
+>
+> Prompt phiên sau:
+>
+> ```text
+> Đọc AGENTS.md, rồi CHỈ khối 🔔 đầu tiên của logs/STATE.md và các phiếu nó trỏ tới (không đọc khối 🔔 cũ hơn).
+> Chạy akb start + akb search "CP4 id.tsudev.com oidc passkey" trước khi làm. Nhắc chủ dự án XK1/XK2 đầu phiên.
+> CP3 đã xong (27/11). Làm phase CP4 của phiếu logs/handover/20261126-CP1 mục 1 (cổng id.tsudev.com), đúng ADR-0005,
+> .standards/docs/CONTROL_PLANE.md và chuẩn một cổng đăng nhập tsudev-standards v9.0.0 (đồng bộ .standards lên v9
+> trước); lập phương án ở Plan Mode trước khi sửa mã. Không đổi issuer OIDC, rpID passkey hay URL app đã ghim; passkey
+> cũ phải đăng nhập được ở id. Kèm: gỡ /api/internal/versions, bộ đệm bền versions.json (VS1 mục 4). Quyền: tự chọn
+> phương án, tự commit/push/PR/gộp khi check bắt buộc xanh, tự deploy các Worker (XDG_CONFIG_HOME=~/.config/wrangler-tsudev,
+> qua scripts/deploy-frontend.js) và đo production. Bí mật mới sinh vào ~/.config/tsudev/keys/ (600), không in ra; biến
+> Render và dashboard Cloudflare là việc 👤. Chỉ dừng hỏi khi gặp việc 👤 hoặc cổng Bảo vệ bản quyền. Cuối phiên: cập
+> nhật phiếu CP1 (bảng phase + mục 3), khối 🔔 mới ở đầu STATE kèm prompt, CHANGELOG + thẻ deploy nếu deploy, nhả
+> LOCKS, akb close + akb sync. Xong một phase thì dừng.
+> ```
+
 > 🔔 **PHIÊN KẾ TIẾP BẮT ĐẦU Ở ĐÂY (sau tsudev-ACC1, 27/11/2026)** - làm theo thứ tự:
 >
 > 1. **Từ 28/11**: phiếu [`20261128-NH1`](handover/20261128-NH1_nhac-email-bct-ncsc-danh-gia-nhan.md) (đầu phiên).
